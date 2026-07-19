@@ -8,7 +8,6 @@ function escaparHTML(valor) {
     elemento.textContent = valor ?? "";
     return elemento.innerHTML;
 }
-window.escaparHTML = escaparHTML;
 
 function crearTarjetaTaller(taller) {
     const nombre = escaparHTML(taller.nombre || "Taller sin nombre");

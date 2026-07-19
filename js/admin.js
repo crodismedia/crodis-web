@@ -2,7 +2,12 @@
     "use strict";
     const lista = document.getElementById("lista-solicitudes");
     const mensaje = document.getElementById("mensaje-admin");
-    const escaparHtml = window.escaparHTML;
+
+    function escaparHtml(valor) {
+        const elemento = document.createElement("div");
+        elemento.textContent = valor ?? "";
+        return elemento.innerHTML;
+    }
 
     function mostrar(texto, tipo = "error") {
         mensaje.textContent = texto;
@@ -13,10 +18,7 @@
     function ocultarMensaje() { mensaje.hidden = true; }
 
     function formatoFecha(valor) {
-        if (!valor) return "Fecha no disponible";
-        const fecha = new Date(valor);
-        if (isNaN(fecha.getTime())) return "Fecha no válida";
-        return new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(fecha);
+        return new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(new Date(valor));
     }
 
     function tarjeta(solicitud) {
