@@ -26,20 +26,23 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         const datosSolicitud = {
-            nombre_taller: obtenerValor("nombre_taller"),
-            propietario: obtenerValor("propietario"),
-            cif: obtenerValor("cif").toUpperCase(),
-            email: emailCampo
-                ? emailCampo.value.trim().toLowerCase()
-                : "",
-            telefono: obtenerValor("telefono"),
-            direccion: obtenerValor("direccion"),
-            codigo_postal: obtenerValor("codigo_postal"),
-            ciudad: obtenerValor("ciudad"),
-            provincia: obtenerValor("provincia"),
-            descripcion: obtenerValor("descripcion"),
-            estado: "pendiente"
-        };
+    nombre_taller: obtenerValor("nombre_taller"),
+    propietario: obtenerValor("propietario"),
+    cif: obtenerValor("cif").toUpperCase(),
+    email: emailCampo
+        ? emailCampo.value.trim().toLowerCase()
+        : "",
+    telefono: obtenerValor("telefono"),
+    direccion: obtenerValor("direccion"),
+    codigo_postal: obtenerValor("codigo_postal"),
+    ciudad: obtenerValor("ciudad"),
+    provincia: obtenerValor("provincia"),
+    descripcion: obtenerValor("descripcion"),
+    estado: "pendiente",
+    acepta_responsabilidad: true,
+    acepta_terminos_at: new Date().toISOString(),
+    version_terminos: "1.0"
+};
 
         if (!validarDatosFormulario(datosSolicitud, aceptaCampo)) {
             return;
