@@ -1,6 +1,7 @@
 const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
 const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabaseClient = supabaseClient;
 
 function escaparHTML(valor) {
     const elemento = document.createElement("div");
