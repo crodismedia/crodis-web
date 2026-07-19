@@ -1,68 +1,260 @@
-const formulario = document.getElementById("formulario-registro");
-const mensaje = document.getElementById("mensaje-formulario");
-const botonEnviar = document.getElementById("boton-enviar");
+document.addEventListener("DOMContentLoaded", function () {
+    const formulario = document.getElementById("formulario-registro");
+    const botonEnviar = document.getElementById("boton-enviar");
+    const mensajeFormulario = document.getElementById("mensaje-formulario");
 
-function mostrarMensaje(texto, tipo) {
-    mensaje.textContent = texto;
-    mensaje.className = "mensaje-formulario";
-
-    if (tipo === "correcto") {
-        mensaje.classList.add("mensaje-correcto");
-    } else {
-        mensaje.classList.add("mensaje-error");
-    }
-}
-
-formulario.addEventListener("submit", async function (evento) {
-    evento.preventDefault();
-
-    if (!formulario.checkValidity()) {
-        formulario.reportValidity();
+    if (!formulario) {
+        console.error(
+            'No se encontró el formulario con id="formulario-registro".'
+        );
         return;
     }
 
-    botonEnviar.disabled = true;
-    botonEnviar.textContent = "Enviando...";
+    formulario.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    const datos = {
-        nombre_taller: document.getElementById("nombre_taller").value.trim(),
-        propietario: document.getElementById("propietario").value.trim(),
-        cif: document.getElementById("cif").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        direccion: document.getElementById("direccion").value.trim(),
-        codigo_postal: document.getElementById("codigo_postal").value.trim(),
-        ciudad: document.getElementById("ciudad").value.trim(),
-        provincia: document.getElementById("provincia").value.trim(),
-        descripcion: document.getElementById("descripcion").value.trim(),
-        estado: "pendiente"
-    };
+        // Recoger los datos del formulario
+        const nombreTaller = obtenerValor("nombre_taller");
+        const propietario = obtenerValor("propietario");
+        const cif = obtenerValor("cif");
 
-    try {
-        const { error } = await supabaseClient
-            .from("solicitudes_alta_taller")
-            .insert([datos]);
+        const emailCampo = document.getElementById("email");
+        const email = document.getElementById("email").value.trim().toLowerCase();
 
-        if (error) {
-            throw error;
+        const telefono = obtenerValor("telefono");
+        const direccion = obtenerValor("direccion");
+        const codigoPostal = obtenerValor("codigo_postal");
+        const ciudad = obtenerValor("ciudad");
+        const provincia = obtenerValor("provincia");
+        const descripcion = obtenerValor("descripcion");
+
+        // Limpiar mensajes anteriores
+        mostrarMensaje("", "");
+
+        // Comprobar los campos obligatorios
+        if (!nombreTaller) {
+            mostrarMensaje(
+                "Escribe el nombre del taller.",
+                "error"
+            );
+            enfocarCampo("nombre_taller");
+            return;
         }
 
-        mostrarMensaje(
-            "Solicitud enviada correctamente. Hemos recibido los datos del taller.",
-            "correcto"
+        if (!propietario) {
+            mostrarMensaje(
+                "Escribe el nombre del propietario o responsable.",
+                "error"
+            );
+            enfocarCampo("propietario");
+            return;
+        }
+
+        if (!email) {
+            mostrarMensaje(
+                "Escribe el correo electrónico.",
+                "error"
+            );
+
+            if (emailCampo) {
+                emailCampo.focus();
+            }
+
+            return;
+        }
+
+        if (!validarEmail(email)) {
+            mostrarMensaje(
+                "El correo electrónico no es válido. Ejemplo: nombre@correo.com",
+                "error"
+            );
+
+            if (emailCampo) {
+                emailCampo.focus();
+            }
+
+            return;
+        }
+
+        if (!telefono) {
+            mostrarMensaje(
+                "Escribe un número de teléfono.",
+                "error"
+            );
+            enfocarCampo("telefono");
+            return;
+        }
+
+        if (!direccion) {
+            mostrarMensaje(
+                "Escribe la dirección del taller.",
+                "error"
+            );
+            enfocarCampo("direccion");
+            return;
+        }
+
+        if (!codigoPostal) {
+            mostrarMensaje(
+                "Escribe el código postal.",
+                "error"
+            );
+            enfocarCampo("codigo_postal");
+            return;
+        }
+
+        if (!ciudad) {
+            mostrarMensaje(
+                "Escribe la ciudad.",
+                "error"
+            );
+            enfocarCampo("ciudad");
+            return;
+        }
+
+        // Comprobar que el cliente de Supabase existe
+        if (
+            typeof window.supabaseClient === "undefined" ||
+            typeof window.supabaseClient.from !== "function"
+        ) {
+            console.error("El cliente de Supabase no está disponible.");
+
+            mostrarMensaje(
+                "No se ha podido conectar con la base de datos. Revisa el archivo supabase.js.",
+                "error"
+            );
+
+            return;
+        }
+
+        const datosSolicitud = {
+            nombre_taller: nombreTaller,
+            propietario: propietario,
+            cif: cif || null,
+            email: email,
+            telefono: telefono,
+            direccion: direccion,
+            codigo_postal: codigoPostal,
+            ciudad: ciudad,
+            provincia: provincia || "Valencia",
+            descripcion: descripcion || null,
+            estado: "pendiente"
+        };
+
+        try {
+            cambiarEstadoBoton(true);
+
+            const { data, error } = await window.supabaseClient
+                .from("solicitudes_alta_taller")
+                .insert([datosSolicitud])
+                .select();
+
+            if (error) {
+                console.error("Error de Supabase:", error);
+
+                if (
+                    error.code === "23505" ||
+                    String(error.message).toLowerCase().includes("duplicate")
+                ) {
+                    mostrarMensaje(
+                        "Ya existe una solicitud registrada con ese correo electrónico.",
+                        "error"
+                    );
+                    return;
+                }
+
+                if (
+                    String(error.message).toLowerCase().includes("email")
+                ) {
+                    mostrarMensaje(
+                        "La base de datos ha rechazado el correo electrónico. Comprueba que sea correcto.",
+                        "error"
+                    );
+                    return;
+                }
+
+                mostrarMensaje(
+                    "No se pudo enviar el registro: " + error.message,
+                    "error"
+                );
+                return;
+            }
+
+            console.log("Solicitud registrada:", data);
+
+            mostrarMensaje(
+                "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
+                "exito"
+            );
+
+            formulario.reset();
+        } catch (error) {
+            console.error("Error inesperado:", error);
+
+            mostrarMensaje(
+                "Ha ocurrido un error inesperado al enviar el formulario.",
+                "error"
+            );
+        } finally {
+            cambiarEstadoBoton(false);
+        }
+    });
+
+    function obtenerValor(idCampo) {
+        const campo = document.getElementById(idCampo);
+
+        if (!campo) {
+            return "";
+        }
+
+        return campo.value.trim();
+    }
+
+    function validarEmail(email) {
+        const expresionEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        return expresionEmail.test(email);
+    }
+
+    function enfocarCampo(idCampo) {
+        const campo = document.getElementById(idCampo);
+
+        if (campo) {
+            campo.focus();
+        }
+    }
+
+    function mostrarMensaje(texto, tipo) {
+        if (!mensajeFormulario) {
+            if (texto) {
+                alert(texto);
+            }
+
+            return;
+        }
+
+        mensajeFormulario.textContent = texto;
+        mensajeFormulario.classList.remove(
+            "mensaje-error",
+            "mensaje-exito"
         );
 
-        formulario.reset();
+        if (tipo === "error") {
+            mensajeFormulario.classList.add("mensaje-error");
+        }
 
-    } catch (error) {
-        console.error(error);
+        if (tipo === "exito") {
+            mensajeFormulario.classList.add("mensaje-exito");
+        }
+    }
 
-        mostrarMensaje(
-            "No se pudo enviar la solicitud. Revisa los datos e inténtalo de nuevo.",
-            "error"
-        );
-    } finally {
-        botonEnviar.disabled = false;
-        botonEnviar.textContent = "Enviar solicitud";
+    function cambiarEstadoBoton(enviando) {
+        if (!botonEnviar) {
+            return;
+        }
+
+        botonEnviar.disabled = enviando;
+        botonEnviar.textContent = enviando
+            ? "Enviando..."
+            : "Enviar solicitud";
     }
 });
