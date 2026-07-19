@@ -10,136 +10,70 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    formulario.addEventListener("submit", async function (event) {
-        event.preventDefault();
-
-        // Recoger los datos del formulario
-        const nombreTaller = obtenerValor("nombre_taller");
-        const propietario = obtenerValor("propietario");
-        const cif = obtenerValor("cif");
-
-        const emailCampo = document.getElementById("email");
-        const email = document.getElementById("email").value.trim().toLowerCase();
-
-        const telefono = obtenerValor("telefono");
-        const direccion = obtenerValor("direccion");
-        const codigoPostal = obtenerValor("codigo_postal");
-        const ciudad = obtenerValor("ciudad");
-        const provincia = obtenerValor("provincia");
-        const descripcion = obtenerValor("descripcion");
-
-        // Limpiar mensajes anteriores
-        mostrarMensaje("", "");
-
-        // Comprobar los campos obligatorios
-        if (!nombreTaller) {
-            mostrarMensaje(
-                "Escribe el nombre del taller.",
-                "error"
-            );
+    function validarDatosFormulario(datos, emailCampo) {
+        if (!datos.nombre_taller) {
+            mostrarMensaje("Escribe el nombre del taller.", "error");
             enfocarCampo("nombre_taller");
-            return;
+            return false;
         }
 
-        if (!propietario) {
-            mostrarMensaje(
-                "Escribe el nombre del propietario o responsable.",
-                "error"
-            );
+        if (!datos.propietario) {
+            mostrarMensaje("Escribe el nombre del propietario o responsable.", "error");
             enfocarCampo("propietario");
-            return;
+            return false;
         }
 
-        if (!email) {
-            mostrarMensaje(
-                "Escribe el correo electrónico.",
-                "error"
-            );
-
-            if (emailCampo) {
-                emailCampo.focus();
-            }
-
-            return;
+        if (!datos.email) {
+            mostrarMensaje("Escribe el correo electrónico.", "error");
+            if (emailCampo) emailCampo.focus();
+            return false;
         }
 
-        if (!validarEmail(email)) {
-            mostrarMensaje(
-                "El correo electrónico no es válido. Ejemplo: nombre@correo.com",
-                "error"
-            );
-
-            if (emailCampo) {
-                emailCampo.focus();
-            }
-
-            return;
+        if (!validarEmail(datos.email)) {
+            mostrarMensaje("El correo electrónico no es válido. Ejemplo: nombre@correo.com", "error");
+            if (emailCampo) emailCampo.focus();
+            return false;
         }
 
-        if (!telefono) {
-            mostrarMensaje(
-                "Escribe un número de teléfono.",
-                "error"
-            );
+        if (!datos.telefono) {
+            mostrarMensaje("Escribe un número de teléfono.", "error");
             enfocarCampo("telefono");
-            return;
+            return false;
         }
 
-        if (!direccion) {
-            mostrarMensaje(
-                "Escribe la dirección del taller.",
-                "error"
-            );
+        if (!datos.direccion) {
+            mostrarMensaje("Escribe la dirección del taller.", "error");
             enfocarCampo("direccion");
-            return;
+            return false;
         }
 
-        if (!codigoPostal) {
-            mostrarMensaje(
-                "Escribe el código postal.",
-                "error"
-            );
+        if (!datos.codigo_postal) {
+            mostrarMensaje("Escribe el código postal.", "error");
             enfocarCampo("codigo_postal");
-            return;
+            return false;
         }
 
-        if (!ciudad) {
-            mostrarMensaje(
-                "Escribe la ciudad.",
-                "error"
-            );
+        if (!datos.ciudad) {
+            mostrarMensaje("Escribe la ciudad.", "error");
             enfocarCampo("ciudad");
-            return;
+            return false;
         }
 
-        // Comprobar que el cliente de Supabase existe
+        return true;
+    }
+
+    async function enviarSolicitud(datosSolicitud) {
         if (
             typeof window.supabaseClient === "undefined" ||
             typeof window.supabaseClient.from !== "function"
         ) {
             console.error("El cliente de Supabase no está disponible.");
-
             mostrarMensaje(
                 "No se ha podido conectar con la base de datos. Revisa el archivo supabase.js.",
                 "error"
             );
-
-            return;
+            return false;
         }
-
-        const datosSolicitud = {
-            nombre_taller: nombreTaller,
-            propietario: propietario,
-            cif: cif || null,
-            email: email,
-            telefono: telefono,
-            direccion: direccion,
-            codigo_postal: codigoPostal,
-            ciudad: ciudad,
-            provincia: provincia || "Valencia",
-            descripcion: descripcion || null,
-            estado: "pendiente"
-        };
 
         try {
             cambiarEstadoBoton(true);
@@ -160,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Ya existe una solicitud registrada con ese correo electrónico.",
                         "error"
                     );
-                    return;
+                    return false;
                 }
 
                 if (
@@ -170,33 +104,61 @@ document.addEventListener("DOMContentLoaded", function () {
                         "La base de datos ha rechazado el correo electrónico. Comprueba que sea correcto.",
                         "error"
                     );
-                    return;
+                    return false;
                 }
 
                 mostrarMensaje(
                     "No se pudo enviar el registro: " + error.message,
                     "error"
                 );
-                return;
+                return false;
             }
 
             console.log("Solicitud registrada:", data);
-
             mostrarMensaje(
                 "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
                 "exito"
             );
-
-            formulario.reset();
+            return true;
         } catch (error) {
             console.error("Error inesperado:", error);
-
             mostrarMensaje(
                 "Ha ocurrido un error inesperado al enviar el formulario.",
                 "error"
             );
+            return false;
         } finally {
             cambiarEstadoBoton(false);
+        }
+    }
+
+    formulario.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const emailCampo = document.getElementById("email");
+        const datosSolicitud = {
+            nombre_taller: obtenerValor("nombre_taller"),
+            propietario: obtenerValor("propietario"),
+            cif: obtenerValor("cif") || null,
+            email: emailCampo ? emailCampo.value.trim().toLowerCase() : "",
+            telefono: obtenerValor("telefono"),
+            direccion: obtenerValor("direccion"),
+            codigo_postal: obtenerValor("codigo_postal"),
+            ciudad: obtenerValor("ciudad"),
+            provincia: obtenerValor("provincia") || "Valencia",
+            descripcion: obtenerValor("descripcion") || null,
+            estado: "pendiente"
+        };
+
+        mostrarMensaje("", "");
+
+        if (!validarDatosFormulario(datosSolicitud, emailCampo)) {
+            return;
+        }
+
+        const exito = await enviarSolicitud(datosSolicitud);
+        if (exito) {
+            formulario.reset();
         }
     });
 

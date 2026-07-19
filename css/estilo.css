@@ -694,6 +694,46 @@ select {
     gap: 24px;
 }
 
+/* Solicitud de alta de taller */
+.pagina-registro { background: var(--fondo); }
+.registro-principal { min-height: calc(100vh - 132px); }
+.registro-hero { padding: 78px 0; background: radial-gradient(circle at 10% 10%, rgba(20, 87, 217, .13), transparent 32%), radial-gradient(circle at 90% 70%, rgba(255, 122, 26, .13), transparent 27%), linear-gradient(135deg, #f8fbff, #eef4fc); }
+.registro-contenido { display: grid; grid-template-columns: .8fr 1.2fr; align-items: start; gap: 70px; }
+.registro-introduccion { padding-top: 34px; }
+.registro-introduccion h1 { margin: 16px 0; color: var(--azul-oscuro); font-size: clamp(40px, 5vw, 62px); line-height: 1; letter-spacing: -3px; }
+.registro-introduccion h1 span { color: var(--azul); }
+.registro-introduccion > p { color: var(--texto-suave); font-size: 17px; line-height: 1.7; }
+.registro-lista { display: grid; gap: 12px; padding: 0; color: #40536f; line-height: 1.5; list-style: none; }
+.registro-lista li { display: flex; gap: 10px; }
+.registro-lista li::before { content: "✓"; color: var(--verde); font-weight: 900; }
+.formulario-registro { padding: 34px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 22px; box-shadow: var(--sombra); }
+.formulario-cabecera span { color: var(--azul-oscuro); font-size: 22px; font-weight: 900; }
+.formulario-cabecera p { margin: 7px 0 25px; color: var(--texto-suave); font-size: 13px; }
+.formulario-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.campo-formulario { display: flex; flex-direction: column; gap: 7px; }
+.campo-ancho { grid-column: 1 / -1; }
+.campo-formulario label { color: var(--azul-oscuro); font-size: 13px; font-weight: 800; }
+.campo-formulario input, .campo-formulario textarea { width: 100%; padding: 12px 13px; color: var(--texto); background: #fbfcfe; border: 1px solid var(--borde); border-radius: 10px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.campo-formulario textarea { resize: vertical; }
+.campo-formulario input:focus, .campo-formulario textarea:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(20, 87, 217, .12); }
+.mensaje-formulario { margin: 0 0 20px; padding: 13px 15px; font-size: 14px; line-height: 1.45; border-radius: 10px; }
+.mensaje-error { color: #9f1f1f; background: #fff0f0; border: 1px solid #f1b8b8; }
+.mensaje-exito { color: #08734a; background: #e8f8f1; border: 1px solid #a9e2c9; }
+.boton-enviar { width: 100%; margin-top: 25px; }
+.boton-enviar:disabled { cursor: wait; opacity: .7; transform: none; }
+.aceptacion-condiciones { display: grid; gap: 10px; margin-top: 24px; padding: 16px; background: #f8fbff; border: 1px solid var(--borde); border-radius: 11px; }
+.aceptacion-condiciones label { display: flex; align-items: flex-start; gap: 10px; color: #40536f; font-size: 13px; line-height: 1.55; cursor: pointer; }
+.aceptacion-condiciones input { flex: 0 0 auto; width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--azul); }
+.aceptacion-condiciones a, .condiciones-contenido a { color: var(--azul); font-weight: 800; text-decoration: underline; }
+.aceptacion-condiciones p { margin: 0; color: #68758a; font-size: 12px; line-height: 1.5; }
+.condiciones-principal { padding: 72px 0; }
+.condiciones-contenido { width: min(820px, calc(100% - 40px)); padding: 44px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 22px; box-shadow: var(--sombra); }
+.condiciones-contenido h1 { margin: 15px 0; color: var(--azul-oscuro); font-size: clamp(38px, 5vw, 56px); letter-spacing: -2.5px; }
+.condiciones-intro { margin: 0 0 32px; color: var(--texto-suave); font-size: 17px; line-height: 1.7; }
+.condiciones-contenido section { padding: 22px 0; border-top: 1px solid var(--borde); }
+.condiciones-contenido h2 { margin: 0 0 9px; color: var(--azul-oscuro); font-size: 20px; }
+.condiciones-contenido section p { margin: 0; color: #40536f; line-height: 1.7; }
+
 .mensaje-talleres {
     grid-column: 1 / -1;
     margin: 0;
@@ -1121,4 +1161,45 @@ select {
     .hero-descripcion {
         font-size: 16px;
     }
+}
+
+@media (max-width: 1050px) {
+    .registro-contenido { grid-template-columns: 1fr; gap: 25px; }
+    .registro-introduccion { padding-top: 0; }
+}
+
+@media (max-width: 750px) {
+    .registro-hero { padding: 50px 0; }
+    .formulario-registro { padding: 24px 18px; }
+    .formulario-grid { grid-template-columns: 1fr; }
+    .campo-ancho { grid-column: auto; }
+    .condiciones-principal { padding: 40px 0; }
+    .condiciones-contenido { width: min(100% - 28px, 820px); padding: 26px 20px; }
+}
+
+/* Administración */
+.admin-acceso { display: grid; min-height: calc(100vh - 82px); padding: 70px 20px; place-items: center; }
+.admin-login { width: min(100%, 480px); }
+.admin-principal { min-height: calc(100vh - 82px); padding: 65px 0; }
+.admin-cabecera { display: flex; align-items: end; justify-content: space-between; gap: 25px; margin-bottom: 32px; }
+.admin-cabecera h1 { margin: 12px 0 8px; color: var(--azul-oscuro); font-size: clamp(34px, 4vw, 48px); letter-spacing: -2px; }
+.admin-cabecera p { margin: 0; color: var(--texto-suave); }
+.lista-solicitudes { display: grid; gap: 22px; }
+.solicitud-card { padding: 27px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 18px; box-shadow: 0 9px 24px rgba(15, 31, 58, .05); }
+.solicitud-titulo { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--borde); }
+.solicitud-titulo span { color: var(--naranja); font-size: 12px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.solicitud-titulo h2 { margin: 6px 0 0; color: var(--azul-oscuro); font-size: 24px; }
+.solicitud-titulo time { color: var(--texto-suave); font-size: 13px; white-space: nowrap; }
+.solicitud-card dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 22px 0; }
+.solicitud-card dl div { min-width: 0; }
+.solicitud-card dt { margin-bottom: 5px; color: var(--texto-suave); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.solicitud-card dd { margin: 0; overflow-wrap: anywhere; color: var(--texto); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.solicitud-acciones { display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid var(--borde); }
+.boton-rechazar { background: linear-gradient(135deg, #d14949, #a92323); box-shadow: 0 12px 26px rgba(179, 42, 42, .2); }
+@media (max-width: 750px) {
+    .admin-principal { padding: 40px 0; }
+    .admin-cabecera { align-items: flex-start; flex-direction: column; }
+    .solicitud-card { padding: 20px; }
+    .solicitud-titulo { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .solicitud-card dl { grid-template-columns: 1fr; gap: 14px; }
 }
