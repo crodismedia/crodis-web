@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar taller | TallerMap</title>
+
+    <link rel="stylesheet" href="../css/estilo.css">
+
+    <style>
+        .registro-contenedor {
+            max-width: 850px;
+            margin: 50px auto;
+            padding: 24px;
+        }
+
+        .registro-caja {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+        }
+
+        .registro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .campo-formulario {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .campo-formulario-completo {
+            grid-column: 1 / -1;
+        }
+
+        .campo-formulario input,
+        .campo-formulario textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cfd7e3;
+            border-radius: 9px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+
+        .campo-formulario textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .aceptacion {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .aceptacion input {
+            margin-top: 4px;
+        }
+
+        .mensaje-formulario {
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .mensaje-correcto {
+            display: block;
+            background: #e7f8ed;
+            color: #176b36;
+        }
+
+        .mensaje-error {
+            display: block;
+            background: #fdeaea;
+            color: #9b1c1c;
+        }
+
+        @media (max-width: 700px) {
+            .registro-contenedor {
+                margin: 20px auto;
+                padding: 14px;
+            }
+
+            .registro-caja {
+                padding: 20px;
+            }
+
+            .registro-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .campo-formulario-completo {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="cabecera">
+    <div class="contenedor cabecera-contenido">
+        <a href="../index.html" class="marca">
+            <span class="marca-icono">TM</span>
+
+            <span class="marca-texto">
+                <strong>TallerMap</strong>
+                <small>Registrar un taller</small>
+            </span>
+        </a>
+    </div>
+</header>
+
+<main class="registro-contenedor">
+
+    <div class="registro-caja">
+
+        <h1>Registrar un taller nuevo</h1>
+
+        <p>
+            Completa los datos del negocio. La solicitud se guardará en TallerMap.
+        </p>
+
+        <form id="formulario-registro">
+
+            <div class="registro-grid">
+
+                <div class="campo-formulario">
+                    <label for="nombre_taller">Nombre del taller</label>
+                    <input id="nombre_taller" name="nombre_taller" type="text" required minlength="2" maxlength="120">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="propietario">Propietario o responsable</label>
+                    <input id="propietario" name="propietario" type="text" required minlength="2" maxlength="120">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="cif">CIF o NIF</label>
+                    <input id="cif" name="cif" type="text" required minlength="7" maxlength="20">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="email">Correo electrónico</label>
+                    <input id="email" name="email" type="email" required maxlength="255">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="telefono">Teléfono</label>
+                    <input id="telefono" name="telefono" type="tel" required minlength="9" maxlength="30">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="codigo_postal">Código postal</label>
+                    <input id="codigo_postal" name="codigo_postal" type="text" required pattern="[0-9]{5}" maxlength="5">
+                </div>
+
+                <div class="campo-formulario campo-formulario-completo">
+                    <label for="direccion">Dirección</label>
+                    <input id="direccion" name="direccion" type="text" required minlength="5" maxlength="255">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="ciudad">Ciudad</label>
+                    <input id="ciudad" name="ciudad" type="text" required minlength="2" maxlength="100">
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="provincia">Provincia</label>
+                    <input id="provincia" name="provincia" type="text" required minlength="2" maxlength="100">
+                </div>
+
+                <div class="campo-formulario campo-formulario-completo">
+                    <label for="descripcion">Descripción del taller</label>
+                    <textarea id="descripcion" name="descripcion" required minlength="10" maxlength="1500"></textarea>
+                </div>
+
+            </div>
+
+            <label class="aceptacion">
+                <input id="acepta_responsabilidad" type="checkbox" required>
+
+                <span>
+                    Declaro que los datos facilitados son veraces y que soy responsable de su contenido.
+                    Acepto las condiciones de publicación de TallerMap.
+                </span>
+            </label>
+
+            <p>
+                La publicación no implica que TallerMap haya verificado o recomendado el establecimiento.
+            </p>
+
+            <button class="boton" type="submit" id="boton-enviar">
+                Enviar solicitud
+            </button>
+
+            <a href="../index.html" class="boton boton-claro">
+                Volver al inicio
+            </a>
+
+            <div id="mensaje-formulario" class="mensaje-formulario"></div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/registro.js"></script>
+
+</body>
+</html>
