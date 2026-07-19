@@ -1,73 +1,338 @@
-# Avisos por correo de nuevas solicitudes
+document.addEventListener("DOMContentLoaded", function () {
+    const formulario = document.getElementById("formulario-registro");
+    const botonEnviar = document.getElementById("boton-enviar");
+    const mensajeFormulario = document.getElementById("mensaje-formulario");
 
-La Edge Function `aviso-nueva-solicitud` recibe exclusivamente eventos `INSERT` de `public.solicitudes_alta_taller` y manda el aviso a `crodismedia@outlook.es`. La función no publica talleres ni cambia las políticas RLS.
+    if (!formulario) {
+        console.error(
+            'No se encontró el formulario con id="formulario-registro".'
+        );
+        return;
+    }
 
-## 1. Crear y configurar Resend
+    formulario.addEventListener("submit", async function (evento) {
+        evento.preventDefault();
 
-1. Crea una cuenta en [Resend](https://resend.com/).
-2. En **Domains**, añade y verifica un dominio propio mediante los registros DNS que indique Resend. Una vez verificado, puedes utilizar un remitente de ese dominio.
-3. Crea una API key de tipo **Sending access**. Copia el valor solo para el siguiente paso; no lo guardes en el repositorio.
+        mostrarMensaje("", "");
 
-## 2. Enlazar el proyecto y guardar secretos
+        if (!formulario.checkValidity()) {
+            formulario.reportValidity();
+            return;
+        }
 
-En el panel de Supabase abre **Project Settings > Edge Functions > Secrets** y crea estas tres variables:
+        const emailCampo = document.getElementById("email");
+        const aceptaCampo = document.getElementById(
+            "acepta_responsabilidad"
+        );
 
-| Variable | Valor |
-| --- | --- |
-| `RESEND_API_KEY` | La API key de Resend con permiso de envío. |
-| `RESEND_FROM_EMAIL` | Remitente verificado, por ejemplo `TallerMap <avisos@tu-dominio.es>`. |
-| `AVISO_WEBHOOK_SECRET` | Una cadena aleatoria larga y única. Guárdala para el paso del webhook. |
+        const datosSolicitud = {
+            nombre_taller: obtenerValor("nombre_taller"),
+            propietario: obtenerValor("propietario"),
+            cif: obtenerValor("cif").toUpperCase(),
+            email: emailCampo
+                ? emailCampo.value.trim().toLowerCase()
+                : "",
+            telefono: obtenerValor("telefono"),
+            direccion: obtenerValor("direccion"),
+            codigo_postal: obtenerValor("codigo_postal"),
+            ciudad: obtenerValor("ciudad"),
+            provincia: obtenerValor("provincia"),
+            descripcion: obtenerValor("descripcion"),
+            estado: "pendiente",
 
-Desde la raíz del proyecto, con la CLI de Supabase instalada y tras iniciar sesión con `supabase login`, ejecuta estos comandos. Sustituye únicamente los marcadores por tus valores reales en tu terminal; no los pegues en archivos ni los subas a Git.
+            acepta_responsabilidad: aceptaCampo
+                ? aceptaCampo.checked
+                : false,
 
-```powershell
-supabase link --project-ref TU_PROJECT_REF
-supabase secrets set RESEND_API_KEY="PEGA_AQUI_LA_API_KEY_DE_RESEND"
-supabase secrets set RESEND_FROM_EMAIL="TallerMap <avisos@tu-dominio-verificado.es>"
-supabase secrets set AVISO_WEBHOOK_SECRET="GENERA_Y_PEGA_UN_SECRETO_LARGO_Y_ALEATORIO"
-```
+            acepta_terminos_at: new Date().toISOString(),
+            version_terminos: "1.0"
+        };
 
-No uses ni introduzcas claves de Supabase en estas variables. `AVISO_WEBHOOK_SECRET` debe ser una cadena aleatoria y única; conserva su valor de forma segura porque se necesitará como cabecera en el webhook.
+        if (!validarDatosFormulario(datosSolicitud, aceptaCampo)) {
+            return;
+        }
 
-## 3. Desplegar la Edge Function
+        const enviado = await enviarSolicitud(datosSolicitud);
 
-El archivo `supabase/config.toml` contiene esta configuración y solo afecta a esta función:
+        if (enviado) {
+            formulario.reset();
+        }
+    });
 
-```toml
-[functions.aviso-nueva-solicitud]
-verify_jwt = false
-```
+    function validarDatosFormulario(datos, aceptaCampo) {
+        if (datos.nombre_taller.length < 2) {
+            mostrarMensaje(
+                "Escribe el nombre del taller.",
+                "error"
+            );
+            enfocarCampo("nombre_taller");
+            return false;
+        }
 
-Despliega desde la raíz del proyecto:
+        if (datos.propietario.length < 2) {
+            mostrarMensaje(
+                "Escribe el nombre del propietario o responsable.",
+                "error"
+            );
+            enfocarCampo("propietario");
+            return false;
+        }
 
-```powershell
-supabase functions deploy aviso-nueva-solicitud
-```
+        if (datos.cif.length < 7) {
+            mostrarMensaje(
+                "Escribe un CIF o NIF válido.",
+                "error"
+            );
+            enfocarCampo("cif");
+            return false;
+        }
 
-La desactivación de JWT es necesaria porque un Database Webhook no presenta un JWT de usuario. La función comprueba su propio secreto en la cabecera `x-aviso-webhook-secret` antes de procesar nada.
+        if (!validarEmail(datos.email)) {
+            mostrarMensaje(
+                "El correo electrónico no es válido. Ejemplo: nombre@correo.com",
+                "error"
+            );
+            enfocarCampo("email");
+            return false;
+        }
 
-## 4. Crear el Database Webhook
+        if (datos.telefono.length < 9) {
+            mostrarMensaje(
+                "Escribe un número de teléfono válido.",
+                "error"
+            );
+            enfocarCampo("telefono");
+            return false;
+        }
 
-En Supabase ve a **Database > Webhooks > Create a new webhook** y usa exactamente estos valores:
+        if (datos.direccion.length < 5) {
+            mostrarMensaje(
+                "Escribe la dirección completa del taller.",
+                "error"
+            );
+            enfocarCampo("direccion");
+            return false;
+        }
 
-| Campo | Valor |
-| --- | --- |
-| Name | `aviso_nueva_solicitud` |
-| Table | `public.solicitudes_alta_taller` |
-| Events | Solo `INSERT` |
-| Type | `HTTP Request` |
-| Method | `POST` |
-| URL | `https://TU_PROJECT_REF.supabase.co/functions/v1/aviso-nueva-solicitud` |
-| Headers | `Content-Type: application/json` y `x-aviso-webhook-secret: EL_MISMO_VALOR_DE_AVISO_WEBHOOK_SECRET` |
-| Timeout | `5000` ms |
+        if (!/^[0-9]{5}$/.test(datos.codigo_postal)) {
+            mostrarMensaje(
+                "El código postal debe tener exactamente 5 números.",
+                "error"
+            );
+            enfocarCampo("codigo_postal");
+            return false;
+        }
 
-Guarda el webhook. No copies el valor del secreto en archivos, SQL, capturas ni conversaciones. El encabezado compartido permite que la función rechace llamadas directas que no procedan de tu webhook configurado.
+        if (datos.ciudad.length < 2) {
+            mostrarMensaje(
+                "Escribe la ciudad.",
+                "error"
+            );
+            enfocarCampo("ciudad");
+            return false;
+        }
 
-## 5. Probar el envío
+        if (datos.provincia.length < 2) {
+            mostrarMensaje(
+                "Escribe la provincia.",
+                "error"
+            );
+            enfocarCampo("provincia");
+            return false;
+        }
 
-1. Abre `pages/registro.html`, completa el formulario y envíalo.
-2. Confirma que la fila se crea en `public.solicitudes_alta_taller`.
-3. Comprueba que llega el mensaje a `crodismedia@outlook.es`.
-4. Si no llega, consulta **Edge Functions > aviso-nueva-solicitud > Logs** y la entrega del webhook en **Database > Webhooks**. La función no escribe el contenido de la solicitud ni secretos en los logs.
+        if (datos.descripcion.length < 10) {
+            mostrarMensaje(
+                "La descripción debe tener al menos 10 caracteres.",
+                "error"
+            );
+            enfocarCampo("descripcion");
+            return false;
+        }
 
-El webhook es asíncrono: un problema de correo no impide que se guarde la solicitud. Resend recibe una clave de idempotencia por solicitud para evitar correos duplicados ante reintentos cercanos.
+        if (!aceptaCampo || !aceptaCampo.checked) {
+            mostrarMensaje(
+                "Debes aceptar las condiciones de publicación.",
+                "error"
+            );
+
+            if (aceptaCampo) {
+                aceptaCampo.focus();
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    async function enviarSolicitud(datosSolicitud) {
+        if (
+            typeof window.supabaseClient === "undefined" ||
+            typeof window.supabaseClient.from !== "function"
+        ) {
+            console.error("El cliente de Supabase no está disponible.");
+
+            mostrarMensaje(
+                "No se ha podido conectar con la base de datos. Revisa el archivo supabase.js.",
+                "error"
+            );
+
+            return false;
+        }
+
+        try {
+            cambiarEstadoBoton(true);
+
+            const { error } = await window.supabaseClient
+                .from("solicitudes_alta_taller")
+                .insert([datosSolicitud]);
+
+            if (error) {
+                console.error("Error de Supabase:", error);
+
+                const mensajeError = String(
+                    error.message || ""
+                ).toLowerCase();
+
+                if (
+                    error.code === "42501" ||
+                    mensajeError.includes("permission denied")
+                ) {
+                    mostrarMensaje(
+                        "Supabase no permite guardar la solicitud. Revisa los permisos INSERT y la política RLS.",
+                        "error"
+                    );
+                    return false;
+                }
+
+                if (
+                    mensajeError.includes("row-level security") ||
+                    mensajeError.includes("violates row-level security")
+                ) {
+                    mostrarMensaje(
+                        "La solicitud no cumple la política de seguridad de Supabase.",
+                        "error"
+                    );
+                    return false;
+                }
+
+                if (
+                    error.code === "23505" ||
+                    mensajeError.includes("duplicate")
+                ) {
+                    mostrarMensaje(
+                        "Ya existe una solicitud con esos datos.",
+                        "error"
+                    );
+                    return false;
+                }
+
+                if (
+                    error.code === "23514" ||
+                    mensajeError.includes("check constraint")
+                ) {
+                    mostrarMensaje(
+                        "Uno de los campos no cumple los requisitos de la base de datos.",
+                        "error"
+                    );
+                    return false;
+                }
+
+                mostrarMensaje(
+                    "No se pudo enviar el registro: " +
+                    error.message,
+                    "error"
+                );
+
+                return false;
+            }
+
+            console.log("Solicitud registrada correctamente.");
+
+            mostrarMensaje(
+                "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
+                "exito"
+            );
+
+            return true;
+        } catch (error) {
+            console.error("Error inesperado:", error);
+
+            mostrarMensaje(
+                "Ha ocurrido un error inesperado al enviar el formulario.",
+                "error"
+            );
+
+            return false;
+        } finally {
+            cambiarEstadoBoton(false);
+        }
+    }
+
+    function obtenerValor(idCampo) {
+        const campo = document.getElementById(idCampo);
+
+        if (!campo) {
+            return "";
+        }
+
+        return campo.value.trim();
+    }
+
+    function validarEmail(email) {
+        const expresionEmail =
+            /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+        return expresionEmail.test(email);
+    }
+
+    function enfocarCampo(idCampo) {
+        const campo = document.getElementById(idCampo);
+
+        if (campo) {
+            campo.focus();
+        }
+    }
+
+    function mostrarMensaje(texto, tipo) {
+        if (!mensajeFormulario) {
+            if (texto) {
+                alert(texto);
+            }
+
+            return;
+        }
+
+        mensajeFormulario.textContent = texto;
+
+        mensajeFormulario.classList.remove(
+            "mensaje-error",
+            "mensaje-exito"
+        );
+
+        if (tipo === "error") {
+            mensajeFormulario.classList.add(
+                "mensaje-error"
+            );
+        }
+
+        if (tipo === "exito") {
+            mensajeFormulario.classList.add(
+                "mensaje-exito"
+            );
+        }
+    }
+
+    function cambiarEstadoBoton(enviando) {
+        if (!botonEnviar) {
+            return;
+        }
+
+        botonEnviar.disabled = enviando;
+
+        botonEnviar.textContent = enviando
+            ? "Enviando..."
+            : "Enviar solicitud";
+    }
+});
