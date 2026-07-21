@@ -15,6 +15,7 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 - `supabase/solicitudes_alta_taller.sql`: tablas, funciones, permisos y políticas RLS.
 - `supabase/estadisticas_publicas.sql`: contadores públicos calculados con datos reales.
 - `supabase/formulario_web_provincias.sql`: web opcional y comprobación provincia/código postal.
+- `supabase/alta_automatica_comunitat_valenciana.sql`: activa la publicación automática para los códigos postales 03, 12 y 46.
 
 ## Configuración de Supabase
 
@@ -25,7 +26,9 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 
 Si la base de datos ya estaba configurada antes de añadir los contadores reales, ejecuta también `supabase/estadisticas_publicas.sql` una sola vez.
 
-Las solicitudes públicas se guardan con estado `pendiente`. Solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas. Una solicitud pendiente nunca se muestra en el listado público.
+Para activar la publicación automática en una base de datos ya configurada, ejecuta una sola vez `supabase/alta_automatica_comunitat_valenciana.sql`.
+
+Las solicitudes con código postal de Alicante (03), Castellón (12) o Valencia (46) se publican automáticamente como fichas activas no verificadas. Las solicitudes del resto de España se guardan como `pendiente`; solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas.
 
 El acceso administrativo admite contraseña o un enlace seguro enviado por correo. Para usar el enlace, configura en Supabase **Authentication > URL Configuration** el sitio `https://tallermap.es` y permite la redirección `https://tallermap.es/**`.
 

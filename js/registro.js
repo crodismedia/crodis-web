@@ -260,10 +260,12 @@
             }
 
             formulario.reset();
-            mostrarMensaje(
-                "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
-                "exito"
-            );
+            const publicacionAutomatica = window.TallerMapProvincias
+                ?.esComunitatValenciana(datos.codigo_postal);
+            mostrarMensaje(publicacionAutomatica
+                ? "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada."
+                : "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
+            "exito");
         } catch (error) {
             console.error("Error inesperado al registrar la solicitud:", error);
             mostrarMensaje("No se pudo conectar con la base de datos. Revisa tu conexión e inténtalo de nuevo.", "error");

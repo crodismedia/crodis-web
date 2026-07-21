@@ -37,6 +37,12 @@
         return Boolean(provincia && provincia.nombre === nombreProvincia);
     }
 
+    function esComunitatValenciana(codigoPostal) {
+        const codigo = String(codigoPostal || "").trim();
+        return /^[0-9]{5}$/.test(codigo)
+            && ["03", "12", "46"].includes(codigo.slice(0, 2));
+    }
+
     function rellenarSelect(select) {
         if (!select) return;
         select.replaceChildren();
@@ -70,6 +76,7 @@
         provincias,
         provinciaPorCodigoPostal,
         coincide,
+        esComunitatValenciana,
         rellenarSelect,
         seleccionarSegunCodigo
     };
@@ -80,4 +87,3 @@
         inicializar();
     }
 }());
-
