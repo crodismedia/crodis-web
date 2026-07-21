@@ -76,6 +76,17 @@
             ]
         },
         {
+            nombre: "Personalización y multimedia",
+            servicios: [
+                ["equipos-sonido", "Equipos de sonido y audio para automóvil"],
+                ["multimedia-navegacion", "Pantallas, multimedia y navegación"],
+                ["vinilos-rotulacion", "Vinilos y rotulación"],
+                ["wrapping", "Wrapping integral y cambio de color"],
+                ["tuning-personalizacion", "Tuning y personalización"],
+                ["iluminacion-automovil", "Iluminación y sistemas LED"]
+            ]
+        },
+        {
             nombre: "Otros servicios",
             servicios: [
                 ["grua-asistencia", "Grúa y asistencia en carretera"],
@@ -150,4 +161,3 @@
         inicializar();
     }
 }());
-
