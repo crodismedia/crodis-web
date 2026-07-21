@@ -1197,6 +1197,13 @@ select {
 /* Administración */
 .admin-acceso { display: grid; min-height: calc(100vh - 82px); padding: 70px 20px; place-items: center; }
 .admin-login { width: min(100%, 480px); }
+.separador-login { display: flex; align-items: center; gap: 12px; margin: 20px 0 12px; color: var(--texto-suave); font-size: 12px; text-align: center; }
+.separador-login::before, .separador-login::after { content: ""; flex: 1; height: 1px; background: var(--borde); }
+.separador-login span { flex: 0 0 auto; }
+.boton-secundario { color: var(--azul); background: #eef4ff; border: 1px solid #bed0f3; box-shadow: none; }
+.boton-secundario:hover { background: #dfeaff; box-shadow: none; }
+.boton-magic-link { width: 100%; }
+.boton-magic-link:disabled { cursor: wait; opacity: .7; transform: none; }
 .admin-principal { min-height: calc(100vh - 82px); padding: 65px 0; }
 .admin-cabecera { display: flex; align-items: end; justify-content: space-between; gap: 25px; margin-bottom: 32px; }
 .admin-cabecera h1 { margin: 12px 0 8px; color: var(--azul-oscuro); font-size: clamp(34px, 4vw, 48px); letter-spacing: -2px; }

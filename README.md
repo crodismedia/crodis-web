@@ -21,6 +21,8 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 
 Las solicitudes públicas se guardan con estado `pendiente`. Solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas. Una solicitud pendiente nunca se muestra en el listado público.
 
+El acceso administrativo admite contraseña o un enlace seguro enviado por correo. Para usar el enlace, configura en Supabase **Authentication > URL Configuration** el sitio `https://tallermap.es` y permite la redirección `https://tallermap.es/**`.
+
 ## Despliegue
 
 Vercel debe publicar la raíz del repositorio desde la rama `main`. No se necesita un comando de compilación porque la web utiliza HTML, CSS y JavaScript estáticos.

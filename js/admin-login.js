@@ -3,6 +3,8 @@
     const formulario = document.getElementById("formulario-admin-login");
     const mensaje = document.getElementById("mensaje-login");
     const boton = document.getElementById("boton-login");
+    const botonMagicLink = document.getElementById("boton-magic-link");
+    const campoEmail = document.getElementById("email-admin");
 
     function mostrar(texto, tipo) {
         mensaje.textContent = texto;
@@ -46,6 +48,34 @@
             return;
         }
         window.location.replace("admin.html");
+    });
+
+    botonMagicLink?.addEventListener("click", async () => {
+        const email = campoEmail.value.trim().toLowerCase();
+        if (!email || !campoEmail.checkValidity()) {
+            mostrar("Escribe primero un correo electrónico válido.", "error");
+            campoEmail.focus();
+            return;
+        }
+
+        botonMagicLink.disabled = true;
+        botonMagicLink.textContent = "Enviando enlace...";
+        const destino = new URL("admin.html", window.location.href).href;
+        const { error } = await window.supabaseClient.auth.signInWithOtp({
+            email,
+            options: {
+                emailRedirectTo: destino,
+                shouldCreateUser: false
+            }
+        });
+        botonMagicLink.disabled = false;
+        botonMagicLink.textContent = "Enviarme un enlace de acceso";
+
+        if (error) {
+            mostrar("No se ha podido enviar el enlace. Inténtalo de nuevo dentro de un minuto.", "error");
+            return;
+        }
+        mostrar("Te hemos enviado un enlace de acceso. Revisa también la carpeta de correo no deseado.", "exito");
     });
 
     comprobarSesion();

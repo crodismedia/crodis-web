@@ -3,6 +3,11 @@
 
 begin;
 
+-- Permite volver a ejecutar el archivo aunque existan versiones antiguas
+-- con un tipo de retorno diferente.
+drop function if exists public.aprobar_solicitud(bigint);
+drop function if exists public.rechazar_solicitud(bigint);
+
 create table if not exists public.solicitudes_alta_taller (
     id bigint generated always as identity primary key,
     nombre_taller text not null check (char_length(trim(nombre_taller)) between 2 and 120),
