@@ -80,6 +80,24 @@
         contenedor.innerHTML = `<p class="mensaje-talleres">${escaparHTML(mensaje)}</p>`;
     }
 
+    function escribirEstadistica(id, valor) {
+        const elemento = document.getElementById(id);
+        const numero = Number(valor);
+        if (!elemento || !Number.isFinite(numero) || numero < 0) return;
+        elemento.textContent = new Intl.NumberFormat("es-ES").format(numero);
+    }
+
+    async function cargarEstadisticas() {
+        const { data, error } = await supabaseClient.rpc("estadisticas_publicas");
+        if (error) {
+            console.error("No se pudieron cargar las estadísticas públicas:", error);
+            return;
+        }
+        escribirEstadistica("estadistica-talleres", data?.talleres_activos);
+        escribirEstadistica("estadistica-provincias", data?.provincias_disponibles);
+        escribirEstadistica("estadistica-servicios", data?.servicios_disponibles);
+    }
+
     function terminoSeguro(valor) {
         return String(valor || "")
             .replace(/[,%().]/g, " ")
@@ -215,6 +233,7 @@
             });
         });
 
+        cargarEstadisticas();
         cargarTalleres();
     }
 

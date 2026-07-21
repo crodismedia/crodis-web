@@ -11,6 +11,7 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 - `css/estilo.css`: estilos compartidos y adaptación móvil.
 - `js/`: conexión con Supabase y lógica de la web.
 - `supabase/solicitudes_alta_taller.sql`: tablas, funciones, permisos y políticas RLS.
+- `supabase/estadisticas_publicas.sql`: contadores públicos calculados con datos reales.
 
 ## Configuración de Supabase
 
@@ -18,6 +19,8 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 2. Copia y ejecuta completo `supabase/solicitudes_alta_taller.sql`.
 3. Crea el usuario administrador en **Authentication > Users**.
 4. Añade su UUID a `public.administradores` con la instrucción indicada al final del archivo SQL.
+
+Si la base de datos ya estaba configurada antes de añadir los contadores reales, ejecuta también `supabase/estadisticas_publicas.sql` una sola vez.
 
 Las solicitudes públicas se guardan con estado `pendiente`. Solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas. Una solicitud pendiente nunca se muestra en el listado público.
 
