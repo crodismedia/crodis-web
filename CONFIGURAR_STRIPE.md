@@ -6,7 +6,7 @@ El código está preparado para una suscripción opcional de **1,21 € al mes, 
 
 1. Crea la cuenta en <https://dashboard.stripe.com/register>.
 2. Mantén activado el modo de prueba o Sandbox hasta terminar todas las comprobaciones.
-3. Completa los datos públicos del negocio, incluida la dirección de las condiciones del servicio: `https://tallermap.es/pages/condiciones-destacado.html`.
+3. Completa los datos públicos del negocio, incluida la dirección de las condiciones del servicio: `https://www.tallermap.es/pages/condiciones-destacado.html`.
 
 ## 2. Crear producto, precio e IVA
 
@@ -23,7 +23,7 @@ El precio no se escribe desde el navegador: las Edge Functions utilizan esos ide
    - `STRIPE_SECRET_KEY`: clave privada de prueba `sk_test_...`.
    - `STRIPE_PRICE_ID`: identificador `price_...` de 1,21 EUR/mes.
    - `STRIPE_TAX_RATE_ID`: identificador `txr_...` del IVA inclusivo del 21 %.
-   - `SITE_URL`: `https://tallermap.es`.
+   - `SITE_URL`: `https://www.tallermap.es`.
 3. En **Supabase > Edge Functions**, crea `crear-pago-destacado`, pega el contenido de `supabase/functions/crear-pago-destacado/index.ts` y desactiva **Verify JWT**.
 4. Crea `stripe-webhook`, pega el contenido de `supabase/functions/stripe-webhook/index.ts` y desactiva también **Verify JWT**. El Checkout se protege con el token secreto del alta y el webhook con la firma de Stripe.
 

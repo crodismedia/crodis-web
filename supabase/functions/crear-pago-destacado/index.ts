@@ -2,7 +2,7 @@ import Stripe from "npm:stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://tallermap.es",
+  "Access-Control-Allow-Origin": "https://www.tallermap.es",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -19,7 +19,7 @@ const stripePriceId = Deno.env.get("STRIPE_PRICE_ID") ?? "";
 const stripeTaxRateId = Deno.env.get("STRIPE_TAX_RATE_ID") ?? "";
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const siteUrl = (Deno.env.get("SITE_URL") ?? "https://tallermap.es").replace(/\/$/, "");
+const siteUrl = (Deno.env.get("SITE_URL") ?? "https://www.tallermap.es").replace(/\/$/, "");
 
 const stripe = stripeSecret ? new Stripe(stripeSecret) : null;
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
