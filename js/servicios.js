@@ -102,6 +102,32 @@
         grupos.flatMap((grupo) => grupo.servicios)
     );
 
+    const iconos = {
+        "Mecánica y mantenimiento": "⚙",
+        "Neumáticos, dirección y suspensión": "◉",
+        "Electricidad y diagnosis": "⚡",
+        "Carrocería y cristales": "✦",
+        "Climatización": "❄",
+        "Híbridos y eléctricos": "▣",
+        "Vehículos especiales": "▤",
+        "Personalización y multimedia": "♫",
+        "Otros servicios": "+"
+    };
+
+    function serviciosAlfabeticos() {
+        return grupos
+            .flatMap((grupo) => grupo.servicios.map(([valor, etiqueta]) => ({
+                valor,
+                etiqueta,
+                grupo: grupo.nombre
+            })))
+            .sort((a, b) => a.etiqueta.localeCompare(
+                b.etiqueta,
+                "es",
+                { sensitivity: "base" }
+            ));
+    }
+
     function rellenarSelect(select) {
         if (!select) return;
         select.replaceChildren();
@@ -148,12 +174,49 @@
         });
     }
 
+    function rellenarTarjetas(contenedor) {
+        if (!contenedor) return;
+        contenedor.replaceChildren();
+
+        serviciosAlfabeticos().forEach(({ valor, etiqueta, grupo }) => {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "servicio-card";
+
+            const icono = document.createElement("div");
+            icono.className = "servicio-icono";
+            icono.setAttribute("aria-hidden", "true");
+            icono.textContent = iconos[grupo] || "+";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent = etiqueta;
+
+            const categoria = document.createElement("p");
+            categoria.textContent = grupo;
+
+            const enlace = document.createElement("a");
+            enlace.href = "#talleres";
+            enlace.dataset.servicio = valor;
+            enlace.textContent = "Buscar talleres →";
+
+            tarjeta.append(icono, titulo, categoria, enlace);
+            contenedor.appendChild(tarjeta);
+        });
+    }
+
     function inicializar() {
         rellenarSelect(document.getElementById("servicio"));
         rellenarCheckboxes(document.getElementById("lista-servicios-registro"));
+        rellenarTarjetas(document.getElementById("lista-servicios-publicos"));
     }
 
-    window.TallerMapServicios = { grupos, etiquetas, rellenarSelect, rellenarCheckboxes };
+    window.TallerMapServicios = {
+        grupos,
+        etiquetas,
+        serviciosAlfabeticos,
+        rellenarSelect,
+        rellenarCheckboxes,
+        rellenarTarjetas
+    };
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", inicializar);
