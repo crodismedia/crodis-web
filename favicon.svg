@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="titulo descripcion">
+  <title id="titulo">CrodisMedia</title>
+  <desc id="descripcion">Identidad CM de CrodisMedia: letra M dentro de una letra C, ambas verdes sobre fondo negro.</desc>
+  <rect x="16" y="16" width="480" height="480" rx="104" fill="#000000"/>
+  <path
+    d="M 379 143 C 346 104 299 82 245 82 C 149 82 80 156 80 256 C 80 356 149 430 245 430 C 299 430 346 408 379 369"
+    fill="none"
+    stroke="#39ff14"
+    stroke-width="62"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M 177 327 L 177 190 L 244 270 L 311 190 L 311 327"
+    fill="none"
+    stroke="#39ff14"
+    stroke-width="34"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
