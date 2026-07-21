@@ -1,330 +1,207 @@
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
+    "use strict";
+
     const formulario = document.getElementById("formulario-registro");
     const botonEnviar = document.getElementById("boton-enviar");
     const mensajeFormulario = document.getElementById("mensaje-formulario");
 
-    if (!formulario) {
-        console.error(
-            'No se encontró el formulario con id="formulario-registro".'
-        );
+    if (!formulario || !botonEnviar || !mensajeFormulario) {
+        console.error("El formulario de registro no está completo en la página.");
         return;
     }
 
-    formulario.addEventListener("submit", async function (evento) {
-        evento.preventDefault();
+    function valor(idCampo) {
+        return document.getElementById(idCampo)?.value.trim() || "";
+    }
 
-        mostrarMensaje("", "");
+    function serviciosSeleccionados() {
+        return Array.from(
+            formulario.querySelectorAll('input[name="servicios"]:checked'),
+            (campo) => campo.value
+        );
+    }
+
+    function mostrarMensaje(texto, tipo) {
+        mensajeFormulario.textContent = texto;
+        mensajeFormulario.className = `mensaje-formulario mensaje-${tipo}`;
+        mensajeFormulario.hidden = false;
+        mensajeFormulario.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function ocultarMensaje() {
+        mensajeFormulario.textContent = "";
+        mensajeFormulario.className = "mensaje-formulario";
+        mensajeFormulario.hidden = true;
+    }
+
+    function enfocar(idCampo) {
+        document.getElementById(idCampo)?.focus();
+    }
+
+    function cambiarEstadoBoton(enviando) {
+        botonEnviar.disabled = enviando;
+        botonEnviar.textContent = enviando ? "Enviando..." : "Enviar solicitud";
+    }
+
+    function validar(datos) {
+        if (datos.nombre_taller.length < 2) {
+            mostrarMensaje("Escribe el nombre del taller.", "error");
+            enfocar("nombre_taller");
+            return false;
+        }
+        if (datos.propietario.length < 2) {
+            mostrarMensaje("Escribe el nombre del propietario o responsable.", "error");
+            enfocar("propietario");
+            return false;
+        }
+        if (datos.cif.length < 7) {
+            mostrarMensaje("Escribe un CIF o NIF válido.", "error");
+            enfocar("cif");
+            return false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(datos.email)) {
+            mostrarMensaje("Escribe un correo válido, por ejemplo nombre@correo.com.", "error");
+            enfocar("email");
+            return false;
+        }
+        if (datos.telefono.replace(/\D/g, "").length < 9) {
+            mostrarMensaje("Escribe un teléfono válido de al menos 9 cifras.", "error");
+            enfocar("telefono");
+            return false;
+        }
+        if (datos.direccion.length < 5) {
+            mostrarMensaje("Escribe la dirección completa del taller.", "error");
+            enfocar("direccion");
+            return false;
+        }
+        if (!/^[0-9]{5}$/.test(datos.codigo_postal)) {
+            mostrarMensaje("El código postal debe contener exactamente 5 números.", "error");
+            enfocar("codigo_postal");
+            return false;
+        }
+        if (datos.ciudad.length < 2 || datos.provincia.length < 2) {
+            mostrarMensaje("Completa correctamente la ciudad y la provincia.", "error");
+            enfocar(datos.ciudad.length < 2 ? "ciudad" : "provincia");
+            return false;
+        }
+        if (datos.descripcion.length < 10) {
+            mostrarMensaje("La descripción debe contener al menos 10 caracteres.", "error");
+            enfocar("descripcion");
+            return false;
+        }
+        if (!datos.acepta_responsabilidad) {
+            mostrarMensaje("Debes aceptar las condiciones de publicación.", "error");
+            enfocar("acepta_responsabilidad");
+            return false;
+        }
+        return true;
+    }
+
+    function mensajeErrorSupabase(error) {
+        const detalle = String(error?.message || "").toLowerCase();
+
+        if (error?.code === "42501" || detalle.includes("permission denied")) {
+            return "La base de datos no permite guardar la solicitud. Hay que aplicar la configuración RLS de TallerMap en Supabase.";
+        }
+        if (detalle.includes("row-level security")) {
+            return "La solicitud ha sido bloqueada por la política de seguridad de Supabase.";
+        }
+        if (error?.code === "23505" || detalle.includes("duplicate")) {
+            return "Ya existe una solicitud con esos datos.";
+        }
+        if (error?.code === "23514" || detalle.includes("check constraint")) {
+            return "Uno de los datos no cumple los requisitos. Revisa el CIF, teléfono y código postal.";
+        }
+        return "No se pudo enviar la solicitud. Inténtalo de nuevo dentro de unos minutos.";
+    }
+
+    function columnaOpcionalAusente(error) {
+        const detalle = String(error?.message || "").toLowerCase();
+        const opcionales = [
+            "servicios",
+            "acepta_responsabilidad",
+            "acepta_terminos_at",
+            "version_terminos"
+        ];
+        return opcionales.find((columna) => detalle.includes(columna)) || null;
+    }
+
+    async function insertarSolicitud(datos) {
+        const datosCompatibles = { ...datos };
+        let resultado;
+
+        // Compatibilidad temporal: elimina únicamente una columna opcional que
+        // aún no exista, manteniendo la aceptación de condiciones si ya está creada.
+        for (let intento = 0; intento < 5; intento += 1) {
+            resultado = await window.supabaseClient
+                .from("solicitudes_alta_taller")
+                .insert([datosCompatibles]);
+
+            if (!resultado.error) return resultado;
+
+            const columnaAusente = columnaOpcionalAusente(resultado.error);
+            if (!columnaAusente || !(columnaAusente in datosCompatibles)) {
+                return resultado;
+            }
+            delete datosCompatibles[columnaAusente];
+        }
+
+        return resultado;
+    }
+
+    formulario.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+        ocultarMensaje();
 
         if (!formulario.checkValidity()) {
             formulario.reportValidity();
             return;
         }
 
-        const emailCampo = document.getElementById("email");
-        const aceptaCampo = document.getElementById(
-            "acepta_responsabilidad"
-        );
+        const datos = {
+            nombre_taller: valor("nombre_taller"),
+            propietario: valor("propietario"),
+            cif: valor("cif").toUpperCase(),
+            email: valor("email").toLowerCase(),
+            telefono: valor("telefono"),
+            direccion: valor("direccion"),
+            codigo_postal: valor("codigo_postal"),
+            ciudad: valor("ciudad"),
+            provincia: valor("provincia"),
+            servicios: serviciosSeleccionados(),
+            descripcion: valor("descripcion"),
+            estado: "pendiente",
+            acepta_responsabilidad: document.getElementById("acepta_responsabilidad").checked,
+            acepta_terminos_at: new Date().toISOString(),
+            version_terminos: "1.0"
+        };
 
-        const datosSolicitud = {
-    nombre_taller: obtenerValor("nombre_taller"),
-    propietario: obtenerValor("propietario"),
-    cif: obtenerValor("cif").toUpperCase(),
-    email: emailCampo
-        ? emailCampo.value.trim().toLowerCase()
-        : "",
-    telefono: obtenerValor("telefono"),
-    direccion: obtenerValor("direccion"),
-    codigo_postal: obtenerValor("codigo_postal"),
-    ciudad: obtenerValor("ciudad"),
-    provincia: obtenerValor("provincia"),
-    descripcion: obtenerValor("descripcion"),
-    estado: "pendiente",
-    acepta_responsabilidad: true,
-    acepta_terminos_at: new Date().toISOString(),
-    version_terminos: "1.0"
-};
+        if (!validar(datos)) return;
 
-        if (!validarDatosFormulario(datosSolicitud, aceptaCampo)) {
+        if (!window.supabaseClient?.from) {
+            mostrarMensaje("No se ha podido conectar con la base de datos.", "error");
             return;
         }
 
-        const enviado = await enviarSolicitud(datosSolicitud);
-
-        if (enviado) {
-            formulario.reset();
-        }
-    });
-
-    function validarDatosFormulario(datos, aceptaCampo) {
-        if (datos.nombre_taller.length < 2) {
-            mostrarMensaje(
-                "Escribe el nombre del taller.",
-                "error"
-            );
-            enfocarCampo("nombre_taller");
-            return false;
-        }
-
-        if (datos.propietario.length < 2) {
-            mostrarMensaje(
-                "Escribe el nombre del propietario o responsable.",
-                "error"
-            );
-            enfocarCampo("propietario");
-            return false;
-        }
-
-        if (datos.cif.length < 7) {
-            mostrarMensaje(
-                "Escribe un CIF o NIF válido.",
-                "error"
-            );
-            enfocarCampo("cif");
-            return false;
-        }
-
-        if (!validarEmail(datos.email)) {
-            mostrarMensaje(
-                "El correo electrónico no es válido. Ejemplo: nombre@correo.com",
-                "error"
-            );
-            enfocarCampo("email");
-            return false;
-        }
-
-        if (datos.telefono.length < 9) {
-            mostrarMensaje(
-                "Escribe un número de teléfono válido.",
-                "error"
-            );
-            enfocarCampo("telefono");
-            return false;
-        }
-
-        if (datos.direccion.length < 5) {
-            mostrarMensaje(
-                "Escribe la dirección completa del taller.",
-                "error"
-            );
-            enfocarCampo("direccion");
-            return false;
-        }
-
-        if (!/^[0-9]{5}$/.test(datos.codigo_postal)) {
-            mostrarMensaje(
-                "El código postal debe contener exactamente 5 números.",
-                "error"
-            );
-            enfocarCampo("codigo_postal");
-            return false;
-        }
-
-        if (datos.ciudad.length < 2) {
-            mostrarMensaje(
-                "Escribe la ciudad.",
-                "error"
-            );
-            enfocarCampo("ciudad");
-            return false;
-        }
-
-        if (datos.provincia.length < 2) {
-            mostrarMensaje(
-                "Escribe la provincia.",
-                "error"
-            );
-            enfocarCampo("provincia");
-            return false;
-        }
-
-        if (datos.descripcion.length < 10) {
-            mostrarMensaje(
-                "La descripción debe tener al menos 10 caracteres.",
-                "error"
-            );
-            enfocarCampo("descripcion");
-            return false;
-        }
-
-        if (aceptaCampo && !aceptaCampo.checked) {
-            mostrarMensaje(
-                "Debes aceptar las condiciones de publicación.",
-                "error"
-            );
-            aceptaCampo.focus();
-            return false;
-        }
-
-        return true;
-    }
-
-    async function enviarSolicitud(datosSolicitud) {
-        if (
-            typeof window.supabaseClient === "undefined" ||
-            typeof window.supabaseClient.from !== "function"
-        ) {
-            console.error("El cliente de Supabase no está disponible.");
-
-            mostrarMensaje(
-                "No se ha podido conectar con la base de datos.",
-                "error"
-            );
-
-            return false;
-        }
-
+        cambiarEstadoBoton(true);
         try {
-            cambiarEstadoBoton(true);
-
-            const { error } = await window.supabaseClient
-                .from("solicitudes_alta_taller")
-                .insert([datosSolicitud]);
-
+            const { error } = await insertarSolicitud(datos);
             if (error) {
-                console.error("Error de Supabase:", error);
-
-                const mensajeError = String(
-                    error.message || ""
-                ).toLowerCase();
-
-                if (
-                    error.code === "42501" ||
-                    mensajeError.includes("permission denied")
-                ) {
-                    mostrarMensaje(
-                        "Supabase no permite guardar la solicitud. Revisa los permisos INSERT y la política RLS.",
-                        "error"
-                    );
-                    return false;
-                }
-
-                if (
-                    mensajeError.includes("row-level security") ||
-                    mensajeError.includes("violates row-level security")
-                ) {
-                    mostrarMensaje(
-                        "La solicitud no cumple la política de seguridad de Supabase.",
-                        "error"
-                    );
-                    return false;
-                }
-
-                if (
-                    error.code === "23505" ||
-                    mensajeError.includes("duplicate")
-                ) {
-                    mostrarMensaje(
-                        "Ya existe una solicitud con esos datos.",
-                        "error"
-                    );
-                    return false;
-                }
-
-                if (
-                    error.code === "23514" ||
-                    mensajeError.includes("check constraint")
-                ) {
-                    mostrarMensaje(
-                        "Uno de los campos no cumple los requisitos de la base de datos.",
-                        "error"
-                    );
-                    return false;
-                }
-
-                mostrarMensaje(
-                    "No se pudo enviar el registro: " +
-                    error.message,
-                    "error"
-                );
-
-                return false;
+                console.error("Error al registrar la solicitud:", error);
+                mostrarMensaje(mensajeErrorSupabase(error), "error");
+                return;
             }
 
-            console.log("Solicitud registrada correctamente.");
-
+            formulario.reset();
             mostrarMensaje(
                 "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
                 "exito"
             );
-
-            return true;
         } catch (error) {
-            console.error("Error inesperado:", error);
-
-            mostrarMensaje(
-                "Ha ocurrido un error inesperado al enviar el formulario.",
-                "error"
-            );
-
-            return false;
+            console.error("Error inesperado al registrar la solicitud:", error);
+            mostrarMensaje("No se pudo conectar con la base de datos. Revisa tu conexión e inténtalo de nuevo.", "error");
         } finally {
             cambiarEstadoBoton(false);
         }
-    }
-
-    function obtenerValor(idCampo) {
-        const campo = document.getElementById(idCampo);
-
-        if (!campo) {
-            return "";
-        }
-
-        return campo.value.trim();
-    }
-
-    function validarEmail(email) {
-        const expresionEmail =
-            /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-        return expresionEmail.test(email);
-    }
-
-    function enfocarCampo(idCampo) {
-        const campo = document.getElementById(idCampo);
-
-        if (campo) {
-            campo.focus();
-        }
-    }
-
-    function mostrarMensaje(texto, tipo) {
-        if (!mensajeFormulario) {
-            if (texto) {
-                alert(texto);
-            }
-
-            return;
-        }
-
-        mensajeFormulario.textContent = texto;
-
-        mensajeFormulario.classList.remove(
-            "mensaje-error",
-            "mensaje-exito"
-        );
-
-        if (tipo === "error") {
-            mensajeFormulario.classList.add(
-                "mensaje-error"
-            );
-        }
-
-        if (tipo === "exito") {
-            mensajeFormulario.classList.add(
-                "mensaje-exito"
-            );
-        }
-    }
-
-    function cambiarEstadoBoton(enviando) {
-        if (!botonEnviar) {
-            return;
-        }
-
-        botonEnviar.disabled = enviando;
-
-        botonEnviar.textContent = enviando
-            ? "Enviando..."
-            : "Enviar solicitud";
-    }
-});
+    });
+}());

@@ -1,141 +1,135 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Registrar taller | TallerMap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      margin-top: 0;
-      font-size: 26px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-      color: #444;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 90px;
-    }
-
-    .checkbox {
-      margin-top: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 12px;
-      background: #0077ff;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #005fcc;
-    }
-
-    .success {
-      margin-top: 20px;
-      padding: 12px;
-      background: #d4f7d4;
-      border: 1px solid #8cd98c;
-      color: #2d7a2d;
-      border-radius: 6px;
-      display: none;
-    }
-
-    .error {
-      border-color: red !important;
-    }
-
-    .error-msg {
-      color: red;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Solicita el alta de tu taller en TallerMap.">
+    <title>Registrar taller | TallerMap</title>
+    <link rel="stylesheet" href="../css/estilo.css">
 </head>
-<body>
+<body class="pagina-registro">
+    <header class="cabecera">
+        <div class="contenedor cabecera-contenido">
+            <a href="../index.html" class="marca" aria-label="Volver al inicio de TallerMap">
+                <span class="marca-icono">TM</span>
+                <span class="marca-texto">
+                    <strong>TallerMap</strong>
+                    <small>Talleres cerca de ti</small>
+                </span>
+            </a>
+            <a href="../index.html" class="boton-enlace">Volver al inicio</a>
+        </div>
+    </header>
 
-<div class="container">
-  <h1>Registrar taller</h1>
-  <p>Completa los datos del taller. La solicitud será revisada antes de publicarse en TallerMap.</p>
+    <main class="registro-principal">
+        <section class="registro-hero">
+            <div class="contenedor registro-contenido">
+                <div class="registro-introduccion">
+                    <span class="etiqueta">Alta gratuita</span>
+                    <h1>Publica tu taller en <span>TallerMap</span></h1>
+                    <p>Completa el formulario con los datos reales del negocio. La solicitud quedará pendiente hasta que la administración la revise.</p>
+                    <ul class="registro-lista">
+                        <li>Tu solicitud no se publica automáticamente.</li>
+                        <li>Comprobaremos los datos antes de activar la ficha.</li>
+                        <li>Podrás solicitar correcciones cuando lo necesites.</li>
+                    </ul>
+                </div>
 
-  <form id="formTaller" novalidate>
+                <form id="formulario-registro" class="formulario-registro" novalidate>
+                    <div class="formulario-cabecera">
+                        <span>Datos del taller</span>
+                        <p>Los campos marcados con * son obligatorios.</p>
+                    </div>
 
-    <label>Nombre del taller</label>
-    <input type="text" id="nombre" required />
-    <div class="error-msg" data-error="nombre"></div>
+                    <div id="mensaje-formulario" class="mensaje-formulario" role="status" aria-live="polite" hidden></div>
 
-    <label>Propietario o responsable</label>
-    <input type="text" id="responsable" required />
-    <div class="error-msg" data-error="responsable"></div>
+                    <div class="formulario-grid">
+                        <div class="campo-formulario campo-ancho">
+                            <label for="nombre_taller">Nombre del taller *</label>
+                            <input id="nombre_taller" name="nombre_taller" type="text" minlength="2" maxlength="120" autocomplete="organization" required>
+                        </div>
 
-    <label>CIF o NIF</label>
-    <input type="text" id="cif" required />
-    <div class="error-msg" data-error="cif"></div>
+                        <div class="campo-formulario">
+                            <label for="propietario">Propietario o responsable *</label>
+                            <input id="propietario" name="propietario" type="text" minlength="2" maxlength="120" autocomplete="name" required>
+                        </div>
 
-    <label>Correo electrónico</label>
-    <input type="email" id="email" required />
-    <div class="error-msg" data-error="email"></div>
+                        <div class="campo-formulario">
+                            <label for="cif">CIF o NIF *</label>
+                            <input id="cif" name="cif" type="text" minlength="7" maxlength="20" autocomplete="off" required>
+                        </div>
 
-    <label>Teléfono</label>
-    <input type="tel" id="telefono" required />
-    <div class="error-msg" data-error="telefono"></div>
+                        <div class="campo-formulario">
+                            <label for="email">Correo electrónico *</label>
+                            <input id="email" name="email" type="email" maxlength="255" autocomplete="email" inputmode="email" placeholder="ejemplo@correo.com" required>
+                        </div>
 
-    <label>Dirección</label>
-    <input type="text" id="direccion" required />
-    <div class="error-msg" data-error="direccion"></div>
+                        <div class="campo-formulario">
+                            <label for="telefono">Teléfono *</label>
+                            <input id="telefono" name="telefono" type="tel" minlength="9" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="960 000 000" required>
+                        </div>
 
-    <label>Código postal</label>
-    <input type="text" id="cp" required />
-    <div class="error-msg" data-error="cp"></div>
+                        <div class="campo-formulario campo-ancho">
+                            <label for="direccion">Dirección *</label>
+                            <input id="direccion" name="direccion" type="text" minlength="5" maxlength="255" autocomplete="street-address" required>
+                        </div>
 
-    <label>Ciudad</label>
-    <input type="text" id="ciudad" required />
-    <div class="error-msg" data-error="ciudad"></div>
+                        <div class="campo-formulario">
+                            <label for="codigo_postal">Código postal *</label>
+                            <input id="codigo_postal" name="codigo_postal" type="text" pattern="[0-9]{5}" minlength="5" maxlength="5" inputmode="numeric" autocomplete="postal-code" placeholder="46460" required>
+                        </div>
 
-    <label>Provincia</label>
-    <input type="text" id="provincia" required />
-    <div class="error-msg" data-error="provincia"></div>
+                        <div class="campo-formulario">
+                            <label for="ciudad">Ciudad *</label>
+                            <input id="ciudad" name="ciudad" type="text" minlength="2" maxlength="100" autocomplete="address-level2" required>
+                        </div>
 
-    <label>Descripción del taller</label>
-    <textarea id="descripcion" required>
+                        <div class="campo-formulario campo-ancho">
+                            <label for="provincia">Provincia *</label>
+                            <input id="provincia" name="provincia" type="text" minlength="2" maxlength="100" autocomplete="address-level1" value="Valencia" required>
+                        </div>
+
+                        <fieldset class="campo-formulario campo-ancho servicios-formulario">
+                            <legend>Servicios principales</legend>
+                            <div class="servicios-opciones">
+                                <label><input type="checkbox" name="servicios" value="mecanica-general"> Mecánica general</label>
+                                <label><input type="checkbox" name="servicios" value="chapa-pintura"> Chapa y pintura</label>
+                                <label><input type="checkbox" name="servicios" value="neumaticos"> Neumáticos</label>
+                                <label><input type="checkbox" name="servicios" value="diagnosis-electronica"> Diagnosis electrónica</label>
+                                <label><input type="checkbox" name="servicios" value="aire-acondicionado"> Aire acondicionado</label>
+                                <label><input type="checkbox" name="servicios" value="hibridos-electricos"> Híbridos y eléctricos</label>
+                            </div>
+                        </fieldset>
+
+                        <div class="campo-formulario campo-ancho">
+                            <label for="descripcion">Descripción del taller *</label>
+                            <textarea id="descripcion" name="descripcion" rows="6" minlength="10" maxlength="1500" placeholder="Describe el taller, su experiencia y los servicios que ofrece." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="aceptacion-condiciones">
+                        <label for="acepta_responsabilidad">
+                            <input id="acepta_responsabilidad" name="acepta_responsabilidad" type="checkbox" required>
+                            <span>Confirmo que los datos son veraces y acepto las <a href="condiciones-publicacion.html" target="_blank" rel="noopener">condiciones de publicación</a>.</span>
+                        </label>
+                        <p>La solicitud se guardará como pendiente y no aparecerá en el directorio hasta su aprobación.</p>
+                    </div>
+
+                    <button id="boton-enviar" class="boton boton-enviar" type="submit">Enviar solicitud</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie">
+        <div class="contenedor copyright">
+            <span>© 2026 TallerMap. Todos los derechos reservados.</span>
+            <span>Una plataforma de CRODIS Media</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/registro.js"></script>
+</body>
+</html>
