@@ -4,7 +4,12 @@
 begin;
 
 alter table public.solicitudes_alta_taller add column if not exists web text;
+alter table public.solicitudes_alta_taller add column if not exists fotos text[] not null default '{}';
+alter table public.solicitudes_alta_taller add column if not exists acepta_condiciones_fotos boolean not null default false;
+alter table public.solicitudes_alta_taller add column if not exists acepta_condiciones_fotos_at timestamptz;
+alter table public.solicitudes_alta_taller add column if not exists version_condiciones_fotos text;
 alter table public.talleres add column if not exists web text;
+alter table public.talleres add column if not exists fotos text[] not null default '{}';
 
 create or replace function public.provincia_de_codigo_postal(p_codigo_postal text)
 returns text
@@ -129,13 +134,13 @@ begin
         insert into public.talleres (
             solicitud_id, nombre, propietario, cif, email, telefono, web,
             direccion, codigo_postal, ciudad, provincia, pais,
-            descripcion, servicios, verificado, activo
+            descripcion, servicios, fotos, verificado, activo
         ) values (
             v_solicitud.id, v_solicitud.nombre_taller, v_solicitud.propietario,
             v_solicitud.cif, v_solicitud.email, v_solicitud.telefono, v_solicitud.web,
             v_solicitud.direccion, v_solicitud.codigo_postal, v_solicitud.ciudad,
             v_solicitud.provincia, 'España', v_solicitud.descripcion,
-            v_solicitud.servicios, true, true
+            v_solicitud.servicios, v_solicitud.fotos, true, true
         )
         returning id into v_taller_id;
     else
@@ -152,6 +157,7 @@ begin
             provincia = v_solicitud.provincia,
             descripcion = v_solicitud.descripcion,
             servicios = v_solicitud.servicios,
+            fotos = v_solicitud.fotos,
             verificado = true,
             activo = true,
             updated_at = now()

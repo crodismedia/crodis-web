@@ -121,6 +121,17 @@
                             <label for="descripcion">Descripción del taller *</label>
                             <textarea id="descripcion" name="descripcion" rows="6" minlength="10" maxlength="1500" placeholder="Describe el taller, su experiencia y los servicios que ofrece." required></textarea>
                         </div>
+
+                        <div class="campo-formulario campo-ancho campo-fotos">
+                            <label for="fotos">Fotografías del taller <span class="campo-opcional">(opcional)</span></label>
+                            <input id="fotos" name="fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                            <small class="campo-ayuda">Puedes añadir hasta 5 imágenes JPG, PNG o WebP. Máximo 5 MB por fotografía.</small>
+                            <label class="aceptacion-fotos" for="acepta_condiciones_fotos">
+                                <input id="acepta_condiciones_fotos" name="acepta_condiciones_fotos" type="checkbox" disabled>
+                                <span>Confirmo que puedo publicar estas imágenes y acepto las <a href="condiciones-fotografias.html" target="_blank" rel="noopener">condiciones adicionales para fotografías</a>.</span>
+                            </label>
+                            <div id="vista-previa-fotos" class="vista-previa-fotos" aria-live="polite"></div>
+                        </div>
                     </div>
 
                     <div class="aceptacion-condiciones">

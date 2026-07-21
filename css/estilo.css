@@ -821,6 +821,17 @@ select {
 .campo-formulario input:focus, .campo-formulario textarea:focus, .campo-formulario select:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(20, 87, 217, .12); }
 .campo-opcional { color: var(--texto-suave); font-weight: 600; }
 .campo-ayuda { color: var(--texto-suave); font-size: 11px; line-height: 1.45; }
+.campo-fotos input[type="file"] { padding: 10px; cursor: pointer; }
+.campo-fotos input[type="file"]::file-selector-button { margin-right: 12px; padding: 9px 12px; color: #0d57b7; font-weight: 800; background: #edf5ff; border: 1px solid #c8dcfa; border-radius: 8px; cursor: pointer; }
+.campo-fotos .aceptacion-fotos { display: flex; align-items: flex-start; gap: 9px; padding: 11px; color: #40536f; font-size: 12px; font-weight: 600; line-height: 1.45; background: #f8fbff; border: 1px solid var(--borde); border-radius: 9px; }
+.campo-fotos .aceptacion-fotos input { flex: 0 0 auto; width: 17px; margin: 1px 0 0; padding: 0; accent-color: var(--azul); }
+.campo-fotos .aceptacion-fotos a { color: var(--azul); font-weight: 800; text-decoration: underline; }
+.campo-fotos .aceptacion-fotos:has(input:disabled) { opacity: .6; }
+.vista-previa-fotos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+.vista-previa-fotos:empty { display: none; }
+.foto-previa { min-width: 0; margin: 0; }
+.foto-previa img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border: 1px solid var(--borde); border-radius: 9px; }
+.foto-previa figcaption { overflow: hidden; margin-top: 4px; color: var(--texto-suave); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .servicios-formulario { min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--borde); border-radius: 11px; }
 .servicios-formulario legend { padding: 0 6px; color: var(--azul-oscuro); font-size: 13px; font-weight: 800; }
 .servicios-opciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 18px; }
@@ -831,6 +842,7 @@ select {
 .mensaje-formulario { margin: 0 0 20px; padding: 13px 15px; font-size: 14px; line-height: 1.45; border-radius: 10px; }
 .mensaje-error { color: #9f1f1f; background: #fff0f0; border: 1px solid #f1b8b8; }
 .mensaje-exito { color: #08734a; background: #e8f8f1; border: 1px solid #a9e2c9; }
+.mensaje-aviso { color: #7a4b00; background: #fff7df; border: 1px solid #f1d48a; }
 .boton-enviar { width: 100%; margin-top: 25px; }
 .boton-enviar:disabled { cursor: wait; opacity: .7; transform: none; }
 .aceptacion-condiciones { display: grid; gap: 10px; margin-top: 24px; padding: 16px; background: #f8fbff; border: 1px solid var(--borde); border-radius: 11px; }
@@ -887,6 +899,25 @@ select {
     height: 210px;
     background-color: #cfd8e3;
     background-size: cover;
+}
+
+.taller-imagen > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.numero-fotos {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    padding: 6px 9px;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(7, 26, 51, 0.78);
+    border-radius: 100px;
 }
 
 .taller-imagen-1 {
@@ -1226,6 +1257,10 @@ select {
         flex-wrap: wrap;
     }
 
+    .vista-previa-fotos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .boton-buscar {
         width: 100%;
     }
@@ -1360,6 +1395,9 @@ select {
 .solicitud-card dl div { min-width: 0; }
 .solicitud-card dt { margin-bottom: 5px; color: var(--texto-suave); font-size: 11px; font-weight: 800; text-transform: uppercase; }
 .solicitud-card dd { margin: 0; overflow-wrap: anywhere; color: var(--texto); font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.solicitud-fotos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
+.solicitud-fotos img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 1px solid var(--borde); border-radius: 10px; }
+.solicitud-sin-fotos { margin: 0 0 22px; color: var(--texto-suave); font-size: 13px; }
 .solicitud-acciones { display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid var(--borde); }
 .boton-rechazar { background: linear-gradient(135deg, #d14949, #a92323); box-shadow: 0 12px 26px rgba(179, 42, 42, .2); }
 @media (max-width: 750px) {
@@ -1368,4 +1406,5 @@ select {
     .solicitud-card { padding: 20px; }
     .solicitud-titulo { align-items: flex-start; flex-direction: column; gap: 6px; }
     .solicitud-card dl { grid-template-columns: 1fr; gap: 14px; }
+    .solicitud-fotos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

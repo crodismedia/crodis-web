@@ -21,11 +21,15 @@ create table if not exists public.solicitudes_alta_taller (
     ciudad text not null check (char_length(trim(ciudad)) between 2 and 100),
     provincia text not null check (char_length(trim(provincia)) between 2 and 100),
     servicios text[] not null default '{}',
+    fotos text[] not null default '{}',
     descripcion text not null check (char_length(trim(descripcion)) between 10 and 1500),
     estado text not null default 'pendiente' check (estado in ('pendiente', 'aprobada', 'rechazada')),
     acepta_responsabilidad boolean not null default false,
     acepta_terminos_at timestamptz,
     version_terminos text,
+    acepta_condiciones_fotos boolean not null default false,
+    acepta_condiciones_fotos_at timestamptz,
+    version_condiciones_fotos text,
     revisada_at timestamptz,
     revisada_por uuid,
     created_at timestamptz not null default now()
@@ -33,10 +37,14 @@ create table if not exists public.solicitudes_alta_taller (
 
 -- Completa instalaciones anteriores sin borrar solicitudes existentes.
 alter table public.solicitudes_alta_taller add column if not exists servicios text[] not null default '{}';
+alter table public.solicitudes_alta_taller add column if not exists fotos text[] not null default '{}';
 alter table public.solicitudes_alta_taller add column if not exists web text;
 alter table public.solicitudes_alta_taller add column if not exists acepta_responsabilidad boolean not null default false;
 alter table public.solicitudes_alta_taller add column if not exists acepta_terminos_at timestamptz;
 alter table public.solicitudes_alta_taller add column if not exists version_terminos text;
+alter table public.solicitudes_alta_taller add column if not exists acepta_condiciones_fotos boolean not null default false;
+alter table public.solicitudes_alta_taller add column if not exists acepta_condiciones_fotos_at timestamptz;
+alter table public.solicitudes_alta_taller add column if not exists version_condiciones_fotos text;
 alter table public.solicitudes_alta_taller add column if not exists revisada_at timestamptz;
 alter table public.solicitudes_alta_taller add column if not exists revisada_por uuid;
 
@@ -69,6 +77,7 @@ create table if not exists public.talleres (
     logo text,
     portada text,
     servicios text[] not null default '{}',
+    fotos text[] not null default '{}',
     verificado boolean not null default false,
     activo boolean not null default true,
     created_at timestamptz not null default now(),
@@ -100,6 +109,7 @@ alter table public.talleres add column if not exists horario text;
 alter table public.talleres add column if not exists logo text;
 alter table public.talleres add column if not exists portada text;
 alter table public.talleres add column if not exists servicios text[] not null default '{}';
+alter table public.talleres add column if not exists fotos text[] not null default '{}';
 alter table public.talleres add column if not exists verificado boolean not null default false;
 alter table public.talleres add column if not exists activo boolean not null default true;
 alter table public.talleres add column if not exists created_at timestamptz not null default now();
@@ -182,6 +192,30 @@ alter table public.talleres
     check (web is null or btrim(web) = '' or web ~* '^https?://[^[:space:]]+$')
     not valid;
 
+alter table public.solicitudes_alta_taller
+    drop constraint if exists solicitudes_maximo_cinco_fotos;
+alter table public.solicitudes_alta_taller
+    add constraint solicitudes_maximo_cinco_fotos
+    check (
+        cardinality(fotos) <= 5
+        and (
+            cardinality(fotos) = 0
+            or (
+                acepta_condiciones_fotos = true
+                and acepta_condiciones_fotos_at is not null
+                and nullif(btrim(version_condiciones_fotos), '') is not null
+            )
+        )
+    )
+    not valid;
+
+alter table public.talleres
+    drop constraint if exists talleres_maximo_cinco_fotos;
+alter table public.talleres
+    add constraint talleres_maximo_cinco_fotos
+    check (cardinality(fotos) <= 5)
+    not valid;
+
 create unique index if not exists talleres_solicitud_id_unica
     on public.talleres (solicitud_id)
     where solicitud_id is not null;
@@ -238,12 +272,12 @@ begin
     insert into public.talleres (
         solicitud_id, nombre, propietario, cif, email, telefono, web,
         direccion, codigo_postal, ciudad, provincia, pais,
-        descripcion, servicios, verificado, activo
+        descripcion, servicios, fotos, verificado, activo
     ) values (
         new.id, new.nombre_taller, new.propietario, new.cif,
         new.email, new.telefono, new.web, new.direccion,
         new.codigo_postal, new.ciudad, new.provincia, 'España',
-        new.descripcion, new.servicios, false, true
+        new.descripcion, new.servicios, new.fotos, false, true
     );
 
     return new;
@@ -283,6 +317,24 @@ as $$
     );
 $$;
 
+create or replace function public.puede_subir_foto_solicitud(p_ruta text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+    select
+        p_ruta ~ '^solicitudes/[0-9a-f-]{36}/[0-9]{2}-[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$'
+        and exists (
+            select 1
+            from public.solicitudes_alta_taller s
+            where p_ruta = any(s.fotos)
+              and s.acepta_condiciones_fotos = true
+              and s.acepta_condiciones_fotos_at is not null
+        );
+$$;
+
 alter table public.solicitudes_alta_taller enable row level security;
 alter table public.talleres enable row level security;
 alter table public.administradores enable row level security;
@@ -308,6 +360,15 @@ with check (
     and codigo_postal ~ '^[0-9]{5}$'
     and char_length(trim(ciudad)) between 2 and 100
     and char_length(trim(provincia)) between 2 and 100
+    and cardinality(fotos) <= 5
+    and (
+        cardinality(fotos) = 0
+        or (
+            acepta_condiciones_fotos = true
+            and acepta_condiciones_fotos_at is not null
+            and nullif(btrim(version_condiciones_fotos), '') is not null
+        )
+    )
     and char_length(trim(descripcion)) between 10 and 1500
 );
 
@@ -338,6 +399,55 @@ on public.administradores
 for select
 to authenticated
 using (user_id = auth.uid());
+
+-- Las fotografías se guardan en un bucket privado. Solo una solicitud que
+-- haya declarado previamente la ruta puede subir el archivo correspondiente.
+insert into storage.buckets (
+    id, name, public, file_size_limit, allowed_mime_types
+) values (
+    'fotos-talleres', 'fotos-talleres', false, 5242880,
+    array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update
+set public = excluded.public,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "solicitudes suben sus fotos autorizadas" on storage.objects;
+create policy "solicitudes suben sus fotos autorizadas"
+on storage.objects
+for insert
+to anon, authenticated
+with check (
+    bucket_id = 'fotos-talleres'
+    and lower(storage.extension(name)) in ('jpg', 'jpeg', 'png', 'webp')
+    and public.puede_subir_foto_solicitud(name)
+);
+
+drop policy if exists "publico ve fotos de talleres activos" on storage.objects;
+create policy "publico ve fotos de talleres activos"
+on storage.objects
+for select
+to anon, authenticated
+using (
+    bucket_id = 'fotos-talleres'
+    and exists (
+        select 1
+        from public.talleres t
+        where t.activo = true
+          and name = any(t.fotos)
+    )
+);
+
+drop policy if exists "administradores ven fotos de solicitudes" on storage.objects;
+create policy "administradores ven fotos de solicitudes"
+on storage.objects
+for select
+to authenticated
+using (
+    bucket_id = 'fotos-talleres'
+    and public.es_administrador()
+);
 
 create or replace function public.aprobar_solicitud(p_solicitud_id bigint)
 returns uuid
@@ -390,13 +500,13 @@ begin
         insert into public.talleres (
             solicitud_id, nombre, propietario, cif, email, telefono, web,
             direccion, codigo_postal, ciudad, provincia, pais,
-            descripcion, servicios, verificado, activo
+            descripcion, servicios, fotos, verificado, activo
         ) values (
             v_solicitud.id, v_solicitud.nombre_taller, v_solicitud.propietario,
             v_solicitud.cif, v_solicitud.email, v_solicitud.telefono, v_solicitud.web,
             v_solicitud.direccion, v_solicitud.codigo_postal, v_solicitud.ciudad,
             v_solicitud.provincia, 'España', v_solicitud.descripcion,
-            v_solicitud.servicios, true, true
+            v_solicitud.servicios, v_solicitud.fotos, true, true
         )
         returning id into v_taller_id;
     else
@@ -413,6 +523,7 @@ begin
             provincia = v_solicitud.provincia,
             descripcion = v_solicitud.descripcion,
             servicios = v_solicitud.servicios,
+            fotos = v_solicitud.fotos,
             verificado = true,
             activo = true,
             updated_at = now()
@@ -494,6 +605,8 @@ revoke all on function public.rechazar_solicitud(bigint) from public, anon;
 grant execute on function public.rechazar_solicitud(bigint) to authenticated;
 revoke all on function public.estadisticas_publicas() from public;
 grant execute on function public.estadisticas_publicas() to anon, authenticated;
+revoke all on function public.puede_subir_foto_solicitud(text) from public;
+grant execute on function public.puede_subir_foto_solicitud(text) to anon, authenticated;
 revoke all on function public.preparar_estado_solicitud() from public, anon, authenticated;
 revoke all on function public.publicar_solicitud_valenciana() from public, anon, authenticated;
 

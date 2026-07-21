@@ -3,6 +3,17 @@
 
 begin;
 
+alter table public.solicitudes_alta_taller
+    add column if not exists fotos text[] not null default '{}';
+alter table public.solicitudes_alta_taller
+    add column if not exists acepta_condiciones_fotos boolean not null default false;
+alter table public.solicitudes_alta_taller
+    add column if not exists acepta_condiciones_fotos_at timestamptz;
+alter table public.solicitudes_alta_taller
+    add column if not exists version_condiciones_fotos text;
+alter table public.talleres
+    add column if not exists fotos text[] not null default '{}';
+
 -- El estado se decide en Supabase y nunca se confía en el valor enviado
 -- desde el navegador. Los prefijos provinciales son 03, 12 y 46.
 create or replace function public.preparar_estado_solicitud()
@@ -53,12 +64,12 @@ begin
     insert into public.talleres (
         solicitud_id, nombre, propietario, cif, email, telefono, web,
         direccion, codigo_postal, ciudad, provincia, pais,
-        descripcion, servicios, verificado, activo
+        descripcion, servicios, fotos, verificado, activo
     ) values (
         new.id, new.nombre_taller, new.propietario, new.cif,
         new.email, new.telefono, new.web, new.direccion,
         new.codigo_postal, new.ciudad, new.provincia, 'España',
-        new.descripcion, new.servicios, false, true
+        new.descripcion, new.servicios, new.fotos, false, true
     );
 
     return new;
@@ -102,6 +113,15 @@ with check (
     and public.provincia_de_codigo_postal(codigo_postal) = provincia
     and char_length(trim(ciudad)) between 2 and 100
     and char_length(trim(provincia)) between 2 and 100
+    and cardinality(fotos) <= 5
+    and (
+        cardinality(fotos) = 0
+        or (
+            acepta_condiciones_fotos = true
+            and acepta_condiciones_fotos_at is not null
+            and nullif(btrim(version_condiciones_fotos), '') is not null
+        )
+    )
     and char_length(trim(descripcion)) between 10 and 1500
 );
 

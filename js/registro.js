@@ -4,6 +4,13 @@
     const formulario = document.getElementById("formulario-registro");
     const botonEnviar = document.getElementById("boton-enviar");
     const mensajeFormulario = document.getElementById("mensaje-formulario");
+    const campoFotos = document.getElementById("fotos");
+    const vistaPreviaFotos = document.getElementById("vista-previa-fotos");
+    const campoCondicionesFotos = document.getElementById("acepta_condiciones_fotos");
+    const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
+    const MAXIMO_FOTOS = 5;
+    const MAXIMO_BYTES_FOTO = 5 * 1024 * 1024;
+    let urlsVistaPrevia = [];
 
     if (!formulario || !botonEnviar || !mensajeFormulario) {
         console.error("El formulario de registro no está completo en la página.");
@@ -54,9 +61,103 @@
         document.getElementById(idCampo)?.focus();
     }
 
-    function cambiarEstadoBoton(enviando) {
+    function cambiarEstadoBoton(enviando, texto = "Enviando...") {
         botonEnviar.disabled = enviando;
-        botonEnviar.textContent = enviando ? "Enviando..." : "Enviar solicitud";
+        botonEnviar.textContent = enviando ? texto : "Enviar solicitud";
+    }
+
+    function fotosSeleccionadas() {
+        return Array.from(campoFotos?.files || []);
+    }
+
+    function validarFotos(archivos, comprobarCondiciones = true) {
+        if (archivos.length > MAXIMO_FOTOS) {
+            mostrarMensaje(`Puedes añadir un máximo de ${MAXIMO_FOTOS} fotografías.`, "error");
+            campoFotos?.focus();
+            return false;
+        }
+        if (archivos.some((archivo) => !TIPOS_FOTO.includes(archivo.type))) {
+            mostrarMensaje("Las fotografías deben estar en formato JPG, PNG o WebP.", "error");
+            campoFotos?.focus();
+            return false;
+        }
+        const demasiadoGrande = archivos.find((archivo) => archivo.size > MAXIMO_BYTES_FOTO);
+        if (demasiadoGrande) {
+            mostrarMensaje(`La fotografía «${demasiadoGrande.name}» supera el límite de 5 MB.`, "error");
+            campoFotos?.focus();
+            return false;
+        }
+        if (comprobarCondiciones && archivos.length && !campoCondicionesFotos?.checked) {
+            mostrarMensaje("Para añadir fotografías debes aceptar sus condiciones adicionales.", "error");
+            campoCondicionesFotos?.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function limpiarVistaPrevia() {
+        urlsVistaPrevia.forEach((url) => URL.revokeObjectURL(url));
+        urlsVistaPrevia = [];
+        vistaPreviaFotos?.replaceChildren();
+    }
+
+    function mostrarVistaPrevia(archivos) {
+        limpiarVistaPrevia();
+        if (!vistaPreviaFotos) return;
+        archivos.forEach((archivo) => {
+            const url = URL.createObjectURL(archivo);
+            urlsVistaPrevia.push(url);
+            const figura = document.createElement("figure");
+            figura.className = "foto-previa";
+            const imagen = document.createElement("img");
+            imagen.src = url;
+            imagen.alt = "Vista previa de fotografía seleccionada";
+            const nombre = document.createElement("figcaption");
+            nombre.textContent = archivo.name;
+            figura.append(imagen, nombre);
+            vistaPreviaFotos.appendChild(figura);
+        });
+    }
+
+    function identificadorAleatorio() {
+        if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (caracter) => {
+            const numero = Math.floor(Math.random() * 16);
+            const valor = caracter === "x" ? numero : (numero & 0x3) | 0x8;
+            return valor.toString(16);
+        });
+    }
+
+    function extensionFoto(archivo) {
+        return archivo.type === "image/png"
+            ? "png"
+            : archivo.type === "image/webp" ? "webp" : "jpg";
+    }
+
+    function prepararSubidas(archivos) {
+        const carpeta = identificadorAleatorio();
+        return archivos.map((archivo, indice) => ({
+            archivo,
+            ruta: `solicitudes/${carpeta}/${String(indice + 1).padStart(2, "0")}-${identificadorAleatorio()}.${extensionFoto(archivo)}`
+        }));
+    }
+
+    async function subirFotos(subidas) {
+        const fallidas = [];
+        for (const subida of subidas) {
+            const { error } = await window.supabaseClient.storage
+                .from("fotos-talleres")
+                .upload(subida.ruta, subida.archivo, {
+                    cacheControl: "3600",
+                    contentType: subida.archivo.type,
+                    upsert: false
+                });
+            if (error) {
+                console.error("No se pudo subir una fotografía:", error);
+                fallidas.push(subida.ruta);
+            }
+        }
+        return fallidas;
     }
 
     function validar(datos) {
@@ -155,6 +256,9 @@
         if (detalle.includes("web_url_valida")) {
             return "La página web indicada no tiene una dirección válida.";
         }
+        if (detalle.includes("fotos")) {
+            return "Falta activar la configuración de fotografías en Supabase.";
+        }
         if (error?.code === "23514" || detalle.includes("check constraint")) {
             return "Uno de los datos no cumple los requisitos. Revisa el CIF, teléfono y código postal.";
         }
@@ -213,6 +317,27 @@
         campoWeb.value = normalizarWeb(campoWeb.value);
     });
 
+    campoFotos?.addEventListener("change", () => {
+        ocultarMensaje();
+        const archivos = fotosSeleccionadas();
+        if (campoCondicionesFotos) {
+            campoCondicionesFotos.disabled = archivos.length === 0;
+            campoCondicionesFotos.required = archivos.length > 0;
+            if (!archivos.length) campoCondicionesFotos.checked = false;
+        }
+        if (!validarFotos(archivos, false)) {
+            campoFotos.value = "";
+            if (campoCondicionesFotos) {
+                campoCondicionesFotos.checked = false;
+                campoCondicionesFotos.disabled = true;
+                campoCondicionesFotos.required = false;
+            }
+            limpiarVistaPrevia();
+            return;
+        }
+        mostrarVistaPrevia(archivos);
+    });
+
     formulario.addEventListener("submit", async (evento) => {
         evento.preventDefault();
         ocultarMensaje();
@@ -223,6 +348,10 @@
             formulario.reportValidity();
             return;
         }
+
+        const archivos = fotosSeleccionadas();
+        if (!validarFotos(archivos)) return;
+        const subidas = prepararSubidas(archivos);
 
         const datos = {
             nombre_taller: valor("nombre_taller"),
@@ -236,6 +365,10 @@
             ciudad: valor("ciudad"),
             provincia: valor("provincia"),
             servicios: serviciosSeleccionados(),
+            fotos: subidas.map((subida) => subida.ruta),
+            acepta_condiciones_fotos: subidas.length > 0 && campoCondicionesFotos.checked,
+            acepta_condiciones_fotos_at: subidas.length ? new Date().toISOString() : null,
+            version_condiciones_fotos: subidas.length ? "1.0" : null,
             descripcion: valor("descripcion"),
             estado: "pendiente",
             acepta_responsabilidad: document.getElementById("acepta_responsabilidad").checked,
@@ -259,13 +392,31 @@
                 return;
             }
 
+            let fotosFallidas = [];
+            if (subidas.length) {
+                cambiarEstadoBoton(true, "Subiendo fotos...");
+                fotosFallidas = await subirFotos(subidas);
+            }
+
             formulario.reset();
+            if (campoCondicionesFotos) {
+                campoCondicionesFotos.disabled = true;
+                campoCondicionesFotos.required = false;
+            }
+            limpiarVistaPrevia();
             const publicacionAutomatica = window.TallerMapProvincias
                 ?.esComunitatValenciana(datos.codigo_postal);
-            mostrarMensaje(publicacionAutomatica
-                ? "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada."
-                : "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
-            "exito");
+            if (fotosFallidas.length) {
+                mostrarMensaje(
+                    "El alta se ha guardado, pero algunas fotografías no pudieron subirse. La ficha continuará sin esas imágenes.",
+                    "aviso"
+                );
+            } else {
+                mostrarMensaje(publicacionAutomatica
+                    ? "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada."
+                    : "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
+                "exito");
+            }
         } catch (error) {
             console.error("Error inesperado al registrar la solicitud:", error);
             mostrarMensaje("No se pudo conectar con la base de datos. Revisa tu conexión e inténtalo de nuevo.", "error");

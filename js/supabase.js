@@ -58,6 +58,8 @@
         const ubicacion = [direccion, ciudad, provincia].filter(Boolean).join(", ");
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = webSegura(taller.web);
+        const fotoPrincipal = webSegura(taller.fotoFirmada);
+        const cantidadFotos = Array.isArray(taller.fotos) ? taller.fotos.length : 0;
         const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
@@ -75,7 +77,9 @@
         return `
             <article class="taller-card">
                 <div class="taller-imagen taller-imagen-1">
+                    ${fotoPrincipal ? `<img src="${escaparHTML(fotoPrincipal)}" alt="Fotografía de ${nombre}" loading="lazy">` : ""}
                     <span class="verificado">${distintivo}</span>
+                    ${cantidadFotos ? `<span class="numero-fotos">${cantidadFotos} ${cantidadFotos === 1 ? "foto" : "fotos"}</span>` : ""}
                 </div>
                 <div class="taller-informacion">
                     <div class="valoracion">★ Nuevo <span>Ficha publicada</span></div>
@@ -135,6 +139,29 @@
         boton.textContent = cargando ? "Cargando talleres..." : "Cargar más talleres";
     }
 
+    async function adjuntarFotosFirmadas(talleres) {
+        const rutas = [...new Set(talleres
+            .map((taller) => Array.isArray(taller.fotos) ? taller.fotos[0] : "")
+            .filter(Boolean))];
+        if (!rutas.length || !supabaseClient.storage?.from) return talleres;
+
+        const { data, error } = await supabaseClient.storage
+            .from("fotos-talleres")
+            .createSignedUrls(rutas, 3600);
+        if (error) {
+            console.error("No se pudieron preparar las fotografías públicas:", error);
+            return talleres;
+        }
+
+        const porRuta = new Map(
+            (data || []).map((foto) => [foto.path, foto.signedUrl || foto.signedURL || ""])
+        );
+        return talleres.map((taller) => ({
+            ...taller,
+            fotoFirmada: porRuta.get(Array.isArray(taller.fotos) ? taller.fotos[0] : "") || ""
+        }));
+    }
+
     async function cargarTalleres(poblacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
         if (!contenedor || cargandoTalleres) return;
@@ -152,13 +179,16 @@
         cargandoTalleres = true;
         if (!reiniciar) actualizarBotonCarga(true, true);
 
-        function construirConsulta(incluirServicios) {
-            const columnas = incluirServicios
-                ? "id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,descripcion,servicios,verificado"
-                : "id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,descripcion,verificado";
+        function construirConsulta(incluirServicios, incluirFotos) {
+            const columnas = [
+                "id", "nombre", "telefono", "web", "direccion", "codigo_postal",
+                "ciudad", "provincia", "descripcion", "verificado"
+            ];
+            if (incluirServicios) columnas.push("servicios");
+            if (incluirFotos) columnas.push("fotos");
             let consulta = supabaseClient
                 .from("talleres")
-                .select(columnas, { count: "exact" })
+                .select(columnas.join(","), { count: "exact" })
                 .eq("activo", true)
                 .order("created_at", { ascending: false })
                 .range(desde, hasta);
@@ -173,12 +203,22 @@
         }
 
         try {
-            let resultado = await construirConsulta(true);
-            if (
-                resultado.error?.code === "42703" &&
-                String(resultado.error.message || "").includes("servicios")
-            ) {
-                resultado = await construirConsulta(false);
+            let incluirServicios = true;
+            let incluirFotos = true;
+            let resultado;
+            for (let intento = 0; intento < 3; intento += 1) {
+                resultado = await construirConsulta(incluirServicios, incluirFotos);
+                const detalle = String(resultado.error?.message || "").toLowerCase();
+                if (resultado.error?.code !== "42703") break;
+                if (detalle.includes("fotos") && incluirFotos) {
+                    incluirFotos = false;
+                    continue;
+                }
+                if (detalle.includes("servicios") && incluirServicios) {
+                    incluirServicios = false;
+                    continue;
+                }
+                break;
             }
 
             const { data: talleres, error, count } = resultado;
@@ -200,7 +240,8 @@
                 return;
             }
 
-            const tarjetas = talleres.map(crearTarjetaTaller).join("");
+            const talleresConFotos = await adjuntarFotosFirmadas(talleres);
+            const tarjetas = talleresConFotos.map(crearTarjetaTaller).join("");
             if (reiniciar) contenedor.innerHTML = tarjetas;
             else contenedor.insertAdjacentHTML("beforeend", tarjetas);
 
