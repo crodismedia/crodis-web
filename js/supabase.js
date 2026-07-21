@@ -111,6 +111,7 @@
             console.error("No se pudieron cargar las estadísticas públicas:", error);
             return;
         }
+        escribirEstadistica("contador-altas-cabecera", data?.talleres_activos);
         escribirEstadistica("estadistica-talleres", data?.talleres_activos);
         escribirEstadistica("estadistica-provincias", data?.provincias_disponibles);
         escribirEstadistica("estadistica-servicios", data?.servicios_disponibles);

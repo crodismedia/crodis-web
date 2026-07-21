@@ -151,6 +151,32 @@ select {
     gap: 16px;
 }
 
+.contador-altas-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    color: #087649;
+    background: #e9f9f1;
+    border: 1px solid #b9ead2;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.contador-altas-cabecera strong {
+    min-width: 1ch;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.contador-altas-cabecera span {
+    color: #315e4b;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+}
+
 .boton-enlace {
     font-size: 14px;
     font-weight: 700;
@@ -1103,6 +1129,16 @@ select {
         display: none;
     }
 
+    .contador-altas-cabecera {
+        flex-direction: column;
+        gap: 2px;
+        padding: 6px 9px;
+    }
+
+    .contador-altas-cabecera span {
+        font-size: 8px;
+    }
+
     .marca-texto small {
         display: none;
     }
@@ -1189,6 +1225,22 @@ select {
     .acciones-cabecera .boton {
         padding: 10px 12px;
         font-size: 11px;
+    }
+
+    .cabecera-contenido {
+        gap: 10px;
+    }
+
+    .acciones-cabecera {
+        gap: 7px;
+    }
+
+    .contador-altas-cabecera {
+        padding: 6px 7px;
+    }
+
+    .contador-altas-cabecera strong {
+        font-size: 16px;
     }
 
     .marca-icono {
