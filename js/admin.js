@@ -32,6 +32,12 @@
             ["Condiciones de fotos", Array.isArray(solicitud.fotos) && solicitud.fotos.length
                 ? (solicitud.acepta_condiciones_fotos ? "Sí" : "No")
                 : "No aplican"],
+            ["Modalidad", solicitud.plan_publicacion === "destacado"
+                ? "Plan Destacado · 1,21 €/mes"
+                : "Presencia gratuita"],
+            ["Pago destacado", solicitud.suscripciones_destacadas?.[0]?.destacado_activo
+                ? "Activo"
+                : solicitud.plan_publicacion === "destacado" ? "Pendiente o no completado" : "No aplica"],
             ["Descripción", solicitud.descripcion]
         ];
         const galeria = Array.isArray(solicitud.fotosFirmadas) && solicitud.fotosFirmadas.length
@@ -72,9 +78,19 @@
         lista.innerHTML = '<p class="mensaje-talleres">Cargando solicitudes…</p>';
         let resultado = await window.supabaseClient
             .from("solicitudes_alta_taller")
-            .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
+            .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,plan_publicacion,acepta_condiciones_destacado,suscripciones_destacadas(estado,destacado_activo,periodo_actual_fin),created_at")
             .eq("estado", "pendiente")
             .order("created_at", { ascending: true });
+        if (resultado.error && (
+            String(resultado.error.message || "").includes("suscripciones_destacadas")
+            || String(resultado.error.message || "").includes("plan_publicacion")
+        )) {
+            resultado = await window.supabaseClient
+                .from("solicitudes_alta_taller")
+                .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
+                .eq("estado", "pendiente")
+                .order("created_at", { ascending: true });
+        }
         if (resultado.error?.code === "42703" && String(resultado.error.message || "").includes("fotos")) {
             resultado = await window.supabaseClient
                 .from("solicitudes_alta_taller")

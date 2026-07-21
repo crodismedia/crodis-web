@@ -32,13 +32,14 @@
         <section class="registro-hero">
             <div class="contenedor registro-contenido">
                 <div class="registro-introduccion">
-                    <span class="etiqueta">Alta gratuita</span>
+                    <span class="etiqueta">Alta gratuita o destacada</span>
                     <h1>Publica tu taller en <span>TallerMap</span></h1>
                     <p>Completa el formulario con los datos reales del negocio. Las altas de la Comunitat Valenciana se publican directamente; las demás quedan pendientes de revisión.</p>
                     <ul class="registro-lista">
                         <li>Alicante, Castellón y Valencia se publican automáticamente.</li>
                         <li>Las fichas automáticas aparecen inicialmente como no verificadas.</li>
-                        <li>Podrás solicitar correcciones cuando lo necesites.</li>
+                        <li>La ficha gratuita permanece publicada sin obligación de pago.</li>
+                        <li>Opcionalmente puedes destacar el taller por 1,21 € al mes, IVA incluido.</li>
                     </ul>
                 </div>
 
@@ -132,6 +133,33 @@
                             </label>
                             <div id="vista-previa-fotos" class="vista-previa-fotos" aria-live="polite"></div>
                         </div>
+
+                        <fieldset class="campo-formulario campo-ancho planes-publicacion">
+                            <legend>Elige cómo aparecer en TallerMap *</legend>
+                            <div class="planes-opciones">
+                                <label class="plan-opcion" for="plan_gratis">
+                                    <input id="plan_gratis" name="plan_publicacion" type="radio" value="gratis" checked>
+                                    <span>
+                                        <strong>Presencia gratuita</strong>
+                                        <small>El taller aparece por población, servicio y fecha de alta, sin prioridad.</small>
+                                    </span>
+                                    <b>0 €</b>
+                                </label>
+                                <label class="plan-opcion plan-opcion-destacado" for="plan_destacado">
+                                    <input id="plan_destacado" name="plan_publicacion" type="radio" value="destacado">
+                                    <span>
+                                        <strong>Plan Destacado</strong>
+                                        <small>Acceso rotatorio a uno de los 20 primeros puestos de cada búsqueda coincidente.</small>
+                                    </span>
+                                    <b>1,21 €/mes<small>IVA incluido</small></b>
+                                </label>
+                            </div>
+                            <p class="campo-ayuda">Sin periodo de prueba. Si cancelas, la ficha seguirá publicada gratuitamente y perderá únicamente la prioridad al terminar el periodo pagado.</p>
+                            <label class="aceptacion-destacado" for="acepta_condiciones_destacado">
+                                <input id="acepta_condiciones_destacado" name="acepta_condiciones_destacado" type="checkbox" disabled>
+                                <span>Acepto el cobro recurrente de 1,21 € al mes, IVA incluido, y las <a href="condiciones-destacado.html" target="_blank" rel="noopener">condiciones del Plan Destacado</a>.</span>
+                            </label>
+                        </fieldset>
                     </div>
 
                     <div class="aceptacion-condiciones">
@@ -142,7 +170,7 @@
                         <p>En Alicante, Castellón y Valencia la ficha se publica automáticamente. En el resto de España quedará pendiente hasta su aprobación.</p>
                     </div>
 
-                    <button id="boton-enviar" class="boton boton-enviar" type="submit">Enviar solicitud</button>
+                    <button id="boton-enviar" class="boton boton-enviar" type="submit">Enviar alta gratuita</button>
                 </form>
             </div>
         </section>
