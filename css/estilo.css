@@ -694,6 +694,27 @@ select {
     gap: 24px;
 }
 
+.orden-talleres {
+    color: var(--texto-suave);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cargar-mas-contenedor {
+    margin-top: 34px;
+    text-align: center;
+}
+
+.cargar-mas-contenedor[hidden] {
+    display: none;
+}
+
+.cargar-mas-contenedor .boton:disabled {
+    cursor: wait;
+    opacity: .7;
+    transform: none;
+}
+
 /* Solicitud de alta de taller */
 .pagina-registro { background: var(--fondo); }
 .registro-principal { min-height: calc(100vh - 132px); }

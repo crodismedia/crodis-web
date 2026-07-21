@@ -20,6 +20,11 @@
         "aire-acondicionado": "Aire acondicionado",
         "hibridos-electricos": "Híbridos y eléctricos"
     };
+    const TAMANO_PAGINA = 30;
+    let siguienteIndice = 0;
+    let ubicacionActual = "";
+    let servicioActual = "";
+    let cargandoTalleres = false;
 
     function escaparHTML(valor) {
         const elemento = document.createElement("div");
@@ -83,59 +88,97 @@
             .slice(0, 80);
     }
 
-    async function cargarTalleres(ubicacion = "", servicio = "") {
+    function actualizarBotonCarga(hayMas, cargando = false) {
+        const contenedorBoton = document.getElementById("contenedor-cargar-mas");
+        const boton = document.getElementById("boton-cargar-mas");
+        if (!contenedorBoton || !boton) return;
+
+        contenedorBoton.hidden = !hayMas;
+        boton.disabled = cargando;
+        boton.textContent = cargando ? "Cargando talleres..." : "Cargar más talleres";
+    }
+
+    async function cargarTalleres(ubicacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
-        if (!contenedor) return;
+        if (!contenedor || cargandoTalleres) return;
 
-        mostrarEstado(contenedor, "Cargando talleres...");
+        if (reiniciar) {
+            siguienteIndice = 0;
+            ubicacionActual = terminoSeguro(ubicacion);
+            servicioActual = servicio;
+            mostrarEstado(contenedor, "Cargando talleres...");
+            actualizarBotonCarga(false);
+        }
 
-        const termino = terminoSeguro(ubicacion);
+        const desde = siguienteIndice;
+        const hasta = desde + TAMANO_PAGINA - 1;
+        cargandoTalleres = true;
+        if (!reiniciar) actualizarBotonCarga(true, true);
+
         function construirConsulta(incluirServicios) {
             const columnas = incluirServicios
                 ? "id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,descripcion,servicios,verificado"
                 : "id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,descripcion,verificado";
             let consulta = supabaseClient
                 .from("talleres")
-                .select(columnas)
+                .select(columnas, { count: "exact" })
                 .eq("activo", true)
-                .limit(50);
+                .order("created_at", { ascending: false })
+                .range(desde, hasta);
 
-            if (termino) {
+            if (ubicacionActual) {
                 consulta = consulta.or(
-                    `ciudad.ilike.%${termino}%,provincia.ilike.%${termino}%,codigo_postal.ilike.%${termino}%`
+                    `ciudad.ilike.%${ubicacionActual}%,provincia.ilike.%${ubicacionActual}%,codigo_postal.ilike.%${ubicacionActual}%`
                 );
             }
-            if (servicio && incluirServicios) {
-                consulta = consulta.contains("servicios", [servicio]);
+            if (servicioActual && incluirServicios) {
+                consulta = consulta.contains("servicios", [servicioActual]);
             }
             return consulta;
         }
 
-        let resultado = await construirConsulta(true);
-        if (
-            resultado.error?.code === "42703" &&
-            String(resultado.error.message || "").includes("servicios")
-        ) {
-            resultado = await construirConsulta(false);
-        }
+        try {
+            let resultado = await construirConsulta(true);
+            if (
+                resultado.error?.code === "42703" &&
+                String(resultado.error.message || "").includes("servicios")
+            ) {
+                resultado = await construirConsulta(false);
+            }
 
-        const { data: talleres, error } = resultado;
-        if (error) {
-            console.error("No se pudieron cargar los talleres:", error);
-            mostrarEstado(
-                contenedor,
-                "No se pudieron cargar los talleres. Comprueba la configuración pública de Supabase."
-            );
-            return;
-        }
-        if (!talleres?.length) {
-            mostrarEstado(contenedor, "No hemos encontrado talleres con esos criterios.");
-            actualizarNumeroResultados(0);
-            return;
-        }
+            const { data: talleres, error, count } = resultado;
+            if (error) {
+                console.error("No se pudieron cargar los talleres:", error);
+                if (reiniciar) {
+                    mostrarEstado(
+                        contenedor,
+                        "No se pudieron cargar los talleres. Comprueba la configuración pública de Supabase."
+                    );
+                }
+                actualizarBotonCarga(!reiniciar);
+                return;
+            }
+            if (!talleres?.length && reiniciar) {
+                mostrarEstado(contenedor, "No hemos encontrado talleres con esos criterios.");
+                actualizarNumeroResultados(0);
+                actualizarBotonCarga(false);
+                return;
+            }
 
-        contenedor.innerHTML = talleres.map(crearTarjetaTaller).join("");
-        actualizarNumeroResultados(talleres.length);
+            const tarjetas = talleres.map(crearTarjetaTaller).join("");
+            if (reiniciar) contenedor.innerHTML = tarjetas;
+            else contenedor.insertAdjacentHTML("beforeend", tarjetas);
+
+            siguienteIndice += talleres.length;
+            const total = Number.isInteger(count) ? count : siguienteIndice;
+            const hayMas = Number.isInteger(count)
+                ? siguienteIndice < count
+                : talleres.length === TAMANO_PAGINA;
+            actualizarNumeroResultados(total);
+            actualizarBotonCarga(hayMas);
+        } finally {
+            cargandoTalleres = false;
+        }
     }
 
     function actualizarNumeroResultados(total) {
@@ -152,11 +195,16 @@
         const formularioBusqueda = document.querySelector("form.buscador");
         const campoUbicacion = document.getElementById("ubicacion");
         const campoServicio = document.getElementById("servicio");
+        const botonCargarMas = document.getElementById("boton-cargar-mas");
 
         formularioBusqueda?.addEventListener("submit", (evento) => {
             evento.preventDefault();
             cargarTalleres(campoUbicacion?.value || "", campoServicio?.value || "");
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
+        });
+
+        botonCargarMas?.addEventListener("click", () => {
+            cargarTalleres(ubicacionActual, servicioActual, false);
         });
 
         document.querySelectorAll("[data-servicio]").forEach((enlace) => {
