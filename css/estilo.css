@@ -742,6 +742,8 @@ select {
 .servicios-opciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 18px; }
 .servicios-opciones label { display: flex; align-items: center; gap: 8px; color: #40536f; font-size: 13px; font-weight: 600; cursor: pointer; }
 .servicios-opciones input { flex: 0 0 auto; width: 17px; height: 17px; padding: 0; accent-color: var(--azul); }
+.servicios-grupo { display: grid; align-content: start; gap: 9px; padding: 14px; background: #fbfcfe; border: 1px solid var(--borde); border-radius: 10px; }
+.servicios-grupo h3 { margin: 0 0 3px; color: var(--azul-oscuro); font-size: 13px; }
 .mensaje-formulario { margin: 0 0 20px; padding: 13px 15px; font-size: 14px; line-height: 1.45; border-radius: 10px; }
 .mensaje-error { color: #9f1f1f; background: #fff0f0; border: 1px solid #f1b8b8; }
 .mensaje-exito { color: #08734a; background: #e8f8f1; border: 1px solid #a9e2c9; }

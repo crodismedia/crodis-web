@@ -10,6 +10,7 @@ Directorio web de talleres de automoción. La primera versión permite buscar ta
 - `pages/admin.html`: aprobación y rechazo de solicitudes.
 - `css/estilo.css`: estilos compartidos y adaptación móvil.
 - `js/`: conexión con Supabase y lógica de la web.
+- `js/servicios.js`: catálogo compartido por el buscador y el formulario de alta.
 - `supabase/solicitudes_alta_taller.sql`: tablas, funciones, permisos y políticas RLS.
 - `supabase/estadisticas_publicas.sql`: contadores públicos calculados con datos reales.
 

@@ -84,6 +84,14 @@
             enfocar(datos.ciudad.length < 2 ? "ciudad" : "provincia");
             return false;
         }
+        if (!datos.servicios.length) {
+            mostrarMensaje("Selecciona al menos un servicio ofrecido por el taller.", "error");
+            document.getElementById("lista-servicios-registro")?.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+            return false;
+        }
         if (datos.descripcion.length < 10) {
             mostrarMensaje("La descripción debe contener al menos 10 caracteres.", "error");
             enfocar("descripcion");

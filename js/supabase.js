@@ -12,7 +12,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     window.supabaseClient = supabaseClient;
 
-    const ETIQUETAS_SERVICIOS = {
+    const ETIQUETAS_SERVICIOS = window.TallerMapServicios?.etiquetas || {
         "mecanica-general": "Mecánica general",
         "chapa-pintura": "Chapa y pintura",
         neumaticos: "Neumáticos",
