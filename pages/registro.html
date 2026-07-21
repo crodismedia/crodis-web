@@ -70,6 +70,12 @@
                         </div>
 
                         <div class="campo-formulario campo-ancho">
+                            <label for="web">Página web <span class="campo-opcional">(opcional)</span></label>
+                            <input id="web" name="web" type="url" maxlength="255" autocomplete="url" inputmode="url" placeholder="https://www.ejemplo.es">
+                            <small class="campo-ayuda">Si el taller no tiene página web, deja este campo vacío.</small>
+                        </div>
+
+                        <div class="campo-formulario campo-ancho">
                             <label for="direccion">Dirección *</label>
                             <input id="direccion" name="direccion" type="text" minlength="5" maxlength="255" autocomplete="street-address" required>
                         </div>
@@ -86,7 +92,10 @@
 
                         <div class="campo-formulario campo-ancho">
                             <label for="provincia">Provincia *</label>
-                            <input id="provincia" name="provincia" type="text" minlength="2" maxlength="100" autocomplete="address-level1" value="Valencia" required>
+                            <select id="provincia" name="provincia" autocomplete="address-level1" required>
+                                <option value="">Selecciona una provincia</option>
+                            </select>
+                            <small class="campo-ayuda">Debe coincidir con los dos primeros dígitos del código postal.</small>
                         </div>
 
                         <fieldset class="campo-formulario campo-ancho servicios-formulario">
@@ -130,6 +139,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/servicios.js"></script>
+    <script src="../js/provincias.js"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/registro.js"></script>
 </body>

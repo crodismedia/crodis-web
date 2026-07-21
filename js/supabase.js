@@ -37,6 +37,16 @@
         return ETIQUETAS_SERVICIOS[servicio] || servicio;
     }
 
+    function webSegura(valor) {
+        if (!valor) return "";
+        try {
+            const url = new URL(String(valor));
+            return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+        } catch (_error) {
+            return "";
+        }
+    }
+
     function crearTarjetaTaller(taller) {
         const nombre = escaparHTML(taller.nombre || taller.nombre_taller || "Taller sin nombre");
         const ciudad = escaparHTML(taller.ciudad || "");
@@ -47,12 +57,20 @@
         );
         const ubicacion = [direccion, ciudad, provincia].filter(Boolean).join(", ");
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
+        const web = webSegura(taller.web);
         const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
-        const contacto = telefono
-            ? `<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`
-            : "<span>Consulta su ficha</span>";
+        const enlaces = [];
+        if (telefono) {
+            enlaces.push(`<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`);
+        }
+        if (web) {
+            enlaces.push(`<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        }
+        const contacto = enlaces.length
+            ? `<span class="taller-contactos">${enlaces.join("")}</span>`
+            : "<span>Sin contacto publicado</span>";
 
         return `
             <article class="taller-card">
@@ -135,8 +153,8 @@
 
         function construirConsulta(incluirServicios) {
             const columnas = incluirServicios
-                ? "id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,descripcion,servicios,verificado"
-                : "id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,descripcion,verificado";
+                ? "id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,descripcion,servicios,verificado"
+                : "id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,descripcion,verificado";
             let consulta = supabaseClient
                 .from("talleres")
                 .select(columnas, { count: "exact" })

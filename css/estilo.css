@@ -737,6 +737,8 @@ select {
 .campo-formulario input, .campo-formulario textarea, .campo-formulario select { width: 100%; padding: 12px 13px; color: var(--texto); background: #fbfcfe; border: 1px solid var(--borde); border-radius: 10px; outline: none; transition: border-color .2s, box-shadow .2s; }
 .campo-formulario textarea { resize: vertical; }
 .campo-formulario input:focus, .campo-formulario textarea:focus, .campo-formulario select:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(20, 87, 217, .12); }
+.campo-opcional { color: var(--texto-suave); font-weight: 600; }
+.campo-ayuda { color: var(--texto-suave); font-size: 11px; line-height: 1.45; }
 .servicios-formulario { min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--borde); border-radius: 11px; }
 .servicios-formulario legend { padding: 0 6px; color: var(--azul-oscuro); font-size: 13px; font-weight: 800; }
 .servicios-opciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 18px; }
@@ -917,6 +919,11 @@ select {
     color: var(--azul);
     font-size: 13px;
     font-weight: 900;
+}
+
+.taller-contactos {
+    display: flex;
+    gap: 12px;
 }
 
 .pasos-grid {

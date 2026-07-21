@@ -25,7 +25,8 @@
             : "No indicados";
         const campos = [
             ["Propietario/a", solicitud.propietario], ["CIF", solicitud.cif], ["Email", solicitud.email],
-            ["Teléfono", solicitud.telefono], ["Dirección", solicitud.direccion], ["Código postal", solicitud.codigo_postal],
+            ["Teléfono", solicitud.telefono], ["Página web", solicitud.web || "No indicada"],
+            ["Dirección", solicitud.direccion], ["Código postal", solicitud.codigo_postal],
             ["Ciudad", solicitud.ciudad], ["Provincia", solicitud.provincia], ["Servicios", servicios],
             ["Condiciones aceptadas", solicitud.acepta_responsabilidad ? "Sí" : "No"],
             ["Descripción", solicitud.descripcion]
@@ -42,7 +43,7 @@
         lista.innerHTML = '<p class="mensaje-talleres">Cargando solicitudes…</p>';
         const { data, error } = await window.supabaseClient
             .from("solicitudes_alta_taller")
-            .select("id,nombre_taller,propietario,cif,email,telefono,direccion,codigo_postal,ciudad,provincia,servicios,descripcion,estado,acepta_responsabilidad,created_at")
+            .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,descripcion,estado,acepta_responsabilidad,created_at")
             .eq("estado", "pendiente")
             .order("created_at", { ascending: true });
         if (error) {

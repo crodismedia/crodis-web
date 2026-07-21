@@ -14,6 +14,22 @@
         return document.getElementById(idCampo)?.value.trim() || "";
     }
 
+    function normalizarWeb(web) {
+        const valorWeb = String(web || "").trim();
+        if (!valorWeb) return "";
+        return /^https?:\/\//i.test(valorWeb) ? valorWeb : `https://${valorWeb}`;
+    }
+
+    function webValida(web) {
+        if (!web) return true;
+        try {
+            const url = new URL(web);
+            return url.protocol === "http:" || url.protocol === "https:";
+        } catch (_error) {
+            return false;
+        }
+    }
+
     function serviciosSeleccionados() {
         return Array.from(
             formulario.querySelectorAll('input[name="servicios"]:checked'),
@@ -69,6 +85,11 @@
             enfocar("telefono");
             return false;
         }
+        if (!webValida(datos.web)) {
+            mostrarMensaje("Escribe una página web válida o deja el campo vacío.", "error");
+            enfocar("web");
+            return false;
+        }
         if (datos.direccion.length < 5) {
             mostrarMensaje("Escribe la dirección completa del taller.", "error");
             enfocar("direccion");
@@ -82,6 +103,17 @@
         if (datos.ciudad.length < 2 || datos.provincia.length < 2) {
             mostrarMensaje("Completa correctamente la ciudad y la provincia.", "error");
             enfocar(datos.ciudad.length < 2 ? "ciudad" : "provincia");
+            return false;
+        }
+        const provinciaEsperada = window.TallerMapProvincias?.provinciaPorCodigoPostal(
+            datos.codigo_postal
+        );
+        if (!provinciaEsperada || provinciaEsperada.nombre !== datos.provincia) {
+            const detalle = provinciaEsperada
+                ? `El código postal ${datos.codigo_postal} pertenece a ${provinciaEsperada.nombre}.`
+                : "El código postal no pertenece a una provincia española válida.";
+            mostrarMensaje(`${detalle} Selecciona la provincia correcta.`, "error");
+            enfocar("provincia");
             return false;
         }
         if (!datos.servicios.length) {
@@ -117,6 +149,12 @@
         if (error?.code === "23505" || detalle.includes("duplicate")) {
             return "Ya existe una solicitud con esos datos.";
         }
+        if (detalle.includes("provincia_codigo_postal")) {
+            return "La provincia seleccionada no coincide con el código postal.";
+        }
+        if (detalle.includes("web_url_valida")) {
+            return "La página web indicada no tiene una dirección válida.";
+        }
         if (error?.code === "23514" || detalle.includes("check constraint")) {
             return "Uno de los datos no cumple los requisitos. Revisa el CIF, teléfono y código postal.";
         }
@@ -127,6 +165,7 @@
         const detalle = String(error?.message || "").toLowerCase();
         const opcionales = [
             "servicios",
+            "web",
             "acepta_responsabilidad",
             "acepta_terminos_at",
             "version_terminos"
@@ -157,9 +196,28 @@
         return resultado;
     }
 
+    const campoCodigoPostal = document.getElementById("codigo_postal");
+    const campoProvincia = document.getElementById("provincia");
+    const campoWeb = document.getElementById("web");
+
+    campoCodigoPostal?.addEventListener("input", () => {
+        if (/^[0-9]{5}$/.test(campoCodigoPostal.value)) {
+            window.TallerMapProvincias?.seleccionarSegunCodigo(
+                campoCodigoPostal.value,
+                campoProvincia
+            );
+        }
+    });
+
+    campoWeb?.addEventListener("blur", () => {
+        campoWeb.value = normalizarWeb(campoWeb.value);
+    });
+
     formulario.addEventListener("submit", async (evento) => {
         evento.preventDefault();
         ocultarMensaje();
+
+        if (campoWeb) campoWeb.value = normalizarWeb(campoWeb.value);
 
         if (!formulario.checkValidity()) {
             formulario.reportValidity();
@@ -172,6 +230,7 @@
             cif: valor("cif").toUpperCase(),
             email: valor("email").toLowerCase(),
             telefono: valor("telefono"),
+            web: normalizarWeb(valor("web")),
             direccion: valor("direccion"),
             codigo_postal: valor("codigo_postal"),
             ciudad: valor("ciudad"),
