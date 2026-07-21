@@ -2,6 +2,8 @@
 
 Directorio web de talleres de automoción. La primera versión permite buscar talleres activos, enviar una solicitud de alta y revisar las solicitudes desde un panel privado de administración.
 
+El buscador utiliza la población como criterio principal. Opcionalmente, el visitante puede autorizar la ubicación de su dispositivo para detectar su población y lanzar la búsqueda automáticamente; las coordenadas no se guardan en TallerMap.
+
 ## Estructura
 
 - `index.html`: página principal y buscador.

@@ -22,7 +22,7 @@
     };
     const TAMANO_PAGINA = 30;
     let siguienteIndice = 0;
-    let ubicacionActual = "";
+    let poblacionActual = "";
     let servicioActual = "";
     let cargandoTalleres = false;
 
@@ -135,13 +135,13 @@
         boton.textContent = cargando ? "Cargando talleres..." : "Cargar más talleres";
     }
 
-    async function cargarTalleres(ubicacion = "", servicio = "", reiniciar = true) {
+    async function cargarTalleres(poblacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
         if (!contenedor || cargandoTalleres) return;
 
         if (reiniciar) {
             siguienteIndice = 0;
-            ubicacionActual = terminoSeguro(ubicacion);
+            poblacionActual = terminoSeguro(poblacion);
             servicioActual = servicio;
             mostrarEstado(contenedor, "Cargando talleres...");
             actualizarBotonCarga(false);
@@ -163,10 +163,8 @@
                 .order("created_at", { ascending: false })
                 .range(desde, hasta);
 
-            if (ubicacionActual) {
-                consulta = consulta.or(
-                    `ciudad.ilike.%${ubicacionActual}%,provincia.ilike.%${ubicacionActual}%,codigo_postal.ilike.%${ubicacionActual}%`
-                );
+            if (poblacionActual) {
+                consulta = consulta.ilike("ciudad", `%${poblacionActual}%`);
             }
             if (servicioActual && incluirServicios) {
                 consulta = consulta.contains("servicios", [servicioActual]);
@@ -230,18 +228,90 @@
         if (!contenedor) return;
 
         const formularioBusqueda = document.querySelector("form.buscador");
-        const campoUbicacion = document.getElementById("ubicacion");
+        const campoPoblacion = document.getElementById("poblacion");
         const campoServicio = document.getElementById("servicio");
         const botonCargarMas = document.getElementById("boton-cargar-mas");
+        const botonUbicacion = document.getElementById("usar-mi-ubicacion");
+        const estadoUbicacion = document.getElementById("estado-ubicacion");
+
+        function escribirEstadoUbicacion(mensaje, esError = false) {
+            if (!estadoUbicacion) return;
+            estadoUbicacion.textContent = mensaje;
+            estadoUbicacion.classList.toggle("estado-ubicacion-error", esError);
+        }
+
+        function obtenerPosicionActual() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("geolocation-no-disponible"));
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: false,
+                    timeout: 12000,
+                    maximumAge: 300000
+                });
+            });
+        }
+
+        async function detectarPoblacion() {
+            if (!botonUbicacion || !campoPoblacion) return;
+
+            botonUbicacion.disabled = true;
+            botonUbicacion.textContent = "Localizando…";
+            escribirEstadoUbicacion("Solicitando permiso para conocer tu ubicación…");
+
+            try {
+                const posicion = await obtenerPosicionActual();
+                const parametros = new URLSearchParams({
+                    latitude: String(posicion.coords.latitude),
+                    longitude: String(posicion.coords.longitude),
+                    localityLanguage: "es"
+                });
+                const respuesta = await fetch(
+                    `https://api.bigdatacloud.net/data/reverse-geocode-client?${parametros}`,
+                    { headers: { Accept: "application/json" } }
+                );
+                if (!respuesta.ok) throw new Error("geocodificacion-no-disponible");
+
+                const lugar = await respuesta.json();
+                if (lugar.countryCode && lugar.countryCode !== "ES") {
+                    throw new Error("fuera-de-espana");
+                }
+
+                const poblacion = String(lugar.city || lugar.locality || "").trim();
+                if (!poblacion) throw new Error("poblacion-no-encontrada");
+
+                campoPoblacion.value = poblacion;
+                escribirEstadoUbicacion(`Ubicación detectada: ${poblacion}. Buscando talleres…`);
+                formularioBusqueda?.requestSubmit();
+            } catch (error) {
+                const permisoDenegado = error?.code === 1;
+                const fueraDeEspana = error?.message === "fuera-de-espana";
+                escribirEstadoUbicacion(
+                    fueraDeEspana
+                        ? "La búsqueda automática está disponible actualmente en España."
+                        : permisoDenegado
+                            ? "No has permitido acceder a tu ubicación. Escribe la población manualmente."
+                            : "No se pudo detectar tu población. Puedes escribirla manualmente.",
+                    true
+                );
+            } finally {
+                botonUbicacion.disabled = false;
+                botonUbicacion.innerHTML = '<span aria-hidden="true">⌖</span> 2 · Mi ubicación';
+            }
+        }
 
         formularioBusqueda?.addEventListener("submit", (evento) => {
             evento.preventDefault();
-            cargarTalleres(campoUbicacion?.value || "", campoServicio?.value || "");
+            cargarTalleres(campoPoblacion?.value || "", campoServicio?.value || "");
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
 
+        botonUbicacion?.addEventListener("click", detectarPoblacion);
+
         botonCargarMas?.addEventListener("click", () => {
-            cargarTalleres(ubicacionActual, servicioActual, false);
+            cargarTalleres(poblacionActual, servicioActual, false);
         });
 
         document.querySelectorAll("[data-servicio]").forEach((enlace) => {

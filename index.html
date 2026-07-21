@@ -88,13 +88,21 @@
                         <span class="campo-icono">⌖</span>
 
                         <div>
-                            <label for="ubicacion">Ubicación</label>
+                            <label for="poblacion"><span class="numero-opcion">1</span> Población</label>
 
-                            <input
-                                id="ubicacion"
-                                type="text"
-                                placeholder="Ciudad, provincia o código postal"
-                            >
+                            <div class="poblacion-controles">
+                                <input
+                                    id="poblacion"
+                                    type="search"
+                                    autocomplete="address-level2"
+                                    placeholder="Ej. Valencia, Silla o Alicante"
+                                >
+                                <button id="usar-mi-ubicacion" class="boton-ubicacion" type="button">
+                                    <span aria-hidden="true">⌖</span>
+                                    2 · Mi ubicación
+                                </button>
+                            </div>
+                            <small id="estado-ubicacion" class="estado-ubicacion" aria-live="polite">Solo se solicita al pulsar y se utiliza para detectar la población.</small>
                         </div>
                     </div>
 
@@ -161,7 +169,7 @@
 
                             <div>
                                 <strong>Talleres publicados</strong>
-                                <span>Busca por servicio y ubicación</span>
+                                <span>Busca por población o usa tu ubicación</span>
                             </div>
                         </div>
                     </div>
