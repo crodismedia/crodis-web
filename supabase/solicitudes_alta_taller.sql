@@ -23,7 +23,7 @@ create table if not exists public.solicitudes_alta_taller (
     servicios text[] not null default '{}',
     fotos text[] not null default '{}',
     descripcion text not null check (char_length(trim(descripcion)) between 10 and 1500),
-    estado text not null default 'pendiente' check (estado in ('pendiente', 'aprobada', 'rechazada')),
+    estado text not null default 'aprobada' check (estado in ('pendiente', 'aprobada', 'rechazada')),
     acepta_responsabilidad boolean not null default false,
     acepta_terminos_at timestamptz,
     version_terminos text,
@@ -224,7 +224,7 @@ create index if not exists talleres_publicos_ubicacion_idx
 create index if not exists talleres_servicios_gin_idx
     on public.talleres using gin (servicios);
 
--- Las solicitudes de Alicante, Castellón y Valencia se publican automáticamente.
+-- Todas las solicitudes se publican automáticamente como no verificadas.
 -- El estado se decide en el servidor para que el visitante no pueda elegirlo.
 create or replace function public.preparar_estado_solicitud()
 returns trigger
@@ -232,15 +232,9 @@ language plpgsql
 set search_path = public, pg_temp
 as $$
 begin
-    if left(new.codigo_postal, 2) in ('03', '12', '46') then
-        new.estado := 'aprobada';
-        new.revisada_at := now();
-        new.revisada_por := null;
-    else
-        new.estado := 'pendiente';
-        new.revisada_at := null;
-        new.revisada_por := null;
-    end if;
+    new.estado := 'aprobada';
+    new.revisada_at := now();
+    new.revisada_por := null;
 
     return new;
 end;
@@ -345,10 +339,7 @@ on public.solicitudes_alta_taller
 for insert
 to anon, authenticated
 with check (
-    estado = case
-        when left(codigo_postal, 2) in ('03', '12', '46') then 'aprobada'
-        else 'pendiente'
-    end
+    estado = 'aprobada'
     and acepta_responsabilidad = true
     and acepta_terminos_at is not null
     and char_length(trim(nombre_taller)) between 2 and 120
@@ -546,6 +537,8 @@ language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
+declare
+    v_filas integer;
 begin
     if not public.es_administrador() then
         raise exception 'No autorizado' using errcode = '42501';
@@ -556,11 +549,17 @@ begin
         revisada_at = now(),
         revisada_por = auth.uid()
     where id = p_solicitud_id
-      and estado = 'pendiente';
+      and estado <> 'rechazada';
 
-    if not found then
-        raise exception 'Solicitud no encontrada o ya procesada';
+    get diagnostics v_filas = row_count;
+    if v_filas = 0 then
+        raise exception 'Ficha no encontrada o ya retirada';
     end if;
+
+    update public.talleres
+    set activo = false,
+        updated_at = now()
+    where solicitud_id = p_solicitud_id;
 end;
 $$;
 
@@ -599,8 +598,7 @@ grant select on table public.administradores to authenticated;
 
 revoke all on function public.es_administrador() from public, anon;
 grant execute on function public.es_administrador() to authenticated;
-revoke all on function public.aprobar_solicitud(bigint) from public, anon;
-grant execute on function public.aprobar_solicitud(bigint) to authenticated;
+drop function if exists public.aprobar_solicitud(bigint);
 revoke all on function public.rechazar_solicitud(bigint) from public, anon;
 grant execute on function public.rechazar_solicitud(bigint) to authenticated;
 revoke all on function public.estadisticas_publicas() from public;

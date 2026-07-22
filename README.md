@@ -1,6 +1,6 @@
 # TallerMap
 
-Directorio web de talleres de automoción. La primera versión permite buscar talleres activos, enviar una solicitud de alta y revisar las solicitudes desde un panel privado de administración.
+Directorio web de talleres de automoción. Permite buscar talleres activos y publicar gratuitamente una ficha sin aprobación previa. El panel privado se utiliza únicamente para revisar posteriormente y retirar registros incorrectos.
 
 El buscador utiliza la población como criterio principal. Opcionalmente, el visitante puede autorizar la ubicación de su dispositivo para detectar su población y lanzar la búsqueda automáticamente; las coordenadas no se guardan en TallerMap.
 
@@ -9,7 +9,7 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `index.html`: página principal y buscador.
 - `pages/registro.html`: formulario público de nuevos registros.
 - `pages/admin-login.html`: acceso privado de administración.
-- `pages/admin.html`: aprobación y rechazo de solicitudes.
+- `pages/admin.html`: revisión posterior y retirada de fichas publicadas.
 - `pages/condiciones-fotografias.html`: condiciones adicionales para imágenes opcionales.
 - `css/estilo.css`: estilos compartidos y adaptación móvil.
 - `js/`: conexión con Supabase y lógica de la web.
@@ -18,7 +18,7 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `supabase/solicitudes_alta_taller.sql`: tablas, funciones, permisos y políticas RLS.
 - `supabase/estadisticas_publicas.sql`: contadores públicos calculados con datos reales.
 - `supabase/formulario_web_provincias.sql`: web opcional y comprobación provincia/código postal.
-- `supabase/alta_automatica_comunitat_valenciana.sql`: activa la publicación automática para los códigos postales 03, 12 y 46.
+- `supabase/alta_automatica_espana.sql`: activa la publicación automática y gratuita en toda España.
 - `supabase/fotos_opcionales_taller.sql`: crea el almacenamiento privado y las políticas para un máximo de cinco fotografías.
 
 ## Configuración de Supabase
@@ -30,11 +30,11 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 
 Si la base de datos ya estaba configurada antes de añadir los contadores reales, ejecuta también `supabase/estadisticas_publicas.sql` una sola vez.
 
-Para activar la publicación automática en una base de datos ya configurada, ejecuta una sola vez `supabase/alta_automatica_comunitat_valenciana.sql`.
+Para activar la publicación automática en una base de datos ya configurada, ejecuta una sola vez `supabase/alta_automatica_espana.sql`.
 
 Para permitir fotografías opcionales, ejecuta una sola vez `supabase/fotos_opcionales_taller.sql`. Cada imagen puede ocupar hasta 5 MB y las solicitudes con fotos deben aceptar las condiciones adicionales. Las imágenes permanecen privadas mientras la solicitud no esté publicada.
 
-Las solicitudes con código postal de Alicante (03), Castellón (12) o Valencia (46) se publican automáticamente como fichas activas no verificadas. Las solicitudes del resto de España se guardan como `pendiente`; solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas.
+Todas las altas de España se publican automáticamente como fichas activas no verificadas. Una cuenta incluida en `public.administradores` puede revisar posteriormente los registros y retirar los que sean falsos, incorrectos o incumplan las condiciones.
 
 El acceso administrativo admite contraseña o un enlace seguro enviado por correo. Para usar el enlace, configura en Supabase **Authentication > URL Configuration** el sitio `https://tallermap.es` y permite la redirección `https://tallermap.es/**`.
 

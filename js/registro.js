@@ -369,7 +369,7 @@
             acepta_condiciones_fotos_at: subidas.length ? new Date().toISOString() : null,
             version_condiciones_fotos: subidas.length ? "1.0" : null,
             descripcion: valor("descripcion"),
-            estado: "pendiente",
+            estado: "aprobada",
             acepta_responsabilidad: document.getElementById("acepta_responsabilidad").checked,
             acepta_terminos_at: new Date().toISOString(),
             version_terminos: "1.0"
@@ -403,18 +403,16 @@
                 campoCondicionesFotos.required = false;
             }
             limpiarVistaPrevia();
-            const publicacionAutomatica = window.TallerMapProvincias
-                ?.esComunitatValenciana(datos.codigo_postal);
             if (fotosFallidas.length) {
                 mostrarMensaje(
                     "El alta se ha guardado, pero algunas fotografías no pudieron subirse. La ficha continuará sin esas imágenes.",
                     "aviso"
                 );
             } else {
-                mostrarMensaje(publicacionAutomatica
-                    ? "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada."
-                    : "Solicitud enviada correctamente. El taller queda pendiente de revisión.",
-                "exito");
+                mostrarMensaje(
+                    "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada.",
+                    "exito"
+                );
             }
         } catch (error) {
             console.error("Error inesperado al registrar la solicitud:", error);

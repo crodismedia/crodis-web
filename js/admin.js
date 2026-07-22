@@ -41,7 +41,7 @@
             <div class="solicitud-titulo"><div><span>Solicitud #${Number(solicitud.id)}</span><h2>${escaparHtml(solicitud.nombre_taller)}</h2></div><time>${escaparHtml(formatoFecha(solicitud.created_at))}</time></div>
             <dl>${campos.map(([etiqueta, valor]) => `<div><dt>${escaparHtml(etiqueta)}</dt><dd>${escaparHtml(valor)}</dd></div>`).join("")}</dl>
             ${galeria}
-            <div class="solicitud-acciones"><button class="boton boton-pequeno" data-accion="aprobar" type="button">Aprobar</button><button class="boton boton-rechazar boton-pequeno" data-accion="rechazar" type="button">Rechazar</button></div>
+            <div class="solicitud-acciones"><button class="boton boton-rechazar boton-pequeno" data-accion="retirar" type="button">Retirar publicación</button></div>
         </article>`;
     }
 
@@ -73,14 +73,14 @@
         let resultado = await window.supabaseClient
             .from("solicitudes_alta_taller")
             .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
-            .eq("estado", "pendiente")
-            .order("created_at", { ascending: true });
+            .eq("estado", "aprobada")
+            .order("created_at", { ascending: false });
         if (resultado.error?.code === "42703" && String(resultado.error.message || "").includes("fotos")) {
             resultado = await window.supabaseClient
                 .from("solicitudes_alta_taller")
                 .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,descripcion,estado,acepta_responsabilidad,created_at")
-                .eq("estado", "pendiente")
-                .order("created_at", { ascending: true });
+                .eq("estado", "aprobada")
+                .order("created_at", { ascending: false });
         }
         const { data, error } = resultado;
         if (error) {
@@ -89,27 +89,25 @@
             return;
         }
         const solicitudes = data?.length ? await adjuntarFotosFirmadas(data) : [];
-        lista.innerHTML = solicitudes.length ? solicitudes.map(tarjeta).join("") : '<p class="mensaje-talleres">No hay solicitudes pendientes.</p>';
+        lista.innerHTML = solicitudes.length ? solicitudes.map(tarjeta).join("") : '<p class="mensaje-talleres">No hay talleres publicados.</p>';
     }
 
-    async function gestionarSolicitud(id, accion, boton) {
+    async function retirarPublicacion(id, boton) {
         const tarjetaSolicitud = boton.closest("[data-solicitud-id]");
         tarjetaSolicitud.querySelectorAll("button").forEach((elemento) => {
             elemento.disabled = true;
         });
-        const etiqueta = accion === "aprobar" ? "Aprobando..." : "Rechazando...";
-        boton.textContent = etiqueta;
-        const funcion = accion === "aprobar" ? "aprobar_solicitud" : "rechazar_solicitud";
-        const { error } = await window.supabaseClient.rpc(funcion, { p_solicitud_id: id });
+        boton.textContent = "Retirando...";
+        const { error } = await window.supabaseClient.rpc("rechazar_solicitud", { p_solicitud_id: id });
         if (error) {
             tarjetaSolicitud.querySelectorAll("button").forEach((elemento) => {
                 elemento.disabled = false;
             });
-            boton.textContent = accion === "aprobar" ? "Aprobar" : "Rechazar";
-            mostrar(error.message.includes("duplicado") ? "No se puede aprobar: ya existe un taller con el mismo CIF o nombre y dirección." : "No se ha podido procesar la solicitud. Actualiza la página e inténtalo de nuevo.");
+            boton.textContent = "Retirar publicación";
+            mostrar("No se ha podido retirar la publicación. Actualiza la página e inténtalo de nuevo.");
             return;
         }
-        mostrar(accion === "aprobar" ? "Solicitud aprobada y taller creado." : "Solicitud rechazada.", "exito");
+        mostrar("La ficha ha sido retirada del directorio.", "exito");
         await cargarSolicitudes();
     }
 
@@ -118,12 +116,8 @@
         if (!boton) return;
         const id = Number(boton.closest("[data-solicitud-id]").dataset.solicitudId);
         if (!Number.isSafeInteger(id) || id < 1) return;
-        const accion = boton.dataset.accion;
-        const pregunta = accion === "aprobar"
-            ? "¿Aprobar esta solicitud y publicar el taller?"
-            : "¿Rechazar esta solicitud?";
-        if (!window.confirm(pregunta)) return;
-        gestionarSolicitud(id, accion, boton);
+        if (!window.confirm("¿Retirar este taller del directorio público?")) return;
+        retirarPublicacion(id, boton);
     });
 
     document.getElementById("boton-recargar")?.addEventListener("click", cargarSolicitudes);
