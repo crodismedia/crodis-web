@@ -7,7 +7,6 @@
     const campoFotos = document.getElementById("fotos");
     const vistaPreviaFotos = document.getElementById("vista-previa-fotos");
     const campoCondicionesFotos = document.getElementById("acepta_condiciones_fotos");
-    const campoCondicionesDestacado = document.getElementById("acepta_condiciones_destacado");
     const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
     const MAXIMO_FOTOS = 5;
     const MAXIMO_BYTES_FOTO = 5 * 1024 * 1024;
@@ -64,27 +63,7 @@
 
     function cambiarEstadoBoton(enviando, texto = "Enviando...") {
         botonEnviar.disabled = enviando;
-        botonEnviar.textContent = enviando ? texto : textoBotonPlan();
-    }
-
-    function planSeleccionado() {
-        return formulario.querySelector('input[name="plan_publicacion"]:checked')?.value || "gratis";
-    }
-
-    function textoBotonPlan() {
-        return planSeleccionado() === "destacado"
-            ? "Continuar al pago seguro · 1,21 €/mes"
-            : "Enviar alta gratuita";
-    }
-
-    function actualizarPlan() {
-        const esDestacado = planSeleccionado() === "destacado";
-        if (campoCondicionesDestacado) {
-            campoCondicionesDestacado.disabled = !esDestacado;
-            campoCondicionesDestacado.required = esDestacado;
-            if (!esDestacado) campoCondicionesDestacado.checked = false;
-        }
-        botonEnviar.textContent = textoBotonPlan();
+        botonEnviar.textContent = enviando ? texto : "Enviar alta gratuita";
     }
 
     function fotosSeleccionadas() {
@@ -256,11 +235,6 @@
             enfocar("acepta_responsabilidad");
             return false;
         }
-        if (datos.plan_publicacion === "destacado" && !datos.acepta_condiciones_destacado) {
-            mostrarMensaje("Debes aceptar las condiciones del Plan Destacado para iniciar el pago mensual.", "error");
-            campoCondicionesDestacado?.focus();
-            return false;
-        }
         return true;
     }
 
@@ -284,9 +258,6 @@
         }
         if (detalle.includes("fotos")) {
             return "Falta activar la configuración de fotografías en Supabase.";
-        }
-        if (detalle.includes("plan_publicacion") || detalle.includes("token_gestion") || detalle.includes("destacado")) {
-            return "Falta activar la configuración del Plan Destacado en Supabase.";
         }
         if (error?.code === "23514" || detalle.includes("check constraint")) {
             return "Uno de los datos no cumple los requisitos. Revisa el CIF, teléfono y código postal.";
@@ -329,18 +300,6 @@
         return resultado;
     }
 
-    async function iniciarPagoDestacado(tokenGestion) {
-        const { data, error } = await window.supabaseClient.functions.invoke(
-            "crear-pago-destacado",
-            { body: { tokenGestion } }
-        );
-        if (error || !data?.url) {
-            console.error("No se pudo iniciar Stripe Checkout:", error || data);
-            throw new Error(data?.error || "checkout-no-disponible");
-        }
-        window.location.assign(data.url);
-    }
-
     const campoCodigoPostal = document.getElementById("codigo_postal");
     const campoProvincia = document.getElementById("provincia");
     const campoWeb = document.getElementById("web");
@@ -379,19 +338,6 @@
         mostrarVistaPrevia(archivos);
     });
 
-    formulario.querySelectorAll('input[name="plan_publicacion"]').forEach((campo) => {
-        campo.addEventListener("change", actualizarPlan);
-    });
-
-    if (new URLSearchParams(window.location.search).get("pago") === "cancelado") {
-        mostrarMensaje(
-            "El pago se ha cancelado y no se ha realizado ningún cobro. El alta permanece en la modalidad gratuita.",
-            "aviso"
-        );
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    actualizarPlan();
-
     formulario.addEventListener("submit", async (evento) => {
         evento.preventDefault();
         ocultarMensaje();
@@ -406,9 +352,6 @@
         const archivos = fotosSeleccionadas();
         if (!validarFotos(archivos)) return;
         const subidas = prepararSubidas(archivos);
-        const planPublicacion = planSeleccionado();
-        const tokenGestion = identificadorAleatorio();
-
         const datos = {
             nombre_taller: valor("nombre_taller"),
             propietario: valor("propietario"),
@@ -425,14 +368,6 @@
             acepta_condiciones_fotos: subidas.length > 0 && campoCondicionesFotos.checked,
             acepta_condiciones_fotos_at: subidas.length ? new Date().toISOString() : null,
             version_condiciones_fotos: subidas.length ? "1.0" : null,
-            plan_publicacion: planPublicacion,
-            acepta_condiciones_destacado: planPublicacion === "destacado"
-                && Boolean(campoCondicionesDestacado?.checked),
-            acepta_condiciones_destacado_at: planPublicacion === "destacado"
-                ? new Date().toISOString()
-                : null,
-            version_condiciones_destacado: planPublicacion === "destacado" ? "1.0" : null,
-            token_gestion: tokenGestion,
             descripcion: valor("descripcion"),
             estado: "pendiente",
             acepta_responsabilidad: document.getElementById("acepta_responsabilidad").checked,
@@ -462,29 +397,7 @@
                 fotosFallidas = await subirFotos(subidas);
             }
 
-            if (planPublicacion === "destacado") {
-                cambiarEstadoBoton(true, "Abriendo pago seguro...");
-                try {
-                    await iniciarPagoDestacado(tokenGestion);
-                    return;
-                } catch (_errorPago) {
-                    formulario.reset();
-                    actualizarPlan();
-                    if (campoCondicionesFotos) {
-                        campoCondicionesFotos.disabled = true;
-                        campoCondicionesFotos.required = false;
-                    }
-                    limpiarVistaPrevia();
-                    mostrarMensaje(
-                        "El alta se ha guardado gratuitamente, pero el pago no pudo abrirse y no se ha realizado ningún cobro. Contacta con CRODIS Media para activar el Plan Destacado.",
-                        "aviso"
-                    );
-                    return;
-                }
-            }
-
             formulario.reset();
-            actualizarPlan();
             if (campoCondicionesFotos) {
                 campoCondicionesFotos.disabled = true;
                 campoCondicionesFotos.required = false;

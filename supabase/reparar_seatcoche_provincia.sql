@@ -1,4 +1,4 @@
--- Reparación puntual del registro histórico #14 antes del Plan Destacado.
+-- Reparación puntual de la provincia del registro histórico #14.
 -- Ejecuta este archivo completo una sola vez en Supabase > SQL Editor.
 
 begin;

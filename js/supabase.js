@@ -61,7 +61,6 @@
         const fotoPrincipal = webSegura(taller.fotoFirmada);
         const cantidadFotos = Array.isArray(taller.fotos) ? taller.fotos.length : 0;
         const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
-        const esDestacado = taller.destacado === true;
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
         const enlaces = [];
@@ -76,11 +75,10 @@
             : "<span>Sin contacto publicado</span>";
 
         return `
-            <article class="taller-card${esDestacado ? " taller-card-destacado" : ""}">
+            <article class="taller-card">
                 <div class="taller-imagen taller-imagen-1">
                     ${fotoPrincipal ? `<img src="${escaparHTML(fotoPrincipal)}" alt="Fotografía de ${nombre}" loading="lazy">` : ""}
                     <span class="verificado">${distintivo}</span>
-                    ${esDestacado ? '<span class="distintivo-destacado">★ Destacado</span>' : ""}
                     ${cantidadFotos ? `<span class="numero-fotos">${cantidadFotos} ${cantidadFotos === 1 ? "foto" : "fotos"}</span>` : ""}
                 </div>
                 <div class="taller-informacion">
@@ -205,46 +203,8 @@
         }
 
         try {
-            const resultadoRpc = await supabaseClient.rpc("buscar_talleres_publicos", {
-                p_poblacion: poblacionActual,
-                p_servicio: servicioActual,
-                p_desde: desde,
-                p_limite: TAMANO_PAGINA
-            });
-            const funcionNoInstalada = resultadoRpc.error && (
-                ["PGRST202", "42883"].includes(resultadoRpc.error.code)
-                || String(resultadoRpc.error.message || "").includes("buscar_talleres_publicos")
-            );
-
-            if (!resultadoRpc.error) {
-                const talleres = resultadoRpc.data || [];
-                if (!talleres.length && reiniciar) {
-                    mostrarEstado(contenedor, "No hemos encontrado talleres con esos criterios.");
-                    actualizarNumeroResultados(0);
-                    actualizarBotonCarga(false);
-                    return;
-                }
-
-                const talleresConFotos = await adjuntarFotosFirmadas(talleres);
-                const tarjetas = talleresConFotos.map(crearTarjetaTaller).join("");
-                if (reiniciar) contenedor.innerHTML = tarjetas;
-                else contenedor.insertAdjacentHTML("beforeend", tarjetas);
-
-                siguienteIndice += talleres.length;
-                const total = Number(talleres[0]?.total_resultados || siguienteIndice);
-                actualizarNumeroResultados(total);
-                actualizarBotonCarga(siguienteIndice < total);
-                return;
-            }
-
-            if (!funcionNoInstalada) {
-                console.error("No se pudieron cargar los talleres ordenados:", resultadoRpc.error);
-                if (reiniciar) mostrarEstado(contenedor, "No se pudieron cargar los talleres.");
-                actualizarBotonCarga(false);
-                return;
-            }
-
-            // Compatibilidad temporal hasta ejecutar suscripcion_destacada.sql.
+            // Compatibilidad con instalaciones que todavía no tienen las columnas
+            // opcionales de servicios o fotografías.
             let incluirServicios = true;
             let incluirFotos = true;
             let resultado;

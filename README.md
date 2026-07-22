@@ -11,8 +11,6 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `pages/admin-login.html`: acceso privado de administración.
 - `pages/admin.html`: aprobación y rechazo de solicitudes.
 - `pages/condiciones-fotografias.html`: condiciones adicionales para imágenes opcionales.
-- `pages/condiciones-destacado.html`: precio, renovación, cancelación y criterio de prioridad.
-- `pages/pago-confirmado.html`: regreso seguro después de Stripe Checkout.
 - `css/estilo.css`: estilos compartidos y adaptación móvil.
 - `js/`: conexión con Supabase y lógica de la web.
 - `js/servicios.js`: catálogo compartido por el buscador y el formulario de alta.
@@ -22,9 +20,6 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `supabase/formulario_web_provincias.sql`: web opcional y comprobación provincia/código postal.
 - `supabase/alta_automatica_comunitat_valenciana.sql`: activa la publicación automática para los códigos postales 03, 12 y 46.
 - `supabase/fotos_opcionales_taller.sql`: crea el almacenamiento privado y las políticas para un máximo de cinco fotografías.
-- `supabase/suscripcion_destacada.sql`: suscripciones y orden rotatorio de veinte posiciones destacadas.
-- `supabase/functions/`: creación de Stripe Checkout y recepción de webhooks firmados.
-- `CONFIGURAR_STRIPE.md`: pasos para activar y probar Stripe sin publicar claves privadas.
 
 ## Configuración de Supabase
 
@@ -38,8 +33,6 @@ Si la base de datos ya estaba configurada antes de añadir los contadores reales
 Para activar la publicación automática en una base de datos ya configurada, ejecuta una sola vez `supabase/alta_automatica_comunitat_valenciana.sql`.
 
 Para permitir fotografías opcionales, ejecuta una sola vez `supabase/fotos_opcionales_taller.sql`. Cada imagen puede ocupar hasta 5 MB y las solicitudes con fotos deben aceptar las condiciones adicionales. Las imágenes permanecen privadas mientras la solicitud no esté publicada.
-
-Para habilitar el Plan Destacado, ejecuta una sola vez `supabase/suscripcion_destacada.sql` y sigue `CONFIGURAR_STRIPE.md`. La modalidad cuesta 1,21 € al mes, IVA incluido, sin prueba. Cada búsqueda muestra como máximo veinte fichas de pago identificadas; cuando hay más, rotan diariamente. Una ficha cancelada permanece publicada gratuitamente y pierde únicamente la prioridad al finalizar el periodo pagado.
 
 Las solicitudes con código postal de Alicante (03), Castellón (12) o Valencia (46) se publican automáticamente como fichas activas no verificadas. Las solicitudes del resto de España se guardan como `pendiente`; solo una cuenta incluida en `public.administradores` puede consultarlas, aprobarlas o rechazarlas.
 
