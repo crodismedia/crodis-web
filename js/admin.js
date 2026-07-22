@@ -19,6 +19,21 @@
         return new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(fecha);
     }
 
+    function formatoHorario(horarios) {
+        if (!horarios || typeof horarios !== "object") return "No indicado";
+        const dias = [
+            ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
+            ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
+            ["domingo", "Domingo"]
+        ];
+        return dias.map(([clave, etiqueta]) => {
+            const horario = horarios[clave];
+            if (!horario) return `${etiqueta}: no indicado`;
+            if (horario.cerrado) return `${etiqueta}: cerrado`;
+            return `${etiqueta}: ${(horario.turnos || []).map((turno) => `${turno.apertura}-${turno.cierre}`).join(" y ")}`;
+        }).join("\n");
+    }
+
     function tarjeta(solicitud) {
         const servicios = Array.isArray(solicitud.servicios) && solicitud.servicios.length
             ? solicitud.servicios.join(", ")
@@ -28,6 +43,7 @@
             ["Teléfono", solicitud.telefono], ["Página web", solicitud.web || "No indicada"],
             ["Dirección", solicitud.direccion], ["Código postal", solicitud.codigo_postal],
             ["Ciudad", solicitud.ciudad], ["Provincia", solicitud.provincia], ["Servicios", servicios],
+            ["Horario semanal", formatoHorario(solicitud.horarios)],
             ["Condiciones aceptadas", solicitud.acepta_responsabilidad ? "Sí" : "No"],
             ["Condiciones de fotos", Array.isArray(solicitud.fotos) && solicitud.fotos.length
                 ? (solicitud.acepta_condiciones_fotos ? "Sí" : "No")
@@ -72,9 +88,16 @@
         lista.innerHTML = '<p class="mensaje-talleres">Cargando solicitudes…</p>';
         let resultado = await window.supabaseClient
             .from("solicitudes_alta_taller")
-            .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
+            .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,horarios,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
             .eq("estado", "aprobada")
             .order("created_at", { ascending: false });
+        if (resultado.error?.code === "42703" && String(resultado.error.message || "").includes("horarios")) {
+            resultado = await window.supabaseClient
+                .from("solicitudes_alta_taller")
+                .select("id,nombre_taller,propietario,cif,email,telefono,web,direccion,codigo_postal,ciudad,provincia,servicios,fotos,descripcion,estado,acepta_responsabilidad,acepta_condiciones_fotos,acepta_condiciones_fotos_at,created_at")
+                .eq("estado", "aprobada")
+                .order("created_at", { ascending: false });
+        }
         if (resultado.error?.code === "42703" && String(resultado.error.message || "").includes("fotos")) {
             resultado = await window.supabaseClient
                 .from("solicitudes_alta_taller")

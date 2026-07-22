@@ -7,6 +7,12 @@
     const campoFotos = document.getElementById("fotos");
     const vistaPreviaFotos = document.getElementById("vista-previa-fotos");
     const campoCondicionesFotos = document.getElementById("acepta_condiciones_fotos");
+    const listaHorarios = document.getElementById("lista-horarios");
+    const DIAS_SEMANA = [
+        ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
+        ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
+        ["domingo", "Domingo"]
+    ];
     const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
     const MAXIMO_FOTOS = 5;
     const MAXIMO_BYTES_FOTO = 5 * 1024 * 1024;
@@ -42,6 +48,105 @@
             formulario.querySelectorAll('input[name="servicios"]:checked'),
             (campo) => campo.value
         );
+    }
+
+    function opcionesHoras(incluirCerrado = false, incluirVacio = false) {
+        const opciones = [];
+        if (incluirVacio) opciones.push('<option value="">Sin segundo turno</option>');
+        else opciones.push('<option value="">Elige…</option>');
+        if (incluirCerrado) opciones.push('<option value="cerrado">Cerrado</option>');
+        for (let hora = 0; hora < 24; hora += 1) {
+            for (const minutos of ["00", "30"]) {
+                const valorHora = `${String(hora).padStart(2, "0")}:${minutos}`;
+                opciones.push(`<option value="${valorHora}">${valorHora}</option>`);
+            }
+        }
+        if (!incluirCerrado) opciones.push('<option value="24:00">24:00</option>');
+        return opciones.join("");
+    }
+
+    function crearCamposHorarios() {
+        if (!listaHorarios) return;
+        listaHorarios.innerHTML = DIAS_SEMANA.map(([clave, etiqueta]) => `
+            <div class="horario-fila" data-dia="${clave}">
+                <strong>${etiqueta}</strong>
+                <label><span>Apertura</span><select data-turno="apertura-1" aria-label="Apertura del ${etiqueta}" required>${opcionesHoras(true)}</select></label>
+                <label><span>Cierre</span><select data-turno="cierre-1" aria-label="Cierre del ${etiqueta}" disabled>${opcionesHoras()}</select></label>
+                <label><span>Segunda apertura</span><select data-turno="apertura-2" aria-label="Segunda apertura del ${etiqueta}" disabled>${opcionesHoras(false, true)}</select></label>
+                <label><span>Segundo cierre</span><select data-turno="cierre-2" aria-label="Segundo cierre del ${etiqueta}" disabled>${opcionesHoras(false, true)}</select></label>
+            </div>
+        `).join("");
+    }
+
+    function actualizarFilaHorario(fila) {
+        const apertura1 = fila.querySelector('[data-turno="apertura-1"]');
+        const cierre1 = fila.querySelector('[data-turno="cierre-1"]');
+        const apertura2 = fila.querySelector('[data-turno="apertura-2"]');
+        const cierre2 = fila.querySelector('[data-turno="cierre-2"]');
+        const cerrado = !apertura1.value || apertura1.value === "cerrado";
+        cierre1.disabled = cerrado;
+        cierre1.required = !cerrado;
+        apertura2.disabled = cerrado;
+        if (cerrado) {
+            cierre1.value = "";
+            apertura2.value = "";
+            cierre2.value = "";
+            cierre2.disabled = true;
+            cierre2.required = false;
+            return;
+        }
+        cierre2.disabled = !apertura2.value;
+        cierre2.required = Boolean(apertura2.value);
+        if (!apertura2.value) cierre2.value = "";
+    }
+
+    function horariosSeleccionados() {
+        const horarios = {};
+        listaHorarios?.querySelectorAll("[data-dia]").forEach((fila) => {
+            const dia = fila.dataset.dia;
+            const apertura1 = fila.querySelector('[data-turno="apertura-1"]').value;
+            const cierre1 = fila.querySelector('[data-turno="cierre-1"]').value;
+            const apertura2 = fila.querySelector('[data-turno="apertura-2"]').value;
+            const cierre2 = fila.querySelector('[data-turno="cierre-2"]').value;
+            horarios[dia] = apertura1 === "cerrado"
+                ? { cerrado: true, turnos: [] }
+                : {
+                    cerrado: false,
+                    turnos: [
+                        { apertura: apertura1, cierre: cierre1 },
+                        ...(apertura2 ? [{ apertura: apertura2, cierre: cierre2 }] : [])
+                    ]
+                };
+        });
+        return horarios;
+    }
+
+    function validarHorarios(horarios) {
+        const dias = Object.entries(horarios);
+        if (dias.length !== 7 || dias.some(([, horario]) => !horario.cerrado
+            && (!horario.turnos[0]?.apertura || !horario.turnos[0]?.cierre))) {
+            mostrarMensaje("Selecciona un horario o «Cerrado» para todos los días.", "error");
+            document.getElementById("horarios-semanales")?.scrollIntoView({ behavior: "smooth", block: "center" });
+            return false;
+        }
+        if (!dias.some(([, horario]) => !horario.cerrado)) {
+            mostrarMensaje("El taller debe tener al menos un día abierto.", "error");
+            return false;
+        }
+        for (const [, horario] of dias) {
+            for (let indice = 0; indice < horario.turnos.length; indice += 1) {
+                const turno = horario.turnos[indice];
+                if (turno.cierre <= turno.apertura) {
+                    mostrarMensaje("La hora de cierre debe ser posterior a la hora de apertura.", "error");
+                    return false;
+                }
+                if (indice === 1 && turno.apertura < horario.turnos[0].cierre) {
+                    mostrarMensaje("El segundo turno debe empezar después de terminar el primero.", "error");
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -225,6 +330,7 @@
             });
             return false;
         }
+        if (!validarHorarios(datos.horarios)) return false;
         if (datos.descripcion.length < 10) {
             mostrarMensaje("La descripción debe contener al menos 10 caracteres.", "error");
             enfocar("descripcion");
@@ -258,6 +364,9 @@
         }
         if (detalle.includes("fotos")) {
             return "Falta activar la configuración de fotografías en Supabase.";
+        }
+        if (detalle.includes("horarios")) {
+            return "Falta activar la configuración de horarios obligatorios en Supabase.";
         }
         if (error?.code === "23514" || detalle.includes("check constraint")) {
             return "Uno de los datos no cumple los requisitos. Revisa el CIF, teléfono y código postal.";
@@ -303,6 +412,12 @@
     const campoCodigoPostal = document.getElementById("codigo_postal");
     const campoProvincia = document.getElementById("provincia");
     const campoWeb = document.getElementById("web");
+
+    crearCamposHorarios();
+    listaHorarios?.addEventListener("change", (evento) => {
+        const fila = evento.target.closest("[data-dia]");
+        if (fila) actualizarFilaHorario(fila);
+    });
 
     campoCodigoPostal?.addEventListener("input", () => {
         if (/^[0-9]{5}$/.test(campoCodigoPostal.value)) {
@@ -363,6 +478,7 @@
             codigo_postal: valor("codigo_postal"),
             ciudad: valor("ciudad"),
             provincia: valor("provincia"),
+            horarios: horariosSeleccionados(),
             servicios: serviciosSeleccionados(),
             fotos: subidas.map((subida) => subida.ruta),
             acepta_condiciones_fotos: subidas.length > 0 && campoCondicionesFotos.checked,
@@ -398,6 +514,7 @@
             }
 
             formulario.reset();
+            listaHorarios?.querySelectorAll("[data-dia]").forEach(actualizarFilaHorario);
             if (campoCondicionesFotos) {
                 campoCondicionesFotos.disabled = true;
                 campoCondicionesFotos.required = false;

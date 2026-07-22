@@ -20,6 +20,7 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `supabase/formulario_web_provincias.sql`: web opcional y comprobación provincia/código postal.
 - `supabase/alta_automatica_espana.sql`: activa la publicación automática y gratuita en toda España.
 - `supabase/fotos_opcionales_taller.sql`: crea el almacenamiento privado y las políticas para un máximo de cinco fotografías.
+- `supabase/horarios_obligatorios.sql`: añade el horario semanal obligatorio y lo publica en cada ficha.
 
 ## Configuración de Supabase
 
@@ -33,6 +34,8 @@ Si la base de datos ya estaba configurada antes de añadir los contadores reales
 Para activar la publicación automática en una base de datos ya configurada, ejecuta una sola vez `supabase/alta_automatica_espana.sql`.
 
 Para permitir fotografías opcionales, ejecuta una sola vez `supabase/fotos_opcionales_taller.sql`. Cada imagen puede ocupar hasta 5 MB y las solicitudes con fotos deben aceptar las condiciones adicionales. Las imágenes permanecen privadas mientras la solicitud no esté publicada.
+
+Para exigir y mostrar el horario semanal, ejecuta una sola vez `supabase/horarios_obligatorios.sql`. Cada día admite un turno principal, un segundo turno opcional o la opción «Cerrado».
 
 Todas las altas de España se publican automáticamente como fichas activas no verificadas. Una cuenta incluida en `public.administradores` puede revisar posteriormente los registros y retirar los que sean falsos, incorrectos o incumplan las condiciones.
 

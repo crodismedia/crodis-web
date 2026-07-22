@@ -20,6 +20,7 @@ create table if not exists public.solicitudes_alta_taller (
     codigo_postal text not null check (codigo_postal ~ '^[0-9]{5}$'),
     ciudad text not null check (char_length(trim(ciudad)) between 2 and 100),
     provincia text not null check (char_length(trim(provincia)) between 2 and 100),
+    horarios jsonb not null,
     servicios text[] not null default '{}',
     fotos text[] not null default '{}',
     descripcion text not null check (char_length(trim(descripcion)) between 10 and 1500),
@@ -39,6 +40,7 @@ create table if not exists public.solicitudes_alta_taller (
 alter table public.solicitudes_alta_taller add column if not exists servicios text[] not null default '{}';
 alter table public.solicitudes_alta_taller add column if not exists fotos text[] not null default '{}';
 alter table public.solicitudes_alta_taller add column if not exists web text;
+alter table public.solicitudes_alta_taller add column if not exists horarios jsonb;
 alter table public.solicitudes_alta_taller add column if not exists acepta_responsabilidad boolean not null default false;
 alter table public.solicitudes_alta_taller add column if not exists acepta_terminos_at timestamptz;
 alter table public.solicitudes_alta_taller add column if not exists version_terminos text;
@@ -74,6 +76,7 @@ create table if not exists public.talleres (
     instagram text,
     linkedin text,
     horario text,
+    horarios jsonb,
     logo text,
     portada text,
     servicios text[] not null default '{}',
@@ -193,6 +196,20 @@ alter table public.talleres
     not valid;
 
 alter table public.solicitudes_alta_taller
+    drop constraint if exists solicitudes_horarios_obligatorios;
+alter table public.solicitudes_alta_taller
+    add constraint solicitudes_horarios_obligatorios
+    check (
+        horarios is not null
+        and jsonb_typeof(horarios) = 'object'
+        and horarios ?& array[
+            'lunes', 'martes', 'miercoles', 'jueves',
+            'viernes', 'sabado', 'domingo'
+        ]
+    )
+    not valid;
+
+alter table public.solicitudes_alta_taller
     drop constraint if exists solicitudes_maximo_cinco_fotos;
 alter table public.solicitudes_alta_taller
     add constraint solicitudes_maximo_cinco_fotos
@@ -266,12 +283,12 @@ begin
     insert into public.talleres (
         solicitud_id, nombre, propietario, cif, email, telefono, web,
         direccion, codigo_postal, ciudad, provincia, pais,
-        descripcion, servicios, fotos, verificado, activo
+        descripcion, horarios, servicios, fotos, verificado, activo
     ) values (
         new.id, new.nombre_taller, new.propietario, new.cif,
         new.email, new.telefono, new.web, new.direccion,
         new.codigo_postal, new.ciudad, new.provincia, 'España',
-        new.descripcion, new.servicios, new.fotos, false, true
+        new.descripcion, new.horarios, new.servicios, new.fotos, false, true
     );
 
     return new;
@@ -351,6 +368,12 @@ with check (
     and codigo_postal ~ '^[0-9]{5}$'
     and char_length(trim(ciudad)) between 2 and 100
     and char_length(trim(provincia)) between 2 and 100
+    and horarios is not null
+    and jsonb_typeof(horarios) = 'object'
+    and horarios ?& array[
+        'lunes', 'martes', 'miercoles', 'jueves',
+        'viernes', 'sabado', 'domingo'
+    ]
     and cardinality(fotos) <= 5
     and (
         cardinality(fotos) = 0
@@ -491,13 +514,13 @@ begin
         insert into public.talleres (
             solicitud_id, nombre, propietario, cif, email, telefono, web,
             direccion, codigo_postal, ciudad, provincia, pais,
-            descripcion, servicios, fotos, verificado, activo
+            descripcion, horarios, servicios, fotos, verificado, activo
         ) values (
             v_solicitud.id, v_solicitud.nombre_taller, v_solicitud.propietario,
             v_solicitud.cif, v_solicitud.email, v_solicitud.telefono, v_solicitud.web,
             v_solicitud.direccion, v_solicitud.codigo_postal, v_solicitud.ciudad,
             v_solicitud.provincia, 'España', v_solicitud.descripcion,
-            v_solicitud.servicios, v_solicitud.fotos, true, true
+            v_solicitud.horarios, v_solicitud.servicios, v_solicitud.fotos, true, true
         )
         returning id into v_taller_id;
     else
@@ -513,6 +536,7 @@ begin
             ciudad = v_solicitud.ciudad,
             provincia = v_solicitud.provincia,
             descripcion = v_solicitud.descripcion,
+            horarios = v_solicitud.horarios,
             servicios = v_solicitud.servicios,
             fotos = v_solicitud.fotos,
             verificado = true,

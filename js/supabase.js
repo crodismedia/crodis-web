@@ -47,6 +47,28 @@
         }
     }
 
+    function horarioHtml(horarios) {
+        if (!horarios || typeof horarios !== "object") return "";
+        const dias = [
+            ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
+            ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
+            ["domingo", "Domingo"]
+        ];
+        const filas = dias.map(([clave, etiqueta]) => {
+            const horario = horarios[clave];
+            if (!horario) return "";
+            const texto = horario.cerrado
+                ? "Cerrado"
+                : (horario.turnos || []).map((turno) => `${turno.apertura}–${turno.cierre}`).join(" y ");
+            return texto
+                ? `<div><dt>${etiqueta}</dt><dd>${escaparHTML(texto)}</dd></div>`
+                : "";
+        }).filter(Boolean).join("");
+        return filas
+            ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${filas}</dl></details>`
+            : "";
+    }
+
     function crearTarjetaTaller(taller) {
         const nombre = escaparHTML(taller.nombre || taller.nombre_taller || "Taller sin nombre");
         const ciudad = escaparHTML(taller.ciudad || "");
@@ -63,6 +85,7 @@
         const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
+        const horario = horarioHtml(taller.horarios);
         const enlaces = [];
         if (telefono) {
             enlaces.push(`<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`);
@@ -89,6 +112,7 @@
                     <div class="especialidades">
                         ${etiquetas.map((servicio) => `<span>${escaparHTML(etiquetaServicio(servicio))}</span>`).join("")}
                     </div>
+                    ${horario}
                     <div class="taller-pie">
                         <span class="abierto">● Disponible</span>
                         ${contacto}
@@ -179,13 +203,14 @@
         cargandoTalleres = true;
         if (!reiniciar) actualizarBotonCarga(true, true);
 
-        function construirConsulta(incluirServicios, incluirFotos) {
+        function construirConsulta(incluirServicios, incluirFotos, incluirHorarios) {
             const columnas = [
                 "id", "nombre", "telefono", "web", "direccion", "codigo_postal",
                 "ciudad", "provincia", "descripcion", "verificado"
             ];
             if (incluirServicios) columnas.push("servicios");
             if (incluirFotos) columnas.push("fotos");
+            if (incluirHorarios) columnas.push("horarios");
             let consulta = supabaseClient
                 .from("talleres")
                 .select(columnas.join(","), { count: "exact" })
@@ -207,9 +232,10 @@
             // opcionales de servicios o fotografías.
             let incluirServicios = true;
             let incluirFotos = true;
+            let incluirHorarios = true;
             let resultado;
-            for (let intento = 0; intento < 3; intento += 1) {
-                resultado = await construirConsulta(incluirServicios, incluirFotos);
+            for (let intento = 0; intento < 4; intento += 1) {
+                resultado = await construirConsulta(incluirServicios, incluirFotos, incluirHorarios);
                 const detalle = String(resultado.error?.message || "").toLowerCase();
                 if (resultado.error?.code !== "42703") break;
                 if (detalle.includes("fotos") && incluirFotos) {
@@ -218,6 +244,10 @@
                 }
                 if (detalle.includes("servicios") && incluirServicios) {
                     incluirServicios = false;
+                    continue;
+                }
+                if (detalle.includes("horarios") && incluirHorarios) {
+                    incluirHorarios = false;
                     continue;
                 }
                 break;

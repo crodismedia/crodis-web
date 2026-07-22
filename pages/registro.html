@@ -105,6 +105,15 @@
                             <small class="campo-ayuda">Debe coincidir con los dos primeros dígitos del código postal.</small>
                         </div>
 
+                        <fieldset class="campo-formulario campo-ancho horarios-formulario" id="horarios-semanales">
+                            <legend>Horario semanal *</legend>
+                            <p class="campo-ayuda">Selecciona el horario de cada día. Si el taller no abre, elige «Cerrado». El segundo turno es opcional.</p>
+                            <div class="horarios-cabecera" aria-hidden="true">
+                                <span>Día</span><span>Apertura</span><span>Cierre</span><span>2.ª apertura</span><span>2.º cierre</span>
+                            </div>
+                            <div id="lista-horarios" class="lista-horarios"></div>
+                        </fieldset>
+
                         <fieldset class="campo-formulario campo-ancho servicios-formulario">
                             <legend>Servicios principales</legend>
                             <div class="servicios-opciones" id="lista-servicios-registro">

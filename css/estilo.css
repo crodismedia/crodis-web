@@ -1400,6 +1400,25 @@ select {
 .solicitud-sin-fotos { margin: 0 0 22px; color: var(--texto-suave); font-size: 13px; }
 .solicitud-acciones { display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid var(--borde); }
 .boton-rechazar { background: linear-gradient(135deg, #d14949, #a92323); box-shadow: 0 12px 26px rgba(179, 42, 42, .2); }
+
+.horarios-formulario { border: 0; margin: 8px 0; padding: 0; }
+.horarios-formulario legend { color: #10223b; font-weight: 800; margin-bottom: 8px; }
+.horarios-cabecera, .horario-fila { align-items: center; display: grid; gap: 10px; grid-template-columns: 110px repeat(4, minmax(0, 1fr)); }
+.horarios-cabecera { color: #637084; font-size: .76rem; font-weight: 800; padding: 10px 12px; text-transform: uppercase; }
+.lista-horarios { border: 1px solid #dce3ec; border-radius: 14px; overflow: hidden; }
+.horario-fila { background: #fff; border-top: 1px solid #e6ebf2; padding: 12px; }
+.horario-fila:first-child { border-top: 0; }
+.horario-fila > strong { color: #10223b; }
+.horario-fila label { display: block; }
+.horario-fila label > span { display: none; }
+.horario-fila select { background: #fff; border: 1px solid #ccd5e1; border-radius: 8px; color: #1d2a3a; min-width: 0; padding: 10px 8px; width: 100%; }
+.horario-fila select:disabled { background: #f1f4f8; color: #8a95a5; }
+.taller-horario { border-top: 1px solid #e4e9f0; margin-top: 14px; padding-top: 12px; }
+.taller-horario summary { color: #1757cc; cursor: pointer; font-size: .9rem; font-weight: 800; }
+.taller-horario dl { display: grid; gap: 5px; margin: 10px 0 0; }
+.taller-horario dl div { display: grid; font-size: .82rem; gap: 8px; grid-template-columns: 80px 1fr; }
+.taller-horario dt { color: #637084; font-weight: 700; }
+.taller-horario dd { color: #26364a; margin: 0; }
 @media (max-width: 750px) {
     .admin-principal { padding: 40px 0; }
     .admin-cabecera { align-items: flex-start; flex-direction: column; }
@@ -1407,4 +1426,8 @@ select {
     .solicitud-titulo { align-items: flex-start; flex-direction: column; gap: 6px; }
     .solicitud-card dl { grid-template-columns: 1fr; gap: 14px; }
     .solicitud-fotos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .horarios-cabecera { display: none; }
+    .horario-fila { align-items: stretch; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .horario-fila > strong { grid-column: 1 / -1; }
+    .horario-fila label > span { color: #637084; display: block; font-size: .72rem; font-weight: 700; margin-bottom: 4px; }
 }
