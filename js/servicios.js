@@ -1,6 +1,7 @@
 (function () {
     "use strict";
 
+    const scriptActual = document.currentScript;
     const grupos = [
         {
             nombre: "Mecánica y mantenimiento",
@@ -98,10 +99,7 @@
         }
     ];
 
-    const etiquetas = Object.fromEntries(
-        grupos.flatMap((grupo) => grupo.servicios)
-    );
-
+    const etiquetas = Object.fromEntries(grupos.flatMap((grupo) => grupo.servicios));
     const iconos = {
         "Mecánica y mantenimiento": "⚙",
         "Neumáticos, dirección y suspensión": "◉",
@@ -203,6 +201,17 @@
         });
     }
 
+    function cargarCatalogoLocal() {
+        if (!scriptActual?.src || document.querySelector("script[data-catalogo-local='silla']")) {
+            return;
+        }
+        const script = document.createElement("script");
+        script.src = new URL("talleres-locales.js", scriptActual.src).href;
+        script.async = false;
+        script.dataset.catalogoLocal = "silla";
+        document.head.appendChild(script);
+    }
+
     function inicializar() {
         rellenarSelect(document.getElementById("servicio"));
         rellenarCheckboxes(document.getElementById("lista-servicios-registro"));
@@ -217,6 +226,8 @@
         rellenarCheckboxes,
         rellenarTarjetas
     };
+
+    cargarCatalogoLocal();
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", inicializar);
