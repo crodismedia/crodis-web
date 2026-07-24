@@ -1,0 +1,18 @@
+INSTRUCCIONES RÁPIDAS PARA SUBIR LAS IMÁGENES A SUPABASE STORAGE
+
+1. En Supabase abre Storage y crea un bucket llamado: imagenes-talleres
+2. Para una prueba, puedes configurarlo como público.
+3. Sube los archivos de la carpeta imagenes_placeholder.
+4. Copia la URL pública de cada archivo.
+5. En la tabla talleres utiliza un campo como:
+   imagen_portada_url text
+6. Sustituye en importar_tallermap_supabase.csv el valor de imagen_archivo_local
+   por la URL pública correspondiente.
+7. Cuando el taller envíe una foto autorizada, sube la nueva imagen y reemplaza la URL.
+
+RECOMENDACIÓN DE NOMBRES
+Mantén nombres sin espacios y en minúsculas, por ejemplo:
+01-takumisan.jpg
+05-auto-taller-silla-c-b.jpg
+
+No uses directamente las fotos reales de referencia hasta disponer de autorización.
