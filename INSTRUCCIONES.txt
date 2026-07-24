@@ -1,0 +1,38 @@
+TALLERMAP — MEJORA 1
+Retirar los 21 talleres locales de Silla
+
+ARCHIVO QUE DEBES SUSTITUIR EN GITHUB
+
+js/servicios.js
+
+PASOS
+
+1. Abre el repositorio:
+   https://github.com/crodismedia/crodis-web
+
+2. Entra en la carpeta js.
+
+3. Abre servicios.js.
+
+4. Pulsa el icono del lápiz para editar.
+
+5. Sustituye todo el contenido por el archivo servicios.js incluido en este paquete.
+
+6. Pulsa Commit changes.
+
+RESULTADO
+
+- TallerMap dejará de cargar js/talleres-locales.js.
+- Los 21 talleres locales de Silla dejarán de aparecer.
+- El buscador y los contadores dependerán únicamente de Supabase.
+- Los 49 servicios y el formulario de registro seguirán funcionando.
+- También se corrige el uso de window.TallerMapServicios por globalThis.TallerMapServicios.
+
+LIMPIEZA OPCIONAL DESPUÉS DE COMPROBAR LA WEB
+
+Puedes eliminar del repositorio estos archivos antiguos:
+
+- js/talleres-locales.js
+- data/talleres-silla.json
+
+Aunque permanezcan en GitHub, ya no se cargarán después de sustituir servicios.js.
