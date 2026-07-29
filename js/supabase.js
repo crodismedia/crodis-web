@@ -26,6 +26,7 @@
     let siguienteIndice = 0;
     let poblacionActual = "";
     let servicioActual = "";
+    let totalResultadosActual = 0;
     let cargandoTalleres = false;
     let modoUbicacion = false;
 
@@ -209,6 +210,7 @@
         modoUbicacion = false;
         if (reiniciar) {
             siguienteIndice = 0;
+            totalResultadosActual = 0;
             poblacionActual = terminoSeguro(poblacion);
             servicioActual = servicio;
             mostrarEstado(contenedor, "Cargando talleres...");
@@ -216,65 +218,17 @@
         }
 
         const desde = siguienteIndice;
-        const hasta = desde + TAMANO_PAGINA - 1;
         cargandoTalleres = true;
         if (!reiniciar) actualizarBotonCarga(true, true);
 
-        function construirConsulta(incluirServicios, incluirFotos, incluirHorarios) {
-            const columnas = [
-                "id", "nombre", "telefono", "web", "direccion", "codigo_postal",
-                "ciudad", "provincia", "descripcion", "verificado"
-            ];
-            if (incluirServicios) columnas.push("servicios");
-            if (incluirFotos) columnas.push("fotos");
-            if (incluirHorarios) columnas.push("horarios");
-            let consulta = supabaseClient
-                .from("talleres")
-                .select(columnas.join(","), { count: "exact" })
-                .eq("activo", true)
-                .order("created_at", { ascending: false })
-                .range(desde, hasta);
-
-            if (poblacionActual) {
-                const termino = `%${poblacionActual}%`;
-                consulta = consulta.or([
-                    `nombre.ilike.${termino}`,
-                    `ciudad.ilike.${termino}`,
-                    `provincia.ilike.${termino}`,
-                    `codigo_postal.ilike.${termino}`
-                ].join(","));
-            }
-            if (servicioActual && incluirServicios) {
-                consulta = consulta.contains("servicios", [servicioActual]);
-            }
-            return consulta;
-        }
-
         try {
-            let incluirServicios = true;
-            let incluirFotos = true;
-            let incluirHorarios = true;
-            let resultado;
-            for (let intento = 0; intento < 4; intento += 1) {
-                resultado = await construirConsulta(incluirServicios, incluirFotos, incluirHorarios);
-                const detalle = String(resultado.error?.message || "").toLowerCase();
-                if (resultado.error?.code !== "42703") break;
-                if (detalle.includes("fotos") && incluirFotos) {
-                    incluirFotos = false;
-                    continue;
-                }
-                if (detalle.includes("servicios") && incluirServicios) {
-                    incluirServicios = false;
-                    continue;
-                }
-                if (detalle.includes("horarios") && incluirHorarios) {
-                    incluirHorarios = false;
-                    continue;
-                }
-                break;
-            }
-
-            const { data: talleres, error, count } = resultado;
+            const { data, error } = await supabaseClient.rpc("buscar_talleres_publicos", {
+                p_poblacion: poblacionActual,
+                p_servicio: servicioActual,
+                p_desde: desde,
+                p_limite: TAMANO_PAGINA
+            });
+            const talleres = Array.isArray(data) ? data : [];
             if (error) {
                 console.error("No se pudieron cargar los talleres:", error);
                 if (reiniciar) {
@@ -286,9 +240,13 @@
                 actualizarBotonCarga(!reiniciar);
                 return;
             }
-            if (!talleres?.length && reiniciar) {
+            if (!talleres.length && reiniciar) {
                 mostrarEstado(contenedor, "No hemos encontrado talleres con esos criterios.");
                 actualizarNumeroResultados(0);
+                actualizarBotonCarga(false);
+                return;
+            }
+            if (!talleres.length) {
                 actualizarBotonCarga(false);
                 return;
             }
@@ -299,11 +257,11 @@
             else contenedor.insertAdjacentHTML("beforeend", tarjetas);
 
             siguienteIndice += talleres.length;
-            const total = Number.isInteger(count) ? count : siguienteIndice;
-            const hayMas = Number.isInteger(count)
-                ? siguienteIndice < count
-                : talleres.length === TAMANO_PAGINA;
-            actualizarNumeroResultados(total);
+            const totalInformado = Number(talleres[0]?.total_resultados);
+            if (Number.isFinite(totalInformado)) totalResultadosActual = totalInformado;
+            else totalResultadosActual = Math.max(totalResultadosActual, siguienteIndice);
+            const hayMas = siguienteIndice < totalResultadosActual;
+            actualizarNumeroResultados(totalResultadosActual);
             actualizarBotonCarga(hayMas);
         } finally {
             cargandoTalleres = false;

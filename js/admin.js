@@ -571,34 +571,39 @@ async function solicitarSugerenciasPoblaciones() {
     estado.textContent = "Buscando poblaciones y códigos postales…";
 
     try {
-        const { data, error } =
-            await window.supabaseClient.functions.invoke(
-                "sugerir-poblaciones",
-                {
-                    body: {
-                        texto: consulta
-                    }
-                }
-            );
+        const termino = terminoSeguro(consulta);
+        let consultaMunicipios = window.supabaseClient
+            .from("municipios")
+            .select("nombre,codigo_municipal")
+            .eq("activo", true)
+            .limit(8);
 
-        if (error || data?.error) {
-            console.error(
-                "Error obteniendo sugerencias:",
-                error || data?.error
-            );
+        consultaMunicipios = /^[0-9]+$/.test(termino)
+            ? consultaMunicipios.ilike("codigo_municipal", `${termino}%`)
+            : consultaMunicipios.ilike("nombre", `%${termino}%`);
+
+        const { data, error } = await consultaMunicipios
+            .order("nombre", { ascending: true });
+
+        if (error) {
+            console.error("Error obteniendo sugerencias:", error);
 
             cerrarSugerenciasPoblaciones();
-
-            estado.textContent =
-                data?.error
-                || "No se pudieron obtener las sugerencias.";
-
+            estado.textContent = "No se pudieron obtener las sugerencias.";
             return;
         }
 
-        const sugerencias = Array.isArray(data?.sugerencias)
-            ? data.sugerencias
-            : [];
+        const sugerencias = (Array.isArray(data) ? data : []).map((municipio) => {
+            const codigo = String(municipio.codigo_municipal || "");
+            const provincia = window.TallerMapProvincias?.provincias
+                ?.find((elemento) => elemento.codigo === codigo.slice(0, 2));
+            return {
+                nombre: municipio.nombre,
+                codigo_municipal: codigo,
+                provincia: provincia?.nombre || "",
+                origen: "base_datos"
+            };
+        });
 
         renderizarSugerenciasPoblaciones(sugerencias);
 
@@ -655,13 +660,11 @@ async function solicitarSugerenciasPoblaciones() {
 
     const { data, error } =
         await window.supabaseClient.functions.invoke(
-            "buscar-candidatos-osm",
+            "buscar-talleres-internet",
             {
                 body: {
                     ubicacion: consulta,
-                    poblacion,
-                    codigo_postal: codigoPostal,
-                    provincia
+                    radio_km: 10
                 }
             }
         );
@@ -1334,4 +1337,3 @@ document.addEventListener("click", (evento) => {
         await cargarHistorial();
     }());
 }());
-

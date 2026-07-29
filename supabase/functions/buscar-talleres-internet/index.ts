@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 
 const ORIGENES_PERMITIDOS = new Set([
     "https://tallermap.es",

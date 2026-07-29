@@ -13,6 +13,7 @@
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const labels = window.TallerMapServicios?.etiquetas || {};
     let offset = 0;
+    let totalWorkshops = 0;
     let loading = false;
     let selectedService = "";
 
@@ -148,6 +149,7 @@
         const aliases = municipalityAliases(municipality);
         if (reset) {
             offset = 0;
+            totalWorkshops = 0;
             container.innerHTML = `<p class="mensaje-talleres">Cargando talleres de ${escapeHTML(municipality)}…</p>`;
             setLoadMore(false);
         }
@@ -155,57 +157,13 @@
         loading = true;
         if (!reset) setLoadMore(true, true);
 
-        function buildQuery(includeServices, includePhotos, includeSchedules) {
-            const columns = [
-                "id", "nombre", "telefono", "web", "direccion", "codigo_postal",
-                "ciudad", "provincia", "descripcion", "verificado"
-            ];
-            if (includeServices) columns.push("servicios");
-            if (includePhotos) columns.push("fotos");
-            if (includeSchedules) columns.push("horarios");
-
-            let query = client
-                .from("talleres")
-                .select(columns.join(","), { count: "exact" })
-                .eq("activo", true)
-                .order("created_at", { ascending: false })
-                .range(offset, offset + PAGE_SIZE - 1);
-
-            const cityConditions = aliases.map((alias) => `ciudad.ilike.%${alias}%`);
-            query = query.or(cityConditions.join(","));
-
-            if (selectedService && includeServices) {
-                query = query.contains("servicios", [selectedService]);
-            }
-            return query;
-        }
-
         try {
-            let includeServices = true;
-            let includePhotos = true;
-            let includeSchedules = true;
-            let result;
-
-            for (let attempt = 0; attempt < 4; attempt += 1) {
-                result = await buildQuery(includeServices, includePhotos, includeSchedules);
-                const detail = String(result.error?.message || "").toLowerCase();
-                if (result.error?.code !== "42703") break;
-                if (detail.includes("fotos") && includePhotos) {
-                    includePhotos = false;
-                    continue;
-                }
-                if (detail.includes("servicios") && includeServices) {
-                    includeServices = false;
-                    continue;
-                }
-                if (detail.includes("horarios") && includeSchedules) {
-                    includeSchedules = false;
-                    continue;
-                }
-                break;
-            }
-
-            const { data, error, count } = result;
+            const { data, error } = await client.rpc("buscar_talleres_publicos", {
+                p_poblacion: aliases.join("|"),
+                p_servicio: selectedService,
+                p_desde: offset,
+                p_limite: PAGE_SIZE
+            });
             if (error) throw error;
 
             if (!data?.length && reset) {
@@ -220,6 +178,10 @@
                 setLoadMore(false);
                 return;
             }
+            if (!data?.length) {
+                setLoadMore(false);
+                return;
+            }
 
             const withPhotos = await signedPhotos(data || []);
             const cards = withPhotos.map(cardHTML).join("");
@@ -227,9 +189,11 @@
             else container.insertAdjacentHTML("beforeend", cards);
 
             offset += data.length;
-            const total = Number.isInteger(count) ? count : offset;
-            const more = Number.isInteger(count) ? offset < count : data.length === PAGE_SIZE;
-            setStatus(`${total} ${total === 1 ? "taller publicado" : "talleres publicados"}`);
+            const totalReported = Number(data[0]?.total_resultados);
+            if (Number.isFinite(totalReported)) totalWorkshops = totalReported;
+            else totalWorkshops = Math.max(totalWorkshops, offset);
+            const more = offset < totalWorkshops;
+            setStatus(`${totalWorkshops} ${totalWorkshops === 1 ? "taller publicado" : "talleres publicados"}`);
             setLoadMore(more);
         } catch (error) {
             console.error("No se pudieron cargar los talleres del municipio:", error);
