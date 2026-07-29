@@ -608,10 +608,8 @@ async function solicitarSugerenciasPoblaciones() {
         estado.textContent = "No se pudieron cargar las sugerencias.";
     }
 }
-    async function buscarTalleresInternet(evento) {
-        async function buscarTalleresInternet(evento) {
+    async function buscarTalleresInternet(evento) { 
     evento.preventDefault();
-
     const campo = document.getElementById("busqueda-internet-ubicacion");
     const estado = document.getElementById("estado-buscador-internet");
     const resultados = document.getElementById("resultados-buscador-internet");
