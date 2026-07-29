@@ -1222,6 +1222,37 @@ async function solicitarSugerenciasPoblaciones() {
         cargarTalleres();
         lista.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    const campoBusquedaInternet =
+    document.getElementById("busqueda-internet-ubicacion");
+
+campoBusquedaInternet.addEventListener("input", () => {
+    clearTimeout(temporizadorSugerencias);
+
+    temporizadorSugerencias = setTimeout(
+        solicitarSugerenciasPoblaciones,
+        400
+    );
+});
+
+campoBusquedaInternet.addEventListener("focus", () => {
+    if (campoBusquedaInternet.value.trim().length >= 3) {
+        solicitarSugerenciasPoblaciones();
+    }
+});
+
+document.addEventListener("click", (evento) => {
+    const dentroDelCampo = evento.target.closest(
+        "#busqueda-internet-ubicacion"
+    );
+
+    const dentroDeLaLista = evento.target.closest(
+        "#sugerencias-poblaciones"
+    );
+
+    if (!dentroDelCampo && !dentroDeLaLista) {
+        cerrarSugerenciasPoblaciones();
+    }
+});
     document.getElementById("formulario-buscador-internet").addEventListener(
         "submit",
         buscarTalleresInternet
