@@ -23,6 +23,8 @@
     let ubicacionesActuales = [];
     let candidatosInternet = [];
     let tallerEditado = null;
+    let temporizadorSugerencias = null;
+let poblacionSeleccionada = null;
 
     function mostrar(texto, tipo = "error") {
         mensaje.textContent = texto;
