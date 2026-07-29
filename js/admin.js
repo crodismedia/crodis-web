@@ -745,8 +745,7 @@ async function solicitarSugerenciasPoblaciones() {
         ? candidatosInternet.map(tarjetaCandidato).join("")
         : "<p>No se encontraron talleres dentro de esta población.</p>";
 }
-    }
-
+    
     function importarCandidato(candidato) {
         abrirEditor();
         document.getElementById("titulo-editor").textContent =
