@@ -609,39 +609,142 @@ async function solicitarSugerenciasPoblaciones() {
     }
 }
     async function buscarTalleresInternet(evento) {
-        evento.preventDefault();
-        const ubicacion = valor("busqueda-internet-ubicacion");
-        const radio = Number(valor("busqueda-internet-radio")) || 10;
-        const estado = document.getElementById("estado-buscador-internet");
-        const resultados = document.getElementById("resultados-buscador-internet");
-        const boton = document.getElementById("boton-buscar-internet");
-        if (ubicacion.length < 2) return;
+        async function buscarTalleresInternet(evento) {
+    evento.preventDefault();
 
-        boton.disabled = true;
-        boton.textContent = "Buscando…";
-        estado.textContent = "Consultando talleres de la zona…";
-        resultados.replaceChildren();
-        const { data, error } = await window.supabaseClient.functions.invoke(
-            "buscar-talleres-internet",
-            { body: { ubicacion, radio_km: radio } }
+    const campo = document.getElementById("busqueda-internet-ubicacion");
+    const estado = document.getElementById("estado-buscador-internet");
+    const resultados = document.getElementById("resultados-buscador-internet");
+    const boton = document.getElementById("boton-buscar-internet");
+
+    const poblacion = campo.dataset.poblacion
+        || poblacionSeleccionada?.nombre
+        || campo.value.split("—")[0].trim();
+
+    const codigoPostal = campo.dataset.codigoPostal
+        || poblacionSeleccionada?.codigo_postal
+        || "";
+
+    const provincia = campo.dataset.provincia
+        || poblacionSeleccionada?.provincia
+        || "";
+
+    if (poblacion.length < 2) {
+        estado.textContent = "Selecciona o escribe una población.";
+        return;
+    }
+
+    cerrarSugerenciasPoblaciones();
+
+    boton.disabled = true;
+    boton.textContent = "Buscando…";
+
+    estado.textContent = [
+        `Buscando talleres en ${poblacion}`,
+        codigoPostal ? `CP ${codigoPostal}` : "",
+        provincia
+    ].filter(Boolean).join(" · ");
+
+    resultados.replaceChildren();
+
+    const consulta = codigoPostal
+        ? `${poblacion}, ${codigoPostal}`
+        : poblacion;
+
+    const { data, error } =
+        await window.supabaseClient.functions.invoke(
+            "buscar-candidatos-osm",
+            {
+                body: {
+                    ubicacion: consulta,
+                    poblacion,
+                    codigo_postal: codigoPostal,
+                    provincia
+                }
+            }
         );
-        boton.disabled = false;
-        boton.textContent = "Buscar candidatos";
 
-        if (error || data?.error) {
-            console.error("Error en búsqueda externa:", error || data?.error);
-            candidatosInternet = [];
-            estado.textContent = data?.error
-                || "No se pudo completar la búsqueda. Comprueba que la función está desplegada.";
-            return;
-        }
-        candidatosInternet = Array.isArray(data?.candidatos) ? data.candidatos : [];
-        const nuevos = candidatosInternet.filter((candidato) => !candidato.posible_duplicado).length;
-        const duplicados = candidatosInternet.length - nuevos;
-        estado.textContent = `${candidatosInternet.length} resultados · ${nuevos} candidatos nuevos · ${duplicados} posibles duplicados`;
-        resultados.innerHTML = candidatosInternet.length
-            ? candidatosInternet.map(tarjetaCandidato).join("")
-            : "<p>No se encontraron talleres en esta zona.</p>";
+    boton.disabled = false;
+    boton.textContent = "Buscar candidatos";
+
+    if (error || data?.error) {
+        console.error(
+            "Error en búsqueda externa:",
+            error || data?.detalle || data?.error
+        );
+
+        candidatosInternet = [];
+
+        estado.textContent =
+            data?.detalle
+            || data?.error
+            || "No se pudo completar la búsqueda.";
+
+        return;
+    }
+
+    candidatosInternet = Array.isArray(data?.candidatos)
+        ? data.candidatos.map((candidato) => ({
+            ...candidato,
+
+            id: candidato.id
+                || candidato.id_fuente,
+
+            ciudad: candidato.ciudad
+                || candidato.poblacion
+                || data?.poblacion?.nombre
+                || poblacion,
+
+            codigo_postal: candidato.codigo_postal
+                || data?.poblacion?.codigo_postal
+                || codigoPostal,
+
+            provincia: candidato.provincia
+                || data?.poblacion?.provincia
+                || provincia,
+
+            horario_externo: candidato.horario_externo
+                || candidato.horario
+                || "",
+
+            servicios_externos: candidato.servicios_externos
+                || candidato.servicios
+                || [],
+
+            descripcion_externa: candidato.descripcion_externa
+                || candidato.descripcion
+                || "",
+
+            fuente: candidato.fuente?.startsWith?.("http")
+                ? candidato.fuente
+                : candidato.url_fuente
+        }))
+        : [];
+
+    const nuevos = candidatosInternet.filter(
+        (candidato) => !candidato.posible_duplicado
+    ).length;
+
+    const duplicados =
+        candidatosInternet.length - nuevos;
+
+    const poblacionResultado =
+        data?.poblacion?.nombre || poblacion;
+
+    const codigoResultado =
+        data?.poblacion?.codigo_postal || codigoPostal;
+
+    estado.textContent = [
+        `${poblacionResultado}${codigoResultado ? ` — ${codigoResultado}` : ""}`,
+        `${candidatosInternet.length} resultados`,
+        `${nuevos} candidatos nuevos`,
+        `${duplicados} posibles duplicados`
+    ].join(" · ");
+
+    resultados.innerHTML = candidatosInternet.length
+        ? candidatosInternet.map(tarjetaCandidato).join("")
+        : "<p>No se encontraron talleres dentro de esta población.</p>";
+}
     }
 
     function importarCandidato(candidato) {
