@@ -98,21 +98,37 @@
                     </div>
                 </div>
                 <form id="formulario-buscador-internet" class="admin-filtros-internet">
-                    <label>
-                        <span>Ubicación</span>
-                        <input id="busqueda-internet-ubicacion" type="search" minlength="2" maxlength="120" placeholder="Ej.: Silla, Valencia o 46460" required>
-                    </label>
-                    <label>
-                        <span>Radio</span>
-                        <select id="busqueda-internet-radio">
-                            <option value="5">5 km</option>
-                            <option value="10" selected>10 km</option>
-                            <option value="15">15 km</option>
-                            <option value="25">25 km</option>
-                        </select>
-                    </label>
-                    <button id="boton-buscar-internet" class="boton" type="submit">Buscar candidatos</button>
-                </form>
+    <label class="campo-sugerencias">
+        <span>Población o código postal</span>
+
+        <input
+            id="busqueda-internet-ubicacion"
+            type="search"
+            minlength="3"
+            maxlength="120"
+            placeholder="Empieza a escribir: Req, Silla, 464..."
+            autocomplete="off"
+            aria-autocomplete="list"
+            aria-controls="sugerencias-poblaciones"
+            required
+        >
+
+        <div
+            id="sugerencias-poblaciones"
+            class="lista-sugerencias-poblaciones"
+            role="listbox"
+            hidden
+        ></div>
+    </label>
+
+    <button
+        id="boton-buscar-internet"
+        class="boton"
+        type="submit"
+    >
+        Buscar candidatos
+    </button>
+</form>
                 <p id="estado-buscador-internet" class="admin-resumen-ubicaciones" aria-live="polite">
                     La búsqueda es manual y no publica ningún taller automáticamente.
                 </p>
