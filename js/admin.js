@@ -464,7 +464,150 @@ let poblacionSeleccionada = null;
             </div>
         </article>`;
     }
+function cerrarSugerenciasPoblaciones() {
+    const contenedor = document.getElementById("sugerencias-poblaciones");
 
+    if (!contenedor) return;
+
+    contenedor.hidden = true;
+    contenedor.replaceChildren();
+}
+
+function seleccionarSugerenciaPoblacion(sugerencia) {
+    const campo = document.getElementById("busqueda-internet-ubicacion");
+    const estado = document.getElementById("estado-buscador-internet");
+
+    poblacionSeleccionada = sugerencia;
+
+    campo.value = sugerencia.texto
+        || [
+            sugerencia.nombre,
+            sugerencia.codigo_postal,
+            sugerencia.provincia
+        ].filter(Boolean).join(" — ");
+
+    campo.dataset.poblacion = sugerencia.nombre || "";
+    campo.dataset.codigoPostal = sugerencia.codigo_postal || "";
+    campo.dataset.provincia = sugerencia.provincia || "";
+
+    estado.textContent = [
+        `Población: ${sugerencia.nombre || "No disponible"}`,
+        `Código postal: ${sugerencia.codigo_postal || "No disponible"}`,
+        `Provincia: ${sugerencia.provincia || "No disponible"}`
+    ].join(" · ");
+
+    cerrarSugerenciasPoblaciones();
+}
+
+function renderizarSugerenciasPoblaciones(sugerencias) {
+    const contenedor = document.getElementById("sugerencias-poblaciones");
+
+    contenedor.replaceChildren();
+
+    if (!Array.isArray(sugerencias) || sugerencias.length === 0) {
+        contenedor.innerHTML = `
+            <div class="sugerencia-poblacion sugerencia-sin-resultados">
+                No se encontraron poblaciones.
+            </div>
+        `;
+
+        contenedor.hidden = false;
+        return;
+    }
+
+    sugerencias.forEach((sugerencia) => {
+        const boton = document.createElement("button");
+
+        boton.type = "button";
+        boton.className = "sugerencia-poblacion";
+        boton.setAttribute("role", "option");
+
+        const origen = sugerencia.origen === "base_datos"
+            ? "TallerMap"
+            : "Fuente externa";
+
+        boton.innerHTML = `
+            <strong>${escaparHtml(sugerencia.nombre || "Población")}</strong>
+            <span>
+                ${escaparHtml(sugerencia.codigo_postal || "Sin código postal")}
+                ${sugerencia.provincia
+                    ? ` · ${escaparHtml(sugerencia.provincia)}`
+                    : ""}
+            </span>
+            <small>${escaparHtml(origen)}</small>
+        `;
+
+        boton.addEventListener("click", () => {
+            seleccionarSugerenciaPoblacion(sugerencia);
+        });
+
+        contenedor.appendChild(boton);
+    });
+
+    contenedor.hidden = false;
+}
+
+async function solicitarSugerenciasPoblaciones() {
+    const campo = document.getElementById("busqueda-internet-ubicacion");
+    const estado = document.getElementById("estado-buscador-internet");
+    const consulta = campo.value.trim();
+
+    poblacionSeleccionada = null;
+
+    delete campo.dataset.poblacion;
+    delete campo.dataset.codigoPostal;
+    delete campo.dataset.provincia;
+
+    if (consulta.length < 3) {
+        cerrarSugerenciasPoblaciones();
+        estado.textContent = "Escribe al menos 3 caracteres.";
+        return;
+    }
+
+    estado.textContent = "Buscando poblaciones y códigos postales…";
+
+    try {
+        const { data, error } =
+            await window.supabaseClient.functions.invoke(
+                "sugerir-poblaciones",
+                {
+                    body: {
+                        texto: consulta
+                    }
+                }
+            );
+
+        if (error || data?.error) {
+            console.error(
+                "Error obteniendo sugerencias:",
+                error || data?.error
+            );
+
+            cerrarSugerenciasPoblaciones();
+
+            estado.textContent =
+                data?.error
+                || "No se pudieron obtener las sugerencias.";
+
+            return;
+        }
+
+        const sugerencias = Array.isArray(data?.sugerencias)
+            ? data.sugerencias
+            : [];
+
+        renderizarSugerenciasPoblaciones(sugerencias);
+
+        estado.textContent = sugerencias.length
+            ? `${sugerencias.length} poblaciones encontradas. Selecciona una.`
+            : "No se encontraron poblaciones.";
+    } catch (error) {
+        console.error("Error en sugerencias:", error);
+
+        cerrarSugerenciasPoblaciones();
+        estado.textContent = "No se pudieron cargar las sugerencias.";
+    }
+}
     async function buscarTalleresInternet(evento) {
         evento.preventDefault();
         const ubicacion = valor("busqueda-internet-ubicacion");
