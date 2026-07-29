@@ -1828,3 +1828,60 @@ img.marca-icono-logo {
         animation: none;
     }
 }
+.campo-sugerencias {
+    position: relative;
+    min-width: min(100%, 380px);
+}
+
+.lista-sugerencias-poblaciones {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 6px;
+    background: #ffffff;
+    border: 1px solid #d5d9df;
+    border-radius: 12px;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.16);
+}
+
+.sugerencia-poblacion {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 11px 12px;
+    color: #1b1f23;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.sugerencia-poblacion:hover,
+.sugerencia-poblacion:focus {
+    background: #eef7f1;
+    outline: none;
+}
+
+.sugerencia-poblacion strong {
+    font-size: 15px;
+}
+
+.sugerencia-poblacion span {
+    font-size: 13px;
+}
+
+.sugerencia-poblacion small {
+    color: #67727e;
+    font-size: 11px;
+}
+
+.sugerencia-sin-resultados {
+    cursor: default;
+}
