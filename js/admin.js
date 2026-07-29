@@ -529,7 +529,11 @@ function renderizarSugerenciasPoblaciones(sugerencias) {
         boton.innerHTML = `
             <strong>${escaparHtml(sugerencia.nombre || "Población")}</strong>
             <span>
-                ${escaparHtml(sugerencia.codigo_postal || "Sin código postal")}
+                ${escaparHtml(
+    sugerencia.codigo_postal
+    || sugerencia.codigo_municipal
+    || "Sin código"
+)}
                 ${sugerencia.provincia
                     ? ` · ${escaparHtml(sugerencia.provincia)}`
                     : ""}
