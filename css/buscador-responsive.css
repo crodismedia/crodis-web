@@ -1,0 +1,73 @@
+/* Ajustes específicos del buscador público en escritorio y móvil. */
+
+@media (min-width: 751px) {
+    .buscador {
+        grid-template-columns: minmax(260px, 1.2fr) minmax(200px, .8fr) auto auto;
+        align-items: stretch;
+    }
+
+    .buscador > .boton {
+        min-height: 100%;
+    }
+
+    .buscador > .boton-claro {
+        margin-left: 0 !important;
+        padding-right: 18px;
+        padding-left: 18px;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 750px) {
+    .buscador > .boton-claro {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .poblacion-controles {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .poblacion-controles input,
+    .campo-busqueda select,
+    .boton-ubicacion {
+        min-height: 44px;
+    }
+
+    .poblacion-controles input,
+    .campo-busqueda select {
+        padding: 10px 0;
+    }
+
+    .boton-ubicacion {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 13px;
+        line-height: 1.2;
+        touch-action: manipulation;
+    }
+
+    .estado-ubicacion {
+        margin-top: 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 420px) {
+    .buscador {
+        padding: 10px;
+    }
+
+    .campo-busqueda {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+
+    .campo-icono {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+    }
+}
