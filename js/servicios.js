@@ -203,7 +203,21 @@
         });
     }
 
+    function cargarRecuperacionAdministrativa() {
+        if (!document.getElementById("formulario-buscador-internet")) return;
+        if (document.querySelector('script[data-tallermap-admin-recuperacion]')) return;
+
+        const script = document.createElement("script");
+        script.src = "../js/admin-recuperacion.js";
+        script.dataset.tallermapAdminRecuperacion = "true";
+        script.addEventListener("error", () => {
+            console.error("No se pudo cargar la recuperación administrativa.");
+        }, { once: true });
+        document.head.appendChild(script);
+    }
+
     function inicializar() {
+        cargarRecuperacionAdministrativa();
         rellenarSelect(document.getElementById("servicio"));
         rellenarCheckboxes(document.getElementById("lista-servicios-registro"));
         rellenarTarjetas(document.getElementById("lista-servicios-publicos"));
