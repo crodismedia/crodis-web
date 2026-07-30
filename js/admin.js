@@ -470,11 +470,6 @@ let poblacionSeleccionada = null;
             etiquetas["addr:postcode"]
             || candidato.codigo_postal_fuente;
 
-        const tieneUbicacionFuente =
-            Boolean(poblacionFuente || codigoPostalFuente);
-
-        if (!tieneUbicacionFuente) return 3;
-
         const mismaPoblacion =
             normalizar(poblacionFuente) === normalizar(poblacion);
         const mismoCodigoPostal =
@@ -484,6 +479,8 @@ let poblacionSeleccionada = null;
         if (mismaPoblacion && mismoCodigoPostal) return 0;
         if (mismaPoblacion) return 1;
         if (mismoCodigoPostal) return 2;
+        if (poblacionFuente || codigoPostalFuente) return 5;
+        if (candidato.dentro_limites_poblacion) return 3;
 
         return 4;
     }
@@ -771,6 +768,12 @@ async function solicitarSugerenciasPoblaciones() {
         return;
     }
 
+    const poblacionResultado =
+        data?.poblacion?.nombre || poblacion;
+
+    const codigoResultado =
+        data?.poblacion?.codigo_postal || codigoPostal;
+
     candidatosInternet = Array.isArray(data?.candidatos)
         ? data.candidatos.map((candidato) => ({
             ...candidato,
@@ -808,10 +811,18 @@ async function solicitarSugerenciasPoblaciones() {
 
     candidatosInternet.sort((a, b) => {
         const diferenciaUbicacion =
-            prioridadUbicacionCandidato(a, poblacion, codigoPostal)
-            - prioridadUbicacionCandidato(b, poblacion, codigoPostal);
+            prioridadUbicacionCandidato(a, poblacionResultado, codigoResultado)
+            - prioridadUbicacionCandidato(b, poblacionResultado, codigoResultado);
 
         if (diferenciaUbicacion) return diferenciaUbicacion;
+
+        if (candidatoTieneDistancia(a) && candidatoTieneDistancia(b)) {
+            const diferenciaDistancia =
+                Number(a.distancia_centro_km)
+                - Number(b.distancia_centro_km);
+
+            if (diferenciaDistancia) return diferenciaDistancia;
+        }
 
         const diferenciaDatos =
             contarDatosCandidato(b) - contarDatosCandidato(a);
@@ -821,14 +832,6 @@ async function solicitarSugerenciasPoblaciones() {
         if (a.posible_duplicado !== b.posible_duplicado) {
             return Number(a.posible_duplicado)
                 - Number(b.posible_duplicado);
-        }
-
-        if (candidatoTieneDistancia(a) && candidatoTieneDistancia(b)) {
-            const distanciaA = Number(a.distancia_centro_km);
-            const distanciaB = Number(b.distancia_centro_km);
-            const diferenciaDistancia = distanciaA - distanciaB;
-
-            if (diferenciaDistancia) return diferenciaDistancia;
         }
 
         return String(a.nombre || "").localeCompare(
@@ -843,12 +846,6 @@ async function solicitarSugerenciasPoblaciones() {
 
     const duplicados =
         candidatosInternet.length - nuevos;
-
-    const poblacionResultado =
-        data?.poblacion?.nombre || poblacion;
-
-    const codigoResultado =
-        data?.poblacion?.codigo_postal || codigoPostal;
 
     estado.textContent = [
         `${poblacionResultado}${codigoResultado ? ` — ${codigoResultado}` : ""}`,
