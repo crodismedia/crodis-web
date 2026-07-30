@@ -440,6 +440,37 @@ let poblacionSeleccionada = null;
         ].filter(Boolean).length;
     }
 
+    function prioridadUbicacionCandidato(candidato, poblacion, codigoPostal) {
+        const etiquetas = candidato.etiquetas_osm || {};
+        const poblacionFuente = [
+            etiquetas["addr:city"],
+            etiquetas["addr:town"],
+            etiquetas["addr:village"],
+            etiquetas["addr:municipality"],
+            candidato.poblacion_fuente
+        ].find(Boolean);
+        const codigoPostalFuente =
+            etiquetas["addr:postcode"]
+            || candidato.codigo_postal_fuente;
+
+        const tieneUbicacionFuente =
+            Boolean(poblacionFuente || codigoPostalFuente);
+
+        if (!tieneUbicacionFuente) return 3;
+
+        const mismaPoblacion =
+            normalizar(poblacionFuente) === normalizar(poblacion);
+        const mismoCodigoPostal =
+            Boolean(codigoPostal)
+            && String(codigoPostalFuente || "").trim() === String(codigoPostal);
+
+        if (mismaPoblacion && mismoCodigoPostal) return 0;
+        if (mismaPoblacion) return 1;
+        if (mismoCodigoPostal) return 2;
+
+        return 4;
+    }
+
     function tarjetaCandidato(candidato) {
         const ubicacion = [
             candidato.direccion,
@@ -757,6 +788,12 @@ async function solicitarSugerenciasPoblaciones() {
         : [];
 
     candidatosInternet.sort((a, b) => {
+        const diferenciaUbicacion =
+            prioridadUbicacionCandidato(a, poblacion, codigoPostal)
+            - prioridadUbicacionCandidato(b, poblacion, codigoPostal);
+
+        if (diferenciaUbicacion) return diferenciaUbicacion;
+
         const diferenciaDatos =
             contarDatosCandidato(b) - contarDatosCandidato(a);
 
@@ -765,6 +802,15 @@ async function solicitarSugerenciasPoblaciones() {
         if (a.posible_duplicado !== b.posible_duplicado) {
             return Number(a.posible_duplicado)
                 - Number(b.posible_duplicado);
+        }
+
+        const distanciaA = Number(a.distancia_centro_km);
+        const distanciaB = Number(b.distancia_centro_km);
+
+        if (Number.isFinite(distanciaA) && Number.isFinite(distanciaB)) {
+            const diferenciaDistancia = distanciaA - distanciaB;
+
+            if (diferenciaDistancia) return diferenciaDistancia;
         }
 
         return String(a.nombre || "").localeCompare(
