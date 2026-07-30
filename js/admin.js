@@ -406,12 +406,29 @@ let poblacionSeleccionada = null;
     }
 
     function candidatoTieneCoordenadas(candidato) {
-        return [candidato.latitud, candidato.longitud].every((valor) =>
-            valor !== null
-            && valor !== undefined
-            && String(valor).trim() !== ""
-            && Number.isFinite(Number(valor))
-        );
+        const latitud = Number(candidato.latitud);
+        const longitud = Number(candidato.longitud);
+
+        return candidato.latitud !== null
+            && candidato.latitud !== undefined
+            && String(candidato.latitud).trim() !== ""
+            && candidato.longitud !== null
+            && candidato.longitud !== undefined
+            && String(candidato.longitud).trim() !== ""
+            && Number.isFinite(latitud)
+            && Number.isFinite(longitud)
+            && latitud >= -90
+            && latitud <= 90
+            && longitud >= -180
+            && longitud <= 180;
+    }
+
+    function candidatoTieneDistancia(candidato) {
+        return candidato.distancia_centro_km !== null
+            && candidato.distancia_centro_km !== undefined
+            && String(candidato.distancia_centro_km).trim() !== ""
+            && Number.isFinite(Number(candidato.distancia_centro_km))
+            && Number(candidato.distancia_centro_km) >= 0;
     }
 
     function contarDatosCandidato(candidato) {
@@ -481,6 +498,9 @@ let poblacionSeleccionada = null;
         const coordenadas = candidatoTieneCoordenadas(candidato)
             ? `${Number(candidato.latitud).toFixed(6)}, ${Number(candidato.longitud).toFixed(6)}`
             : "";
+        const enlaceCoordenadas = coordenadas
+            ? `https://www.openstreetmap.org/?mlat=${encodeURIComponent(candidato.latitud)}&mlon=${encodeURIComponent(candidato.longitud)}#map=19/${encodeURIComponent(candidato.latitud)}/${encodeURIComponent(candidato.longitud)}`
+            : "";
         const web = normalizarWeb(candidato.web);
         const servicios = Array.isArray(candidato.servicios_externos)
             ? candidato.servicios_externos.filter(Boolean).join(", ")
@@ -509,7 +529,9 @@ let poblacionSeleccionada = null;
                 ${candidato.descripcion_externa ? dato("Descripción externa", candidato.descripcion_externa) : ""}
                 ${servicios ? dato("Servicios indicados", servicios) : ""}
                 ${candidato.accesibilidad ? dato("Accesibilidad", candidato.accesibilidad) : ""}
-                ${coordenadas ? dato("Coordenadas", coordenadas) : ""}
+                ${coordenadas
+                    ? `<p><strong>Coordenadas absolutas:</strong> <a href="${escaparHtml(enlaceCoordenadas)}" target="_blank" rel="noopener noreferrer">${escaparHtml(coordenadas)}</a>${candidatoTieneDistancia(candidato) ? ` · ${escaparHtml(Number(candidato.distancia_centro_km).toFixed(2))} km del centro` : ""}</p>`
+                    : ""}
                 ${redes.length
                     ? `<p><strong>Redes:</strong> ${redes.map((red) => {
                         const url = normalizarWeb(red.url);
@@ -758,16 +780,13 @@ async function solicitarSugerenciasPoblaciones() {
 
             ciudad: candidato.ciudad
                 || candidato.poblacion
-                || data?.poblacion?.nombre
-                || poblacion,
+                || "",
 
             codigo_postal: candidato.codigo_postal
-                || data?.poblacion?.codigo_postal
-                || codigoPostal,
+                || "",
 
             provincia: candidato.provincia
-                || data?.poblacion?.provincia
-                || provincia,
+                || "",
 
             horario_externo: candidato.horario_externo
                 || candidato.horario
@@ -804,10 +823,9 @@ async function solicitarSugerenciasPoblaciones() {
                 - Number(b.posible_duplicado);
         }
 
-        const distanciaA = Number(a.distancia_centro_km);
-        const distanciaB = Number(b.distancia_centro_km);
-
-        if (Number.isFinite(distanciaA) && Number.isFinite(distanciaB)) {
+        if (candidatoTieneDistancia(a) && candidatoTieneDistancia(b)) {
+            const distanciaA = Number(a.distancia_centro_km);
+            const distanciaB = Number(b.distancia_centro_km);
             const diferenciaDistancia = distanciaA - distanciaB;
 
             if (diferenciaDistancia) return diferenciaDistancia;
