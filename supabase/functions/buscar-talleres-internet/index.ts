@@ -5,42 +5,12 @@ const ORIGENES_PERMITIDOS = new Set([
     "https://www.tallermap.es"
 ]);
 
-const SERVIDORES_OVERPASS = [
-    {
-        url: "https://overpass-api.de/api/interpreter",
-        tiempoLimiteMs: 40000
-    },
-    {
-        url: "https://overpass.private.coffee/api/interpreter",
-        tiempoLimiteMs: 40000
-    },
-    {
-        url: "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-        tiempoLimiteMs: 40000
-    }
-];
-
-type ElementoOpenStreetMap = {
-    id: number;
-    type: string;
-    lat?: number;
-    lon?: number;
-    center?: { lat?: number; lon?: number };
-    tags?: Record<string, string>;
-};
-
 type LugarNominatim = {
     lat?: string;
     lon?: string;
     display_name?: string;
     address?: Record<string, string>;
     boundingbox?: string[];
-};
-
-type CoordenadasAbsolutas = {
-    latitud: number;
-    longitud: number;
-    origen: "nodo_osm" | "centro_geometria_osm";
 };
 
 function cabecerasCors(origen: string | null) {
@@ -63,26 +33,11 @@ function texto(valor: unknown, maximo = 255) {
     return String(valor || "").trim().slice(0, maximo);
 }
 
-function normalizar(valor: unknown) {
-    return texto(valor, 300)
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, " ")
-        .trim();
-}
-
 function primerValor(tags: Record<string, string>, claves: string[]) {
     for (const clave of claves) {
         if (tags[clave]) return texto(tags[clave]);
     }
     return "";
-}
-
-function direccionDe(tags: Record<string, string>) {
-    const calle = primerValor(tags, ["addr:street", "addr:place"]);
-    const numero = texto(tags["addr:housenumber"], 30);
-    return [calle, numero].filter(Boolean).join(" ");
 }
 
 function coordenadasValidas(latitud: number, longitud: number) {
@@ -92,40 +47,6 @@ function coordenadasValidas(latitud: number, longitud: number) {
         && latitud <= 90
         && longitud >= -180
         && longitud <= 180;
-}
-
-function coordenadasDe(elemento: ElementoOpenStreetMap): CoordenadasAbsolutas | null {
-    const esNodo = elemento.lat !== undefined && elemento.lon !== undefined;
-    const latitud = Number(esNodo ? elemento.lat : elemento.center?.lat);
-    const longitud = Number(esNodo ? elemento.lon : elemento.center?.lon);
-
-    if (!coordenadasValidas(latitud, longitud)) return null;
-
-    return {
-        latitud,
-        longitud,
-        origen: esNodo ? "nodo_osm" : "centro_geometria_osm"
-    };
-}
-
-function distanciaKilometros(
-    latitudOrigen: number,
-    longitudOrigen: number,
-    latitudDestino: number,
-    longitudDestino: number
-) {
-    const radianes = (grados: number) => grados * Math.PI / 180;
-    const diferenciaLatitud = radianes(latitudDestino - latitudOrigen);
-    const diferenciaLongitud = radianes(longitudDestino - longitudOrigen);
-    const latitudOrigenRadianes = radianes(latitudOrigen);
-    const latitudDestinoRadianes = radianes(latitudDestino);
-    const haverseno =
-        Math.sin(diferenciaLatitud / 2) ** 2
-        + Math.cos(latitudOrigenRadianes)
-        * Math.cos(latitudDestinoRadianes)
-        * Math.sin(diferenciaLongitud / 2) ** 2;
-
-    return 6371 * 2 * Math.asin(Math.sqrt(haverseno));
 }
 
 function limitesDe(lugar: LugarNominatim) {
@@ -140,18 +61,6 @@ function limitesDe(lugar: LugarNominatim) {
     }
 
     return { sur, norte, oeste, este };
-}
-
-function coordenadasDentroDe(
-    coordenadas: CoordenadasAbsolutas,
-    limites: ReturnType<typeof limitesDe>
-) {
-    if (!limites) return false;
-
-    return coordenadas.latitud >= limites.sur
-        && coordenadas.latitud <= limites.norte
-        && coordenadas.longitud >= limites.oeste
-        && coordenadas.longitud <= limites.este;
 }
 
 async function fetchConTiempoLimite(
@@ -198,48 +107,6 @@ async function localizarPoblacion(url: URL, agente: string) {
         }
 
         console.warn(`Nominatim intento ${intento}: ${ultimoError}`);
-    }
-
-    throw new Error(ultimoError);
-}
-
-async function consultarOverpass(consulta: string, agente: string) {
-    const datosFormulario = new URLSearchParams({ data: consulta });
-    let ultimoError = "sin respuesta";
-
-    for (const servidor of SERVIDORES_OVERPASS) {
-        try {
-            const respuestaOverpass = await fetchConTiempoLimite(
-                servidor.url,
-                {
-                    method: "POST",
-                    headers: {
-                        "User-Agent": agente,
-                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-                    },
-                    body: datosFormulario.toString()
-                },
-                servidor.tiempoLimiteMs
-            );
-
-            if (!respuestaOverpass.ok) {
-                ultimoError = `${new URL(servidor.url).host}: HTTP ${respuestaOverpass.status}`;
-                console.warn(`Overpass: ${ultimoError}`);
-                continue;
-            }
-
-            const datos = await respuestaOverpass.json() as {
-                elements?: ElementoOpenStreetMap[];
-            };
-            if (Array.isArray(datos.elements)) return datos;
-
-            ultimoError = `${new URL(servidor.url).host}: respuesta no válida`;
-        } catch (error) {
-            const detalle = error instanceof Error ? error.message : "error de red";
-            ultimoError = `${new URL(servidor.url).host}: ${detalle}`;
-        }
-
-        console.warn(`Overpass: ${ultimoError}`);
     }
 
     throw new Error(ultimoError);
@@ -328,90 +195,14 @@ Deno.serve(async (peticion) => {
   nwr["amenity"="car_repair"](around:${radioMetros},${latitud},${longitud});
 );
 out center tags 80;`;
-    let datos: { elements?: ElementoOpenStreetMap[] };
-    try {
-        datos = await consultarOverpass(consultaOverpass, agente);
-    } catch (error) {
-        console.error("No respondió ningún servidor Overpass:", error);
-        return respuesta({
-            error: "El buscador externo está ocupado",
-            detalle: "Los servidores cartográficos no respondieron después de esperar hasta dos minutos. Inténtalo de nuevo más tarde."
-        }, 503, cabeceras);
-    }
-
-    const { data: existentes } = await supabase
-        .from("talleres")
-        .select("id,nombre,direccion,ciudad")
-        .limit(5000);
-    const talleresExistentes = existentes || [];
-    const candidatos = (Array.isArray(datos.elements) ? datos.elements : [])
-        .map((elemento) => {
-            const coordenadas = coordenadasDe(elemento);
-            if (!coordenadas) return null;
-
-            const distanciaCentroKm = distanciaKilometros(
-                latitud,
-                longitud,
-                coordenadas.latitud,
-                coordenadas.longitud
-            );
-            if (distanciaCentroKm > radioKm) return null;
-
-            const tags = elemento.tags || {};
-            const nombre = primerValor(tags, ["name", "brand", "operator"]) || "Taller sin nombre";
-            const direccion = direccionDe(tags);
-            const poblacionFuente = primerValor(tags, [
-                "addr:city", "addr:town", "addr:village", "addr:municipality"
-            ]);
-            const codigoPostalFuente = texto(tags["addr:postcode"], 10);
-            const coincidencia = talleresExistentes.find((taller) => {
-                const mismoNombre = normalizar(taller.nombre) === normalizar(nombre);
-                const mismaCiudad = poblacionFuente
-                    && normalizar(taller.ciudad) === normalizar(poblacionFuente);
-                const mismaDireccion = direccion
-                    && normalizar(taller.direccion) === normalizar(direccion);
-                return mismoNombre && (mismaCiudad || mismaDireccion);
-            });
-            return {
-                id: `${elemento.type}/${elemento.id}`,
-                nombre,
-                direccion,
-                codigo_postal: codigoPostalFuente,
-                ciudad: poblacionFuente,
-                provincia: primerValor(tags, ["addr:province", "addr:state"]),
-                telefono: primerValor(tags, ["contact:phone", "phone", "contact:mobile"]),
-                email: primerValor(tags, ["contact:email", "email"]),
-                web: primerValor(tags, ["contact:website", "website", "url"]),
-                horario_externo: texto(tags.opening_hours, 300),
-                latitud: coordenadas.latitud,
-                longitud: coordenadas.longitud,
-                coordenadas_absolutas: true,
-                origen_coordenadas: coordenadas.origen,
-                distancia_centro_km: Number(distanciaCentroKm.toFixed(3)),
-                dentro_limites_poblacion: coordenadasDentroDe(
-                    coordenadas,
-                    limitesPoblacion
-                ),
-                etiquetas_osm: tags,
-                poblacion_fuente: poblacionFuente,
-                codigo_postal_fuente: codigoPostalFuente,
-                posible_duplicado: Boolean(coincidencia),
-                taller_existente_id: coincidencia?.id || null,
-                fuente: `https://www.openstreetmap.org/${elemento.type}/${elemento.id}`
-            };
-        })
-        .filter((candidato) => candidato !== null)
-        .sort((a, b) => {
-            if (a.posible_duplicado !== b.posible_duplicado) {
-                return Number(a.posible_duplicado) - Number(b.posible_duplicado);
-            }
-            if (a.nombre === "Taller sin nombre") return 1;
-            if (b.nombre === "Taller sin nombre") return -1;
-            return a.nombre.localeCompare(b.nombre, "es");
-        })
-        .slice(0, 80);
-
     return respuesta({
+        modo_consulta: "navegador",
+        consulta_overpass: consultaOverpass,
+        servidores_overpass: [
+            "https://overpass-api.de/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter",
+            "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+        ],
         ubicacion: {
             nombre: texto(lugares[0].display_name, 300),
             latitud,
@@ -426,7 +217,6 @@ out center tags 80;`;
             provincia: primerValor(lugares[0].address || {}, ["province", "state"]),
             limites: limitesPoblacion
         },
-        candidatos,
         atribucion: "© colaboradores de OpenStreetMap, datos ODbL"
     }, 200, cabeceras);
 });
