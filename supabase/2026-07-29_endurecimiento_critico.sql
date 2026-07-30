@@ -6,6 +6,8 @@
 --   2. Exponer únicamente campos públicos mediante RPC.
 --   3. Versionar la búsqueda por distancia que utiliza la portada.
 --   4. Versionar el guardado de coordenadas utilizado por el administrador.
+--   5. Mantener la lectura pública de fotos sin reabrir public.talleres.
+--   6. Versionar la estructura y los permisos del catálogo de municipios.
 
 begin;
 
@@ -18,6 +20,40 @@ revoke select on table public.talleres from anon;
 -- Los usuarios autenticados solo obtienen filas si son administradores, gracias
 -- a la política "administradores consultan todos los talleres" ya instalada.
 grant select on table public.talleres to authenticated;
+
+-- Catálogo que consumen el formulario de alta y el buscador del administrador.
+-- Los ALTER permiten aplicar el endurecimiento sobre instalaciones anteriores
+-- en las que la tabla existía, pero todavía no estaba versionada en el repo.
+create table if not exists public.municipios (
+    codigo_municipal text primary key,
+    nombre text not null,
+    activo boolean not null default true,
+    created_at timestamptz not null default now()
+);
+
+alter table public.municipios
+    add column if not exists codigo_municipal text,
+    add column if not exists nombre text,
+    add column if not exists activo boolean default true,
+    add column if not exists created_at timestamptz default now();
+
+alter table public.municipios enable row level security;
+
+drop policy if exists "publico consulta municipios activos"
+on public.municipios;
+create policy "publico consulta municipios activos"
+on public.municipios
+for select
+to anon, authenticated
+using (activo = true);
+
+revoke all on table public.municipios from public, anon, authenticated;
+grant select (codigo_municipal, nombre, activo)
+on table public.municipios
+to anon, authenticated;
+
+create index if not exists municipios_activo_nombre_idx
+on public.municipios (activo, nombre);
 
 -- Elimina cualquier versión anterior para poder fijar también el tipo devuelto.
 do $$
@@ -239,6 +275,44 @@ revoke all on function public.buscar_talleres_cercanos(
 grant execute on function public.buscar_talleres_cercanos(
     double precision, double precision, double precision, text, integer
 ) to anon, authenticated;
+
+-- Las políticas de Storage se evalúan con los permisos del visitante. Este
+-- helper limita la comprobación a una ruta exacta de una foto ya publicada,
+-- sin conceder SELECT directo sobre public.talleres.
+create or replace function public.foto_taller_es_publica(
+    p_ruta text
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+    select coalesce(
+        exists (
+            select 1
+            from public.talleres t
+            where t.activo = true
+              and p_ruta = any(coalesce(t.fotos, '{}'::text[]))
+        ),
+        false
+    );
+$$;
+
+revoke all on function public.foto_taller_es_publica(text) from public;
+grant execute on function public.foto_taller_es_publica(text)
+to anon, authenticated;
+
+drop policy if exists "publico ve fotos de talleres activos"
+on storage.objects;
+create policy "publico ve fotos de talleres activos"
+on storage.objects
+for select
+to anon, authenticated
+using (
+    bucket_id = 'fotos-talleres'
+    and public.foto_taller_es_publica(name)
+);
 
 create function public.admin_guardar_ubicacion_taller(
     p_taller_id uuid,

@@ -44,6 +44,8 @@ const referencePattern = /\b(?:href|src)\s*=\s*(["'])(.*?)\1/gi;
 const idPattern = /\bid\s*=\s*(["'])(.*?)\1/gi;
 const pinnedSupabase =
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0";
+const supabaseCdnPattern =
+    /https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"'\s<]+/g;
 
 for (const path of htmlFiles) {
     const source = readFileSync(path, "utf8");
@@ -82,14 +84,12 @@ for (const path of htmlFiles) {
         }
     }
 
-    const requirePinnedSupabase = !relative(root, path).startsWith("municipios/");
-    if (
-        requirePinnedSupabase
-        &&
-        source.includes("cdn.jsdelivr.net/npm/@supabase/supabase-js@")
-        && !source.includes(pinnedSupabase)
-    ) {
-        report(`Supabase sin versión fija en ${relative(root, path)}`);
+    for (const supabaseReference of source.match(supabaseCdnPattern) || []) {
+        if (supabaseReference !== pinnedSupabase) {
+            report(
+                `Supabase sin versión fija en ${relative(root, path)}: ${supabaseReference}`
+            );
+        }
     }
 }
 
