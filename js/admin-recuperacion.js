@@ -23,6 +23,10 @@
             for (const [incorrecto, correcto] of REEMPLAZOS) {
                 texto = texto.split(incorrecto).join(correcto);
             }
+            texto = texto
+                .replace(/\s*â[\uFFFD\u25A1□�]{1,6}\s*/g, " — ")
+                .replace(/\s*[\uFFFD\u25A1□�]{2,6}\s*/g, " — ")
+                .replace(/\s+—\s+/g, " — ");
             if (texto === anterior) break;
         }
         return texto;
