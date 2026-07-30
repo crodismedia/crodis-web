@@ -14,6 +14,19 @@ type ElementoOpenStreetMap = {
     tags?: Record<string, string>;
 };
 
+type LugarNominatim = {
+    lat?: string;
+    lon?: string;
+    display_name?: string;
+    address?: Record<string, string>;
+};
+
+type CoordenadasAbsolutas = {
+    latitud: number;
+    longitud: number;
+    origen: "nodo_osm" | "centro_geometria_osm";
+};
+
 function cabecerasCors(origen: string | null) {
     return {
         "Access-Control-Allow-Origin": origen && ORIGENES_PERMITIDOS.has(origen)
@@ -54,6 +67,49 @@ function direccionDe(tags: Record<string, string>) {
     const calle = primerValor(tags, ["addr:street", "addr:place"]);
     const numero = texto(tags["addr:housenumber"], 30);
     return [calle, numero].filter(Boolean).join(" ");
+}
+
+function coordenadasValidas(latitud: number, longitud: number) {
+    return Number.isFinite(latitud)
+        && Number.isFinite(longitud)
+        && latitud >= -90
+        && latitud <= 90
+        && longitud >= -180
+        && longitud <= 180;
+}
+
+function coordenadasDe(elemento: ElementoOpenStreetMap): CoordenadasAbsolutas | null {
+    const esNodo = elemento.lat !== undefined && elemento.lon !== undefined;
+    const latitud = Number(esNodo ? elemento.lat : elemento.center?.lat);
+    const longitud = Number(esNodo ? elemento.lon : elemento.center?.lon);
+
+    if (!coordenadasValidas(latitud, longitud)) return null;
+
+    return {
+        latitud,
+        longitud,
+        origen: esNodo ? "nodo_osm" : "centro_geometria_osm"
+    };
+}
+
+function distanciaKilometros(
+    latitudOrigen: number,
+    longitudOrigen: number,
+    latitudDestino: number,
+    longitudDestino: number
+) {
+    const radianes = (grados: number) => grados * Math.PI / 180;
+    const diferenciaLatitud = radianes(latitudDestino - latitudOrigen);
+    const diferenciaLongitud = radianes(longitudDestino - longitudOrigen);
+    const latitudOrigenRadianes = radianes(latitudOrigen);
+    const latitudDestinoRadianes = radianes(latitudDestino);
+    const haverseno =
+        Math.sin(diferenciaLatitud / 2) ** 2
+        + Math.cos(latitudOrigenRadianes)
+        * Math.cos(latitudDestinoRadianes)
+        * Math.sin(diferenciaLongitud / 2) ** 2;
+
+    return 6371 * 2 * Math.asin(Math.sqrt(haverseno));
 }
 
 Deno.serve(async (peticion) => {
@@ -117,12 +173,15 @@ Deno.serve(async (peticion) => {
     if (!geocodificacion.ok) {
         return respuesta({ error: "No se pudo localizar la población" }, 502, cabeceras);
     }
-    const lugares = await geocodificacion.json();
+    const lugares = await geocodificacion.json() as LugarNominatim[];
     if (!Array.isArray(lugares) || !lugares.length) {
         return respuesta({ error: "No se encontró esa ubicación en España" }, 404, cabeceras);
     }
     const latitud = Number(lugares[0].lat);
     const longitud = Number(lugares[0].lon);
+    if (!coordenadasValidas(latitud, longitud)) {
+        return respuesta({ error: "La ubicación no tiene coordenadas válidas" }, 502, cabeceras);
+    }
     const radioMetros = Math.round(radioKm * 1000);
 
     const consultaOverpass = `[out:json][timeout:25];
@@ -155,15 +214,28 @@ out center tags 80;`;
     const talleresExistentes = existentes || [];
     const candidatos = (Array.isArray(datos.elements) ? datos.elements : [])
         .map((elemento) => {
+            const coordenadas = coordenadasDe(elemento);
+            if (!coordenadas) return null;
+
+            const distanciaCentroKm = distanciaKilometros(
+                latitud,
+                longitud,
+                coordenadas.latitud,
+                coordenadas.longitud
+            );
+            if (distanciaCentroKm > radioKm) return null;
+
             const tags = elemento.tags || {};
             const nombre = primerValor(tags, ["name", "brand", "operator"]) || "Taller sin nombre";
             const direccion = direccionDe(tags);
-            const ciudad = primerValor(tags, [
+            const poblacionFuente = primerValor(tags, [
                 "addr:city", "addr:town", "addr:village", "addr:municipality"
-            ]) || ubicacion;
+            ]);
+            const codigoPostalFuente = texto(tags["addr:postcode"], 10);
             const coincidencia = talleresExistentes.find((taller) => {
                 const mismoNombre = normalizar(taller.nombre) === normalizar(nombre);
-                const mismaCiudad = normalizar(taller.ciudad) === normalizar(ciudad);
+                const mismaCiudad = poblacionFuente
+                    && normalizar(taller.ciudad) === normalizar(poblacionFuente);
                 const mismaDireccion = direccion
                     && normalizar(taller.direccion) === normalizar(direccion);
                 return mismoNombre && (mismaCiudad || mismaDireccion);
@@ -172,20 +244,27 @@ out center tags 80;`;
                 id: `${elemento.type}/${elemento.id}`,
                 nombre,
                 direccion,
-                codigo_postal: texto(tags["addr:postcode"], 10),
-                ciudad,
+                codigo_postal: codigoPostalFuente,
+                ciudad: poblacionFuente,
                 provincia: primerValor(tags, ["addr:province", "addr:state"]),
                 telefono: primerValor(tags, ["contact:phone", "phone", "contact:mobile"]),
                 email: primerValor(tags, ["contact:email", "email"]),
                 web: primerValor(tags, ["contact:website", "website", "url"]),
                 horario_externo: texto(tags.opening_hours, 300),
-                latitud: elemento.lat ?? elemento.center?.lat ?? null,
-                longitud: elemento.lon ?? elemento.center?.lon ?? null,
+                latitud: coordenadas.latitud,
+                longitud: coordenadas.longitud,
+                coordenadas_absolutas: true,
+                origen_coordenadas: coordenadas.origen,
+                distancia_centro_km: Number(distanciaCentroKm.toFixed(3)),
+                etiquetas_osm: tags,
+                poblacion_fuente: poblacionFuente,
+                codigo_postal_fuente: codigoPostalFuente,
                 posible_duplicado: Boolean(coincidencia),
                 taller_existente_id: coincidencia?.id || null,
                 fuente: `https://www.openstreetmap.org/${elemento.type}/${elemento.id}`
             };
         })
+        .filter((candidato) => candidato !== null)
         .sort((a, b) => {
             if (a.posible_duplicado !== b.posible_duplicado) {
                 return Number(a.posible_duplicado) - Number(b.posible_duplicado);
@@ -202,6 +281,13 @@ out center tags 80;`;
             latitud,
             longitud,
             radio_km: radioKm
+        },
+        poblacion: {
+            nombre: primerValor(lugares[0].address || {}, [
+                "city", "town", "village", "municipality"
+            ]) || ubicacion.split(",")[0].trim(),
+            codigo_postal: texto(lugares[0].address?.postcode, 10),
+            provincia: primerValor(lugares[0].address || {}, ["province", "state"])
         },
         candidatos,
         atribucion: "© colaboradores de OpenStreetMap, datos ODbL"
