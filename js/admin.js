@@ -405,6 +405,41 @@ let poblacionSeleccionada = null;
             : '<tr><td colspan="7">No hay talleres en esta ubicación.</td></tr>';
     }
 
+    function candidatoTieneCoordenadas(candidato) {
+        return [candidato.latitud, candidato.longitud].every((valor) =>
+            valor !== null
+            && valor !== undefined
+            && String(valor).trim() !== ""
+            && Number.isFinite(Number(valor))
+        );
+    }
+
+    function contarDatosCandidato(candidato) {
+        const ubicacion = [
+            candidato.direccion,
+            candidato.codigo_postal,
+            candidato.ciudad,
+            candidato.provincia
+        ].filter(Boolean).join(", ");
+        const coordenadas = candidatoTieneCoordenadas(candidato);
+        const web = normalizarWeb(candidato.web);
+        const servicios = Array.isArray(candidato.servicios_externos)
+            && candidato.servicios_externos.some(Boolean);
+
+        return [
+            ubicacion,
+            candidato.telefono,
+            candidato.email,
+            web,
+            candidato.horario_externo,
+            candidato.categoria,
+            candidato.marca,
+            candidato.descripcion_externa,
+            servicios,
+            coordenadas
+        ].filter(Boolean).length;
+    }
+
     function tarjetaCandidato(candidato) {
         const ubicacion = [
             candidato.direccion,
@@ -412,8 +447,7 @@ let poblacionSeleccionada = null;
             candidato.ciudad,
             candidato.provincia
         ].filter(Boolean).join(", ");
-        const coordenadas = Number.isFinite(Number(candidato.latitud))
-            && Number.isFinite(Number(candidato.longitud))
+        const coordenadas = candidatoTieneCoordenadas(candidato)
             ? `${Number(candidato.latitud).toFixed(6)}, ${Number(candidato.longitud).toFixed(6)}`
             : "";
         const web = normalizarWeb(candidato.web);
@@ -423,11 +457,7 @@ let poblacionSeleccionada = null;
         const redes = Array.isArray(candidato.redes_sociales)
             ? candidato.redes_sociales.filter((red) => red?.url)
             : [];
-        const camposDisponibles = [
-            ubicacion, candidato.telefono, candidato.email, web,
-            candidato.horario_externo, candidato.categoria, candidato.marca,
-            candidato.descripcion_externa, servicios, coordenadas
-        ].filter(Boolean).length;
+        const camposDisponibles = contarDatosCandidato(candidato);
         const dato = (etiqueta, contenido, alternativo = "No disponible") =>
             `<p><strong>${escaparHtml(etiqueta)}:</strong> ${escaparHtml(contenido || alternativo)}</p>`;
     
@@ -725,6 +755,23 @@ async function solicitarSugerenciasPoblaciones() {
                 : candidato.url_fuente
         }))
         : [];
+
+    candidatosInternet.sort((a, b) => {
+        const diferenciaDatos =
+            contarDatosCandidato(b) - contarDatosCandidato(a);
+
+        if (diferenciaDatos) return diferenciaDatos;
+
+        if (a.posible_duplicado !== b.posible_duplicado) {
+            return Number(a.posible_duplicado)
+                - Number(b.posible_duplicado);
+        }
+
+        return String(a.nombre || "").localeCompare(
+            String(b.nombre || ""),
+            "es"
+        );
+    });
 
     const nuevos = candidatosInternet.filter(
         (candidato) => !candidato.posible_duplicado
