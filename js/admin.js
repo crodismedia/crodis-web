@@ -12,8 +12,8 @@
     const MAXIMO_BYTES_FOTO = 5 * 1024 * 1024;
     const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
     const DIAS = [
-        ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
-        ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
+        ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "MiĂŠrcoles"],
+        ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "SĂĄbado"],
         ["domingo", "Domingo"]
     ];
     const localidadesPorCodigo = new Map();
@@ -24,7 +24,9 @@
     let candidatosInternet = [];
     let tallerEditado = null;
     let temporizadorSugerencias = null;
-let poblacionSeleccionada = null;
+    let poblacionSeleccionada = null;
+    let catalogoMunicipios = null;
+    let promesaCatalogoMunicipios = null;
 
     function mostrar(texto, tipo = "error") {
         mensaje.textContent = texto;
@@ -45,7 +47,7 @@ let poblacionSeleccionada = null;
     function formatoFecha(fecha) {
         if (!fecha) return "Sin fecha";
         const valorFecha = new Date(fecha);
-        if (Number.isNaN(valorFecha.getTime())) return "Fecha no válida";
+        if (Number.isNaN(valorFecha.getTime())) return "Fecha no vĂĄlida";
         return new Intl.DateTimeFormat("es-ES", {
             dateStyle: "medium",
             timeStyle: "short"
@@ -79,7 +81,7 @@ let poblacionSeleccionada = null;
         const opciones = [
             incluirVacio
                 ? '<option value="">Sin segundo turno</option>'
-                : '<option value="">Elige…</option>'
+                : '<option value="">EligeâŚ</option>'
         ];
         if (incluirCerrado) opciones.push('<option value="cerrado">Cerrado</option>');
         for (let hora = 0; hora < 24; hora += 1) {
@@ -233,11 +235,11 @@ let poblacionSeleccionada = null;
             document.getElementById("admin-provincia")
         );
         if (!provincia) {
-            estado.textContent = "El código postal debe contener cinco números válidos.";
+            estado.textContent = "El cĂłdigo postal debe contener cinco nĂşmeros vĂĄlidos.";
             estado.className = "campo-estado campo-estado-error";
             return [];
         }
-        estado.textContent = "Comprobando población…";
+        estado.textContent = "Comprobando poblaciĂłnâŚ";
         estado.className = "campo-estado campo-estado-cargando";
         try {
             const localidades = await consultarLocalidades(codigo);
@@ -251,15 +253,15 @@ let poblacionSeleccionada = null;
                 document.getElementById("admin-ciudad").value = localidades[0];
             }
             estado.textContent = localidades.length
-                ? `✓ Provincia: ${provincia.nombre}. Poblaciones: ${localidades.join(", ")}.`
-                : `Provincia: ${provincia.nombre}. No se pudo confirmar la población.`;
+                ? `â Provincia: ${provincia.nombre}. Poblaciones: ${localidades.join(", ")}.`
+                : `Provincia: ${provincia.nombre}. No se pudo confirmar la poblaciĂłn.`;
             estado.className = localidades.length
                 ? "campo-estado campo-estado-exito"
                 : "campo-estado campo-estado-error";
             return localidades;
         } catch (error) {
-            console.error("No se pudo comprobar el código postal:", error);
-            estado.textContent = "No se pudo comprobar la población en este momento.";
+            console.error("No se pudo comprobar el cĂłdigo postal:", error);
+            estado.textContent = "No se pudo comprobar la poblaciĂłn en este momento.";
             estado.className = "campo-estado campo-estado-error";
             return null;
         }
@@ -314,7 +316,7 @@ let poblacionSeleccionada = null;
             .from("fotos-talleres")
             .createSignedUrls(rutas, 3600);
         if (error) {
-            console.error("No se pudieron cargar las fotografías:", error);
+            console.error("No se pudieron cargar las fotografĂ­as:", error);
             return talleres;
         }
         const porRuta = new Map(
@@ -334,16 +336,16 @@ let poblacionSeleccionada = null;
         return `<article class="solicitud-card admin-taller-card" data-taller-id="${escaparHtml(taller.id)}">
             <div class="solicitud-titulo">
                 <div>
-                    <span>${taller.activo ? "Activo" : "Inactivo"} · ${taller.verificado ? "Verificado" : "No verificado"}</span>
+                    <span>${taller.activo ? "Activo" : "Inactivo"} Âˇ ${taller.verificado ? "Verificado" : "No verificado"}</span>
                     <h2>${escaparHtml(taller.nombre)}</h2>
                     <p>${escaparHtml([taller.ciudad, taller.provincia].filter(Boolean).join(", "))}</p>
                 </div>
                 <time>Actualizado ${escaparHtml(formatoFecha(taller.updated_at))}</time>
             </div>
-            ${foto ? `<img class="admin-taller-miniatura" src="${escaparHtml(foto)}" alt="Fotografía de ${escaparHtml(taller.nombre)}" loading="lazy">` : ""}
+            ${foto ? `<img class="admin-taller-miniatura" src="${escaparHtml(foto)}" alt="FotografĂ­a de ${escaparHtml(taller.nombre)}" loading="lazy">` : ""}
             <dl>
-                <div><dt>Teléfono</dt><dd>${escaparHtml(taller.telefono || "No indicado")}</dd></div>
-                <div><dt>Dirección</dt><dd>${escaparHtml(taller.direccion || "")}<br>${escaparHtml(taller.codigo_postal || "")} ${escaparHtml(taller.ciudad || "")}</dd></div>
+                <div><dt>TelĂŠfono</dt><dd>${escaparHtml(taller.telefono || "No indicado")}</dd></div>
+                <div><dt>DirecciĂłn</dt><dd>${escaparHtml(taller.direccion || "")}<br>${escaparHtml(taller.codigo_postal || "")} ${escaparHtml(taller.ciudad || "")}</dd></div>
                 <div><dt>Servicios</dt><dd>${escaparHtml(servicios.join(", ") || "No indicados")}</dd></div>
                 <div><dt>Alta</dt><dd>${escaparHtml(formatoFecha(taller.created_at))}</dd></div>
             </dl>
@@ -370,14 +372,14 @@ let poblacionSeleccionada = null;
         ];
         resultados.forEach((resultado, indice) => {
             document.getElementById(ids[indice]).textContent =
-                resultado.error ? "—" : new Intl.NumberFormat("es-ES").format(resultado.count || 0);
+                resultado.error ? "â" : new Intl.NumberFormat("es-ES").format(resultado.count || 0);
         });
     }
 
     async function cargarUbicaciones() {
         const cuerpo = document.getElementById("tabla-ubicaciones");
         const resumen = document.getElementById("resumen-ubicaciones");
-        cuerpo.innerHTML = '<tr><td colspan="7">Cargando distribución territorial…</td></tr>';
+        cuerpo.innerHTML = '<tr><td colspan="7">Cargando distribuciĂłn territorialâŚ</td></tr>';
         const { data, error } = await window.supabaseClient.rpc(
             "admin_resumen_ubicaciones",
             {
@@ -388,7 +390,7 @@ let poblacionSeleccionada = null;
         if (error) {
             ubicacionesActuales = [];
             cuerpo.innerHTML = '<tr><td colspan="7">Falta activar la vista territorial en Supabase.</td></tr>';
-            resumen.textContent = "Ejecuta admin_control_total.sql para consultar los talleres por ubicación.";
+            resumen.textContent = "Ejecuta admin_control_total.sql para consultar los talleres por ubicaciĂłn.";
             return;
         }
 
@@ -398,7 +400,7 @@ let poblacionSeleccionada = null;
             activos: acumulado.activos + Number(fila.activos || 0),
             inactivos: acumulado.inactivos + Number(fila.inactivos || 0)
         }), { total: 0, activos: 0, inactivos: 0 });
-        resumen.textContent = `${ubicacionesActuales.length} ubicaciones · ${totales.total} talleres · ${totales.activos} activos · ${totales.inactivos} inactivos`;
+        resumen.textContent = `${ubicacionesActuales.length} ubicaciones Âˇ ${totales.total} talleres Âˇ ${totales.activos} activos Âˇ ${totales.inactivos} inactivos`;
         cuerpo.innerHTML = ubicacionesActuales.length
             ? ubicacionesActuales.map((fila) => `
                 <tr>
@@ -411,7 +413,7 @@ let poblacionSeleccionada = null;
                     <td><button class="boton-enlace" type="button" data-ver-ubicacion="${escaparHtml(fila.ciudad)}" data-ver-provincia="${escaparHtml(fila.provincia)}">Ver fichas</button></td>
                 </tr>
             `).join("")
-            : '<tr><td colspan="7">No hay talleres en esta ubicación.</td></tr>';
+            : '<tr><td colspan="7">No hay talleres en esta ubicaciĂłn.</td></tr>';
     }
 
     function candidatoTieneCoordenadas(candidato) {
@@ -520,11 +522,11 @@ let poblacionSeleccionada = null;
     
         return `<article class="admin-candidato${candidato.posible_duplicado ? " admin-candidato-duplicado" : ""}" data-candidato-id="${escaparHtml(candidato.id)}">
             <div>
-                <span class="admin-candidato-estado">${candidato.posible_duplicado ? "Posible duplicado" : "Candidato nuevo"} · ${camposDisponibles}/10 datos localizados</span>
+                <span class="admin-candidato-estado">${candidato.posible_duplicado ? "Posible duplicado" : "Candidato nuevo"} Âˇ ${camposDisponibles}/10 datos localizados</span>
                 <h3>${escaparHtml(candidato.nombre)}</h3>
-                ${dato("Dirección", ubicacion, "Ubicación aproximada")}
-                ${dato("Categoría", candidato.categoria)}
-                ${dato("Teléfono", candidato.telefono)}
+                ${dato("DirecciĂłn", ubicacion, "UbicaciĂłn aproximada")}
+                ${dato("CategorĂ­a", candidato.categoria)}
+                ${dato("TelĂŠfono", candidato.telefono)}
                 ${dato("Correo", candidato.email)}
                 ${web
                     ? `<p><strong>Web:</strong> <a href="${escaparHtml(web)}" target="_blank" rel="noopener noreferrer">${escaparHtml(web)}</a></p>`
@@ -532,17 +534,17 @@ let poblacionSeleccionada = null;
                 ${dato("Horario", candidato.horario_externo)}
                 ${candidato.marca ? dato("Marca", candidato.marca) : ""}
                 ${candidato.operador ? dato("Operador", candidato.operador) : ""}
-                ${candidato.descripcion_externa ? dato("Descripción externa", candidato.descripcion_externa) : ""}
+                ${candidato.descripcion_externa ? dato("DescripciĂłn externa", candidato.descripcion_externa) : ""}
                 ${servicios ? dato("Servicios indicados", servicios) : ""}
                 ${candidato.accesibilidad ? dato("Accesibilidad", candidato.accesibilidad) : ""}
                 ${coordenadas
-                    ? `<p><strong>Coordenadas absolutas:</strong> <a href="${escaparHtml(enlaceCoordenadas)}" target="_blank" rel="noopener noreferrer">${escaparHtml(coordenadas)}</a>${candidatoTieneDistancia(candidato) ? ` · ${escaparHtml(Number(candidato.distancia_centro_km).toFixed(2))} km del centro` : ""}</p>`
+                    ? `<p><strong>Coordenadas absolutas:</strong> <a href="${escaparHtml(enlaceCoordenadas)}" target="_blank" rel="noopener noreferrer">${escaparHtml(coordenadas)}</a>${candidatoTieneDistancia(candidato) ? ` Âˇ ${escaparHtml(Number(candidato.distancia_centro_km).toFixed(2))} km del centro` : ""}</p>`
                     : ""}
                 ${redes.length
                     ? `<p><strong>Redes:</strong> ${redes.map((red) => {
                         const url = normalizarWeb(red.url);
                         return `<a href="${escaparHtml(url)}" target="_blank" rel="noopener noreferrer">${escaparHtml(red.nombre)}</a>`;
-                    }).join(" · ")}</p>`
+                    }).join(" Âˇ ")}</p>`
                     : ""}
             </div>
             <div class="admin-candidato-acciones">
@@ -573,17 +575,17 @@ function seleccionarSugerenciaPoblacion(sugerencia) {
             sugerencia.nombre,
             sugerencia.codigo_postal,
             sugerencia.provincia
-        ].filter(Boolean).join(" — ");
+        ].filter(Boolean).join(" â ");
 
     campo.dataset.poblacion = sugerencia.nombre || "";
     campo.dataset.codigoPostal = sugerencia.codigo_postal || "";
     campo.dataset.provincia = sugerencia.provincia || "";
 
     estado.textContent = [
-        `Población: ${sugerencia.nombre || "No disponible"}`,
-        `Código postal: ${sugerencia.codigo_postal || "No disponible"}`,
+        `PoblaciĂłn: ${sugerencia.nombre || "No disponible"}`,
+        `CĂłdigo postal: ${sugerencia.codigo_postal || "No disponible"}`,
         `Provincia: ${sugerencia.provincia || "No disponible"}`
-    ].join(" · ");
+    ].join(" Âˇ ");
 
     cerrarSugerenciasPoblaciones();
 }
@@ -616,15 +618,15 @@ function renderizarSugerenciasPoblaciones(sugerencias) {
             : "Fuente externa";
 
         boton.innerHTML = `
-            <strong>${escaparHtml(sugerencia.nombre || "Población")}</strong>
+            <strong>${escaparHtml(sugerencia.nombre || "PoblaciĂłn")}</strong>
             <span>
                 ${escaparHtml(
     sugerencia.codigo_postal
     || sugerencia.codigo_municipal
-    || "Sin código"
+    || "Sin cĂłdigo"
 )}
                 ${sugerencia.provincia
-                    ? ` · ${escaparHtml(sugerencia.provincia)}`
+                    ? ` Âˇ ${escaparHtml(sugerencia.provincia)}`
                     : ""}
             </span>
             <small>${escaparHtml(origen)}</small>
@@ -717,7 +719,7 @@ async function consultarServidorCartografico(servidor, consulta, tiempoLimiteMs)
 
         const datos = await respuesta.json();
         if (!Array.isArray(datos?.elements)) {
-            throw new Error(`${url.host}: respuesta no válida`);
+            throw new Error(`${url.host}: respuesta no vĂĄlida`);
         }
 
         return datos.elements;
@@ -739,7 +741,7 @@ async function obtenerElementosOsm(datosBusqueda, actualizarEstado) {
     for (let indice = 0; indice < servidores.length; indice += 1) {
         const servidor = servidores[indice];
         actualizarEstado(
-            `Consultando fuente cartográfica ${indice + 1} de ${servidores.length}…`
+            `Consultando fuente cartogrĂĄfica ${indice + 1} de ${servidores.length}âŚ`
         );
 
         try {
@@ -752,7 +754,7 @@ async function obtenerElementosOsm(datosBusqueda, actualizarEstado) {
             ultimoError = error instanceof Error
                 ? error.message
                 : "error de red";
-            console.warn("Consulta cartográfica desde el navegador:", ultimoError);
+            console.warn("Consulta cartogrĂĄfica desde el navegador:", ultimoError);
         }
     }
 
@@ -834,7 +836,7 @@ function convertirElementosEnCandidatos(elementos, datosBusqueda, existentes) {
                     ["contact:website", "website", "url"]
                 ),
                 horario_externo: textoExterno(etiquetas.opening_hours, 300),
-                categoria: "Taller de reparación",
+                categoria: "Taller de reparaciĂłn",
                 marca: textoExterno(etiquetas.brand),
                 operador: textoExterno(etiquetas.operator),
                 descripcion_externa: textoExterno(etiquetas.description, 500),
@@ -889,11 +891,11 @@ async function mensajeErrorBusqueda(error, data) {
                 return cuerpo.detalle || cuerpo.error;
             }
         } catch {
-            // La respuesta no contenía JSON legible.
+            // La respuesta no contenĂ­a JSON legible.
         }
     }
 
-    return "No se pudo completar la búsqueda. Inténtalo de nuevo.";
+    return "No se pudo completar la bĂşsqueda. IntĂŠntalo de nuevo.";
 }
 
 async function solicitarSugerenciasPoblaciones() {
@@ -913,32 +915,56 @@ async function solicitarSugerenciasPoblaciones() {
         return;
     }
 
-    estado.textContent = "Buscando poblaciones y códigos postales…";
+    estado.textContent = "Buscando poblaciones y cĂłdigos postalesâŚ";
 
     try {
         const termino = terminoSeguro(consulta);
-        let consultaMunicipios = window.supabaseClient
-            .from("municipios")
-            .select("nombre,codigo_municipal")
-            .eq("activo", true)
-            .limit(8);
+        const terminoNormalizado = normalizar(termino);
 
-        consultaMunicipios = /^[0-9]+$/.test(termino)
-            ? consultaMunicipios.ilike("codigo_municipal", `${termino}%`)
-            : consultaMunicipios.ilike("nombre", `%${termino}%`);
-
-        const { data, error } = await consultaMunicipios
-            .order("nombre", { ascending: true });
-
-        if (error) {
-            console.error("Error obteniendo sugerencias:", error);
-
-            cerrarSugerenciasPoblaciones();
-            estado.textContent = "No se pudieron obtener las sugerencias.";
-            return;
+        if (!promesaCatalogoMunicipios) {
+            promesaCatalogoMunicipios = window.supabaseClient
+                .from("municipios")
+                .select("nombre,codigo_municipal")
+                .eq("activo", true)
+                .order("nombre", { ascending: true })
+                .then(({ data, error }) => {
+                    if (error) throw error;
+                    return Array.isArray(data) ? data : [];
+                })
+                .catch((error) => {
+                    promesaCatalogoMunicipios = null;
+                    throw error;
+                });
         }
 
-        const sugerencias = (Array.isArray(data) ? data : []).map((municipio) => {
+        catalogoMunicipios ||= await promesaCatalogoMunicipios;
+
+        const esCodigo = /^[0-9]+$/.test(termino);
+        const municipiosCoincidentes = catalogoMunicipios
+            .filter((municipio) => {
+                const codigo = String(municipio.codigo_municipal || "");
+                const nombre = normalizar(municipio.nombre);
+
+                return esCodigo
+                    ? codigo.startsWith(termino)
+                    : nombre.includes(terminoNormalizado);
+            })
+            .sort((a, b) => {
+                if (!esCodigo) {
+                    const aEmpieza = normalizar(a.nombre).startsWith(terminoNormalizado);
+                    const bEmpieza = normalizar(b.nombre).startsWith(terminoNormalizado);
+                    if (aEmpieza !== bEmpieza) return aEmpieza ? -1 : 1;
+                }
+
+                return String(a.nombre || "").localeCompare(
+                    String(b.nombre || ""),
+                    "es",
+                    { sensitivity: "base" }
+                );
+            })
+            .slice(0, 8);
+
+        const sugerencias = municipiosCoincidentes.map((municipio) => {
             const codigo = String(municipio.codigo_municipal || "");
             const provincia = window.TallerMapProvincias?.provincias
                 ?.find((elemento) => elemento.codigo === codigo.slice(0, 2));
@@ -956,10 +982,10 @@ async function solicitarSugerenciasPoblaciones() {
             ? `${sugerencias.length} poblaciones encontradas. Selecciona una.`
             : "No se encontraron poblaciones.";
     } catch (error) {
-        console.error("Error en sugerencias:", error);
+        console.error("Error obteniendo sugerencias:", error);
 
         cerrarSugerenciasPoblaciones();
-        estado.textContent = "No se pudieron cargar las sugerencias.";
+        estado.textContent = "No se pudieron obtener las sugerencias.";
     }
 }
     async function buscarTalleresInternet(evento) { 
@@ -971,7 +997,7 @@ async function solicitarSugerenciasPoblaciones() {
 
     const poblacion = campo.dataset.poblacion
         || poblacionSeleccionada?.nombre
-        || campo.value.split("—")[0].trim();
+        || campo.value.split("â")[0].trim();
 
     const codigoPostal = campo.dataset.codigoPostal
         || poblacionSeleccionada?.codigo_postal
@@ -982,20 +1008,20 @@ async function solicitarSugerenciasPoblaciones() {
         || "";
 
     if (poblacion.length < 2) {
-        estado.textContent = "Selecciona o escribe una población.";
+        estado.textContent = "Selecciona o escribe una poblaciĂłn.";
         return;
     }
 
     cerrarSugerenciasPoblaciones();
 
     boton.disabled = true;
-    boton.textContent = "Buscando…";
+    boton.textContent = "BuscandoâŚ";
 
     estado.textContent = [
         `Buscando talleres en ${poblacion}`,
         codigoPostal ? `CP ${codigoPostal}` : "",
         provincia
-    ].filter(Boolean).join(" · ");
+    ].filter(Boolean).join(" Âˇ ");
 
     resultados.replaceChildren();
 
@@ -1024,13 +1050,13 @@ async function solicitarSugerenciasPoblaciones() {
             );
         } catch (errorNavegador) {
             console.error(
-                "Error en consulta cartográfica desde el navegador:",
+                "Error en consulta cartogrĂĄfica desde el navegador:",
                 errorNavegador
             );
             error = errorNavegador;
             data = {
-                error: "No se pudo completar la consulta cartográfica",
-                detalle: "Los servidores públicos tampoco respondieron a la conexión de este dispositivo."
+                error: "No se pudo completar la consulta cartogrĂĄfica",
+                detalle: "Los servidores pĂşblicos tampoco respondieron a la conexiĂłn de este dispositivo."
             };
         }
     }
@@ -1042,7 +1068,7 @@ async function solicitarSugerenciasPoblaciones() {
         const mensajeError = await mensajeErrorBusqueda(error, data);
 
         console.error(
-            "Error en búsqueda externa:",
+            "Error en bĂşsqueda externa:",
             error || mensajeError
         );
 
@@ -1133,15 +1159,15 @@ async function solicitarSugerenciasPoblaciones() {
         candidatosInternet.length - nuevos;
 
     estado.textContent = [
-        `${poblacionResultado}${codigoResultado ? ` — ${codigoResultado}` : ""}`,
+        `${poblacionResultado}${codigoResultado ? ` â ${codigoResultado}` : ""}`,
         `${candidatosInternet.length} resultados`,
         `${nuevos} candidatos nuevos`,
         `${duplicados} posibles duplicados`
-    ].join(" · ");
+    ].join(" Âˇ ");
 
     resultados.innerHTML = candidatosInternet.length
         ? candidatosInternet.map(tarjetaCandidato).join("")
-        : "<p>No se encontraron talleres dentro de esta población.</p>";
+        : "<p>No se encontraron talleres dentro de esta poblaciĂłn.</p>";
 }
     
     function importarCandidato(candidato) {
@@ -1164,7 +1190,7 @@ async function solicitarSugerenciasPoblaciones() {
                     ? `Servicios indicados: ${candidato.servicios_externos.join(", ")}`
                     : ""
             ].filter(Boolean).join(". ")
-            || "Ficha incorporada desde una fuente pública. Datos pendientes de comprobación administrativa.";
+            || "Ficha incorporada desde una fuente pĂşblica. Datos pendientes de comprobaciĂłn administrativa.";
         document.getElementById("admin-activo").checked = false;
         document.getElementById("admin-verificado").checked = false;
         cargarServicios(["mecanica-general"]);
@@ -1182,7 +1208,7 @@ async function solicitarSugerenciasPoblaciones() {
             if (opcion) provincia.value = opcion.value;
         }
         mostrar(
-            "Candidato cargado como inactivo. Completa teléfono, dirección, horarios y servicios; comprueba la fuente antes de publicarlo.",
+            "Candidato cargado como inactivo. Completa telĂŠfono, direcciĂłn, horarios y servicios; comprueba la fuente antes de publicarlo.",
             "aviso"
         );
         editor.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1192,18 +1218,18 @@ async function solicitarSugerenciasPoblaciones() {
         const paginas = Math.max(1, Math.ceil(totalFiltrado / TAMANO_PAGINA));
         if (pagina >= paginas) pagina = paginas - 1;
         document.getElementById("estado-pagina").textContent =
-            `Página ${pagina + 1} de ${paginas} · ${totalFiltrado} resultados`;
+            `PĂĄgina ${pagina + 1} de ${paginas} Âˇ ${totalFiltrado} resultados`;
         document.getElementById("pagina-anterior").disabled = pagina === 0;
         document.getElementById("pagina-siguiente").disabled = pagina + 1 >= paginas;
     }
 
     async function cargarTalleres() {
         ocultarMensaje();
-        lista.innerHTML = '<p class="mensaje-talleres">Cargando talleres…</p>';
+        lista.innerHTML = '<p class="mensaje-talleres">Cargando talleresâŚ</p>';
         const { data, error, count } = await construirConsulta();
         if (error) {
             lista.innerHTML = "";
-            mostrar("No se pudieron cargar los talleres. Comprueba la configuración de Supabase.");
+            mostrar("No se pudieron cargar los talleres. Comprueba la configuraciĂłn de Supabase.");
             return;
         }
         totalFiltrado = count || 0;
@@ -1239,7 +1265,7 @@ async function solicitarSugerenciasPoblaciones() {
             figura.className = "admin-foto-existente";
             const url = taller.fotosFirmadas?.[indice] || "";
             figura.innerHTML = `
-                ${url ? `<img src="${escaparHtml(url)}" alt="Fotografía actual ${indice + 1}">` : ""}
+                ${url ? `<img src="${escaparHtml(url)}" alt="FotografĂ­a actual ${indice + 1}">` : ""}
                 <span><input type="checkbox" data-foto-ruta="${escaparHtml(ruta)}" checked> Conservar</span>
             `;
             contenedor.appendChild(figura);
@@ -1288,15 +1314,15 @@ async function solicitarSugerenciasPoblaciones() {
 
     function validarFotos(archivos, existentes) {
         if (archivos.length + existentes.length > MAXIMO_FOTOS) {
-            mostrar(`Solo puedes conservar y añadir un máximo de ${MAXIMO_FOTOS} fotografías.`);
+            mostrar(`Solo puedes conservar y aĂąadir un mĂĄximo de ${MAXIMO_FOTOS} fotografĂ­as.`);
             return false;
         }
         if (archivos.some((archivo) => !TIPOS_FOTO.includes(archivo.type))) {
-            mostrar("Las fotografías deben ser JPG, PNG o WebP.");
+            mostrar("Las fotografĂ­as deben ser JPG, PNG o WebP.");
             return false;
         }
         if (archivos.some((archivo) => archivo.size > MAXIMO_BYTES_FOTO)) {
-            mostrar("Cada fotografía puede ocupar como máximo 5 MB.");
+            mostrar("Cada fotografĂ­a puede ocupar como mĂĄximo 5 MB.");
             return false;
         }
         return true;
@@ -1332,9 +1358,9 @@ async function solicitarSugerenciasPoblaciones() {
 
     function mensajeError(error) {
         const detalle = String(error?.message || "").toLowerCase();
-        if (detalle.includes("no autorizado")) return "Tu sesión no tiene permisos de administración.";
-        if (detalle.includes("duplicado")) return "Ya existe un taller con el mismo nombre y dirección.";
-        if (detalle.includes("provincia_codigo")) return "La provincia no coincide con el código postal.";
+        if (detalle.includes("no autorizado")) return "Tu sesiĂłn no tiene permisos de administraciĂłn.";
+        if (detalle.includes("duplicado")) return "Ya existe un taller con el mismo nombre y direcciĂłn.";
+        if (detalle.includes("provincia_codigo")) return "La provincia no coincide con el cĂłdigo postal.";
         if (detalle.includes("horarios")) return "Revisa los horarios semanales.";
         if (detalle.includes("servicios")) return "Selecciona al menos un servicio.";
         return "No se pudo guardar la ficha. Revisa todos los datos.";
@@ -1349,7 +1375,7 @@ async function solicitarSugerenciasPoblaciones() {
         }
         const horarios = horariosSeleccionados();
         if (!validarHorarios(horarios)) {
-            mostrar("Los horarios no son válidos o no existe ningún día abierto.");
+            mostrar("Los horarios no son vĂĄlidos o no existe ningĂşn dĂ­a abierto.");
             return;
         }
         if (!serviciosSeleccionados().length) {
@@ -1360,7 +1386,7 @@ async function solicitarSugerenciasPoblaciones() {
             valor("admin-codigo-postal"),
             valor("admin-provincia")
         )) {
-            mostrar("La provincia no coincide con el código postal.");
+            mostrar("La provincia no coincide con el cĂłdigo postal.");
             return;
         }
 
@@ -1399,7 +1425,7 @@ async function solicitarSugerenciasPoblaciones() {
                     upsert: false
                 });
             if (!errorFoto) subidasCorrectas.push(foto.ruta);
-            else console.error("No se pudo subir una fotografía:", errorFoto);
+            else console.error("No se pudo subir una fotografĂ­a:", errorFoto);
         }
 
         if (subidasCorrectas.length !== nuevas.length) {
@@ -1418,7 +1444,7 @@ async function solicitarSugerenciasPoblaciones() {
                 .from("fotos-talleres")
                 .remove(eliminadas);
             if (errorBorradoFotos) {
-                console.error("No se pudieron eliminar algunas fotografías:", errorBorradoFotos);
+                console.error("No se pudieron eliminar algunas fotografĂ­as:", errorBorradoFotos);
             }
         }
 
@@ -1428,7 +1454,7 @@ async function solicitarSugerenciasPoblaciones() {
         mostrar(
             subidasCorrectas.length === nuevas.length
                 ? "Ficha guardada correctamente."
-                : "Ficha guardada, pero alguna fotografía no pudo subirse.",
+                : "Ficha guardada, pero alguna fotografĂ­a no pudo subirse.",
             subidasCorrectas.length === nuevas.length ? "exito" : "aviso"
         );
         await cargarTodo();
@@ -1437,7 +1463,7 @@ async function solicitarSugerenciasPoblaciones() {
 
     async function cambiarEstado(taller) {
         const accion = taller.activo ? "desactivar" : "reactivar";
-        if (!window.confirm(`¿Quieres ${accion} la ficha «${taller.nombre}»?`)) return;
+        if (!window.confirm(`ÂżQuieres ${accion} la ficha ÂŤ${taller.nombre}Âť?`)) return;
         const { error } = await window.supabaseClient.rpc("admin_cambiar_estado_taller", {
             p_taller_id: taller.id,
             p_activo: !taller.activo
@@ -1453,7 +1479,7 @@ async function solicitarSugerenciasPoblaciones() {
 
     async function eliminarTaller(taller) {
         const confirmacion = window.prompt(
-            `Esta acción borrará definitivamente «${taller.nombre}» y su solicitud original.\n\nEscribe ELIMINAR para continuar:`
+            `Esta acciĂłn borrarĂĄ definitivamente ÂŤ${taller.nombre}Âť y su solicitud original.\n\nEscribe ELIMINAR para continuar:`
         );
         if (confirmacion !== "ELIMINAR") return;
 
@@ -1463,7 +1489,7 @@ async function solicitarSugerenciasPoblaciones() {
                 .from("fotos-talleres")
                 .remove(fotos);
             if (errorFotos) {
-                mostrar("No se pudieron borrar las fotografías. La ficha no se ha eliminado.");
+                mostrar("No se pudieron borrar las fotografĂ­as. La ficha no se ha eliminado.");
                 return;
             }
         }
@@ -1491,13 +1517,13 @@ async function solicitarSugerenciasPoblaciones() {
             return;
         }
         const cabecera = [
-            "Nombre", "Teléfono", "Web", "Dirección", "Código postal", "Población", "Provincia",
+            "Nombre", "TelĂŠfono", "Web", "DirecciĂłn", "CĂłdigo postal", "PoblaciĂłn", "Provincia",
             "Servicios", "Activo", "Verificado", "Creado", "Actualizado"
         ];
         const filas = (data || []).map((taller) => [
             taller.nombre, taller.telefono, taller.web, taller.direccion, taller.codigo_postal,
             taller.ciudad, taller.provincia, (taller.servicios || []).join(" | "),
-            taller.activo ? "Sí" : "No", taller.verificado ? "Sí" : "No",
+            taller.activo ? "SĂ­" : "No", taller.verificado ? "SĂ­" : "No",
             taller.created_at, taller.updated_at
         ]);
         const contenido = [cabecera, ...filas]
@@ -1517,7 +1543,7 @@ async function solicitarSugerenciasPoblaciones() {
             return;
         }
         const cabecera = [
-            "Provincia", "Población", "Total", "Activos", "Inactivos",
+            "Provincia", "PoblaciĂłn", "Total", "Activos", "Inactivos",
             "Verificados", "No verificados"
         ];
         const filas = ubicacionesActuales.map((fila) => [
@@ -1537,7 +1563,7 @@ async function solicitarSugerenciasPoblaciones() {
 
     async function cargarHistorial() {
         const contenedor = document.getElementById("lista-historial");
-        contenedor.innerHTML = "<p>Cargando actividad…</p>";
+        contenedor.innerHTML = "<p>Cargando actividadâŚ</p>";
         const { data, error } = await window.supabaseClient
             .from("taller_historial")
             .select("id,taller_id,nombre_taller,accion,tipo_actor,created_at")
@@ -1555,7 +1581,7 @@ async function solicitarSugerenciasPoblaciones() {
                     <time>${escaparHtml(formatoFecha(registro.created_at))}</time>
                 </div>
             `).join("")
-            : "<p>Todavía no hay acciones registradas.</p>";
+            : "<p>TodavĂ­a no hay acciones registradas.</p>";
     }
 
     lista.addEventListener("click", (evento) => {
