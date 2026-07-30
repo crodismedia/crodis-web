@@ -203,7 +203,19 @@
         });
     }
 
+    function cargarEstilosBuscador() {
+        if (!document.querySelector("form.buscador")) return;
+        if (document.querySelector('link[data-tallermap-buscador-responsive]')) return;
+
+        const hojaEstilos = document.createElement("link");
+        hojaEstilos.rel = "stylesheet";
+        hojaEstilos.href = "css/buscador-responsive.css";
+        hojaEstilos.dataset.tallermapBuscadorResponsive = "true";
+        document.head.appendChild(hojaEstilos);
+    }
+
     function inicializar() {
+        cargarEstilosBuscador();
         rellenarSelect(document.getElementById("servicio"));
         rellenarCheckboxes(document.getElementById("lista-servicios-registro"));
         rellenarTarjetas(document.getElementById("lista-servicios-publicos"));
