@@ -6,9 +6,18 @@ const ORIGENES_PERMITIDOS = new Set([
 ]);
 
 const SERVIDORES_OVERPASS = [
-    "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter",
-    "https://overpass.private.coffee/api/interpreter"
+    {
+        url: "https://overpass-api.de/api/interpreter",
+        tiempoLimiteMs: 40000
+    },
+    {
+        url: "https://overpass.private.coffee/api/interpreter",
+        tiempoLimiteMs: 40000
+    },
+    {
+        url: "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+        tiempoLimiteMs: 40000
+    }
 ];
 
 type ElementoOpenStreetMap = {
@@ -201,7 +210,7 @@ async function consultarOverpass(consulta: string, agente: string) {
     for (const servidor of SERVIDORES_OVERPASS) {
         try {
             const respuestaOverpass = await fetchConTiempoLimite(
-                servidor,
+                servidor.url,
                 {
                     method: "POST",
                     headers: {
@@ -210,11 +219,11 @@ async function consultarOverpass(consulta: string, agente: string) {
                     },
                     body: datosFormulario.toString()
                 },
-                12000
+                servidor.tiempoLimiteMs
             );
 
             if (!respuestaOverpass.ok) {
-                ultimoError = `${new URL(servidor).host}: HTTP ${respuestaOverpass.status}`;
+                ultimoError = `${new URL(servidor.url).host}: HTTP ${respuestaOverpass.status}`;
                 console.warn(`Overpass: ${ultimoError}`);
                 continue;
             }
@@ -224,10 +233,10 @@ async function consultarOverpass(consulta: string, agente: string) {
             };
             if (Array.isArray(datos.elements)) return datos;
 
-            ultimoError = `${new URL(servidor).host}: respuesta no válida`;
+            ultimoError = `${new URL(servidor.url).host}: respuesta no válida`;
         } catch (error) {
             const detalle = error instanceof Error ? error.message : "error de red";
-            ultimoError = `${new URL(servidor).host}: ${detalle}`;
+            ultimoError = `${new URL(servidor.url).host}: ${detalle}`;
         }
 
         console.warn(`Overpass: ${ultimoError}`);
@@ -312,7 +321,7 @@ Deno.serve(async (peticion) => {
     const limitesPoblacion = limitesDe(lugares[0]);
     const radioMetros = Math.round(radioKm * 1000);
 
-    const consultaOverpass = `[out:json][timeout:25];
+    const consultaOverpass = `[out:json][timeout:35];
 (
   nwr["shop"="car_repair"](around:${radioMetros},${latitud},${longitud});
   nwr["craft"="car_repair"](around:${radioMetros},${latitud},${longitud});
@@ -326,7 +335,7 @@ out center tags 80;`;
         console.error("No respondió ningún servidor Overpass:", error);
         return respuesta({
             error: "El buscador externo está ocupado",
-            detalle: "Los servidores cartográficos no respondieron. Inténtalo de nuevo en unos segundos."
+            detalle: "Los servidores cartográficos no respondieron después de esperar hasta dos minutos. Inténtalo de nuevo más tarde."
         }, 503, cabeceras);
     }
 
