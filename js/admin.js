@@ -522,11 +522,14 @@
     
         return `<article class="admin-candidato${candidato.posible_duplicado ? " admin-candidato-duplicado" : ""}" data-candidato-id="${escaparHtml(candidato.id)}">
             <div>
-                <span class="admin-candidato-estado">${candidato.posible_duplicado ? "Posible duplicado" : "Candidato nuevo"} Âˇ ${camposDisponibles}/10 datos localizados</span>
-                <h3>${escaparHtml(candidato.nombre)}</h3>
-                ${dato("DirecciĂłn", ubicacion, "UbicaciĂłn aproximada")}
-                ${dato("CategorĂ­a", candidato.categoria)}
-                ${dato("TelĂŠfono", candidato.telefono)}
+                <span class="admin-candidato-estado">
+    ${candidato.posible_duplicado ? "Posible duplicado" : "Candidato nuevo"}
+    \u00B7 ${camposDisponibles}/10 datos localizados
+</span>
+
+${dato("Direcci\u00F3n", ubicacion, "Ubicaci\u00F3n aproximada")}
+${dato("Categor\u00EDa", candidato.categoria)}
+${dato("Tel\u00E9fono", candidato.telefono)}
                 ${dato("Correo", candidato.email)}
                 ${web
                     ? `<p><strong>Web:</strong> <a href="${escaparHtml(web)}" target="_blank" rel="noopener noreferrer">${escaparHtml(web)}</a></p>`
