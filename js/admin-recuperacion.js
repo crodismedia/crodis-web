@@ -32,6 +32,23 @@
         return texto;
     }
 
+    function repararValoresFormulario(raiz = document) {
+        const controles = [];
+        if (raiz?.matches?.("input, textarea, option")) controles.push(raiz);
+        if (raiz?.querySelectorAll) {
+            controles.push(...raiz.querySelectorAll("input, textarea, option"));
+        }
+        for (const control of controles) {
+            if (typeof control.value !== "string") continue;
+            const reparado = repararTexto(control.value);
+            if (reparado !== control.value) control.value = reparado;
+            if (control.tagName === "OPTION") {
+                const textoReparado = repararTexto(control.textContent);
+                if (textoReparado !== control.textContent) control.textContent = textoReparado;
+            }
+        }
+    }
+
     function repararNodo(raiz) {
         if (!raiz) return;
         if (raiz.nodeType === Node.TEXT_NODE) {
@@ -60,15 +77,31 @@
                 if (reparado !== actual) elemento.setAttribute(atributo, reparado);
             }
         }
+        repararValoresFormulario(raiz);
     }
 
     function instalarReparacionVisual() {
         repararNodo(document.body);
+        repararValoresFormulario(document);
+
+        const repararDespues = () => {
+            setTimeout(() => {
+                repararNodo(document.body);
+                repararValoresFormulario(document);
+            }, 0);
+        };
+
+        document.addEventListener("click", repararDespues, true);
+        document.addEventListener("input", repararDespues, true);
+        document.addEventListener("change", repararDespues, true);
+        document.addEventListener("submit", repararDespues, true);
+
         const observador = new MutationObserver((cambios) => {
             for (const cambio of cambios) {
                 if (cambio.type === "characterData") repararNodo(cambio.target);
                 cambio.addedNodes.forEach(repararNodo);
             }
+            repararValoresFormulario(document);
         });
         observador.observe(document.body, {
             subtree: true,
