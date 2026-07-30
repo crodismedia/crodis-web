@@ -1,0 +1,39 @@
+name: Repair admin UTF-8
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/repair-admin-utf8.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Repair admin.js
+        run: node scripts/repair-admin-utf8.mjs
+      - name: Remove temporary backup
+        run: rm -f js/admin.js.before-utf8-repair
+      - name: Validate JavaScript syntax
+        run: node --check js/admin.js
+      - name: Commit repaired file
+        run: |
+          if git diff --quiet -- js/admin.js; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/admin.js
+          git commit -m "Fix UTF-8 text in admin panel"
+          git push
