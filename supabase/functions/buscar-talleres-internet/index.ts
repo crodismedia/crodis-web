@@ -19,6 +19,7 @@ type LugarNominatim = {
     lon?: string;
     display_name?: string;
     address?: Record<string, string>;
+    boundingbox?: string[];
 };
 
 type CoordenadasAbsolutas = {
@@ -112,6 +113,32 @@ function distanciaKilometros(
     return 6371 * 2 * Math.asin(Math.sqrt(haverseno));
 }
 
+function limitesDe(lugar: LugarNominatim) {
+    if (!Array.isArray(lugar.boundingbox) || lugar.boundingbox.length !== 4) {
+        return null;
+    }
+
+    const [sur, norte, oeste, este] = lugar.boundingbox.map(Number);
+    if (![sur, norte, oeste, este].every(Number.isFinite)) return null;
+    if (!coordenadasValidas(sur, oeste) || !coordenadasValidas(norte, este)) {
+        return null;
+    }
+
+    return { sur, norte, oeste, este };
+}
+
+function coordenadasDentroDe(
+    coordenadas: CoordenadasAbsolutas,
+    limites: ReturnType<typeof limitesDe>
+) {
+    if (!limites) return false;
+
+    return coordenadas.latitud >= limites.sur
+        && coordenadas.latitud <= limites.norte
+        && coordenadas.longitud >= limites.oeste
+        && coordenadas.longitud <= limites.este;
+}
+
 Deno.serve(async (peticion) => {
     const origen = peticion.headers.get("Origin");
     const cabeceras = cabecerasCors(origen);
@@ -182,6 +209,7 @@ Deno.serve(async (peticion) => {
     if (!coordenadasValidas(latitud, longitud)) {
         return respuesta({ error: "La ubicación no tiene coordenadas válidas" }, 502, cabeceras);
     }
+    const limitesPoblacion = limitesDe(lugares[0]);
     const radioMetros = Math.round(radioKm * 1000);
 
     const consultaOverpass = `[out:json][timeout:25];
@@ -256,6 +284,10 @@ out center tags 80;`;
                 coordenadas_absolutas: true,
                 origen_coordenadas: coordenadas.origen,
                 distancia_centro_km: Number(distanciaCentroKm.toFixed(3)),
+                dentro_limites_poblacion: coordenadasDentroDe(
+                    coordenadas,
+                    limitesPoblacion
+                ),
                 etiquetas_osm: tags,
                 poblacion_fuente: poblacionFuente,
                 codigo_postal_fuente: codigoPostalFuente,
@@ -287,7 +319,8 @@ out center tags 80;`;
                 "city", "town", "village", "municipality"
             ]) || ubicacion.split(",")[0].trim(),
             codigo_postal: texto(lugares[0].address?.postcode, 10),
-            provincia: primerValor(lugares[0].address || {}, ["province", "state"])
+            provincia: primerValor(lugares[0].address || {}, ["province", "state"]),
+            limites: limitesPoblacion
         },
         candidatos,
         atribucion: "© colaboradores de OpenStreetMap, datos ODbL"
