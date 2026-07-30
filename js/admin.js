@@ -58,6 +58,15 @@ let poblacionSeleccionada = null;
         return /^https?:\/\//i.test(texto) ? texto : `https://${texto}`;
     }
 
+    function normalizar(valorTexto) {
+        return String(valorTexto || "")
+            .normalize("NFD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, " ")
+            .trim();
+    }
+
     function terminoSeguro(texto) {
         return String(texto || "")
             .replace(/[,%().]/g, " ")
@@ -631,6 +640,241 @@ function renderizarSugerenciasPoblaciones(sugerencias) {
     contenedor.hidden = false;
 }
 
+function textoExterno(valorTexto, maximo = 255) {
+    return String(valorTexto || "").trim().slice(0, maximo);
+}
+
+function primerValorEtiquetas(etiquetas, claves) {
+    for (const clave of claves) {
+        if (etiquetas?.[clave]) return textoExterno(etiquetas[clave]);
+    }
+
+    return "";
+}
+
+function coordenadasElementoOsm(elemento) {
+    const esNodo = elemento?.lat !== undefined && elemento?.lon !== undefined;
+    const latitud = Number(esNodo ? elemento.lat : elemento?.center?.lat);
+    const longitud = Number(esNodo ? elemento.lon : elemento?.center?.lon);
+
+    if (!Number.isFinite(latitud)
+        || !Number.isFinite(longitud)
+        || latitud < -90
+        || latitud > 90
+        || longitud < -180
+        || longitud > 180) {
+        return null;
+    }
+
+    return {
+        latitud,
+        longitud,
+        origen: esNodo ? "nodo_osm" : "centro_geometria_osm"
+    };
+}
+
+function distanciaKilometros(latitudOrigen, longitudOrigen, latitudDestino, longitudDestino) {
+    const radianes = (grados) => grados * Math.PI / 180;
+    const diferenciaLatitud = radianes(latitudDestino - latitudOrigen);
+    const diferenciaLongitud = radianes(longitudDestino - longitudOrigen);
+    const latitudOrigenRadianes = radianes(latitudOrigen);
+    const latitudDestinoRadianes = radianes(latitudDestino);
+    const haverseno =
+        Math.sin(diferenciaLatitud / 2) ** 2
+        + Math.cos(latitudOrigenRadianes)
+        * Math.cos(latitudDestinoRadianes)
+        * Math.sin(diferenciaLongitud / 2) ** 2;
+
+    return 6371 * 2 * Math.asin(Math.sqrt(haverseno));
+}
+
+function coordenadasDentroLimites(coordenadas, limites) {
+    if (!limites) return false;
+
+    return coordenadas.latitud >= Number(limites.sur)
+        && coordenadas.latitud <= Number(limites.norte)
+        && coordenadas.longitud >= Number(limites.oeste)
+        && coordenadas.longitud <= Number(limites.este);
+}
+
+async function consultarServidorCartografico(servidor, consulta, tiempoLimiteMs) {
+    const url = new URL(servidor);
+    const controlador = new AbortController();
+    const limite = setTimeout(() => controlador.abort(), tiempoLimiteMs);
+
+    url.searchParams.set("data", consulta);
+
+    try {
+        const respuesta = await fetch(url, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            signal: controlador.signal
+        });
+
+        if (!respuesta.ok) {
+            throw new Error(`${url.host}: HTTP ${respuesta.status}`);
+        }
+
+        const datos = await respuesta.json();
+        if (!Array.isArray(datos?.elements)) {
+            throw new Error(`${url.host}: respuesta no válida`);
+        }
+
+        return datos.elements;
+    } finally {
+        clearTimeout(limite);
+    }
+}
+
+async function obtenerElementosOsm(datosBusqueda, actualizarEstado) {
+    const servidores = Array.isArray(datosBusqueda.servidores_overpass)
+        ? datosBusqueda.servidores_overpass
+        : [
+            "https://overpass-api.de/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter",
+            "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+        ];
+    let ultimoError = "sin respuesta";
+
+    for (let indice = 0; indice < servidores.length; indice += 1) {
+        const servidor = servidores[indice];
+        actualizarEstado(
+            `Consultando fuente cartográfica ${indice + 1} de ${servidores.length}…`
+        );
+
+        try {
+            return await consultarServidorCartografico(
+                servidor,
+                datosBusqueda.consulta_overpass,
+                60000
+            );
+        } catch (error) {
+            ultimoError = error instanceof Error
+                ? error.message
+                : "error de red";
+            console.warn("Consulta cartográfica desde el navegador:", ultimoError);
+        }
+    }
+
+    throw new Error(ultimoError);
+}
+
+async function talleresExistentesParaComparar() {
+    const { data, error } = await window.supabaseClient
+        .from("talleres")
+        .select("id,nombre,direccion,ciudad")
+        .limit(5000);
+
+    if (error) {
+        console.warn("No se pudieron comprobar duplicados:", error);
+        return [];
+    }
+
+    return Array.isArray(data) ? data : [];
+}
+
+function convertirElementosEnCandidatos(elementos, datosBusqueda, existentes) {
+    const latitudOrigen = Number(datosBusqueda.ubicacion?.latitud);
+    const longitudOrigen = Number(datosBusqueda.ubicacion?.longitud);
+    const radioKm = Number(datosBusqueda.ubicacion?.radio_km) || 10;
+    const limites = datosBusqueda.poblacion?.limites;
+
+    return elementos
+        .map((elemento) => {
+            const coordenadas = coordenadasElementoOsm(elemento);
+            if (!coordenadas) return null;
+
+            const distanciaCentroKm = distanciaKilometros(
+                latitudOrigen,
+                longitudOrigen,
+                coordenadas.latitud,
+                coordenadas.longitud
+            );
+            if (distanciaCentroKm > radioKm) return null;
+
+            const etiquetas = elemento.tags || {};
+            const nombre = primerValorEtiquetas(
+                etiquetas,
+                ["name", "brand", "operator"]
+            ) || "Taller sin nombre";
+            const calle = primerValorEtiquetas(etiquetas, ["addr:street", "addr:place"]);
+            const numero = textoExterno(etiquetas["addr:housenumber"], 30);
+            const direccion = [calle, numero].filter(Boolean).join(" ");
+            const poblacionFuente = primerValorEtiquetas(etiquetas, [
+                "addr:city", "addr:town", "addr:village", "addr:municipality"
+            ]);
+            const codigoPostalFuente = textoExterno(etiquetas["addr:postcode"], 10);
+            const coincidencia = existentes.find((taller) => {
+                const mismoNombre = normalizar(taller.nombre) === normalizar(nombre);
+                const mismaCiudad = poblacionFuente
+                    && normalizar(taller.ciudad) === normalizar(poblacionFuente);
+                const mismaDireccion = direccion
+                    && normalizar(taller.direccion) === normalizar(direccion);
+
+                return mismoNombre && (mismaCiudad || mismaDireccion);
+            });
+
+            return {
+                id: `${elemento.type}/${elemento.id}`,
+                nombre,
+                direccion,
+                codigo_postal: codigoPostalFuente,
+                ciudad: poblacionFuente,
+                provincia: primerValorEtiquetas(
+                    etiquetas,
+                    ["addr:province", "addr:state"]
+                ),
+                telefono: primerValorEtiquetas(
+                    etiquetas,
+                    ["contact:phone", "phone", "contact:mobile"]
+                ),
+                email: primerValorEtiquetas(etiquetas, ["contact:email", "email"]),
+                web: primerValorEtiquetas(
+                    etiquetas,
+                    ["contact:website", "website", "url"]
+                ),
+                horario_externo: textoExterno(etiquetas.opening_hours, 300),
+                categoria: "Taller de reparación",
+                marca: textoExterno(etiquetas.brand),
+                operador: textoExterno(etiquetas.operator),
+                descripcion_externa: textoExterno(etiquetas.description, 500),
+                latitud: coordenadas.latitud,
+                longitud: coordenadas.longitud,
+                coordenadas_absolutas: true,
+                origen_coordenadas: coordenadas.origen,
+                distancia_centro_km: Number(distanciaCentroKm.toFixed(3)),
+                dentro_limites_poblacion: coordenadasDentroLimites(
+                    coordenadas,
+                    limites
+                ),
+                etiquetas_osm: etiquetas,
+                poblacion_fuente: poblacionFuente,
+                codigo_postal_fuente: codigoPostalFuente,
+                posible_duplicado: Boolean(coincidencia),
+                taller_existente_id: coincidencia?.id || null,
+                fuente: `https://www.openstreetmap.org/${elemento.type}/${elemento.id}`
+            };
+        })
+        .filter(Boolean)
+        .slice(0, 80);
+}
+
+async function completarBusquedaDesdeNavegador(datosBusqueda, actualizarEstado) {
+    const [elementos, existentes] = await Promise.all([
+        obtenerElementosOsm(datosBusqueda, actualizarEstado),
+        talleresExistentesParaComparar()
+    ]);
+
+    return {
+        ...datosBusqueda,
+        candidatos: convertirElementosEnCandidatos(
+            elementos,
+            datosBusqueda,
+            existentes
+        )
+    };
+}
+
 async function mensajeErrorBusqueda(error, data) {
     if (data?.detalle || data?.error) {
         return data.detalle || data.error;
@@ -759,7 +1003,7 @@ async function solicitarSugerenciasPoblaciones() {
         ? `${poblacion}, ${codigoPostal}`
         : poblacion;
 
-    const { data, error } =
+    let { data, error } =
         await window.supabaseClient.functions.invoke(
             "buscar-talleres-internet",
             {
@@ -769,6 +1013,27 @@ async function solicitarSugerenciasPoblaciones() {
                 }
             }
         );
+
+    if (!error && data?.modo_consulta === "navegador") {
+        try {
+            data = await completarBusquedaDesdeNavegador(
+                data,
+                (mensajeEstado) => {
+                    estado.textContent = mensajeEstado;
+                }
+            );
+        } catch (errorNavegador) {
+            console.error(
+                "Error en consulta cartográfica desde el navegador:",
+                errorNavegador
+            );
+            error = errorNavegador;
+            data = {
+                error: "No se pudo completar la consulta cartográfica",
+                detalle: "Los servidores públicos tampoco respondieron a la conexión de este dispositivo."
+            };
+        }
+    }
 
     boton.disabled = false;
     boton.textContent = "Buscar candidatos";
