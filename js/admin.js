@@ -405,6 +405,41 @@ let poblacionSeleccionada = null;
             : '<tr><td colspan="7">No hay talleres en esta ubicación.</td></tr>';
     }
 
+    function candidatoTieneCoordenadas(candidato) {
+        return [candidato.latitud, candidato.longitud].every((valor) =>
+            valor !== null
+            && valor !== undefined
+            && String(valor).trim() !== ""
+            && Number.isFinite(Number(valor))
+        );
+    }
+
+    function contarDatosCandidato(candidato) {
+        const ubicacion = [
+            candidato.direccion,
+            candidato.codigo_postal,
+            candidato.ciudad,
+            candidato.provincia
+        ].filter(Boolean).join(", ");
+        const coordenadas = candidatoTieneCoordenadas(candidato);
+        const web = normalizarWeb(candidato.web);
+        const servicios = Array.isArray(candidato.servicios_externos)
+            && candidato.servicios_externos.some(Boolean);
+
+        return [
+            ubicacion,
+            candidato.telefono,
+            candidato.email,
+            web,
+            candidato.horario_externo,
+            candidato.categoria,
+            candidato.marca,
+            candidato.descripcion_externa,
+            servicios,
+            coordenadas
+        ].filter(Boolean).length;
+    }
+
     function tarjetaCandidato(candidato) {
         const ubicacion = [
             candidato.direccion,
@@ -412,8 +447,7 @@ let poblacionSeleccionada = null;
             candidato.ciudad,
             candidato.provincia
         ].filter(Boolean).join(", ");
-        const coordenadas = Number.isFinite(Number(candidato.latitud))
-            && Number.isFinite(Number(candidato.longitud))
+        const coordenadas = candidatoTieneCoordenadas(candidato)
             ? `${Number(candidato.latitud).toFixed(6)}, ${Number(candidato.longitud).toFixed(6)}`
             : "";
         const web = normalizarWeb(candidato.web);
@@ -423,11 +457,7 @@ let poblacionSeleccionada = null;
         const redes = Array.isArray(candidato.redes_sociales)
             ? candidato.redes_sociales.filter((red) => red?.url)
             : [];
-        const camposDisponibles = [
-            ubicacion, candidato.telefono, candidato.email, web,
-            candidato.horario_externo, candidato.categoria, candidato.marca,
-            candidato.descripcion_externa, servicios, coordenadas
-        ].filter(Boolean).length;
+        const camposDisponibles = contarDatosCandidato(candidato);
         const dato = (etiqueta, contenido, alternativo = "No disponible") =>
             `<p><strong>${escaparHtml(etiqueta)}:</strong> ${escaparHtml(contenido || alternativo)}</p>`;
     
@@ -571,34 +601,39 @@ async function solicitarSugerenciasPoblaciones() {
     estado.textContent = "Buscando poblaciones y códigos postales…";
 
     try {
-        const { data, error } =
-            await window.supabaseClient.functions.invoke(
-                "sugerir-poblaciones",
-                {
-                    body: {
-                        texto: consulta
-                    }
-                }
-            );
+        const termino = terminoSeguro(consulta);
+        let consultaMunicipios = window.supabaseClient
+            .from("municipios")
+            .select("nombre,codigo_municipal")
+            .eq("activo", true)
+            .limit(8);
 
-        if (error || data?.error) {
-            console.error(
-                "Error obteniendo sugerencias:",
-                error || data?.error
-            );
+        consultaMunicipios = /^[0-9]+$/.test(termino)
+            ? consultaMunicipios.ilike("codigo_municipal", `${termino}%`)
+            : consultaMunicipios.ilike("nombre", `%${termino}%`);
+
+        const { data, error } = await consultaMunicipios
+            .order("nombre", { ascending: true });
+
+        if (error) {
+            console.error("Error obteniendo sugerencias:", error);
 
             cerrarSugerenciasPoblaciones();
-
-            estado.textContent =
-                data?.error
-                || "No se pudieron obtener las sugerencias.";
-
+            estado.textContent = "No se pudieron obtener las sugerencias.";
             return;
         }
 
-        const sugerencias = Array.isArray(data?.sugerencias)
-            ? data.sugerencias
-            : [];
+        const sugerencias = (Array.isArray(data) ? data : []).map((municipio) => {
+            const codigo = String(municipio.codigo_municipal || "");
+            const provincia = window.TallerMapProvincias?.provincias
+                ?.find((elemento) => elemento.codigo === codigo.slice(0, 2));
+            return {
+                nombre: municipio.nombre,
+                codigo_municipal: codigo,
+                provincia: provincia?.nombre || "",
+                origen: "base_datos"
+            };
+        });
 
         renderizarSugerenciasPoblaciones(sugerencias);
 
@@ -655,13 +690,11 @@ async function solicitarSugerenciasPoblaciones() {
 
     const { data, error } =
         await window.supabaseClient.functions.invoke(
-            "buscar-candidatos-osm",
+            "buscar-talleres-internet",
             {
                 body: {
                     ubicacion: consulta,
-                    poblacion,
-                    codigo_postal: codigoPostal,
-                    provincia
+                    radio_km: 10
                 }
             }
         );
@@ -722,6 +755,23 @@ async function solicitarSugerenciasPoblaciones() {
                 : candidato.url_fuente
         }))
         : [];
+
+    candidatosInternet.sort((a, b) => {
+        const diferenciaDatos =
+            contarDatosCandidato(b) - contarDatosCandidato(a);
+
+        if (diferenciaDatos) return diferenciaDatos;
+
+        if (a.posible_duplicado !== b.posible_duplicado) {
+            return Number(a.posible_duplicado)
+                - Number(b.posible_duplicado);
+        }
+
+        return String(a.nombre || "").localeCompare(
+            String(b.nombre || ""),
+            "es"
+        );
+    });
 
     const nuevos = candidatosInternet.filter(
         (candidato) => !candidato.posible_duplicado
@@ -1334,4 +1384,3 @@ document.addEventListener("click", (evento) => {
         await cargarHistorial();
     }());
 }());
-

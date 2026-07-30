@@ -1,9 +1,18 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 
 const ORIGENES_PERMITIDOS = new Set([
     "https://tallermap.es",
     "https://www.tallermap.es"
 ]);
+
+type ElementoOpenStreetMap = {
+    id: number;
+    type: string;
+    lat?: number;
+    lon?: number;
+    center?: { lat?: number; lon?: number };
+    tags?: Record<string, string>;
+};
 
 function cabecerasCors(origen: string | null) {
     return {
@@ -135,7 +144,9 @@ out center tags 80;`;
     if (!consulta.ok) {
         return respuesta({ error: "El buscador externo está ocupado. Inténtalo de nuevo más tarde." }, 503, cabeceras);
     }
-    const datos = await consulta.json();
+    const datos = await consulta.json() as {
+        elements?: ElementoOpenStreetMap[];
+    };
 
     const { data: existentes } = await supabase
         .from("talleres")
@@ -143,14 +154,7 @@ out center tags 80;`;
         .limit(5000);
     const talleresExistentes = existentes || [];
     const candidatos = (Array.isArray(datos.elements) ? datos.elements : [])
-        .map((elemento: {
-            id: number;
-            type: string;
-            lat?: number;
-            lon?: number;
-            center?: { lat?: number; lon?: number };
-            tags?: Record<string, string>;
-        }) => {
+        .map((elemento) => {
             const tags = elemento.tags || {};
             const nombre = primerValor(tags, ["name", "brand", "operator"]) || "Taller sin nombre";
             const direccion = direccionDe(tags);
