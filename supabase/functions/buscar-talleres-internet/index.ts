@@ -5,6 +5,12 @@ const ORIGENES_PERMITIDOS = new Set([
     "https://www.tallermap.es"
 ]);
 
+const SERVIDORES_OVERPASS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter"
+];
+
 type ElementoOpenStreetMap = {
     id: number;
     type: string;
@@ -139,6 +145,97 @@ function coordenadasDentroDe(
         && coordenadas.longitud <= limites.este;
 }
 
+async function fetchConTiempoLimite(
+    recurso: string | URL,
+    opciones: RequestInit,
+    milisegundos: number
+) {
+    const controlador = new AbortController();
+    const limite = setTimeout(() => controlador.abort(), milisegundos);
+
+    try {
+        return await fetch(recurso, {
+            ...opciones,
+            signal: controlador.signal
+        });
+    } finally {
+        clearTimeout(limite);
+    }
+}
+
+async function localizarPoblacion(url: URL, agente: string) {
+    let ultimoError = "sin respuesta";
+
+    for (let intento = 1; intento <= 2; intento += 1) {
+        try {
+            const respuestaGeocodificacion = await fetchConTiempoLimite(
+                url,
+                {
+                    headers: {
+                        "User-Agent": agente,
+                        "Accept-Language": "es"
+                    }
+                },
+                7000
+            );
+
+            if (respuestaGeocodificacion.ok) {
+                return await respuestaGeocodificacion.json() as LugarNominatim[];
+            }
+
+            ultimoError = `HTTP ${respuestaGeocodificacion.status}`;
+        } catch (error) {
+            ultimoError = error instanceof Error ? error.message : "error de red";
+        }
+
+        console.warn(`Nominatim intento ${intento}: ${ultimoError}`);
+    }
+
+    throw new Error(ultimoError);
+}
+
+async function consultarOverpass(consulta: string, agente: string) {
+    const datosFormulario = new URLSearchParams({ data: consulta });
+    let ultimoError = "sin respuesta";
+
+    for (const servidor of SERVIDORES_OVERPASS) {
+        try {
+            const respuestaOverpass = await fetchConTiempoLimite(
+                servidor,
+                {
+                    method: "POST",
+                    headers: {
+                        "User-Agent": agente,
+                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                    },
+                    body: datosFormulario.toString()
+                },
+                12000
+            );
+
+            if (!respuestaOverpass.ok) {
+                ultimoError = `${new URL(servidor).host}: HTTP ${respuestaOverpass.status}`;
+                console.warn(`Overpass: ${ultimoError}`);
+                continue;
+            }
+
+            const datos = await respuestaOverpass.json() as {
+                elements?: ElementoOpenStreetMap[];
+            };
+            if (Array.isArray(datos.elements)) return datos;
+
+            ultimoError = `${new URL(servidor).host}: respuesta no válida`;
+        } catch (error) {
+            const detalle = error instanceof Error ? error.message : "error de red";
+            ultimoError = `${new URL(servidor).host}: ${detalle}`;
+        }
+
+        console.warn(`Overpass: ${ultimoError}`);
+    }
+
+    throw new Error(ultimoError);
+}
+
 Deno.serve(async (peticion) => {
     const origen = peticion.headers.get("Origin");
     const cabeceras = cabecerasCors(origen);
@@ -194,13 +291,16 @@ Deno.serve(async (peticion) => {
     geocodificacionUrl.searchParams.set("countrycodes", "es");
     geocodificacionUrl.searchParams.set("limit", "1");
 
-    const geocodificacion = await fetch(geocodificacionUrl, {
-        headers: { "User-Agent": agente, "Accept-Language": "es" }
-    });
-    if (!geocodificacion.ok) {
-        return respuesta({ error: "No se pudo localizar la población" }, 502, cabeceras);
+    let lugares: LugarNominatim[];
+    try {
+        lugares = await localizarPoblacion(geocodificacionUrl, agente);
+    } catch (error) {
+        console.error("No se pudo localizar la población:", error);
+        return respuesta({
+            error: "No se pudo localizar la población",
+            detalle: "El servicio de localización no respondió tras dos intentos."
+        }, 502, cabeceras);
     }
-    const lugares = await geocodificacion.json() as LugarNominatim[];
     if (!Array.isArray(lugares) || !lugares.length) {
         return respuesta({ error: "No se encontró esa ubicación en España" }, 404, cabeceras);
     }
@@ -219,21 +319,16 @@ Deno.serve(async (peticion) => {
   nwr["amenity"="car_repair"](around:${radioMetros},${latitud},${longitud});
 );
 out center tags 80;`;
-    const datosFormulario = new URLSearchParams({ data: consultaOverpass });
-    const consulta = await fetch("https://overpass-api.de/api/interpreter", {
-        method: "POST",
-        headers: {
-            "User-Agent": agente,
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-        },
-        body: datosFormulario.toString()
-    });
-    if (!consulta.ok) {
-        return respuesta({ error: "El buscador externo está ocupado. Inténtalo de nuevo más tarde." }, 503, cabeceras);
+    let datos: { elements?: ElementoOpenStreetMap[] };
+    try {
+        datos = await consultarOverpass(consultaOverpass, agente);
+    } catch (error) {
+        console.error("No respondió ningún servidor Overpass:", error);
+        return respuesta({
+            error: "El buscador externo está ocupado",
+            detalle: "Los servidores cartográficos no respondieron. Inténtalo de nuevo en unos segundos."
+        }, 503, cabeceras);
     }
-    const datos = await consulta.json() as {
-        elements?: ElementoOpenStreetMap[];
-    };
 
     const { data: existentes } = await supabase
         .from("talleres")

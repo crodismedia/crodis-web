@@ -631,6 +631,27 @@ function renderizarSugerenciasPoblaciones(sugerencias) {
     contenedor.hidden = false;
 }
 
+async function mensajeErrorBusqueda(error, data) {
+    if (data?.detalle || data?.error) {
+        return data.detalle || data.error;
+    }
+
+    const respuesta = error?.context;
+    if (respuesta && typeof respuesta.json === "function") {
+        try {
+            const cuerpo = await respuesta.json();
+
+            if (cuerpo?.detalle || cuerpo?.error) {
+                return cuerpo.detalle || cuerpo.error;
+            }
+        } catch {
+            // La respuesta no contenía JSON legible.
+        }
+    }
+
+    return "No se pudo completar la búsqueda. Inténtalo de nuevo.";
+}
+
 async function solicitarSugerenciasPoblaciones() {
     const campo = document.getElementById("busqueda-internet-ubicacion");
     const estado = document.getElementById("estado-buscador-internet");
@@ -753,17 +774,16 @@ async function solicitarSugerenciasPoblaciones() {
     boton.textContent = "Buscar candidatos";
 
     if (error || data?.error) {
+        const mensajeError = await mensajeErrorBusqueda(error, data);
+
         console.error(
             "Error en búsqueda externa:",
-            error || data?.detalle || data?.error
+            error || mensajeError
         );
 
         candidatosInternet = [];
 
-        estado.textContent =
-            data?.detalle
-            || data?.error
-            || "No se pudo completar la búsqueda.";
+        estado.textContent = mensajeError;
 
         return;
     }
