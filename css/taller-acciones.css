@@ -1,0 +1,134 @@
+/*
+ * TallerMap — acciones públicas de cada taller
+ * Código independiente para escritorio, tablet y Android.
+ */
+
+.taller-card .taller-pie {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.taller-card .taller-contactos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+.taller-card .taller-contactos a,
+.taller-card .enlace-ficha-taller,
+.taller-card .enlace-google-maps {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 46px;
+    padding: 12px 14px;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: normal;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.taller-card .taller-contactos a:focus-visible,
+.taller-card .enlace-ficha-taller:focus-visible,
+.taller-card .enlace-google-maps:focus-visible {
+    outline: 3px solid rgba(20, 87, 217, .28);
+    outline-offset: 2px;
+}
+
+/* Llamar y web: botones secundarios */
+.taller-card .taller-contactos a[href^="tel:"],
+.taller-card .taller-contactos a[href^="http"]:not(.enlace-google-maps) {
+    color: #0b3b83;
+    background: #eef5ff;
+    border-color: #c8dcfa;
+    box-shadow: 0 7px 16px rgba(20, 87, 217, .10);
+}
+
+/* Ver ficha: botón azul principal */
+.taller-card .enlace-ficha-taller {
+    color: #fff !important;
+    background: linear-gradient(135deg, #1457d9, #0b43ad);
+    border-color: #0b43ad;
+    box-shadow: 0 10px 22px rgba(20, 87, 217, .25);
+}
+
+.taller-card .enlace-ficha-taller::before {
+    margin-right: 7px;
+    content: "▤";
+    font-size: 15px;
+}
+
+/* Google Maps: botón verde claramente diferenciado */
+.taller-card .enlace-google-maps {
+    color: #fff !important;
+    background: linear-gradient(135deg, #159957, #087443);
+    border-color: #087443;
+    box-shadow: 0 10px 22px rgba(8, 116, 67, .24);
+}
+
+.taller-card .enlace-google-maps::before {
+    margin-right: 7px;
+    content: "⌖";
+    font-size: 17px;
+}
+
+@media (hover: hover) {
+    .taller-card .taller-contactos a:hover,
+    .taller-card .enlace-ficha-taller:hover,
+    .taller-card .enlace-google-maps:hover {
+        filter: brightness(1.04);
+        transform: translateY(-2px);
+    }
+}
+
+.taller-card .taller-contactos a:active,
+.taller-card .enlace-ficha-taller:active,
+.taller-card .enlace-google-maps:active {
+    filter: brightness(.96);
+    transform: translateY(0) scale(.985);
+}
+
+/* Android y pantallas estrechas */
+@media (max-width: 768px) {
+    .taller-card .taller-pie {
+        gap: 10px;
+    }
+
+    .taller-card .taller-contactos {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .taller-card .taller-contactos a,
+    .taller-card .enlace-ficha-taller,
+    .taller-card .enlace-google-maps {
+        width: 100%;
+        min-height: 48px;
+        padding: 13px 15px;
+        font-size: 14px;
+        border-radius: 13px;
+    }
+}
+
+@media (max-width: 380px) {
+    .taller-card .taller-contactos a,
+    .taller-card .enlace-ficha-taller,
+    .taller-card .enlace-google-maps {
+        font-size: 13px;
+    }
+}

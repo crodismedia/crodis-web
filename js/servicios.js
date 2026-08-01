@@ -144,73 +144,16 @@
         if (ayuda) ayuda.textContent = "Busca por dirección, población o código postal";
     }
 
-    function aplicarEstilosBotonesMoviles() {
-        if (document.getElementById("estilos-botones-taller-movil")) return;
-        const estilo = document.createElement("style");
-        estilo.id = "estilos-botones-taller-movil";
-        estilo.textContent = `
-            .taller-contactos {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 8px;
-            }
-            .taller-contactos a,
-            .enlace-ficha-taller,
-            .enlace-google-maps {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 38px;
-                padding: 9px 12px;
-                border: 1px solid #c8dcfa;
-                border-radius: 9px;
-                color: #0d57b7;
-                background: #edf5ff;
-                font-size: 12px;
-                font-weight: 800;
-                line-height: 1.2;
-                text-align: center;
-            }
-            .enlace-google-maps {
-                color: #ffffff;
-                background: #1457d9;
-                border-color: #1457d9;
-            }
-            @media (max-width: 720px) {
-                .taller-card,
-                .taller-informacion {
-                    min-width: 0;
-                    overflow: visible;
-                }
-                .taller-pie {
-                    display: flex !important;
-                    flex-direction: column !important;
-                    align-items: stretch !important;
-                    gap: 12px !important;
-                    width: 100% !important;
-                }
-                .taller-contactos {
-                    display: grid !important;
-                    grid-template-columns: 1fr !important;
-                    width: 100% !important;
-                    gap: 9px !important;
-                }
-                .taller-contactos a,
-                .enlace-ficha-taller,
-                .enlace-google-maps {
-                    display: flex !important;
-                    width: 100% !important;
-                    min-height: 46px !important;
-                    padding: 12px 14px !important;
-                    white-space: normal !important;
-                    overflow-wrap: anywhere;
-                    font-size: 14px !important;
-                }
-            }
-        `;
-        document.head.appendChild(estilo);
+    function cargarEstilosAccionesTaller() {
+        if (document.querySelector('link[data-tallermap-acciones]')) return;
+        const enlace = document.createElement("link");
+        enlace.rel = "stylesheet";
+        enlace.href = "css/taller-acciones.css";
+        enlace.dataset.tallermapAcciones = "true";
+        enlace.addEventListener("error", () => {
+            console.error("No se pudieron cargar los estilos de acciones de los talleres.");
+        }, { once: true });
+        document.head.appendChild(enlace);
     }
 
     function textoLimpio(elemento) {
@@ -284,7 +227,7 @@
         rellenarCheckboxes(document.getElementById("lista-servicios-registro"));
         rellenarTarjetas(document.getElementById("lista-servicios-publicos"));
         retirarGeolocalizacionPublica();
-        aplicarEstilosBotonesMoviles();
+        cargarEstilosAccionesTaller();
         observarTarjetas();
     }
 
