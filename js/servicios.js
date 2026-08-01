@@ -138,10 +138,8 @@
     }
 
     function retirarGeolocalizacionPublica() {
-        const boton = document.getElementById("usar-mi-ubicacion");
-        const estado = document.getElementById("estado-ubicacion");
-        boton?.remove();
-        estado?.remove();
+        document.getElementById("usar-mi-ubicacion")?.remove();
+        document.getElementById("estado-ubicacion")?.remove();
         const ayuda = document.querySelector(".tarjeta-flotante span");
         if (ayuda) ayuda.textContent = "Busca por dirección, población o código postal";
     }
@@ -150,32 +148,60 @@
         return String(elemento?.textContent || "").replace(/^⌖\s*/, "").replace(/\s+/g, " ").trim();
     }
 
-    function anadirEnlacesGoogleMaps() {
+    function crearParametrosFicha(tarjeta, nombre, ubicacion) {
+        const parametros = new URLSearchParams();
+        parametros.set("nombre", nombre);
+        parametros.set("direccion", ubicacion);
+        const telefono = tarjeta.querySelector('a[href^="tel:"]')?.getAttribute("href")?.replace(/^tel:/, "") || "";
+        const web = [...tarjeta.querySelectorAll('a[href^="http"]')]
+            .find((enlace) => !enlace.href.includes("google.com/maps"))?.href || "";
+        const descripcion = textoLimpio(tarjeta.querySelector(".taller-descripcion"));
+        const servicios = [...tarjeta.querySelectorAll(".especialidades span")]
+            .map((elemento) => textoLimpio(elemento)).filter(Boolean).join("|");
+        if (telefono) parametros.set("telefono", telefono);
+        if (web) parametros.set("web", web);
+        if (descripcion) parametros.set("descripcion", descripcion);
+        if (servicios) parametros.set("servicios", servicios);
+        return parametros;
+    }
+
+    function prepararTarjetasPublicas() {
         document.querySelectorAll(".taller-card").forEach((tarjeta) => {
-            if (tarjeta.dataset.mapsPreparado === "true") return;
+            if (tarjeta.dataset.enlacesPreparados === "true") return;
             const nombre = textoLimpio(tarjeta.querySelector("h3"));
             const ubicacion = textoLimpio(tarjeta.querySelector("p.ubicacion"));
-            if (!nombre || !ubicacion || ubicacion === "Ubicación no indicada") return;
-            const consulta = [nombre, ubicacion, "España"].filter(Boolean).join(", ");
-            const enlace = document.createElement("a");
-            enlace.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`;
-            enlace.target = "_blank";
-            enlace.rel = "noopener noreferrer";
-            enlace.className = "enlace-google-maps";
-            enlace.textContent = "Abrir en Google Maps";
-            enlace.setAttribute("aria-label", `Abrir ${nombre} en Google Maps mediante su dirección`);
-            const contactos = tarjeta.querySelector(".taller-contactos");
-            if (contactos) contactos.appendChild(enlace);
-            else tarjeta.querySelector(".taller-pie")?.appendChild(enlace);
-            tarjeta.dataset.mapsPreparado = "true";
+            if (!nombre) return;
+
+            const pie = tarjeta.querySelector(".taller-contactos") || tarjeta.querySelector(".taller-pie");
+            if (!pie) return;
+
+            const ficha = document.createElement("a");
+            ficha.href = `pages/taller.html?${crearParametrosFicha(tarjeta, nombre, ubicacion).toString()}`;
+            ficha.className = "enlace-ficha-taller";
+            ficha.textContent = "Ver ficha";
+            ficha.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
+            pie.appendChild(ficha);
+
+            if (ubicacion && ubicacion !== "Ubicación no indicada") {
+                const consulta = [nombre, ubicacion, "España"].join(", ");
+                const maps = document.createElement("a");
+                maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`;
+                maps.target = "_blank";
+                maps.rel = "noopener noreferrer";
+                maps.className = "enlace-google-maps";
+                maps.textContent = "Abrir en Google Maps";
+                maps.setAttribute("aria-label", `Abrir ${nombre} en Google Maps mediante su dirección`);
+                pie.appendChild(maps);
+            }
+            tarjeta.dataset.enlacesPreparados = "true";
         });
     }
 
     function observarTarjetas() {
         const lista = document.getElementById("lista-talleres");
         if (!lista) return;
-        anadirEnlacesGoogleMaps();
-        new MutationObserver(anadirEnlacesGoogleMaps).observe(lista, { childList: true, subtree: true });
+        prepararTarjetasPublicas();
+        new MutationObserver(prepararTarjetasPublicas).observe(lista, { childList: true, subtree: true });
     }
 
     function inicializar() {
