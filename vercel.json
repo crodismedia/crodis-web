@@ -1,5 +1,23 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "tallermap.es"
+        }
+      ],
+      "destination": "https://www.tallermap.es/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "https://www.tallermap.es/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -40,6 +58,28 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
         }
       ]
     }
