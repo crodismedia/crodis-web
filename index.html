@@ -25,168 +25,33 @@
     <meta name="twitter:description" content="Encuentra talleres mecánicos cerca de ti.">
     <meta name="twitter:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
     <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        .hero-texto,.buscador,.campo-busqueda,.poblacion-controles{position:relative;z-index:20}
+        .buscador{pointer-events:auto!important;isolation:isolate}
+        #poblacion,#servicio,#boton-buscar{pointer-events:auto!important;position:relative;z-index:30;opacity:1!important}
+        #poblacion{min-height:38px;color:#162033!important;background:#fff!important;padding:8px 10px!important;border:1px solid #cfd8e3!important;border-radius:8px!important;cursor:text!important;user-select:text!important;-webkit-user-select:text!important}
+        #poblacion:focus{outline:3px solid rgba(20,87,217,.18)!important;border-color:#1457d9!important}
+        .hero::before,.hero-visual{pointer-events:none}
+        .hero-visual a,.hero-visual button{pointer-events:auto}
+    </style>
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "TallerMap",
-      "url": "https://www.tallermap.es/",
-      "inLanguage": "es-ES",
-      "description": "Directorio para encontrar talleres mecánicos por población, código postal y servicio.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://www.tallermap.es/?poblacion={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
+    {"@context":"https://schema.org","@type":"WebSite","name":"TallerMap","url":"https://www.tallermap.es/","inLanguage":"es-ES","description":"Directorio para encontrar talleres mecánicos por población, código postal y servicio.","potentialAction":{"@type":"SearchAction","target":"https://www.tallermap.es/?poblacion={search_term_string}","query-input":"required name=search_term_string"}}
     </script>
 </head>
 <body>
-<div class="barra-superior">
-    <div class="contenedor barra-contenido">
-        <span>Directorio profesional de talleres de automoción</span>
-        <a href="pages/registro.html">¿Tienes un taller? Publica tu negocio</a>
-    </div>
-</div>
-<header class="cabecera">
-    <div class="contenedor cabecera-contenido">
-        <a href="/" class="marca">
-            <img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46">
-            <span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span>
-        </a>
-        <nav class="menu">
-            <a href="/">Inicio</a>
-            <a href="#servicios">Servicios</a>
-            <a href="#talleres">Talleres</a>
-            <a href="#como-funciona">Cómo funciona</a>
-        </nav>
-        <div class="acciones-cabecera">
-            <a href="#talleres" class="contador-altas-cabecera" aria-label="Ver talleres publicados">
-                <strong id="contador-altas-cabecera" aria-live="polite">Directorio</strong>
-                <span>de talleres</span>
-            </a>
-            <a href="pages/registro.html" class="boton boton-pequeno">Registrar taller</a>
-        </div>
-    </div>
-</header>
+<div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de talleres de automoción</span><a href="pages/registro.html">¿Tienes un taller? Publica tu negocio</a></div></div>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="#servicios">Servicios</a><a href="#talleres">Talleres</a><a href="#como-funciona">Cómo funciona</a></nav><div class="acciones-cabecera"><a href="#talleres" class="contador-altas-cabecera" aria-label="Ver talleres publicados"><strong id="contador-altas-cabecera" aria-live="polite">Directorio</strong><span>de talleres</span></a><a href="pages/registro.html" class="boton boton-pequeno">Registrar taller</a></div></div></header>
 <main>
-    <section class="hero">
-        <div class="contenedor hero-contenido">
-            <div class="hero-texto">
-                <span class="etiqueta">Más fácil, más rápido y cerca de ti</span>
-                <h1>Encuentra talleres mecánicos <span>cerca de ti</span></h1>
-                <p class="hero-descripcion">Busca talleres mecánicos por población, servicio o código postal. Consulta sus datos, horarios, especialidades y formas de contacto.</p>
-                <form class="buscador" role="search">
-                    <div class="campo-busqueda">
-                        <span class="campo-icono">⌖</span>
-                        <div>
-                            <label for="poblacion">Población o código postal</label>
-                            <div class="poblacion-controles">
-                                <input id="poblacion" type="search" autocomplete="address-level2" placeholder="Ej. Valencia, Silla o 46460">
-                            </div>
-                            <small>Busca por dirección, población o código postal.</small>
-                        </div>
-                    </div>
-                    <div class="campo-busqueda">
-                        <span class="campo-icono">⚙</span>
-                        <div>
-                            <label for="servicio">Servicio</label>
-                            <select id="servicio">
-                                <option value="">Todos los servicios</option>
-                                <option value="mecanica-general">Mecánica general</option>
-                                <option value="chapa-pintura">Chapa y pintura</option>
-                                <option value="neumaticos">Neumáticos</option>
-                                <option value="diagnosis-electronica">Diagnosis electrónica</option>
-                                <option value="aire-acondicionado">Aire acondicionado</option>
-                                <option value="hibridos-electricos">Híbridos y eléctricos</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="boton boton-buscar" id="boton-buscar">Buscar talleres</button>
-                    <a href="pages/registro.html" class="boton boton-claro" style="margin-left:10px;">Registrar taller</a>
-                </form>
-                <div class="busquedas-populares">
-                    <strong>Búsquedas populares:</strong>
-                    <a href="#talleres" data-servicio="cambio-aceite-filtros">Cambio de aceite</a>
-                    <a href="#talleres" data-servicio="neumaticos">Neumáticos</a>
-                    <a href="#talleres" data-servicio="chapa-pintura">Chapa y pintura</a>
-                    <a href="#talleres" data-servicio="pre-itv">Pre-ITV</a>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="mapa-ficticio">
-                    <div class="mapa-cabecera"><div><strong>Talleres cercanos</strong><span>Resultados en tu zona</span></div><span class="mapa-estado">Búsqueda personalizada</span></div>
-                    <div class="mapa-zona">
-                        <span class="carretera carretera-1"></span><span class="carretera carretera-2"></span><span class="carretera carretera-3"></span>
-                        <span class="marcador marcador-1">1</span><span class="marcador marcador-2">2</span><span class="marcador marcador-3">3</span><span class="marcador marcador-4">4</span>
-                        <div class="tarjeta-flotante"><div class="taller-logo">TM</div><div><strong>Talleres publicados</strong><span>Busca por población o código postal</span></div></div>
-                    </div>
-                </div>
-                <div class="sello-confianza"><span>✓</span><div><strong>Información revisable</strong><small>Las fichas pueden corregirse, reclamarse o retirarse</small></div></div>
-            </div>
-        </div>
-    </section>
-    <section class="estadisticas" aria-label="Información de TallerMap">
-        <div class="contenedor estadisticas-grid">
-            <article><strong id="estadistica-talleres">Actualizado</strong><span>Directorio activo</span></article>
-            <article><strong id="estadistica-provincias">España</strong><span>Búsqueda por ubicación</span></article>
-            <article><strong id="estadistica-servicios">50+</strong><span>Servicios de automoción</span></article>
-            <article><strong>24 h</strong><span>Acceso al directorio</span></article>
-        </div>
-    </section>
-    <section id="servicios" class="seccion">
-        <div class="contenedor">
-            <div class="titulo-seccion"><span>Servicios de automoción</span><h2>Encuentra talleres por especialidad</h2><p>Explora los servicios más buscados o consulta el catálogo completo.</p></div>
-            <div class="servicios-grid" id="lista-servicios-publicos" aria-live="polite">
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">⚙</div><h3>Mecánica general</h3><p>Mantenimiento y reparación</p><a href="servicios/mecanica-general.html">Ver talleres →</a></article>
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">◉</div><h3>Neumáticos</h3><p>Ruedas, alineación y equilibrado</p><a href="servicios/neumaticos.html">Ver talleres →</a></article>
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">✦</div><h3>Chapa y pintura</h3><p>Carrocería y acabados</p><a href="servicios/chapa-pintura.html">Ver talleres →</a></article>
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">⚡</div><h3>Diagnosis electrónica</h3><p>Electricidad y diagnosis</p><a href="servicios/diagnosis-electronica.html">Ver talleres →</a></article>
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">❄</div><h3>Aire acondicionado</h3><p>Climatización del vehículo</p><a href="servicios/aire-acondicionado.html">Ver talleres →</a></article>
-                <article class="servicio-card"><div class="servicio-icono" aria-hidden="true">▣</div><h3>Híbridos y eléctricos</h3><p>Vehículos electrificados</p><a href="servicios/hibridos-electricos.html">Ver talleres →</a></article>
-            </div>
-        </div>
-    </section>
-    <section id="talleres" class="seccion seccion-gris">
-        <div class="contenedor">
-            <div class="cabecera-seccion">
-                <div class="titulo-seccion alineado-izquierda"><span>Directorio de talleres</span><h2>Talleres publicados</h2><p>Consulta talleres activos por población, código postal o servicio.</p></div>
-                <span class="orden-talleres">Resultados actualizados automáticamente</span>
-            </div>
-            <div class="talleres-grid" id="lista-talleres">
-                <p class="mensaje-talleres">Consulta talleres publicados por población, código postal o servicio. Los resultados se actualizan automáticamente.</p>
-            </div>
-            <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden><button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button></div>
-        </div>
-    </section>
-    <section id="como-funciona" class="seccion">
-        <div class="contenedor">
-            <div class="titulo-seccion"><span>Funcionamiento del directorio</span><h2>Busca talleres publicados</h2></div>
-            <div class="pasos-grid">
-                <article><span class="numero-paso">01</span><h3>Filtra la búsqueda</h3><p>Escribe una ciudad, provincia o código postal y selecciona un servicio.</p></article>
-                <article><span class="numero-paso">02</span><h3>Consulta los datos</h3><p>Revisa nombre, ubicación, descripción, servicios y medios de contacto disponibles.</p></article>
-                <article><span class="numero-paso">03</span><h3>Contacta con el taller</h3><p>Abre la ficha, llama o accede a Google Maps utilizando la dirección publicada.</p></article>
-            </div>
-        </div>
-    </section>
-    <section id="registrar" class="cta cta-cartel">
-        <div class="contenedor cta-cartel-contenido">
-            <a class="cta-cartel-imagen" href="pages/registro.html" aria-label="Registrar mi taller gratuitamente"><img src="images/cartel-tallermap.png" alt="Invitación para registrar gratuitamente un taller en TallerMap" loading="lazy"></a>
-            <div class="cta-cartel-texto"><span>Haz crecer tu negocio</span><h2>¿Tienes un taller?</h2><p>Publica gratuitamente tu ficha profesional y permite que los conductores te encuentren por ubicación y servicio.</p><ul><li>Alta y publicación gratuitas</li><li>Servicios y horarios visibles</li><li>Contacto directo con clientes</li></ul><div class="cta-cartel-acciones"><a href="pages/registro.html" class="boton boton-claro">Registrar mi taller</a><a href="https://wa.me/34624455519" class="boton boton-whatsapp" target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a></div></div>
-        </div>
-    </section>
+<section class="hero"><div class="contenedor hero-contenido"><div class="hero-texto"><span class="etiqueta">Más fácil, más rápido y cerca de ti</span><h1>Encuentra talleres mecánicos <span>cerca de ti</span></h1><p class="hero-descripcion">Busca talleres mecánicos por población, servicio o código postal. Consulta sus datos, horarios, especialidades y formas de contacto.</p><form class="buscador" id="formulario-buscador-publico" role="search" autocomplete="off"><div class="campo-busqueda"><span class="campo-icono">⌖</span><div><label for="poblacion">Población o código postal</label><div class="poblacion-controles"><input id="poblacion" name="poblacion" type="search" autocomplete="off" inputmode="search" tabindex="0" aria-label="Población o código postal" placeholder="Ej. Valencia, Silla o 46460"></div><small>Busca por población o código postal.</small></div></div><div class="campo-busqueda"><span class="campo-icono">⚙</span><div><label for="servicio">Servicio</label><select id="servicio" name="servicio" tabindex="0"><option value="">Todos los servicios</option><option value="mecanica-general">Mecánica general</option><option value="chapa-pintura">Chapa y pintura</option><option value="neumaticos">Neumáticos</option><option value="diagnosis-electronica">Diagnosis electrónica</option><option value="aire-acondicionado">Aire acondicionado</option><option value="hibridos-electricos">Híbridos y eléctricos</option></select></div></div><button type="submit" class="boton boton-buscar" id="boton-buscar">Buscar talleres</button><a href="pages/registro.html" class="boton boton-claro" style="margin-left:10px;">Registrar taller</a></form><div class="busquedas-populares"><strong>Búsquedas populares:</strong><a href="#talleres" data-servicio="cambio-aceite-filtros">Cambio de aceite</a><a href="#talleres" data-servicio="neumaticos">Neumáticos</a><a href="#talleres" data-servicio="chapa-pintura">Chapa y pintura</a><a href="#talleres" data-servicio="pre-itv">Pre-ITV</a></div></div><div class="hero-visual"><div class="mapa-ficticio"><div class="mapa-cabecera"><div><strong>Talleres cercanos</strong><span>Resultados en tu zona</span></div><span class="mapa-estado">Búsqueda personalizada</span></div><div class="mapa-zona"><span class="carretera carretera-1"></span><span class="carretera carretera-2"></span><span class="carretera carretera-3"></span><span class="marcador marcador-1">1</span><span class="marcador marcador-2">2</span><span class="marcador marcador-3">3</span><span class="marcador marcador-4">4</span><div class="tarjeta-flotante"><div class="taller-logo">TM</div><div><strong>Talleres publicados</strong><span>Busca por población o código postal</span></div></div></div></div><div class="sello-confianza"><span>✓</span><div><strong>Información revisable</strong><small>Las fichas pueden corregirse, reclamarse o retirarse</small></div></div></div></div></section>
+<section class="estadisticas" aria-label="Información de TallerMap"><div class="contenedor estadisticas-grid"><article><strong id="estadistica-talleres">Actualizado</strong><span>Directorio activo</span></article><article><strong id="estadistica-provincias">España</strong><span>Búsqueda por ubicación</span></article><article><strong id="estadistica-servicios">50+</strong><span>Servicios de automoción</span></article><article><strong>24 h</strong><span>Acceso al directorio</span></article></div></section>
+<section id="servicios" class="seccion"><div class="contenedor"><div class="titulo-seccion"><span>Servicios de automoción</span><h2>Encuentra talleres por especialidad</h2><p>Explora los servicios más buscados o consulta el catálogo completo.</p></div><div class="servicios-grid" id="lista-servicios-publicos" aria-live="polite"><article class="servicio-card"><div class="servicio-icono">⚙</div><h3>Mecánica general</h3><p>Mantenimiento y reparación</p><a href="servicios/mecanica-general.html">Ver talleres →</a></article><article class="servicio-card"><div class="servicio-icono">◉</div><h3>Neumáticos</h3><p>Ruedas, alineación y equilibrado</p><a href="servicios/neumaticos.html">Ver talleres →</a></article><article class="servicio-card"><div class="servicio-icono">✦</div><h3>Chapa y pintura</h3><p>Carrocería y acabados</p><a href="servicios/chapa-pintura.html">Ver talleres →</a></article></div></div></section>
+<section id="talleres" class="seccion seccion-gris"><div class="contenedor"><div class="cabecera-seccion"><div class="titulo-seccion alineado-izquierda"><span>Directorio de talleres</span><h2>Talleres publicados</h2><p>Consulta talleres activos por población, código postal o servicio.</p></div><span class="orden-talleres">Resultados actualizados automáticamente</span></div><div class="talleres-grid" id="lista-talleres"><p class="mensaje-talleres">Consulta talleres publicados por población, código postal o servicio.</p></div><div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden><button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button></div></div></section>
+<section id="como-funciona" class="seccion"><div class="contenedor"><div class="titulo-seccion"><span>Funcionamiento del directorio</span><h2>Busca talleres publicados</h2></div><div class="pasos-grid"><article><span class="numero-paso">01</span><h3>Filtra la búsqueda</h3><p>Escribe una ciudad, provincia o código postal y selecciona un servicio.</p></article><article><span class="numero-paso">02</span><h3>Consulta los datos</h3><p>Revisa nombre, ubicación, descripción, servicios y medios de contacto disponibles.</p></article><article><span class="numero-paso">03</span><h3>Contacta con el taller</h3><p>Abre la ficha, llama o accede a Google Maps utilizando la dirección publicada.</p></article></div></div></section>
 </main>
-<footer class="pie">
-    <div class="contenedor pie-grid">
-        <div><a href="/" class="marca marca-pie"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><p>Directorio de talleres de reparación y mantenimiento de vehículos en España.</p></div>
-        <div><h3>TallerMap</h3><a href="#">Buscar talleres</a><a href="#servicios">Servicios</a><a href="#talleres">Talleres publicados</a></div>
-        <div><h3>Para talleres</h3><a href="pages/registro.html">Registrar negocio</a><a href="pages/admin-login.html">Administración</a><a href="pages/condiciones-publicacion.html">Condiciones de publicación</a></div>
-        <div><h3>Información</h3><a href="pages/privacidad.html">Privacidad</a><a href="pages/condiciones-publicacion.html">Publicación y correcciones</a></div>
-    </div>
-    <div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-<script src="js/servicios.js"></script>
-<script src="js/supabase.js"></script>
+<footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div></footer>
+<script>
+(function(){const input=document.getElementById('poblacion');const select=document.getElementById('servicio');const boton=document.getElementById('boton-buscar');[input,select,boton].forEach(function(el){if(!el)return;el.disabled=false;el.removeAttribute('disabled');el.removeAttribute('readonly');});if(input){input.addEventListener('pointerdown',function(){input.focus();});}})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="js/servicios.js"></script><script src="js/supabase.js"></script>
 </body>
 </html>
