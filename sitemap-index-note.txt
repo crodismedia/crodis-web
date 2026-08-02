@@ -1,0 +1,1 @@
+Este archivo documenta que sitemap-index.xml centraliza los sitemaps públicos de TallerMap.
