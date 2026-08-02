@@ -3,6 +3,11 @@
  * Código independiente para escritorio, tablet y Android.
  */
 
+/* El reloj se retira visualmente de la portada para dar prioridad al buscador. */
+.franja-reloj {
+    display: none !important;
+}
+
 .taller-card .taller-pie {
     display: flex;
     flex-direction: column;
