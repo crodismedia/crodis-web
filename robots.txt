@@ -3,4 +3,5 @@ Allow: /
 
 Sitemap: https://www.tallermap.es/sitemap.xml
 Sitemap: https://www.tallermap.es/servicios/sitemap.xml
+Sitemap: https://www.tallermap.es/sitemap-provincias.xml
 Host: www.tallermap.es
