@@ -2,4 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.tallermap.es/sitemap.xml
+Sitemap: https://www.tallermap.es/servicios/sitemap.xml
 Host: www.tallermap.es
