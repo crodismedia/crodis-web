@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tallermap.es/sitemap.xml
+Sitemap: https://www.tallermap.es/sitemap.xml
+Host: www.tallermap.es
