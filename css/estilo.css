@@ -1885,3 +1885,37 @@ img.marca-icono-logo {
 .sugerencia-sin-resultados {
     cursor: default;
 }
+.taller-imagen {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.taller-imagen-real img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.taller-imagen .verificado {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.imagen-aviso {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 2;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.2;
+}
