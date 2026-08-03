@@ -1,6 +1,70 @@
 (function () {
     "use strict";
 
+    function normalizarTexto(valor) {
+        return String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("es")
+            .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    async function iniciarAutocompletado() {
+        const campoPoblacion = document.getElementById("poblacion");
+        if (!campoPoblacion || !window.supabaseClient?.from) return;
+
+        const lista = document.createElement("datalist");
+        lista.id = "sugerencias-poblaciones";
+        document.body.appendChild(lista);
+        campoPoblacion.setAttribute("list", lista.id);
+        campoPoblacion.setAttribute("autocomplete", "off");
+
+        const { data, error } = await window.supabaseClient
+            .from("municipios")
+            .select("nombre,codigo_municipal")
+            .eq("activo", true)
+            .order("nombre", { ascending: true });
+
+        if (error) {
+            console.error("No se pudieron cargar las sugerencias de población:", error);
+            return;
+        }
+
+        const municipios = Array.isArray(data) ? data : [];
+        let temporizador = null;
+
+        function rellenarSugerencias() {
+            const termino = normalizarTexto(campoPoblacion.value);
+            lista.replaceChildren();
+            if (termino.length < 2) return;
+
+            municipios
+                .filter((municipio) => {
+                    const nombre = normalizarTexto(municipio.nombre);
+                    const codigo = String(municipio.codigo_municipal || "");
+                    return nombre.includes(termino) || codigo.includes(termino);
+                })
+                .slice(0, 12)
+                .forEach((municipio) => {
+                    const opcion = document.createElement("option");
+                    opcion.value = municipio.nombre;
+                    opcion.label = municipio.codigo_municipal
+                        ? `Municipio ${municipio.codigo_municipal}`
+                        : "Municipio";
+                    lista.appendChild(opcion);
+                });
+        }
+
+        campoPoblacion.addEventListener("input", () => {
+            window.clearTimeout(temporizador);
+            temporizador = window.setTimeout(rellenarSugerencias, 120);
+        });
+
+        campoPoblacion.addEventListener("focus", rellenarSugerencias);
+    }
+
     function iniciarBusquedaDesdeUrl() {
         const parametros = new URLSearchParams(window.location.search);
         const poblacion = (parametros.get("poblacion") || "").trim().slice(0, 80);
@@ -32,9 +96,14 @@
         }, 100);
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", iniciarBusquedaDesdeUrl, { once: true });
-    } else {
+    function iniciar() {
+        iniciarAutocompletado();
         iniciarBusquedaDesdeUrl();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", iniciar, { once: true });
+    } else {
+        iniciar();
     }
 }());
