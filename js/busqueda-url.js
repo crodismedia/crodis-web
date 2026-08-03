@@ -1,6 +1,12 @@
 (function () {
     "use strict";
 
+    const PROVINCIAS_POR_PREFIJO = {
+        "03": "Alicante",
+        "12": "Castellón",
+        "46": "Valencia"
+    };
+
     function normalizarTexto(valor) {
         return String(valor || "")
             .normalize("NFD")
@@ -9,6 +15,19 @@
             .replace(/[^a-z0-9]+/g, " ")
             .replace(/\s+/g, " ")
             .trim();
+    }
+
+    function provinciaMunicipio(codigoMunicipal) {
+        const codigo = String(codigoMunicipal || "").padStart(5, "0");
+        return PROVINCIAS_POR_PREFIJO[codigo.slice(0, 2)] || "Provincia no indicada";
+    }
+
+    function prioridadCoincidencia(municipio, termino) {
+        const nombre = normalizarTexto(municipio.nombre);
+        const codigo = String(municipio.codigo_municipal || "");
+        if (nombre === termino || codigo === termino) return 0;
+        if (nombre.startsWith(termino) || codigo.startsWith(termino)) return 1;
+        return 2;
     }
 
     async function iniciarAutocompletado() {
@@ -46,13 +65,20 @@
                     const codigo = String(municipio.codigo_municipal || "");
                     return nombre.includes(termino) || codigo.includes(termino);
                 })
+                .sort((a, b) => {
+                    const diferencia = prioridadCoincidencia(a, termino) - prioridadCoincidencia(b, termino);
+                    if (diferencia) return diferencia;
+                    return String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+                })
                 .slice(0, 12)
                 .forEach((municipio) => {
                     const opcion = document.createElement("option");
+                    const codigo = String(municipio.codigo_municipal || "");
+                    const provincia = provinciaMunicipio(codigo);
                     opcion.value = municipio.nombre;
-                    opcion.label = municipio.codigo_municipal
-                        ? `Municipio ${municipio.codigo_municipal}`
-                        : "Municipio";
+                    opcion.label = codigo
+                        ? `${provincia} · código municipal ${codigo}`
+                        : provincia;
                     lista.appendChild(opcion);
                 });
         }
