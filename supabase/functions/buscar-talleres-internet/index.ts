@@ -13,6 +13,13 @@ type LugarNominatim = {
     boundingbox?: string[];
 };
 
+type Limites = {
+    sur: number;
+    norte: number;
+    oeste: number;
+    este: number;
+};
+
 function cabecerasCors(origen: string | null) {
     return {
         "Access-Control-Allow-Origin": origen && ORIGENES_PERMITIDOS.has(origen)
@@ -49,7 +56,7 @@ function coordenadasValidas(latitud: number, longitud: number) {
         && longitud <= 180;
 }
 
-function limitesDe(lugar: LugarNominatim) {
+function limitesDe(lugar: LugarNominatim): Limites | null {
     if (!Array.isArray(lugar.boundingbox) || lugar.boundingbox.length !== 4) {
         return null;
     }
@@ -59,8 +66,22 @@ function limitesDe(lugar: LugarNominatim) {
     if (!coordenadasValidas(sur, oeste) || !coordenadasValidas(norte, este)) {
         return null;
     }
+    if (sur >= norte || oeste >= este) return null;
 
     return { sur, norte, oeste, este };
+}
+
+function selectorGeografico(
+    limites: Limites | null,
+    radioMetros: number,
+    latitud: number,
+    longitud: number
+) {
+    if (limites) {
+        return `(${limites.sur},${limites.oeste},${limites.norte},${limites.este})`;
+    }
+
+    return `(around:${radioMetros},${latitud},${longitud})`;
 }
 
 async function fetchConTiempoLimite(
@@ -185,18 +206,27 @@ Deno.serve(async (peticion) => {
     if (!coordenadasValidas(latitud, longitud)) {
         return respuesta({ error: "La ubicación no tiene coordenadas válidas" }, 502, cabeceras);
     }
+
     const limitesPoblacion = limitesDe(lugares[0]);
     const radioMetros = Math.round(radioKm * 1000);
+    const selector = selectorGeografico(
+        limitesPoblacion,
+        radioMetros,
+        latitud,
+        longitud
+    );
 
     const consultaOverpass = `[out:json][timeout:35];
 (
-  nwr["shop"="car_repair"](around:${radioMetros},${latitud},${longitud});
-  nwr["craft"="car_repair"](around:${radioMetros},${latitud},${longitud});
-  nwr["amenity"="car_repair"](around:${radioMetros},${latitud},${longitud});
+  nwr["shop"="car_repair"]${selector};
+  nwr["craft"="car_repair"]${selector};
+  nwr["amenity"="car_repair"]${selector};
 );
 out center tags 80;`;
+
     return respuesta({
         modo_consulta: "navegador",
+        criterio_geografico: limitesPoblacion ? "limites_poblacion" : "radio_centro",
         consulta_overpass: consultaOverpass,
         servidores_overpass: [
             "https://overpass-api.de/api/interpreter",
@@ -207,7 +237,7 @@ out center tags 80;`;
             nombre: texto(lugares[0].display_name, 300),
             latitud,
             longitud,
-            radio_km: radioKm
+            radio_km: limitesPoblacion ? null : radioKm
         },
         poblacion: {
             nombre: primerValor(lugares[0].address || {}, [
