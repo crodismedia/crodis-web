@@ -5,49 +5,39 @@ const ORIGENES_PERMITIDOS = new Set([
     "https://www.tallermap.es"
 ]);
 
-type LugarNominatim = {
-    lat?: string;
-    lon?: string;
-    display_name?: string;
-    address?: Record<string, string>;
-    boundingbox?: string[];
-};
-
-type Limites = {
-    sur: number;
-    norte: number;
-    oeste: number;
-    este: number;
-};
-
-function cabecerasCors(origen: string | null) {
+function cabecerasCors(origen) {
     return {
-        "Access-Control-Allow-Origin": origen && ORIGENES_PERMITIDOS.has(origen)
-            ? origen
-            : "https://tallermap.es",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Origin":
+            origen && ORIGENES_PERMITIDOS.has(origen)
+                ? origen
+                : "https://tallermap.es",
+        "Access-Control-Allow-Headers":
+            "authorization, x-client-info, apikey, content-type",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Content-Type": "application/json; charset=utf-8",
         "Vary": "Origin"
     };
 }
 
-function respuesta(cuerpo: unknown, estado: number, cabeceras: Record<string, string>) {
-    return new Response(JSON.stringify(cuerpo), { status: estado, headers: cabeceras });
+function respuesta(cuerpo, estado, cabeceras) {
+    return new Response(JSON.stringify(cuerpo), {
+        status: estado,
+        headers: cabeceras
+    });
 }
 
-function texto(valor: unknown, maximo = 255) {
+function texto(valor, maximo = 255) {
     return String(valor || "").trim().slice(0, maximo);
 }
 
-function primerValor(tags: Record<string, string>, claves: string[]) {
+function primerValor(datos, claves) {
     for (const clave of claves) {
-        if (tags[clave]) return texto(tags[clave]);
+        if (datos && datos[clave]) return texto(datos[clave]);
     }
     return "";
 }
 
-function coordenadasValidas(latitud: number, longitud: number) {
+function coordenadasValidas(latitud, longitud) {
     return Number.isFinite(latitud)
         && Number.isFinite(longitud)
         && latitud >= -90
@@ -56,39 +46,28 @@ function coordenadasValidas(latitud: number, longitud: number) {
         && longitud <= 180;
 }
 
-function limitesDe(lugar: LugarNominatim): Limites | null {
-    if (!Array.isArray(lugar.boundingbox) || lugar.boundingbox.length !== 4) {
+function limitesDe(lugar) {
+    if (!lugar || !Array.isArray(lugar.boundingbox) || lugar.boundingbox.length !== 4) {
         return null;
     }
 
     const [sur, norte, oeste, este] = lugar.boundingbox.map(Number);
+
     if (![sur, norte, oeste, este].every(Number.isFinite)) return null;
-    if (!coordenadasValidas(sur, oeste) || !coordenadasValidas(norte, este)) {
-        return null;
-    }
+    if (!coordenadasValidas(sur, oeste) || !coordenadasValidas(norte, este)) return null;
     if (sur >= norte || oeste >= este) return null;
 
     return { sur, norte, oeste, este };
 }
 
-function selectorGeografico(
-    limites: Limites | null,
-    radioMetros: number,
-    latitud: number,
-    longitud: number
-) {
+function selectorGeografico(limites, radioMetros, latitud, longitud) {
     if (limites) {
         return `(${limites.sur},${limites.oeste},${limites.norte},${limites.este})`;
     }
-
     return `(around:${radioMetros},${latitud},${longitud})`;
 }
 
-async function fetchConTiempoLimite(
-    recurso: string | URL,
-    opciones: RequestInit,
-    milisegundos: number
-) {
+async function fetchConTiempoLimite(recurso, opciones, milisegundos) {
     const controlador = new AbortController();
     const limite = setTimeout(() => controlador.abort(), milisegundos);
 
@@ -102,12 +81,12 @@ async function fetchConTiempoLimite(
     }
 }
 
-async function localizarPoblacion(url: URL, agente: string) {
+async function localizarPoblacion(url, agente) {
     let ultimoError = "sin respuesta";
 
     for (let intento = 1; intento <= 2; intento += 1) {
         try {
-            const respuestaGeocodificacion = await fetchConTiempoLimite(
+            const resultado = await fetchConTiempoLimite(
                 url,
                 {
                     headers: {
@@ -118,13 +97,14 @@ async function localizarPoblacion(url: URL, agente: string) {
                 7000
             );
 
-            if (respuestaGeocodificacion.ok) {
-                return await respuestaGeocodificacion.json() as LugarNominatim[];
+            if (resultado.ok) {
+                const datos = await resultado.json();
+                return Array.isArray(datos) ? datos : [];
             }
 
-            ultimoError = `HTTP ${respuestaGeocodificacion.status}`;
+            ultimoError = `HTTP ${resultado.status}`;
         } catch (error) {
-            ultimoError = error instanceof Error ? error.message : "error de red";
+            ultimoError = error && error.message ? error.message : "error de red";
         }
 
         console.warn(`Nominatim intento ${intento}: ${ultimoError}`);
@@ -136,18 +116,23 @@ async function localizarPoblacion(url: URL, agente: string) {
 Deno.serve(async (peticion) => {
     const origen = peticion.headers.get("Origin");
     const cabeceras = cabecerasCors(origen);
-    if (peticion.method === "OPTIONS") return new Response("ok", { headers: cabeceras });
+
+    if (peticion.method === "OPTIONS") {
+        return new Response("ok", { headers: cabeceras });
+    }
+
     if (peticion.method !== "POST") {
         return respuesta({ error: "Método no permitido" }, 405, cabeceras);
     }
 
     const token = peticion.headers.get("Authorization");
-    if (!token?.startsWith("Bearer ")) {
+    if (!token || !token.startsWith("Bearer ")) {
         return respuesta({ error: "Sesión no válida" }, 401, cabeceras);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
     if (!supabaseUrl || !supabaseAnonKey) {
         return respuesta({ error: "Configuración incompleta" }, 500, cabeceras);
     }
@@ -156,26 +141,33 @@ Deno.serve(async (peticion) => {
         global: { headers: { Authorization: token } },
         auth: { persistSession: false }
     });
-    const { data: usuario, error: errorUsuario } = await supabase.auth.getUser(
-        token.replace(/^Bearer\s+/i, "")
-    );
-    if (errorUsuario || !usuario.user) {
+
+    const jwt = token.replace(/^Bearer\s+/i, "");
+    const resultadoUsuario = await supabase.auth.getUser(jwt);
+
+    if (resultadoUsuario.error || !resultadoUsuario.data || !resultadoUsuario.data.user) {
         return respuesta({ error: "Sesión caducada" }, 401, cabeceras);
     }
-    const { data: esAdministrador, error: errorPermiso } =
-        await supabase.rpc("es_administrador");
-    if (errorPermiso || !esAdministrador) {
+
+    const resultadoPermiso = await supabase.rpc("es_administrador");
+    if (resultadoPermiso.error || !resultadoPermiso.data) {
         return respuesta({ error: "No autorizado" }, 403, cabeceras);
     }
 
-    let cuerpo: { ubicacion?: string; radio_km?: number };
+    let cuerpo;
     try {
         cuerpo = await peticion.json();
     } catch {
         return respuesta({ error: "Solicitud no válida" }, 400, cabeceras);
     }
-    const ubicacion = texto(cuerpo.ubicacion, 120);
-    const radioKm = Math.min(25, Math.max(1, Number(cuerpo.radio_km) || 10));
+
+    const ubicacion = texto(cuerpo && cuerpo.ubicacion, 120);
+    const radioSolicitado = Number(cuerpo && cuerpo.radio_km);
+    const radioKm = Math.min(
+        25,
+        Math.max(1, Number.isFinite(radioSolicitado) ? radioSolicitado : 10)
+    );
+
     if (ubicacion.length < 2) {
         return respuesta({ error: "Indica una población o código postal" }, 400, cabeceras);
     }
@@ -188,7 +180,7 @@ Deno.serve(async (peticion) => {
     geocodificacionUrl.searchParams.set("countrycodes", "es");
     geocodificacionUrl.searchParams.set("limit", "1");
 
-    let lugares: LugarNominatim[];
+    let lugares;
     try {
         lugares = await localizarPoblacion(geocodificacionUrl, agente);
     } catch (error) {
@@ -198,23 +190,22 @@ Deno.serve(async (peticion) => {
             detalle: "El servicio de localización no respondió tras dos intentos."
         }, 502, cabeceras);
     }
-    if (!Array.isArray(lugares) || !lugares.length) {
+
+    if (!Array.isArray(lugares) || lugares.length === 0) {
         return respuesta({ error: "No se encontró esa ubicación en España" }, 404, cabeceras);
     }
-    const latitud = Number(lugares[0].lat);
-    const longitud = Number(lugares[0].lon);
+
+    const lugar = lugares[0];
+    const latitud = Number(lugar.lat);
+    const longitud = Number(lugar.lon);
+
     if (!coordenadasValidas(latitud, longitud)) {
         return respuesta({ error: "La ubicación no tiene coordenadas válidas" }, 502, cabeceras);
     }
 
-    const limitesPoblacion = limitesDe(lugares[0]);
+    const limitesPoblacion = limitesDe(lugar);
     const radioMetros = Math.round(radioKm * 1000);
-    const selector = selectorGeografico(
-        limitesPoblacion,
-        radioMetros,
-        latitud,
-        longitud
-    );
+    const selector = selectorGeografico(limitesPoblacion, radioMetros, latitud, longitud);
 
     const consultaOverpass = `[out:json][timeout:35];
 (
@@ -223,6 +214,14 @@ Deno.serve(async (peticion) => {
   nwr["amenity"="car_repair"]${selector};
 );
 out center tags 80;`;
+
+    const direccion = lugar.address || {};
+    const nombrePoblacion = primerValor(direccion, [
+        "city",
+        "town",
+        "village",
+        "municipality"
+    ]) || ubicacion.split(",")[0].trim();
 
     return respuesta({
         modo_consulta: "navegador",
@@ -234,17 +233,15 @@ out center tags 80;`;
             "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
         ],
         ubicacion: {
-            nombre: texto(lugares[0].display_name, 300),
+            nombre: texto(lugar.display_name, 300),
             latitud,
             longitud,
             radio_km: limitesPoblacion ? null : radioKm
         },
         poblacion: {
-            nombre: primerValor(lugares[0].address || {}, [
-                "city", "town", "village", "municipality"
-            ]) || ubicacion.split(",")[0].trim(),
-            codigo_postal: texto(lugares[0].address?.postcode, 10),
-            provincia: primerValor(lugares[0].address || {}, ["province", "state"]),
+            nombre: nombrePoblacion,
+            codigo_postal: texto(direccion.postcode, 10),
+            provincia: primerValor(direccion, ["province", "state"]),
             limites: limitesPoblacion
         },
         atribucion: "© colaboradores de OpenStreetMap, datos ODbL"
