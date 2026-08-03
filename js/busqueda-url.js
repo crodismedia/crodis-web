@@ -7,7 +7,7 @@
         "46": "Valencia"
     };
     const LIMITE_CERCANOS = 8;
-    const RADIOS_CERCANOS_KM = [10, 25, 50, 100];
+    const RADIOS_CERCANOS_KM = [1, 3, 5];
 
     function normalizarTexto(valor) {
         return String(valor || "")
@@ -209,7 +209,7 @@
             boton.disabled = true;
             boton.textContent = "Localizando…";
             estado.textContent = "Solicitando permiso para obtener tu ubicación precisa…";
-            listaTalleres.innerHTML = '<p class="mensaje-talleres">Calculando los 8 talleres más cercanos…</p>';
+            listaTalleres.innerHTML = '<p class="mensaje-talleres">Buscando hasta 8 talleres en radios de 1, 3 y 5 km…</p>';
 
             try {
                 const posicion = await obtenerPosicionActual();
@@ -227,11 +227,11 @@
                 );
 
                 if (!resultado.talleres.length) {
-                    listaTalleres.innerHTML = '<p class="mensaje-talleres">No hay talleres con ubicación registrada en un radio de 100 km.</p>';
-                    estado.textContent = "No se encontraron talleres cercanos con coordenadas verificables.";
+                    listaTalleres.innerHTML = '<p class="mensaje-talleres">No hay talleres con ubicación registrada a menos de 5 km.</p>';
+                    estado.textContent = "No se encontraron talleres cercanos dentro del límite de 5 km.";
                 } else {
                     listaTalleres.innerHTML = resultado.talleres.map(tarjetaCercana).join("");
-                    estado.textContent = `${resultado.talleres.length} talleres más cercanos, ordenados por distancia real.`;
+                    estado.textContent = `${resultado.talleres.length} talleres encontrados dentro de ${resultado.radio} km, ordenados por distancia real.`;
                     const indicador = document.querySelector(".mapa-estado");
                     if (indicador) indicador.textContent = `${resultado.talleres.length} más cercanos`;
                 }
