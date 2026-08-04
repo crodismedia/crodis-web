@@ -21,7 +21,7 @@
   "rewrites": [
     {
       "source": "/talleres/:slug",
-      "destination": "/pages/taller.html?slug=:slug"
+      "destination": "/pages/taller.html"
     },
     {
       "source": "/robots.txt",
