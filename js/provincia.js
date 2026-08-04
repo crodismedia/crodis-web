@@ -139,8 +139,10 @@
             }
 
             encontrados.sort((a, b) => {
-                const porCiudad = String(a.ciudad || "").localeCompare(String(b.ciudad || ""), "es");
-                return porCiudad || String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+                const nombreA = String(a.nombre || a.nombre_taller || "Taller sin nombre");
+                const nombreB = String(b.nombre || b.nombre_taller || "Taller sin nombre");
+                const porNombre = nombreA.localeCompare(nombreB, "es", { sensitivity: "base" });
+                return porNombre || String(a.ciudad || "").localeCompare(String(b.ciudad || ""), "es", { sensitivity: "base" });
             });
 
             if (!encontrados.length) {
