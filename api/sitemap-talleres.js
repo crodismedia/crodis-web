@@ -14,16 +14,26 @@ function escapeXML(value) {
 export default async function handler(_request, response) {
     let workshops = [];
     try {
-        const result = await fetch(`${SUPABASE_URL}/rest/v1/rpc/listar_talleres_sitemap`, {
-            method: "POST",
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: "{}"
-        });
-        if (result.ok) workshops = await result.json();
+        const pageSize = 1000;
+        for (let offset = 0; offset < 50000; offset += pageSize) {
+            const endpoint = new URL(`${SUPABASE_URL}/rest/v1/rpc/listar_talleres_sitemap`);
+            endpoint.searchParams.set("offset", String(offset));
+            endpoint.searchParams.set("limit", String(pageSize));
+            const result = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: "{}"
+            });
+            if (!result.ok) break;
+            const page = await result.json();
+            if (!Array.isArray(page) || !page.length) break;
+            workshops.push(...page);
+            if (page.length < pageSize) break;
+        }
     } catch (error) {
         console.error("No se pudo construir el sitemap de talleres:", error);
     }
