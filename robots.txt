@@ -2,6 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.tallermap.es/sitemap-index.xml
-Host: www.tallermap.es
-
-# Índice principal actualizado 2026-08-04
