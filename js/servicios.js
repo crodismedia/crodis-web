@@ -16,6 +16,10 @@
     const etiquetas = Object.fromEntries(grupos.flatMap((grupo) => grupo.servicios));
     const iconos = {"Mecánica y mantenimiento":"⚙","Neumáticos, dirección y suspensión":"◉","Electricidad y diagnosis":"⚡","Carrocería y cristales":"✦","Climatización":"❄","Híbridos y eléctricos":"▣","Vehículos especiales":"▤","Personalización y multimedia":"♫","Otros servicios":"+"};
 
+    function rutaDesdeRaiz(ruta) {
+        return ruta.startsWith("/") ? ruta : `/${ruta}`;
+    }
+
     function serviciosAlfabeticos() {
         return grupos.flatMap((grupo) => grupo.servicios.map(([valor, etiqueta]) => ({ valor, etiqueta, grupo: grupo.nombre })))
             .sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, "es", { sensitivity: "base" }));
@@ -81,7 +85,7 @@
     function cargarRecuperacionAdministrativa() {
         if (!document.getElementById("formulario-buscador-internet") || document.querySelector("script[data-tallermap-admin-recuperacion]")) return;
         const script = document.createElement("script");
-        script.src = "../js/admin-recuperacion.js";
+        script.src = rutaDesdeRaiz("js/admin-recuperacion.js");
         script.dataset.tallermapAdminRecuperacion = "true";
         document.head.appendChild(script);
     }
@@ -95,14 +99,16 @@
         const ayuda = document.querySelector(".tarjeta-flotante span");
         if (ayuda) ayuda.textContent = "Busca por dirección, población o código postal";
         const mensaje = document.querySelector("#lista-talleres .mensaje-talleres");
-        if (mensaje && /cargando/i.test(mensaje.textContent)) mensaje.textContent = "Consulta talleres publicados por población, código postal o servicio. Los resultados se actualizan automáticamente.";
+        if (mensaje && /cargando/i.test(mensaje.textContent || "")) {
+            mensaje.textContent = "Consulta talleres publicados por población, código postal o servicio. Los resultados se actualizan automáticamente.";
+        }
     }
 
     function cargarEstilosAccionesTaller() {
         if (document.querySelector('link[data-tallermap-acciones]')) return;
         const enlace = document.createElement("link");
         enlace.rel = "stylesheet";
-        enlace.href = "css/taller-acciones.css";
+        enlace.href = rutaDesdeRaiz("css/taller-acciones.css");
         enlace.dataset.tallermapAcciones = "true";
         document.head.appendChild(enlace);
     }
@@ -110,43 +116,21 @@
     function cargarUrlsLimpiasTaller() {
         if (document.querySelector('script[data-tallermap-urls-taller]')) return;
         const script = document.createElement("script");
-        const profundidad = window.location.pathname.split("/").filter(Boolean).length;
-        script.src = profundidad > 1 ? "../js/taller-urls.js" : "js/taller-urls.js";
+        script.src = rutaDesdeRaiz("js/taller-urls.js");
         script.defer = true;
         script.dataset.tallermapUrlsTaller = "true";
         document.head.appendChild(script);
     }
 
     function textoLimpio(elemento) {
-        return String(elemento?.textContent || "")
-            .replace(/^⌖\s*/, "")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
-    function crearParametrosFicha(tarjeta, nombre, ubicacion) {
-        const parametros = new URLSearchParams({ nombre, direccion: ubicacion });
-        const telefono = tarjeta.querySelector('a[href^="tel:"]')?.getAttribute("href")?.replace(/^tel:/, "") || "";
-        const web = [...tarjeta.querySelectorAll('a[href^="http"]')]
-            .find((enlace) => !enlace.href.includes("google.com/maps"))?.href || "";
-        const descripcion = textoLimpio(tarjeta.querySelector(".taller-descripcion"));
-        const servicios = [...tarjeta.querySelectorAll(".especialidades span")]
-            .map(textoLimpio)
-            .filter(Boolean)
-            .join("|");
-        if (telefono) parametros.set("telefono", telefono);
-        if (web) parametros.set("web", web);
-        if (descripcion) parametros.set("descripcion", descripcion);
-        if (servicios) parametros.set("servicios", servicios);
-        return parametros;
+        return String(elemento?.textContent || "").replace(/^⌖\s*/, "").replace(/\s+/g, " ").trim();
     }
 
     function esEnlaceFicha(enlace) {
+        if (!(enlace instanceof HTMLAnchorElement)) return false;
         try {
             const url = new URL(enlace.href, window.location.origin);
-            return url.pathname === "/pages/taller.html"
-                || url.pathname.startsWith("/talleres/")
-                || enlace.classList.contains("enlace-ficha-taller");
+            return url.pathname === "/pages/taller.html" || url.pathname.startsWith("/talleres/") || enlace.classList.contains("enlace-ficha-taller");
         } catch (_error) {
             return false;
         }
@@ -155,7 +139,6 @@
     function prepararTarjetasPublicas() {
         document.querySelectorAll(".taller-card").forEach((tarjeta) => {
             if (tarjeta.dataset.enlacesPreparados === "true") return;
-
             const nombre = textoLimpio(tarjeta.querySelector("h3"));
             const ubicacion = textoLimpio(tarjeta.querySelector("p.ubicacion"));
             if (!nombre) return;
@@ -169,21 +152,27 @@
             if (!pie) return;
 
             const enlacesFicha = [...pie.querySelectorAll("a")].filter(esEnlaceFicha);
-            if (!enlacesFicha.length) {
-                const ficha = document.createElement("a");
-                ficha.href = `pages/taller.html?${crearParametrosFicha(tarjeta, nombre, ubicacion)}`;
-                ficha.className = "enlace-ficha-taller";
-                ficha.textContent = "Ver ficha";
-                ficha.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
-                pie.appendChild(ficha);
+            if (enlacesFicha.length) {
+                const principal = enlacesFicha.find((enlace) => enlace.classList.contains("enlace-ficha-taller")) || enlacesFicha[0];
+                principal.classList.add("enlace-ficha-taller");
+                principal.textContent = "Ver ficha";
+                principal.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
+                enlacesFicha.forEach((enlace) => {
+                    if (enlace !== principal) enlace.remove();
+                });
             }
 
-            const yaTieneMaps = [...pie.querySelectorAll("a")].some((enlace) =>
-                enlace.href.includes("google.com/maps")
-            );
+            const yaTieneMaps = [...pie.querySelectorAll("a")].some((enlace) => {
+                try {
+                    return new URL(enlace.href).hostname.includes("google.com");
+                } catch (_error) {
+                    return false;
+                }
+            });
+
             if (!yaTieneMaps && ubicacion && ubicacion !== "Ubicación no indicada") {
                 const maps = document.createElement("a");
-                maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([nombre, ubicacion, "España"].join(", "))}`;
+                maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${nombre}, ${ubicacion}, España`)}`;
                 maps.target = "_blank";
                 maps.rel = "noopener noreferrer";
                 maps.className = "enlace-google-maps";
@@ -199,10 +188,13 @@
         const lista = document.getElementById("lista-talleres");
         if (!lista) return;
         prepararTarjetasPublicas();
-        new MutationObserver(prepararTarjetasPublicas).observe(lista, {
-            childList: true,
-            subtree: true
+        const observer = new MutationObserver((mutaciones) => {
+            const hayNuevasTarjetas = mutaciones.some((mutacion) => [...mutacion.addedNodes].some((nodo) =>
+                nodo.nodeType === Node.ELEMENT_NODE && (nodo.matches?.(".taller-card") || nodo.querySelector?.(".taller-card"))
+            ));
+            if (hayNuevasTarjetas) prepararTarjetasPublicas();
         });
+        observer.observe(lista, { childList: true, subtree: true });
     }
 
     function inicializar() {
@@ -216,17 +208,10 @@
         observarTarjetas();
     }
 
-    window.TallerMapServicios = {
-        grupos,
-        etiquetas,
-        serviciosAlfabeticos,
-        rellenarSelect,
-        rellenarCheckboxes,
-        rellenarTarjetas
-    };
+    window.TallerMapServicios = { grupos, etiquetas, serviciosAlfabeticos, rellenarSelect, rellenarCheckboxes, rellenarTarjetas };
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", inicializar);
+        document.addEventListener("DOMContentLoaded", inicializar, { once: true });
     } else {
         inicializar();
     }
