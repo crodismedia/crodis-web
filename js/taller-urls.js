@@ -19,14 +19,12 @@
             const url = new URL(enlace.href, window.location.origin);
             const parametro = url.searchParams.get("slug");
             if (parametro) return slugSeguro(parametro);
-
             if (url.pathname.startsWith(CLEAN_PREFIX)) {
                 return slugSeguro(url.pathname.slice(CLEAN_PREFIX.length));
             }
         } catch (_error) {
             return "";
         }
-
         return "";
     }
 
@@ -35,109 +33,96 @@
         return limpio ? `${CLEAN_PREFIX}${limpio}` : "";
     }
 
-    function limpiarEnlacesTarjeta(tarjeta) {
-        const enlacesFicha = [...tarjeta.querySelectorAll("a")]
-            .filter((enlace) => {
-                try {
-                    const url = new URL(enlace.href, window.location.origin);
-                    return url.pathname === LEGACY_PATH
-                        || url.pathname.startsWith(CLEAN_PREFIX)
-                        || enlace.classList.contains("enlace-ficha-taller");
-                } catch (_error) {
-                    return false;
-                }
-            });
-
-        if (!enlacesFicha.length) return;
-
-        const slug = enlacesFicha.map(slugDesdeEnlace).find(Boolean);
-        if (!slug) return;
-
-        let principal = enlacesFicha.find((enlace) =>
-            enlace.classList.contains("enlace-ficha-taller")
-        ) || enlacesFicha[0];
-
-        principal.href = urlLimpia(slug);
-        principal.classList.add("enlace-ficha-taller");
-        principal.textContent = "Ver ficha";
-
-        enlacesFicha.forEach((enlace) => {
-            if (enlace !== principal) enlace.remove();
+    function enlacesDeFicha(tarjeta) {
+        return [...tarjeta.querySelectorAll("a")].filter((enlace) => {
+            try {
+                const url = new URL(enlace.href, window.location.origin);
+                return url.pathname === LEGACY_PATH
+                    || url.pathname.startsWith(CLEAN_PREFIX)
+                    || enlace.classList.contains("enlace-ficha-taller");
+            } catch (_error) {
+                return false;
+            }
         });
     }
 
-    function limpiarEnlacesPagina() {
-        document.querySelectorAll(".taller-card").forEach(limpiarEnlacesTarjeta);
+    function limpiarEnlacesTarjeta(tarjeta) {
+        if (!(tarjeta instanceof Element)) return;
+        const enlaces = enlacesDeFicha(tarjeta);
+        if (!enlaces.length) return;
 
-        document.querySelectorAll("a.taller-relacionado").forEach((enlace) => {
+        const slug = enlaces.map(slugDesdeEnlace).find(Boolean);
+        if (!slug) return;
+
+        const principal = enlaces.find((enlace) =>
+            enlace.classList.contains("enlace-ficha-taller")
+        ) || enlaces[0];
+        const destino = urlLimpia(slug);
+
+        if (principal.getAttribute("href") !== destino) principal.href = destino;
+        principal.classList.add("enlace-ficha-taller");
+        if (principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";
+
+        enlaces.forEach((enlace) => {
+            if (enlace !== principal && enlace.isConnected) enlace.remove();
+        });
+    }
+
+    function procesarNodo(nodo) {
+        if (!(nodo instanceof Element)) return;
+        if (nodo.matches(".taller-card")) limpiarEnlacesTarjeta(nodo);
+        nodo.querySelectorAll?.(".taller-card").forEach(limpiarEnlacesTarjeta);
+
+        if (nodo.matches("a.taller-relacionado")) {
+            const slug = slugDesdeEnlace(nodo);
+            if (slug) nodo.href = urlLimpia(slug);
+        }
+        nodo.querySelectorAll?.("a.taller-relacionado").forEach((enlace) => {
             const slug = slugDesdeEnlace(enlace);
             if (slug) enlace.href = urlLimpia(slug);
         });
     }
 
-    function slugActual() {
+    function actualizarFichaUnaVez() {
         const ruta = window.location.pathname;
-        if (ruta.startsWith(CLEAN_PREFIX)) {
-            return slugSeguro(ruta.slice(CLEAN_PREFIX.length));
-        }
-
         const parametros = new URLSearchParams(window.location.search);
-        return slugSeguro(parametros.get("slug") || "");
-    }
+        const slug = ruta.startsWith(CLEAN_PREFIX)
+            ? slugSeguro(ruta.slice(CLEAN_PREFIX.length))
+            : slugSeguro(parametros.get("slug") || "");
 
-    function actualizarFicha() {
-        const slug = slugActual();
         if (!slug) return;
+        const limpia = urlLimpia(slug);
+        const absoluta = `${SITE_URL}${limpia}`;
 
-        const ruta = urlLimpia(slug);
-        const absoluta = `${SITE_URL}${ruta}`;
-
-        if (window.location.pathname === LEGACY_PATH) {
-            window.history.replaceState({}, "", ruta);
+        if (ruta === LEGACY_PATH) {
+            window.history.replaceState({}, "", limpia);
         }
 
         const canonical = document.getElementById("canonical-taller")
             || document.querySelector('link[rel="canonical"]');
         if (canonical) canonical.href = absoluta;
-
-        ["datos-estructurados-taller", "datos-estructurados-migas"].forEach((id) => {
-            const script = document.getElementById(id);
-            if (!script?.textContent) return;
-
-            try {
-                const datos = JSON.parse(script.textContent);
-                const reemplazar = (valor) => {
-                    if (typeof valor === "string" && valor.includes(LEGACY_PATH)) {
-                        return absoluta;
-                    }
-                    if (Array.isArray(valor)) return valor.map(reemplazar);
-                    if (valor && typeof valor === "object") {
-                        Object.keys(valor).forEach((clave) => {
-                            valor[clave] = reemplazar(valor[clave]);
-                        });
-                    }
-                    return valor;
-                };
-                script.textContent = JSON.stringify(reemplazar(datos));
-            } catch (_error) {
-                // El contenido puede estar actualizándose todavía; el observador lo reintentará.
-            }
-        });
     }
 
-    function ejecutar() {
-        limpiarEnlacesPagina();
-        actualizarFicha();
+    function iniciar() {
+        document.querySelectorAll(".taller-card").forEach(limpiarEnlacesTarjeta);
+        document.querySelectorAll("a.taller-relacionado").forEach((enlace) => {
+            const slug = slugDesdeEnlace(enlace);
+            if (slug) enlace.href = urlLimpia(slug);
+        });
+        actualizarFichaUnaVez();
+
+        const raiz = document.body;
+        if (!raiz) return;
+        new MutationObserver((cambios) => {
+            cambios.forEach((cambio) => {
+                cambio.addedNodes.forEach(procesarNodo);
+            });
+        }).observe(raiz, { childList: true, subtree: true });
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", ejecutar, { once: true });
+        document.addEventListener("DOMContentLoaded", iniciar, { once: true });
     } else {
-        ejecutar();
+        iniciar();
     }
-
-    new MutationObserver(ejecutar).observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
 }());
