@@ -20,6 +20,10 @@
   ],
   "rewrites": [
     {
+      "source": "/talleres/:slug",
+      "destination": "/pages/taller.html?slug=:slug"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/api/robots"
     },
