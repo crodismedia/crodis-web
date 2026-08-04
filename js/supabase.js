@@ -22,7 +22,7 @@
     };
 
     const TAMANO_PAGINA = 30;
-    const RADIOS_CERCANOS_KM = [3, 10, 25, 50];
+    const RADIOS_CERCANOS_KM = Array.from({ length: 50 }, (_, indice) => indice + 1);
     let siguienteIndice = 0;
     let poblacionActual = "";
     let servicioActual = "";
