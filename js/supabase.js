@@ -96,21 +96,8 @@
     }
 
     function urlFicha(taller) {
-        const parametros = new URLSearchParams({
-            id: taller.id || "",
-            slug: slugTaller(taller),
-            nombre: taller.nombre || taller.nombre_taller || "Taller",
-            direccion: [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).join(", ")
-        });
-        if (taller.telefono) parametros.set("telefono", taller.telefono);
-        if (taller.web) parametros.set("web", taller.web);
-        if (taller.descripcion) parametros.set("descripcion", taller.descripcion);
-        if (taller.verificado) parametros.set("verificado", "true");
-        if (taller.updated_at) parametros.set("actualizado", taller.updated_at);
-        if (Array.isArray(taller.servicios) && taller.servicios.length) {
-            parametros.set("servicios", taller.servicios.join("|"));
-        }
-        return `pages/taller.html?${parametros.toString()}`;
+        const slug = slugTaller(taller);
+        return slug ? `/talleres/${encodeURIComponent(slug)}` : "";
     }
 
     function crearTarjetaTaller(taller) {
@@ -139,7 +126,7 @@
         if (web) {
             enlaces.push(`<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
         }
-        enlaces.push(`<a href="${escaparHTML(urlFicha(taller))}">Ver ficha</a>`);
+        enlaces.push(`<a class="enlace-ficha-taller" href="${escaparHTML(urlFicha(taller))}">Ver ficha</a>`);
         const contacto = enlaces.length
             ? `<span class="taller-contactos">${enlaces.join("")}</span>`
             : "<span>Sin contacto publicado</span>";
@@ -189,7 +176,6 @@
         }
         escribirEstadistica("contador-altas-cabecera", data?.talleres_activos);
         escribirEstadistica("estadistica-talleres", data?.talleres_activos);
-        // El directorio territorial público cubre exactamente Alicante, Castellón y Valencia.
         escribirEstadistica("estadistica-provincias", 3);
         escribirEstadistica("estadistica-servicios", data?.servicios_disponibles);
     }
