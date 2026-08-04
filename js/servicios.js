@@ -24,8 +24,7 @@
     function rellenarSelect(select) {
         if (!select) return;
         select.replaceChildren();
-        const todos = new Option("Todos los servicios", "");
-        select.appendChild(todos);
+        select.appendChild(new Option("Todos los servicios", ""));
         grupos.forEach((grupo) => {
             const optgroup = document.createElement("optgroup");
             optgroup.label = grupo.nombre;
@@ -62,10 +61,18 @@
         serviciosAlfabeticos().forEach(({ valor, etiqueta, grupo }) => {
             const tarjeta = document.createElement("article");
             tarjeta.className = "servicio-card";
-            const icono = document.createElement("div"); icono.className = "servicio-icono"; icono.setAttribute("aria-hidden", "true"); icono.textContent = iconos[grupo] || "+";
-            const titulo = document.createElement("h3"); titulo.textContent = etiqueta;
-            const categoria = document.createElement("p"); categoria.textContent = grupo;
-            const enlace = document.createElement("a"); enlace.href = "#talleres"; enlace.dataset.servicio = valor; enlace.textContent = "Buscar talleres →";
+            const icono = document.createElement("div");
+            icono.className = "servicio-icono";
+            icono.setAttribute("aria-hidden", "true");
+            icono.textContent = iconos[grupo] || "+";
+            const titulo = document.createElement("h3");
+            titulo.textContent = etiqueta;
+            const categoria = document.createElement("p");
+            categoria.textContent = grupo;
+            const enlace = document.createElement("a");
+            enlace.href = "#talleres";
+            enlace.dataset.servicio = valor;
+            enlace.textContent = "Buscar talleres →";
             tarjeta.append(icono, titulo, categoria, enlace);
             contenedor.appendChild(tarjeta);
         });
@@ -110,14 +117,23 @@
         document.head.appendChild(script);
     }
 
-    function textoLimpio(elemento) { return String(elemento?.textContent || "").replace(/^⌖\s*/, "").replace(/\s+/g, " ").trim(); }
+    function textoLimpio(elemento) {
+        return String(elemento?.textContent || "")
+            .replace(/^⌖\s*/, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
 
     function crearParametrosFicha(tarjeta, nombre, ubicacion) {
         const parametros = new URLSearchParams({ nombre, direccion: ubicacion });
         const telefono = tarjeta.querySelector('a[href^="tel:"]')?.getAttribute("href")?.replace(/^tel:/, "") || "";
-        const web = [...tarjeta.querySelectorAll('a[href^="http"]')].find((enlace) => !enlace.href.includes("google.com/maps"))?.href || "";
+        const web = [...tarjeta.querySelectorAll('a[href^="http"]')]
+            .find((enlace) => !enlace.href.includes("google.com/maps"))?.href || "";
         const descripcion = textoLimpio(tarjeta.querySelector(".taller-descripcion"));
-        const servicios = [...tarjeta.querySelectorAll(".especialidades span")].map(textoLimpio).filter(Boolean).join("|");
+        const servicios = [...tarjeta.querySelectorAll(".especialidades span")]
+            .map(textoLimpio)
+            .filter(Boolean)
+            .join("|");
         if (telefono) parametros.set("telefono", telefono);
         if (web) parametros.set("web", web);
         if (descripcion) parametros.set("descripcion", descripcion);
@@ -125,27 +141,56 @@
         return parametros;
     }
 
+    function esEnlaceFicha(enlace) {
+        try {
+            const url = new URL(enlace.href, window.location.origin);
+            return url.pathname === "/pages/taller.html"
+                || url.pathname.startsWith("/talleres/")
+                || enlace.classList.contains("enlace-ficha-taller");
+        } catch (_error) {
+            return false;
+        }
+    }
+
     function prepararTarjetasPublicas() {
         document.querySelectorAll(".taller-card").forEach((tarjeta) => {
             if (tarjeta.dataset.enlacesPreparados === "true") return;
+
             const nombre = textoLimpio(tarjeta.querySelector("h3"));
             const ubicacion = textoLimpio(tarjeta.querySelector("p.ubicacion"));
             if (!nombre) return;
+
             let pie = tarjeta.querySelector(".taller-contactos");
-            if (!pie) { pie = document.createElement("span"); pie.className = "taller-contactos"; tarjeta.querySelector(".taller-pie")?.appendChild(pie); }
+            if (!pie) {
+                pie = document.createElement("span");
+                pie.className = "taller-contactos";
+                tarjeta.querySelector(".taller-pie")?.appendChild(pie);
+            }
             if (!pie) return;
-            const ficha = document.createElement("a");
-            ficha.href = `pages/taller.html?${crearParametrosFicha(tarjeta, nombre, ubicacion)}`;
-            ficha.className = "enlace-ficha-taller";
-            ficha.textContent = "Ver ficha";
-            ficha.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
-            pie.appendChild(ficha);
-            if (ubicacion && ubicacion !== "Ubicación no indicada") {
+
+            const enlacesFicha = [...pie.querySelectorAll("a")].filter(esEnlaceFicha);
+            if (!enlacesFicha.length) {
+                const ficha = document.createElement("a");
+                ficha.href = `pages/taller.html?${crearParametrosFicha(tarjeta, nombre, ubicacion)}`;
+                ficha.className = "enlace-ficha-taller";
+                ficha.textContent = "Ver ficha";
+                ficha.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
+                pie.appendChild(ficha);
+            }
+
+            const yaTieneMaps = [...pie.querySelectorAll("a")].some((enlace) =>
+                enlace.href.includes("google.com/maps")
+            );
+            if (!yaTieneMaps && ubicacion && ubicacion !== "Ubicación no indicada") {
                 const maps = document.createElement("a");
                 maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([nombre, ubicacion, "España"].join(", "))}`;
-                maps.target = "_blank"; maps.rel = "noopener noreferrer"; maps.className = "enlace-google-maps"; maps.textContent = "Abrir en Google Maps";
+                maps.target = "_blank";
+                maps.rel = "noopener noreferrer";
+                maps.className = "enlace-google-maps";
+                maps.textContent = "Abrir en Google Maps";
                 pie.appendChild(maps);
             }
+
             tarjeta.dataset.enlacesPreparados = "true";
         });
     }
@@ -154,7 +199,10 @@
         const lista = document.getElementById("lista-talleres");
         if (!lista) return;
         prepararTarjetasPublicas();
-        new MutationObserver(prepararTarjetasPublicas).observe(lista, { childList: true, subtree: true });
+        new MutationObserver(prepararTarjetasPublicas).observe(lista, {
+            childList: true,
+            subtree: true
+        });
     }
 
     function inicializar() {
@@ -168,7 +216,18 @@
         observarTarjetas();
     }
 
-    window.TallerMapServicios = { grupos, etiquetas, serviciosAlfabeticos, rellenarSelect, rellenarCheckboxes, rellenarTarjetas };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", inicializar);
-    else inicializar();
+    window.TallerMapServicios = {
+        grupos,
+        etiquetas,
+        serviciosAlfabeticos,
+        rellenarSelect,
+        rellenarCheckboxes,
+        rellenarTarjetas
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", inicializar);
+    } else {
+        inicializar();
+    }
 }());
