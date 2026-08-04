@@ -23,10 +23,10 @@
     min-width: 0;
 }
 
-/* Oculta el enlace antiguo de texto “Ver ficha”.
-   El botón azul .enlace-ficha-taller permanece visible. */
-.taller-card .taller-contactos a[href*="pages/taller.html"],
-.taller-card .taller-contactos a[href*="/taller.html"] {
+/* Oculta únicamente el enlace antiguo de texto “Ver ficha”.
+   El botón nuevo .enlace-ficha-taller permanece visible. */
+.taller-card .taller-contactos a[href*="pages/taller.html"]:not(.enlace-ficha-taller),
+.taller-card .taller-contactos a[href*="/taller.html"]:not(.enlace-ficha-taller) {
     display: none !important;
 }
 
@@ -64,7 +64,7 @@
 
 /* Llamar y web: botones secundarios */
 .taller-card .taller-contactos a[href^="tel:"],
-.taller-card .taller-contactos a[href^="http"]:not(.enlace-google-maps) {
+.taller-card .taller-contactos a[href^="http"]:not(.enlace-google-maps):not(.enlace-ficha-taller) {
     color: #0b3b83;
     background: #eef5ff;
     border-color: #c8dcfa;
@@ -73,6 +73,7 @@
 
 /* Ver ficha: botón azul principal */
 .taller-card .enlace-ficha-taller {
+    display: inline-flex !important;
     color: #fff !important;
     background: linear-gradient(135deg, #1457d9, #0b43ad);
     border-color: #0b43ad;
