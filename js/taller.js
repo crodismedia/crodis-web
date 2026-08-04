@@ -62,6 +62,15 @@
         }
     }
 
+    function slugSeguro(valor) {
+        return String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
     function fechaLegible(valor) {
         if (!valor) return "";
 
@@ -95,13 +104,8 @@
         const original = String(valor || "").trim();
         const digitos = original.replace(/\D/g, "");
 
-        if (/^34\d{9}$/.test(digitos)) {
-            return `+${digitos}`;
-        }
-
-        if (/^\d{9}$/.test(digitos)) {
-            return `+34${digitos}`;
-        }
+        if (/^34\d{9}$/.test(digitos)) return `+${digitos}`;
+        if (/^\d{9}$/.test(digitos)) return `+34${digitos}`;
 
         return original.replace(/[^\d+]/g, "");
     }
@@ -109,15 +113,24 @@
     function telefonoWhatsApp(valor) {
         const digitos = String(valor || "").replace(/\D/g, "");
 
-        if (/^[67]\d{8}$/.test(digitos)) {
-            return `34${digitos}`;
-        }
-
-        if (/^34[67]\d{8}$/.test(digitos)) {
-            return digitos;
-        }
+        if (/^[67]\d{8}$/.test(digitos)) return `34${digitos}`;
+        if (/^34[67]\d{8}$/.test(digitos)) return digitos;
 
         return "";
+    }
+
+    function idValido(valor) {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+            .test(valor);
+    }
+
+    function parametrosRpc(taller) {
+        return {
+            p_id: idValido(String(taller.id || id || ""))
+                ? String(taller.id || id)
+                : null,
+            p_slug: String(taller.slug || slug || "").trim() || null
+        };
     }
 
     function registrarAccion(tipo, taller) {
@@ -141,9 +154,7 @@
         }
 
         window.dispatchEvent(
-            new CustomEvent("tallermap:contacto", {
-                detail: detalle
-            })
+            new CustomEvent("tallermap:contacto", { detail: detalle })
         );
     }
 
@@ -181,18 +192,12 @@
     async function obtenerTaller() {
         const legado = datosLegados();
 
-        if (!cliente || (!id && !slug)) {
-            return legado;
-        }
-
-        const idValido =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-                .test(id);
+        if (!cliente || (!id && !slug)) return legado;
 
         const { data, error } = await cliente.rpc(
             "obtener_taller_publico",
             {
-                p_id: idValido ? id : null,
+                p_id: idValido(id) ? id : null,
                 p_slug: slug || null
             }
         );
@@ -204,42 +209,64 @@
                     error.message
                 );
             }
-
             return legado;
         }
 
-        return {
-            ...legado,
-            ...data[0]
-        };
+        return { ...legado, ...data[0] };
+    }
+
+    async function obtenerContexto(taller) {
+        if (!cliente) return null;
+
+        const { data, error } = await cliente.rpc(
+            "obtener_contexto_taller",
+            parametrosRpc(taller)
+        );
+
+        if (error) {
+            console.warn("No se pudo obtener el contexto local:", error.message);
+            return null;
+        }
+
+        return Array.isArray(data) && data.length ? data[0] : null;
+    }
+
+    async function obtenerRelacionados(taller) {
+        if (!cliente) return [];
+
+        const { data, error } = await cliente.rpc(
+            "buscar_talleres_relacionados",
+            {
+                ...parametrosRpc(taller),
+                p_limite: 6
+            }
+        );
+
+        if (error) {
+            console.warn("No se pudieron obtener talleres relacionados:", error.message);
+            return [];
+        }
+
+        return Array.isArray(data) ? data : [];
     }
 
     async function urlFoto(taller) {
-        const primera = Array.isArray(taller.fotos)
-            ? taller.fotos[0]
-            : "";
-
+        const primera = Array.isArray(taller.fotos) ? taller.fotos[0] : "";
         const publica = urlSegura(primera);
 
         if (publica) return publica;
-
-        if (!primera || !cliente?.storage?.from) {
-            return "";
-        }
+        if (!primera || !cliente?.storage?.from) return "";
 
         const { data, error } = await cliente
             .storage
             .from("fotos-talleres")
             .createSignedUrl(primera, 3600);
 
-        if (error) return "";
-
-        return data?.signedUrl || data?.signedURL || "";
+        return error ? "" : (data?.signedUrl || data?.signedURL || "");
     }
 
     function actualizarCorreo(idElemento, asunto, cuerpo) {
         const enlace = document.getElementById(idElemento);
-
         if (!enlace) return;
 
         enlace.href =
@@ -249,21 +276,15 @@
     }
 
     function obtenerTurnos(valor) {
-        if (!valor || valor.cerrado) return [];
-
-        if (!Array.isArray(valor.turnos)) return [];
+        if (!valor || valor.cerrado || !Array.isArray(valor.turnos)) return [];
 
         return valor.turnos.filter((turno) => {
-            return turno
-                && turno.apertura
-                && turno.cierre;
+            return turno && turno.apertura && turno.cierre;
         });
     }
 
     function horarioHTML(horarios) {
-        if (!horarios || typeof horarios !== "object") {
-            return "";
-        }
+        if (!horarios || typeof horarios !== "object") return "";
 
         const dias = [
             ["lunes", "Lunes"],
@@ -278,17 +299,12 @@
         const filas = dias
             .map(([clave, etiqueta]) => {
                 const valor = horarios[clave];
-
                 if (!valor) return "";
-
-                const turnos = obtenerTurnos(valor);
 
                 const horario = valor.cerrado
                     ? "Cerrado"
-                    : turnos
-                        .map((turno) => {
-                            return `${turno.apertura}–${turno.cierre}`;
-                        })
+                    : obtenerTurnos(valor)
+                        .map((turno) => `${turno.apertura}–${turno.cierre}`)
                         .join(" y ");
 
                 if (!horario) return "";
@@ -303,20 +319,16 @@
             .filter(Boolean)
             .join("");
 
-        if (!filas) return "";
-
-        return `
-            <details class="taller-horario">
-                <summary>Ver horario semanal</summary>
-                <dl>${filas}</dl>
-            </details>
-        `;
+        return filas
+            ? `<details class="taller-horario">
+                    <summary>Ver horario semanal</summary>
+                    <dl>${filas}</dl>
+               </details>`
+            : "";
     }
 
     function generarOpeningHoursSpecification(horarios) {
-        if (!horarios || typeof horarios !== "object") {
-            return [];
-        }
+        if (!horarios || typeof horarios !== "object") return [];
 
         const dias = [
             ["lunes", "Monday"],
@@ -332,12 +344,9 @@
 
         dias.forEach(([clave, diaSchema]) => {
             const valor = horarios[clave];
-
             if (!valor || valor.cerrado) return;
 
-            const turnos = obtenerTurnos(valor);
-
-            turnos.forEach((turno) => {
+            obtenerTurnos(valor).forEach((turno) => {
                 resultado.push({
                     "@type": "OpeningHoursSpecification",
                     dayOfWeek: `https://schema.org/${diaSchema}`,
@@ -356,29 +365,19 @@
             addressCountry: "ES"
         };
 
-        if (taller.direccion) {
-            direccion.streetAddress = taller.direccion;
-        }
+        if (taller.direccion) direccion.streetAddress = taller.direccion;
+        if (taller.ciudad) direccion.addressLocality = taller.ciudad;
+        if (taller.provincia) direccion.addressRegion = taller.provincia;
+        if (taller.codigo_postal) direccion.postalCode = taller.codigo_postal;
 
-        if (taller.ciudad) {
-            direccion.addressLocality = taller.ciudad;
-        }
-
-        if (taller.provincia) {
-            direccion.addressRegion = taller.provincia;
-        }
-
-        if (taller.codigo_postal) {
-            direccion.postalCode = taller.codigo_postal;
-        }
-
-        const tieneDatos =
+        return (
             direccion.streetAddress
             || direccion.addressLocality
             || direccion.addressRegion
-            || direccion.postalCode;
-
-        return tieneDatos ? direccion : null;
+            || direccion.postalCode
+        )
+            ? direccion
+            : null;
     }
 
     function construirDatosEstructurados({
@@ -399,107 +398,261 @@
             name: nombre,
             description: descripcion,
             url: urlFicha,
-            mainEntityOfPage: urlFicha,
-            areaServed: {
-                "@type": "AdministrativeArea",
-                name: [
-                    taller.ciudad,
-                    taller.provincia,
-                    "España"
-                ]
-                    .filter(Boolean)
-                    .join(", ")
-            }
+            mainEntityOfPage: urlFicha
         };
 
         const direccionSchema = construirDireccionSchema(taller);
-
-        if (direccionSchema) {
-            estructurados.address = direccionSchema;
-        }
-
-        if (telefono) {
-            estructurados.telephone = normalizarTelefono(telefono);
-        }
-
-        if (web) {
-            estructurados.sameAs = [web];
-        }
-
-        if (foto) {
-            estructurados.image = [foto];
-        }
-
-        if (servicios.length) {
-            estructurados.knowsAbout = servicios;
-        }
-
+        if (direccionSchema) estructurados.address = direccionSchema;
+        if (telefono) estructurados.telephone = normalizarTelefono(telefono);
+        if (web) estructurados.sameAs = [web];
+        if (foto) estructurados.image = [foto];
+        if (servicios.length) estructurados.knowsAbout = servicios;
         if (actualizacion) {
-            estructurados.dateModified =
-                String(actualizacion).slice(0, 10);
+            estructurados.dateModified = String(actualizacion).slice(0, 10);
         }
 
-        if (taller.verificado) {
-            estructurados.additionalProperty = {
-                "@type": "PropertyValue",
-                name: "Verificado en TallerMap",
-                value: "Sí"
+        if (taller.ciudad || taller.provincia) {
+            estructurados.areaServed = {
+                "@type": "AdministrativeArea",
+                name: [taller.ciudad, taller.provincia, "España"]
+                    .filter(Boolean)
+                    .join(", ")
             };
         }
 
-        const horariosSchema =
-            generarOpeningHoursSpecification(taller.horarios);
-
-        if (horariosSchema.length) {
-            estructurados.openingHoursSpecification =
-                horariosSchema;
-        }
+        const horarios = generarOpeningHoursSpecification(taller.horarios);
+        if (horarios.length) estructurados.openingHoursSpecification = horarios;
 
         return estructurados;
     }
 
+    function urlProvincia(provincia, contexto) {
+        const slugProvincia =
+            contexto?.provincia_slug
+            || slugSeguro(provincia);
+
+        return slugProvincia
+            ? `${SITE_URL}/provincias/${slugProvincia}.html`
+            : `${SITE_URL}/provincias/`;
+    }
+
+    function urlMunicipio(taller, contexto) {
+        if (contexto?.codigo_municipal && contexto?.municipio) {
+            return (
+                `${SITE_URL}/municipios/`
+                + `${slugSeguro(contexto.municipio)}-`
+                + `${contexto.codigo_municipal}.html`
+            );
+        }
+
+        return (
+            `${SITE_URL}/index.html`
+            + `?ubicacion=${encodeURIComponent(taller.ciudad || "")}`
+            + "#talleres"
+        );
+    }
+
+    function actualizarMigas(taller, contexto, nombre) {
+        const nav = document.getElementById("migas-pan");
+        if (!nav) return;
+
+        const elementos = [
+            { nombre: "Inicio", url: `${SITE_URL}/` }
+        ];
+
+        if (taller.provincia) {
+            elementos.push({
+                nombre: taller.provincia,
+                url: urlProvincia(taller.provincia, contexto)
+            });
+        }
+
+        if (taller.ciudad) {
+            elementos.push({
+                nombre: taller.ciudad,
+                url: urlMunicipio(taller, contexto)
+            });
+        }
+
+        elementos.push({ nombre, url: "" });
+
+        nav.replaceChildren();
+
+        elementos.forEach((elemento, indice) => {
+            if (indice > 0) {
+                const separador = document.createElement("span");
+                separador.className = "ficha-migas-separador";
+                separador.setAttribute("aria-hidden", "true");
+                separador.textContent = "›";
+                nav.appendChild(separador);
+            }
+
+            if (elemento.url) {
+                const enlace = document.createElement("a");
+                enlace.href = elemento.url;
+                enlace.textContent = elemento.nombre;
+                nav.appendChild(enlace);
+            } else {
+                const actual = document.createElement("span");
+                actual.textContent = elemento.nombre;
+                actual.setAttribute("aria-current", "page");
+                nav.appendChild(actual);
+            }
+        });
+
+        const breadcrumbSchema = {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: elementos.map((elemento, indice) => ({
+                "@type": "ListItem",
+                position: indice + 1,
+                name: elemento.nombre,
+                item: elemento.url || window.location.href.split("#")[0]
+            }))
+        };
+
+        const script = document.getElementById("datos-estructurados-migas");
+        if (script) script.textContent = JSON.stringify(breadcrumbSchema);
+    }
+
+    function mostrarContexto(taller, contexto) {
+        const seccion = document.getElementById("contexto-local");
+        const titulo = document.getElementById("contexto-titulo");
+        const descripcion = document.getElementById("contexto-texto");
+        const enlaces = document.getElementById("contexto-enlaces");
+
+        if (!seccion || !titulo || !descripcion || !enlaces) return;
+        if (!taller.ciudad && !taller.provincia) return;
+
+        titulo.textContent = taller.ciudad
+            ? `Talleres en ${taller.ciudad}`
+            : `Talleres en ${taller.provincia}`;
+
+        const total = Number(contexto?.total_municipio || 0);
+
+        descripcion.textContent = total > 0 && taller.ciudad
+            ? `TallerMap reúne ${total} talleres activos en ${taller.ciudad}. Consulta el directorio local o explora toda la provincia.`
+            : "Consulta otros talleres de la misma localidad y provincia.";
+
+        enlaces.replaceChildren();
+
+        if (taller.ciudad) {
+            const municipio = document.createElement("a");
+            municipio.className = "boton";
+            municipio.href = urlMunicipio(taller, contexto);
+            municipio.textContent = `Ver talleres en ${taller.ciudad}`;
+            enlaces.appendChild(municipio);
+        }
+
+        if (taller.provincia) {
+            const provincia = document.createElement("a");
+            provincia.className = "boton boton-claro";
+            provincia.href = urlProvincia(taller.provincia, contexto);
+            provincia.textContent = `Ver talleres en ${taller.provincia}`;
+            enlaces.appendChild(provincia);
+        }
+
+        seccion.hidden = false;
+    }
+
+    function mostrarRelacionados(talleres, tallerActual) {
+        const contenedor = document.getElementById("talleres-relacionados");
+        const estado = document.getElementById("relacionados-estado");
+        const titulo = document.getElementById("relacionados-titulo");
+
+        if (!contenedor || !estado || !titulo) return;
+
+        contenedor.replaceChildren();
+
+        if (!talleres.length) {
+            estado.className = "ficha-relacionados-vacio";
+            estado.textContent =
+                "Todavía no hay otros talleres relacionados disponibles.";
+            return;
+        }
+
+        const mismaCiudad = talleres.some((taller) => taller.misma_ciudad);
+        titulo.textContent = mismaCiudad && tallerActual.ciudad
+            ? `Otros talleres en ${tallerActual.ciudad}`
+            : "Otros talleres que pueden interesarte";
+
+        talleres.forEach((taller) => {
+            const enlace = document.createElement("a");
+            enlace.className = "taller-relacionado";
+            enlace.href =
+                `${SITE_URL}/pages/taller.html`
+                + `?slug=${encodeURIComponent(taller.slug)}`;
+
+            const nombre = document.createElement("strong");
+            nombre.textContent = taller.nombre || "Taller";
+
+            const ubicacion = document.createElement("small");
+            ubicacion.textContent = [
+                taller.direccion,
+                taller.codigo_postal,
+                taller.ciudad
+            ]
+                .filter(Boolean)
+                .join(", ");
+
+            enlace.append(nombre, ubicacion);
+
+            const etiquetas = document.createElement("div");
+            etiquetas.className = "taller-relacionado-etiquetas";
+
+            if (taller.verificado) {
+                const verificado = document.createElement("span");
+                verificado.textContent = "✓ Verificado";
+                etiquetas.appendChild(verificado);
+            }
+
+            if (Number(taller.coincidencias_servicio) > 0) {
+                const coincidencia = document.createElement("span");
+                coincidencia.textContent =
+                    `${taller.coincidencias_servicio} servicios en común`;
+                etiquetas.appendChild(coincidencia);
+            }
+
+            if (taller.misma_ciudad) {
+                const local = document.createElement("span");
+                local.textContent = "Misma localidad";
+                etiquetas.appendChild(local);
+            }
+
+            if (etiquetas.childElementCount) {
+                enlace.appendChild(etiquetas);
+            }
+
+            contenedor.appendChild(enlace);
+        });
+
+        estado.hidden = true;
+    }
+
     async function mostrarTaller(taller) {
-        const nombre =
-            taller.nombre || "Taller publicado en TallerMap";
-
+        const nombre = taller.nombre || "Taller publicado en TallerMap";
         const direccion = direccionCompleta(taller);
-
-        const telefono = String(taller.telefono || "")
-            .replace(/[^\d+]/g, "");
-
+        const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const whatsapp = telefonoWhatsApp(telefono);
         const web = urlSegura(taller.web);
-
-        const descripcion =
-            taller.descripcion
+        const descripcion = taller.descripcion
             || `Consulta el teléfono, dirección, servicios y datos públicos de ${nombre}.`;
-
         const servicios = Array.isArray(taller.servicios)
             ? taller.servicios.filter(Boolean)
             : [];
-
         const verificado = Boolean(taller.verificado);
         const actualizacion = taller.updated_at || "";
         const foto = await urlFoto(taller);
-
         const fichaCompleta = Boolean(
-            nombre
-            && direccion
-            && (telefono || web)
+            nombre && direccion && (telefono || web)
         );
 
         texto("taller-nombre", nombre);
-        texto(
-            "taller-direccion",
-            direccion || "Ubicación no indicada"
-        );
+        texto("taller-direccion", direccion || "Ubicación no indicada");
         texto("taller-descripcion", descripcion);
 
-        const contenedorFoto =
-            document.getElementById("taller-foto");
-
-        const imagen =
-            document.getElementById("taller-foto-imagen");
+        const contenedorFoto = document.getElementById("taller-foto");
+        const imagen = document.getElementById("taller-foto-imagen");
 
         if (contenedorFoto && imagen && foto) {
             imagen.src = foto;
@@ -509,18 +662,12 @@
             contenedorFoto.hidden = false;
         }
 
-        const insignia =
-            document.getElementById("taller-verificacion");
-
+        const insignia = document.getElementById("taller-verificacion");
         if (insignia) {
             insignia.textContent = verificado
                 ? "✓ Taller verificado"
                 : "Datos públicos pendientes de verificar";
-
-            insignia.classList.toggle(
-                "verificada",
-                verificado
-            );
+            insignia.classList.toggle("verificada", verificado);
         }
 
         texto(
@@ -529,14 +676,6 @@
                 ? `Última actualización: ${fechaLegible(actualizacion)}`
                 : ""
         );
-
-        const localidadSEO = [
-            taller.ciudad,
-            taller.provincia
-        ]
-            .filter(Boolean)
-            .join(" (")
-            .replace(/\($/, "");
 
         const tituloSEO = taller.ciudad && taller.provincia
             ? `${nombre} | Taller mecánico en ${taller.ciudad} (${taller.provincia}) | TallerMap`
@@ -554,12 +693,10 @@
                 ? `Teléfono, dirección, horario, servicios y cómo llegar a ${nombre} en ${taller.ciudad}${taller.provincia ? `, ${taller.provincia}` : ""}. Consulta su ficha en TallerMap.`
                 : `Teléfono, dirección, horario, servicios y cómo llegar a ${nombre}. Consulta su ficha en TallerMap.`;
 
-            metaDescripcion.content =
-                descripcionSEO.slice(0, 158);
+            metaDescripcion.content = descripcionSEO.slice(0, 158);
         }
 
-        const canonical =
-            document.getElementById("canonical-taller");
+        const canonical = document.getElementById("canonical-taller");
 
         if (canonical) {
             const referencia = taller.slug
@@ -570,17 +707,14 @@
                 `${SITE_URL}/pages/taller.html?${referencia}`;
         }
 
-        const robots =
-            document.getElementById("robots-taller");
-
+        const robots = document.getElementById("robots-taller");
         if (robots) {
             robots.content = fichaCompleta
                 ? "index,follow,max-image-preview:large"
                 : "noindex,follow";
         }
 
-        const acciones =
-            document.getElementById("taller-acciones");
+        const acciones = document.getElementById("taller-acciones");
 
         if (acciones) {
             acciones.replaceChildren();
@@ -599,11 +733,7 @@
             }
 
             if (direccion) {
-                const consulta = [
-                    nombre,
-                    direccion,
-                    "España"
-                ]
+                const consulta = [nombre, direccion, "España"]
                     .filter(Boolean)
                     .join(", ");
 
@@ -614,9 +744,7 @@
                             "https://www.google.com/maps/search/"
                             + `?api=1&query=${encodeURIComponent(consulta)}`,
                         etiqueta: "⌖ Cómo llegar",
-                        aria:
-                            `Abrir la ubicación de ${nombre} `
-                            + "en Google Maps",
+                        aria: `Abrir la ubicación de ${nombre} en Google Maps`,
                         tipo: "mapa",
                         taller,
                         nuevaPestana: true
@@ -626,8 +754,8 @@
 
             if (whatsapp) {
                 const mensaje =
-                    "Hola, he encontrado vuestro taller "
-                    + "en TallerMap y quisiera pedir información.";
+                    "Hola, he encontrado vuestro taller en TallerMap "
+                    + "y quisiera pedir información.";
 
                 acciones.appendChild(
                     crearAccion({
@@ -636,8 +764,7 @@
                             `https://wa.me/${whatsapp}`
                             + `?text=${encodeURIComponent(mensaje)}`,
                         etiqueta: "WhatsApp",
-                        aria:
-                            `Contactar con ${nombre} por WhatsApp`,
+                        aria: `Contactar con ${nombre} por WhatsApp`,
                         tipo: "whatsapp",
                         taller,
                         nuevaPestana: true
@@ -651,8 +778,7 @@
                         clase: "boton boton-claro accion-web",
                         href: web,
                         etiqueta: "Página web",
-                        aria:
-                            `Visitar la página web de ${nombre}`,
+                        aria: `Visitar la página web de ${nombre}`,
                         tipo: "web",
                         taller,
                         nuevaPestana: true
@@ -668,16 +794,13 @@
             serviciosContenedor.replaceChildren();
 
             servicios.forEach((servicio) => {
-                const etiqueta =
-                    document.createElement("span");
-
+                const etiqueta = document.createElement("span");
                 etiqueta.textContent = servicio;
                 serviciosContenedor.appendChild(etiqueta);
             });
         }
 
-        const datos =
-            document.getElementById("taller-datos");
+        const datos = document.getElementById("taller-datos");
 
         if (datos) {
             datos.replaceChildren();
@@ -738,8 +861,7 @@
         }
 
         const urlFicha =
-            canonical?.href
-            || window.location.href.split("#")[0];
+            canonical?.href || window.location.href.split("#")[0];
 
         actualizarCorreo(
             "reclamar-ficha",
@@ -761,28 +883,31 @@
             + "Fuente o explicación:"
         );
 
-        const estructurados =
-            construirDatosEstructurados({
-                taller,
-                nombre,
-                descripcion,
-                urlFicha,
-                telefono,
-                web,
-                servicios,
-                actualizacion,
-                foto
-            });
+        const estructurados = construirDatosEstructurados({
+            taller,
+            nombre,
+            descripcion,
+            urlFicha,
+            telefono,
+            web,
+            servicios,
+            actualizacion,
+            foto
+        });
 
         const script =
-            document.getElementById(
-                "datos-estructurados-taller"
-            );
+            document.getElementById("datos-estructurados-taller");
 
-        if (script) {
-            script.textContent =
-                JSON.stringify(estructurados);
-        }
+        if (script) script.textContent = JSON.stringify(estructurados);
+
+        const [contexto, relacionados] = await Promise.all([
+            obtenerContexto(taller),
+            obtenerRelacionados(taller)
+        ]);
+
+        actualizarMigas(taller, contexto, nombre);
+        mostrarContexto(taller, contexto);
+        mostrarRelacionados(relacionados, taller);
     }
 
     obtenerTaller()
@@ -792,7 +917,6 @@
                 "No se pudo mostrar la ficha del taller:",
                 error
             );
-
             return mostrarTaller(datosLegados());
         });
 }());
