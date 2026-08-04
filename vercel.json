@@ -20,6 +20,10 @@
   ],
   "rewrites": [
     {
+      "source": "/robots.txt",
+      "destination": "/api/robots"
+    },
+    {
       "source": "/sitemap-talleres.xml",
       "destination": "/api/sitemap-talleres"
     }
