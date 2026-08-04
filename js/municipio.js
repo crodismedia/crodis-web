@@ -183,9 +183,48 @@
         const totalPages = Math.max(1, Math.ceil(totalWorkshops / PAGE_SIZE));
         const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
         wrapper.hidden = totalWorkshops <= PAGE_SIZE;
-        previous.disabled = busy || offset <= 0;
-        next.disabled = busy || offset + PAGE_SIZE >= totalWorkshops;
+        const previousDisabled = busy || offset <= 0;
+        const nextDisabled = busy || offset + PAGE_SIZE >= totalWorkshops;
+        previous.classList.toggle("deshabilitado", previousDisabled);
+        next.classList.toggle("deshabilitado", nextDisabled);
+        previous.setAttribute("aria-disabled", String(previousDisabled));
+        next.setAttribute("aria-disabled", String(nextDisabled));
+        previous.href = pageURL(Math.max(1, currentPage - 1));
+        next.href = pageURL(Math.min(totalPages, currentPage + 1));
         page.textContent = `Página ${currentPage} de ${totalPages}`;
+        updateHeadPagination(currentPage, totalPages);
+    }
+
+    function requestedPage() {
+        const value = Number(new URLSearchParams(window.location.search).get("pagina"));
+        return Number.isInteger(value) && value > 0 ? value : 1;
+    }
+
+    function pageURL(pageNumber) {
+        const url = new URL(window.location.href);
+        if (pageNumber > 1) url.searchParams.set("pagina", String(pageNumber));
+        else url.searchParams.delete("pagina");
+        if (selectedService) url.searchParams.set("servicio", selectedService);
+        else url.searchParams.delete("servicio");
+        return `${url.pathname}${url.search}`;
+    }
+
+    function navigateToPage(pageNumber, replace = false) {
+        const url = pageURL(pageNumber);
+        window.history[replace ? "replaceState" : "pushState"]({}, "", url);
+        offset = (pageNumber - 1) * PAGE_SIZE;
+    }
+
+    function updateHeadPagination(currentPage, totalPages) {
+        document.querySelectorAll('link[data-pagination="municipio"]').forEach((link) => link.remove());
+        [["prev", currentPage - 1], ["next", currentPage + 1]].forEach(([rel, pageNumber]) => {
+            if (pageNumber < 1 || pageNumber > totalPages) return;
+            const link = document.createElement("link");
+            link.rel = rel;
+            link.href = new URL(pageURL(pageNumber), window.location.origin).href;
+            link.dataset.pagination = "municipio";
+            document.head.appendChild(link);
+        });
     }
 
     async function loadLegacyWorkshops(municipality, aliases) {
@@ -228,7 +267,7 @@
         return legacyWorkshopsPromise;
     }
 
-    async function loadWorkshops(reset = true) {
+    async function loadWorkshops(reset = true, keepRequestedPage = false) {
         const container = document.getElementById("lista-talleres");
         if (!container || loading) return;
 
@@ -236,7 +275,7 @@
         const municipalityCode = container.dataset.codigoMunicipal || "";
         const aliases = municipalityAliases(municipality);
         if (reset) {
-            offset = 0;
+            offset = keepRequestedPage ? (requestedPage() - 1) * PAGE_SIZE : 0;
             totalWorkshops = 0;
             legacyWorkshopsPromise = null;
             container.innerHTML = `<p class="mensaje-talleres">Cargando talleres de ${escapeHTML(municipality)}…</p>`;
@@ -307,33 +346,45 @@
         if (pagination) {
             pagination.classList.add("municipio-paginacion");
             pagination.innerHTML = `
-                <button id="boton-pagina-anterior" class="boton boton-claro" type="button">← Anterior</button>
+                <a id="boton-pagina-anterior" class="boton boton-claro" href="?">← Anterior</a>
                 <span id="estado-paginacion" aria-live="polite">Página 1 de 1</span>
-                <button id="boton-pagina-siguiente" class="boton" type="button">Siguiente →</button>
+                <a id="boton-pagina-siguiente" class="boton" href="?pagina=2">Siguiente →</a>
             `;
         }
         const previousButton = document.getElementById("boton-pagina-anterior");
         const nextButton = document.getElementById("boton-pagina-siguiente");
 
+        selectedService = new URLSearchParams(window.location.search).get("servicio") || "";
+        if (service && selectedService) service.value = selectedService;
+
         form?.addEventListener("submit", (event) => {
             event.preventDefault();
             selectedService = service?.value || "";
+            navigateToPage(1);
             loadWorkshops(true);
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
 
-        previousButton?.addEventListener("click", () => {
-            offset = Math.max(0, offset - PAGE_SIZE);
+        previousButton?.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (previousButton.getAttribute("aria-disabled") === "true") return;
+            navigateToPage(Math.max(1, Math.floor(offset / PAGE_SIZE)));
             loadWorkshops(false);
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
-        nextButton?.addEventListener("click", () => {
+        nextButton?.addEventListener("click", (event) => {
+            event.preventDefault();
             if (offset + PAGE_SIZE >= totalWorkshops) return;
-            offset += PAGE_SIZE;
+            navigateToPage(Math.floor(offset / PAGE_SIZE) + 2);
             loadWorkshops(false);
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
-        loadWorkshops(true);
+        window.addEventListener("popstate", () => {
+            selectedService = new URLSearchParams(window.location.search).get("servicio") || "";
+            if (service) service.value = selectedService;
+            loadWorkshops(true, true);
+        });
+        loadWorkshops(true, true);
     }
 
     if (document.readyState === "loading") {

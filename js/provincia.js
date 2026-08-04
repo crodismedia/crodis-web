@@ -24,7 +24,7 @@
     const listaMunicipios = document.getElementById("lista-municipios-provincia");
     const botonCargarMas = document.getElementById("boton-cargar-mas-provincia");
     const contenedorCargarMas = document.getElementById("contenedor-cargar-mas-provincia");
-    let siguienteIndice = 0;
+    let siguienteIndice = (paginaSolicitada() - 1) * TAMANO_PAGINA;
     let totalTalleres = 0;
     let cargando = false;
     let datosLegadosPromesa = null;
@@ -162,11 +162,41 @@
         </article>`;
     }
 
-    function actualizarBotonCarga(hayMas, ocupado = false) {
-        if (!contenedorCargarMas || !botonCargarMas) return;
-        contenedorCargarMas.hidden = !hayMas;
-        botonCargarMas.disabled = ocupado;
-        botonCargarMas.textContent = ocupado ? "Cargando talleres…" : "Cargar más talleres";
+    function paginaSolicitada() {
+        const pagina = Number(new URLSearchParams(window.location.search).get("pagina"));
+        return Number.isInteger(pagina) && pagina > 0 ? pagina : 1;
+    }
+
+    function urlPagina(pagina) {
+        const url = new URL(window.location.href);
+        if (pagina > 1) url.searchParams.set("pagina", String(pagina));
+        else url.searchParams.delete("pagina");
+        return `${url.pathname}${url.search}`;
+    }
+
+    function actualizarBotonCarga(_hayMas, ocupado = false) {
+        if (!contenedorCargarMas) return;
+        const paginas = Math.max(1, Math.ceil(totalTalleres / TAMANO_PAGINA));
+        const actual = Math.floor(siguienteIndice / TAMANO_PAGINA) + 1;
+        const anteriorDeshabilitado = ocupado || actual <= 1;
+        const siguienteDeshabilitado = ocupado || actual >= paginas;
+        contenedorCargarMas.hidden = totalTalleres <= TAMANO_PAGINA;
+        contenedorCargarMas.classList.add("municipio-paginacion");
+        contenedorCargarMas.innerHTML = `
+            <a id="pagina-anterior-provincia" class="boton boton-claro${anteriorDeshabilitado ? " deshabilitado" : ""}"
+               aria-disabled="${anteriorDeshabilitado}" href="${escapar(urlPagina(Math.max(1, actual - 1)))}">← Anterior</a>
+            <span aria-live="polite">Página ${actual} de ${paginas}</span>
+            <a id="pagina-siguiente-provincia" class="boton${siguienteDeshabilitado ? " deshabilitado" : ""}"
+               aria-disabled="${siguienteDeshabilitado}" href="${escapar(urlPagina(Math.min(paginas, actual + 1)))}">Siguiente →</a>`;
+        contenedorCargarMas.querySelectorAll("a").forEach((enlace) => enlace.addEventListener("click", (evento) => {
+            evento.preventDefault();
+            if (enlace.getAttribute("aria-disabled") === "true") return;
+            const pagina = Number(new URL(enlace.href).searchParams.get("pagina")) || 1;
+            window.history.pushState({}, "", urlPagina(pagina));
+            siguienteIndice = (pagina - 1) * TAMANO_PAGINA;
+            cargarTalleres(false);
+            contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
+        }));
     }
 
     async function obtenerDatosLegados() {
@@ -262,7 +292,7 @@
     async function cargarTalleres(reiniciar = true) {
         if (cargando) return;
         if (reiniciar) {
-            siguienteIndice = 0;
+            siguienteIndice = (paginaSolicitada() - 1) * TAMANO_PAGINA;
             totalTalleres = 0;
             contenedor.innerHTML = `<p class="mensaje-talleres">Cargando talleres de la provincia de ${escapar(provinciaObjetivo)}…</p>`;
             actualizarBotonCarga(false);
@@ -295,13 +325,10 @@
 
             const conFotos = await adjuntarFotosFirmadas(talleres);
             const tarjetas = conFotos.map(tarjeta).join("");
-            if (reiniciar) contenedor.innerHTML = tarjetas;
-            else contenedor.insertAdjacentHTML("beforeend", tarjetas);
-
-            siguienteIndice += talleres.length;
+            contenedor.innerHTML = tarjetas;
             totalTalleres = total;
             if (estado) estado.textContent = `${totalTalleres} ${totalTalleres === 1 ? "taller" : "talleres"}`;
-            actualizarBotonCarga(siguienteIndice < totalTalleres);
+            actualizarBotonCarga(siguienteIndice + talleres.length < totalTalleres);
         } catch (error) {
             console.error("No se pudieron cargar los talleres de la provincia:", error);
             if (reiniciar) contenedor.innerHTML = '<p class="mensaje-talleres">No se pudieron cargar los talleres de la provincia.</p>';
@@ -312,6 +339,10 @@
         }
     }
 
-    botonCargarMas?.addEventListener("click", () => cargarTalleres(false));
+    botonCargarMas?.remove();
+    window.addEventListener("popstate", () => {
+        siguienteIndice = (paginaSolicitada() - 1) * TAMANO_PAGINA;
+        cargarTalleres(false);
+    });
     Promise.allSettled([cargarMunicipios(), cargarTalleres(true)]);
 }());

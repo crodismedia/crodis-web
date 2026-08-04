@@ -2,14 +2,18 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://www.tallermap.es/sitemap.xml</loc>
-    <lastmod>2026-08-02</lastmod>
+    <lastmod>2026-08-04</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://www.tallermap.es/servicios/sitemap.xml</loc>
-    <lastmod>2026-08-02</lastmod>
+    <lastmod>2026-08-04</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://www.tallermap.es/sitemap-provincias.xml</loc>
-    <lastmod>2026-08-02</lastmod>
+    <lastmod>2026-08-04</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.tallermap.es/sitemap-talleres.xml</loc>
+    <lastmod>2026-08-04</lastmod>
   </sitemap>
 </sitemapindex>

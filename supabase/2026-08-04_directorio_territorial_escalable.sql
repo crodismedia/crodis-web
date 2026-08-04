@@ -310,6 +310,58 @@ as $$
     limit 1;
 $$;
 
+create or replace function public.listar_talleres_sitemap()
+returns table (
+    slug text,
+    updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+    select t.slug, t.updated_at
+    from public.talleres t
+    where t.activo = true
+      and nullif(btrim(t.slug), '') is not null
+      and nullif(btrim(t.nombre), '') is not null
+      and nullif(btrim(t.ciudad), '') is not null
+    order by t.updated_at desc nulls last, t.slug;
+$$;
+
+create or replace function public.estadisticas_publicas()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+    select jsonb_build_object(
+        'talleres_activos', count(*),
+        'provincias_disponibles', (
+            select count(distinct codigo)
+            from (
+                select coalesce(
+                    nullif(left(t2.codigo_postal, 2), ''),
+                    public.directorio_codigo_provincia(t2.provincia)
+                ) as codigo
+                from public.talleres t2
+                where t2.activo = true
+            ) provincias
+            where codigo in ('03', '12', '46')
+        ),
+        'servicios_disponibles', (
+            select count(distinct s.servicio)
+            from public.talleres ts
+            cross join lateral unnest(coalesce(ts.servicios, '{}'::text[])) as s(servicio)
+            where ts.activo = true
+              and nullif(btrim(s.servicio), '') is not null
+        )
+    )
+    from public.talleres t
+    where t.activo = true;
+$$;
+
 revoke all on function public.directorio_normalizar(text) from public;
 revoke all on function public.directorio_slug(text) from public;
 revoke all on function public.directorio_codigo_provincia(text) from public;
@@ -317,11 +369,15 @@ revoke all on function public.listar_municipios_publicos(text) from public;
 revoke all on function public.buscar_talleres_provincia(text, integer, integer) from public;
 revoke all on function public.buscar_talleres_municipio(text, text, integer, integer) from public;
 revoke all on function public.obtener_taller_publico(uuid, text) from public;
+revoke all on function public.listar_talleres_sitemap() from public;
+revoke all on function public.estadisticas_publicas() from public;
 
 grant execute on function public.listar_municipios_publicos(text) to anon, authenticated;
 grant execute on function public.buscar_talleres_provincia(text, integer, integer) to anon, authenticated;
 grant execute on function public.buscar_talleres_municipio(text, text, integer, integer) to anon, authenticated;
 grant execute on function public.obtener_taller_publico(uuid, text) to anon, authenticated;
+grant execute on function public.listar_talleres_sitemap() to anon, authenticated;
+grant execute on function public.estadisticas_publicas() to anon, authenticated;
 
 commit;
 
@@ -329,3 +385,4 @@ commit;
 -- select * from public.listar_municipios_publicos('Castellón');
 -- select * from public.buscar_talleres_provincia('Valencia', 0, 30);
 -- select * from public.buscar_talleres_municipio('46230', '', 0, 30);
+-- select * from public.listar_talleres_sitemap();

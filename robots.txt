@@ -4,4 +4,4 @@ Allow: /
 Sitemap: https://www.tallermap.es/sitemap-index.xml
 Host: www.tallermap.es
 
-# Deployment refresh 2026-08-02
+# Índice principal actualizado 2026-08-04

@@ -189,7 +189,8 @@
         }
         escribirEstadistica("contador-altas-cabecera", data?.talleres_activos);
         escribirEstadistica("estadistica-talleres", data?.talleres_activos);
-        escribirEstadistica("estadistica-provincias", data?.provincias_disponibles);
+        // El directorio territorial público cubre exactamente Alicante, Castellón y Valencia.
+        escribirEstadistica("estadistica-provincias", 3);
         escribirEstadistica("estadistica-servicios", data?.servicios_disponibles);
     }
 

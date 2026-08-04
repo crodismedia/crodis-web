@@ -153,6 +153,13 @@
     display: none;
 }
 
+.municipio-paginacion .deshabilitado,
+.municipio-paginacion [aria-disabled="true"] {
+    opacity: .5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
     .municipio-hero-grid,
     .municipio-info-grid,
