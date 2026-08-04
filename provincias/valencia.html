@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Talleres mecánicos en la provincia de Valencia | TallerMap</title>
-    <meta name="description" content="Consulta talleres mecánicos publicados en toda la provincia de Valencia, ordenados por municipio.">
+    <meta name="description" content="Consulta talleres mecánicos en Valencia por municipio y accede a sus fichas públicas en TallerMap.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://www.tallermap.es/provincias/valencia.html">
     <link rel="stylesheet" href="../css/estilo.css">
+    <link rel="stylesheet" href="../css/municipios.css">
 </head>
 <body>
 <header class="cabecera">
@@ -20,18 +21,33 @@
     </div>
 </header>
 <main>
+    <section class="seccion">
+        <div class="contenedor">
+            <div class="titulo-seccion">
+                <span>Directorio municipal de Valencia</span>
+                <h1>Talleres mecánicos por municipio en Valencia</h1>
+                <p>Selecciona un municipio para consultar sus talleres publicados, ordenados alfabéticamente y paginados de 30 en 30.</p>
+            </div>
+            <ul id="lista-municipios-provincia" class="lista-municipios" aria-live="polite">
+                <li class="mensaje-talleres">Calculando talleres por municipio…</li>
+            </ul>
+        </div>
+    </section>
     <section class="seccion seccion-gris">
         <div class="contenedor">
             <div class="cabecera-seccion">
                 <div class="titulo-seccion alineado-izquierda">
                     <span>Provincia de Valencia</span>
-                    <h1>Talleres mecánicos en toda la provincia de Valencia</h1>
-                    <p>Consulta talleres publicados en Valencia capital, Silla, Torrent, Gandía, Sagunto, Paterna y el resto de municipios de la provincia.</p>
+                    <h2>Todos los talleres de la provincia de Valencia</h2>
+                    <p>Listado general conservado y ordenado alfabéticamente por nombre.</p>
                 </div>
                 <span id="estado-provincia" class="orden-talleres mapa-estado" aria-live="polite">Cargando…</span>
             </div>
             <div id="lista-talleres-provincia" class="talleres-grid" data-provincia="Valencia" aria-live="polite">
                 <p class="mensaje-talleres">Cargando talleres de la provincia de Valencia…</p>
+            </div>
+            <div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor" hidden>
+                <button id="boton-cargar-mas-provincia" class="boton" type="button">Cargar más talleres</button>
             </div>
         </div>
     </section>

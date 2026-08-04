@@ -83,6 +83,36 @@
         return `<p class="ubicacion"><strong>A ${texto} km de tu ubicación</strong></p>`;
     }
 
+    function slugTaller(taller) {
+        if (taller.slug) return String(taller.slug);
+        const base = `${taller.nombre || "taller"}-${taller.ciudad || ""}`
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[’']/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+        return taller.id ? `${base}-${String(taller.id).slice(0, 8)}` : base;
+    }
+
+    function urlFicha(taller) {
+        const parametros = new URLSearchParams({
+            id: taller.id || "",
+            slug: slugTaller(taller),
+            nombre: taller.nombre || taller.nombre_taller || "Taller",
+            direccion: [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).join(", ")
+        });
+        if (taller.telefono) parametros.set("telefono", taller.telefono);
+        if (taller.web) parametros.set("web", taller.web);
+        if (taller.descripcion) parametros.set("descripcion", taller.descripcion);
+        if (taller.verificado) parametros.set("verificado", "true");
+        if (taller.updated_at) parametros.set("actualizado", taller.updated_at);
+        if (Array.isArray(taller.servicios) && taller.servicios.length) {
+            parametros.set("servicios", taller.servicios.join("|"));
+        }
+        return `pages/taller.html?${parametros.toString()}`;
+    }
+
     function crearTarjetaTaller(taller) {
         const nombre = escaparHTML(taller.nombre || taller.nombre_taller || "Taller sin nombre");
         const ciudad = escaparHTML(taller.ciudad || "");
@@ -109,6 +139,7 @@
         if (web) {
             enlaces.push(`<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
         }
+        enlaces.push(`<a href="${escaparHTML(urlFicha(taller))}">Ver ficha</a>`);
         const contacto = enlaces.length
             ? `<span class="taller-contactos">${enlaces.join("")}</span>`
             : "<span>Sin contacto publicado</span>";

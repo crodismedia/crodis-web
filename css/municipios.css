@@ -142,6 +142,17 @@
     font-variant-numeric: tabular-nums;
 }
 
+.cargar-mas-contenedor.municipio-paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+}
+
+.cargar-mas-contenedor.municipio-paginacion[hidden] {
+    display: none;
+}
+
 @media (max-width: 900px) {
     .municipio-hero-grid,
     .municipio-info-grid,

@@ -11,7 +11,7 @@
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../css/estilo.css">
     <style>
-        .ficha-publica{max-width:920px;margin:48px auto;padding:0 20px}.ficha-publica article{background:#fff;border-radius:18px;padding:32px;box-shadow:0 12px 35px rgba(0,0,0,.08)}.ficha-publica h1{margin:0 0 12px}.ficha-publica-direccion{font-size:1.08rem}.ficha-publica-acciones,.ficha-publica-gestion{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.ficha-publica-datos{display:grid;gap:12px;margin-top:24px}.ficha-publica-volver{display:inline-block;margin-bottom:18px}.ficha-publica .especialidades{margin-top:18px}.ficha-estado{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}.ficha-insignia{display:inline-flex;align-items:center;padding:7px 11px;border-radius:999px;font-weight:800;font-size:.88rem;background:#fff4d8;color:#725100}.ficha-insignia.verificada{background:#e7f8ed;color:#126534}.ficha-fecha{font-size:.92rem;color:#5b6470}.ficha-aviso{padding:16px;border-radius:12px;background:#f5f7fa;color:#384250}.ficha-publica-gestion{padding-top:22px;border-top:1px solid #e6e9ee}.ficha-publica-gestion .boton{flex:1 1 220px;text-align:center}@media(max-width:600px){.ficha-publica article{padding:22px}.ficha-publica-acciones .boton,.ficha-publica-gestion .boton{width:100%}}
+        .ficha-publica{max-width:920px;margin:48px auto;padding:0 20px}.ficha-publica article{background:#fff;border-radius:18px;padding:32px;box-shadow:0 12px 35px rgba(0,0,0,.08)}.ficha-publica h1{margin:0 0 12px}.ficha-publica-direccion{font-size:1.08rem}.ficha-publica-acciones,.ficha-publica-gestion{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.ficha-publica-datos{display:grid;gap:12px;margin-top:24px}.ficha-publica-volver{display:inline-block;margin-bottom:18px}.ficha-publica .especialidades{margin-top:18px}.ficha-estado{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}.ficha-insignia{display:inline-flex;align-items:center;padding:7px 11px;border-radius:999px;font-weight:800;font-size:.88rem;background:#fff4d8;color:#725100}.ficha-insignia.verificada{background:#e7f8ed;color:#126534}.ficha-fecha{font-size:.92rem;color:#5b6470}.ficha-aviso{padding:16px;border-radius:12px;background:#f5f7fa;color:#384250}.ficha-publica-gestion{padding-top:22px;border-top:1px solid #e6e9ee}.ficha-publica-gestion .boton{flex:1 1 220px;text-align:center}.ficha-publica-foto{margin:20px 0;border-radius:16px;overflow:hidden;background:#eef2f4}.ficha-publica-foto img{display:block;width:100%;max-height:440px;object-fit:cover}@media(max-width:600px){.ficha-publica article{padding:22px}.ficha-publica-acciones .boton,.ficha-publica-gestion .boton{width:100%}}
     </style>
     <script type="application/ld+json" id="datos-estructurados-taller">{"@context":"https://schema.org","@type":"AutoRepair","name":"Taller publicado en TallerMap"}</script>
 </head>
@@ -31,6 +31,7 @@
         <span class="etiqueta">Ficha pública de TallerMap</span>
         <h1 id="taller-nombre">Ficha de taller</h1>
         <p id="taller-direccion" class="ficha-publica-direccion"></p>
+        <div id="taller-foto" class="ficha-publica-foto" hidden><img id="taller-foto-imagen" src="" alt=""></div>
         <div class="ficha-estado">
             <span id="taller-verificacion" class="ficha-insignia">Datos pendientes de verificar</span>
             <span id="taller-actualizacion" class="ficha-fecha"></span>
@@ -47,6 +48,7 @@
     </article>
 </main>
 <footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap</span><span>Una plataforma de CRODIS Media</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/taller.js"></script>
 </body>
 </html>

@@ -3,7 +3,15 @@
 
     const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
     const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
-    const TAMANO_PAGINA = 100;
+    const TAMANO_PAGINA = 30;
+    const TAMANO_LOTE_LEGADO = 100;
+    const PREFIJOS_PROVINCIA = {
+        alicante: "03",
+        alacant: "03",
+        castellon: "12",
+        castello: "12",
+        valencia: "46"
+    };
 
     if (!window.supabase?.createClient) return;
 
@@ -13,6 +21,13 @@
 
     const provinciaObjetivo = String(contenedor.dataset.provincia || "").trim();
     const estado = document.getElementById("estado-provincia");
+    const listaMunicipios = document.getElementById("lista-municipios-provincia");
+    const botonCargarMas = document.getElementById("boton-cargar-mas-provincia");
+    const contenedorCargarMas = document.getElementById("contenedor-cargar-mas-provincia");
+    let siguienteIndice = 0;
+    let totalTalleres = 0;
+    let cargando = false;
+    let datosLegadosPromesa = null;
 
     function normalizar(valor) {
         return String(valor || "")
@@ -20,6 +35,7 @@
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
             .trim();
     }
 
@@ -39,64 +55,97 @@
         }
     }
 
-    function coincideProvincia(valor) {
-        const provincia = normalizar(valor);
-        const objetivo = normalizar(provinciaObjetivo);
-        if (!provincia || !objetivo) return false;
-        return provincia === objetivo || provincia.includes(objetivo) || objetivo.includes(provincia);
+    function codigoProvincia() {
+        const provincia = normalizar(provinciaObjetivo);
+        const clave = Object.keys(PREFIJOS_PROVINCIA).find((nombre) => provincia.includes(nombre));
+        return clave ? PREFIJOS_PROVINCIA[clave] : "";
     }
 
-    function obtenerImagen(taller) {
-        const principal = urlSegura(taller.imagen_url);
-        if (principal) return { url: principal, tipo: taller.imagen_tipo || "real" };
+    function coincideProvincia(taller) {
+        const prefijo = codigoProvincia();
+        const codigoPostal = String(taller.codigo_postal || "");
+        if (prefijo && codigoPostal.startsWith(prefijo)) return true;
 
-        if (Array.isArray(taller.fotos)) {
-            const primera = taller.fotos.map(urlSegura).find(Boolean);
-            if (primera) return { url: primera, tipo: "real" };
-        }
-
-        return { url: "", tipo: "" };
+        const provincia = normalizar(taller.provincia);
+        if (!provincia) return false;
+        if (prefijo === "03") return provincia.includes("alicante") || provincia.includes("alacant");
+        if (prefijo === "12") return provincia.includes("castellon") || provincia.includes("castello");
+        if (prefijo === "46") return provincia.includes("valencia");
+        return provincia === normalizar(provinciaObjetivo);
     }
 
-    function crearImagenHtml(taller, nombre) {
-        const imagen = obtenerImagen(taller);
-        const estadoTaller = taller.verificado ? "✓ Verificado" : "Publicado";
+    function slugMunicipio(nombre) {
+        return String(nombre || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[’']/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .replace(/-+/g, "-");
+    }
 
-        if (!imagen.url) {
-            return `<div class="taller-imagen taller-imagen-1"><span class="verificado">${estadoTaller}</span></div>`;
+    function slugTaller(taller) {
+        if (taller.slug) return String(taller.slug);
+        const base = slugMunicipio(`${taller.nombre || "taller"}-${taller.ciudad || ""}`);
+        return taller.id ? `${base}-${String(taller.id).slice(0, 8)}` : base;
+    }
+
+    function urlFicha(taller) {
+        const parametros = new URLSearchParams({
+            id: taller.id || "",
+            slug: slugTaller(taller),
+            nombre: taller.nombre || taller.nombre_taller || "Taller",
+            direccion: [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).join(", ")
+        });
+        if (taller.telefono) parametros.set("telefono", taller.telefono);
+        if (taller.web) parametros.set("web", taller.web);
+        if (taller.descripcion) parametros.set("descripcion", taller.descripcion);
+        if (taller.verificado) parametros.set("verificado", "true");
+        if (taller.updated_at) parametros.set("actualizado", taller.updated_at);
+        if (Array.isArray(taller.servicios) && taller.servicios.length) {
+            parametros.set("servicios", taller.servicios.join("|"));
         }
+        return `../pages/taller.html?${parametros.toString()}`;
+    }
 
-        const aviso = imagen.tipo === "generica"
-            ? `<span style="position:absolute;right:8px;bottom:8px;z-index:2;padding:5px 9px;border-radius:6px;background:rgba(0,0,0,.72);color:#fff;font-size:12px;line-height:1.2">Imagen representativa</span>`
-            : "";
+    async function adjuntarFotosFirmadas(talleres) {
+        const rutas = [...new Set(talleres
+            .map((taller) => Array.isArray(taller.fotos) ? taller.fotos[0] : "")
+            .filter((ruta) => ruta && !urlSegura(ruta)))];
+        if (!rutas.length || !cliente.storage?.from) return talleres;
 
-        return `<div class="taller-imagen taller-imagen-real" style="position:relative;width:100%;height:190px;overflow:hidden;background:#e5e7eb">
-            <img src="${escapar(imagen.url)}" alt="Imagen de ${nombre}" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentElement.classList.add('taller-imagen-1')">
-            <span class="verificado">${estadoTaller}</span>
-            ${aviso}
+        const { data, error } = await cliente.storage
+            .from("fotos-talleres")
+            .createSignedUrls(rutas, 3600);
+        if (error) return talleres;
+
+        const porRuta = new Map((data || []).map((foto) => [foto.path, foto.signedUrl || foto.signedURL || ""]));
+        return talleres.map((taller) => {
+            const primera = Array.isArray(taller.fotos) ? taller.fotos[0] : "";
+            return { ...taller, fotoFirmada: urlSegura(primera) || porRuta.get(primera) || "" };
+        });
+    }
+
+    function imagenHtml(taller, nombre) {
+        const imagen = urlSegura(taller.imagen_url) || urlSegura(taller.fotoFirmada)
+            || (Array.isArray(taller.fotos) ? taller.fotos.map(urlSegura).find(Boolean) : "");
+        const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
+        return `<div class="taller-imagen ${imagen ? "taller-imagen-real" : "taller-imagen-1"}"${imagen ? ' style="position:relative;width:100%;height:190px;overflow:hidden;background:#e5e7eb"' : ""}>
+            ${imagen ? `<img src="${escapar(imagen)}" alt="Imagen de ${nombre}" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover">` : ""}
+            <span class="verificado">${distintivo}</span>
         </div>`;
     }
 
     function tarjeta(taller) {
         const nombre = escapar(taller.nombre || taller.nombre_taller || "Taller sin nombre");
-        const direccion = escapar(taller.direccion || "");
-        const ciudad = escapar(taller.ciudad || "");
-        const provincia = escapar(taller.provincia || provinciaObjetivo);
-        const ubicacion = [direccion, ciudad, provincia].filter(Boolean).join(", ");
+        const ubicacion = [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).map(escapar).join(", ");
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = urlSegura(taller.web);
         const servicios = Array.isArray(taller.servicios) ? taller.servicios.slice(0, 4) : [];
-        const parametros = new URLSearchParams({
-            nombre: taller.nombre || taller.nombre_taller || "Taller",
-            direccion: [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).join(", ")
-        });
-
-        if (telefono) parametros.set("telefono", telefono);
-        if (web) parametros.set("web", web);
-        if (servicios.length) parametros.set("servicios", servicios.join("|"));
 
         return `<article class="taller-card">
-            ${crearImagenHtml(taller, nombre)}
+            ${imagenHtml(taller, nombre)}
             <div class="taller-informacion">
                 <h3>${nombre}</h3>
                 <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
@@ -105,60 +154,164 @@
                     <span class="abierto">● Disponible</span>
                     <span class="taller-contactos">
                         ${telefono ? `<a href="tel:${escapar(telefono)}">Llamar</a>` : ""}
-                        <a href="../pages/taller.html?${parametros.toString()}">Ver ficha</a>
+                        ${web ? `<a href="${escapar(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ""}
+                        <a href="${escapar(urlFicha(taller))}">Ver ficha</a>
                     </span>
                 </div>
             </div>
         </article>`;
     }
 
-    async function cargar() {
-        contenedor.innerHTML = `<p class="mensaje-talleres">Cargando talleres de la provincia de ${escapar(provinciaObjetivo)}…</p>`;
-        const encontrados = [];
-        let desde = 0;
-        let total = Infinity;
+    function actualizarBotonCarga(hayMas, ocupado = false) {
+        if (!contenedorCargarMas || !botonCargarMas) return;
+        contenedorCargarMas.hidden = !hayMas;
+        botonCargarMas.disabled = ocupado;
+        botonCargarMas.textContent = ocupado ? "Cargando talleres…" : "Cargar más talleres";
+    }
 
-        try {
+    async function obtenerDatosLegados() {
+        if (datosLegadosPromesa) return datosLegadosPromesa;
+        datosLegadosPromesa = (async () => {
+            const encontrados = [];
+            let desde = 0;
+            let total = Infinity;
             while (desde < total && desde < 10000) {
                 const { data, error } = await cliente.rpc("buscar_talleres_publicos", {
                     p_poblacion: "",
                     p_servicio: "",
                     p_desde: desde,
-                    p_limite: TAMANO_PAGINA
+                    p_limite: TAMANO_LOTE_LEGADO
                 });
-
                 if (error) throw error;
                 const lote = Array.isArray(data) ? data : [];
                 if (!lote.length) break;
-
-                encontrados.push(...lote.filter((taller) => coincideProvincia(taller.provincia)));
+                encontrados.push(...lote.filter(coincideProvincia));
                 const informado = Number(lote[0]?.total_resultados);
                 total = Number.isFinite(informado) ? informado : desde + lote.length;
                 desde += lote.length;
-                if (lote.length < TAMANO_PAGINA) break;
+                if (lote.length < TAMANO_LOTE_LEGADO) break;
+            }
+            return encontrados.sort((a, b) =>
+                String(a.nombre || "").localeCompare(String(b.nombre || ""), "es", { sensitivity: "base" })
+            );
+        })();
+        return datosLegadosPromesa;
+    }
+
+    async function municipiosLegados() {
+        const prefijo = codigoProvincia();
+        const [{ data, error }, talleres] = await Promise.all([
+            cliente.from("municipios").select("codigo_municipal,nombre").eq("activo", true).order("nombre"),
+            obtenerDatosLegados()
+        ]);
+        if (error) throw error;
+
+        const catalogo = (data || []).filter((municipio) =>
+            String(municipio.codigo_municipal || "").startsWith(prefijo)
+        );
+        return catalogo.map((municipio) => {
+            const alias = String(municipio.nombre || "").split("/").map(normalizar);
+            const ids = new Set(talleres
+                .filter((taller) => alias.includes(normalizar(taller.ciudad)))
+                .map((taller) => taller.id || `${taller.nombre}-${taller.direccion}`));
+            return {
+                codigo_municipal: municipio.codigo_municipal,
+                municipio: municipio.nombre,
+                total_talleres: ids.size
+            };
+        }).filter((municipio) => municipio.total_talleres > 0);
+    }
+
+    function mostrarMunicipios(municipios) {
+        if (!listaMunicipios) return;
+        if (!municipios.length) {
+            listaMunicipios.innerHTML = '<li class="mensaje-talleres">No hay municipios con talleres publicados.</li>';
+            return;
+        }
+        listaMunicipios.innerHTML = municipios
+            .sort((a, b) => String(a.municipio).localeCompare(String(b.municipio), "es", { sensitivity: "base" }))
+            .map((municipio) => {
+                const total = Number(municipio.total_talleres) || 0;
+                const archivo = `${slugMunicipio(municipio.municipio)}-${municipio.codigo_municipal}.html`;
+                return `<li data-nombre="${escapar(normalizar(municipio.municipio))}">
+                    <a href="../municipios/${escapar(archivo)}">
+                        <strong>${escapar(municipio.municipio)}</strong>
+                        <span>${total} ${total === 1 ? "taller" : "talleres"}</span>
+                    </a>
+                </li>`;
+            }).join("");
+    }
+
+    async function cargarMunicipios() {
+        if (!listaMunicipios) return;
+        listaMunicipios.innerHTML = '<li class="mensaje-talleres">Calculando talleres por municipio…</li>';
+        try {
+            let municipios = [];
+            const { data, error } = await cliente.rpc("listar_municipios_publicos", {
+                p_provincia: provinciaObjetivo
+            });
+            if (!error) municipios = Array.isArray(data) ? data : [];
+            else municipios = await municipiosLegados();
+            mostrarMunicipios(municipios);
+        } catch (error) {
+            console.error("No se pudieron cargar los municipios de la provincia:", error);
+            listaMunicipios.innerHTML = '<li class="mensaje-talleres">No se pudo cargar el directorio municipal en este momento.</li>';
+        }
+    }
+
+    async function cargarTalleres(reiniciar = true) {
+        if (cargando) return;
+        if (reiniciar) {
+            siguienteIndice = 0;
+            totalTalleres = 0;
+            contenedor.innerHTML = `<p class="mensaje-talleres">Cargando talleres de la provincia de ${escapar(provinciaObjetivo)}…</p>`;
+            actualizarBotonCarga(false);
+        }
+
+        cargando = true;
+        if (!reiniciar) actualizarBotonCarga(true, true);
+        try {
+            let talleres;
+            let total;
+            const { data, error } = await cliente.rpc("buscar_talleres_provincia", {
+                p_provincia: provinciaObjetivo,
+                p_desde: siguienteIndice,
+                p_limite: TAMANO_PAGINA
+            });
+            if (!error) {
+                talleres = Array.isArray(data) ? data : [];
+                total = Number(talleres[0]?.total_resultados) || 0;
+            } else {
+                const legados = await obtenerDatosLegados();
+                total = legados.length;
+                talleres = legados.slice(siguienteIndice, siguienteIndice + TAMANO_PAGINA);
             }
 
-            encontrados.sort((a, b) => {
-                const nombreA = String(a.nombre || a.nombre_taller || "Taller sin nombre");
-                const nombreB = String(b.nombre || b.nombre_taller || "Taller sin nombre");
-                const porNombre = nombreA.localeCompare(nombreB, "es", { sensitivity: "base" });
-                return porNombre || String(a.ciudad || "").localeCompare(String(b.ciudad || ""), "es", { sensitivity: "base" });
-            });
-
-            if (!encontrados.length) {
-                contenedor.innerHTML = `<p class="mensaje-talleres">Todavía no hay talleres publicados con la provincia ${escapar(provinciaObjetivo)}.</p>`;
+            if (!talleres.length && reiniciar) {
+                contenedor.innerHTML = `<p class="mensaje-talleres">Todavía no hay talleres publicados en ${escapar(provinciaObjetivo)}.</p>`;
                 if (estado) estado.textContent = "0 talleres";
                 return;
             }
 
-            contenedor.innerHTML = encontrados.map(tarjeta).join("");
-            if (estado) estado.textContent = `${encontrados.length} ${encontrados.length === 1 ? "taller" : "talleres"}`;
+            const conFotos = await adjuntarFotosFirmadas(talleres);
+            const tarjetas = conFotos.map(tarjeta).join("");
+            if (reiniciar) contenedor.innerHTML = tarjetas;
+            else contenedor.insertAdjacentHTML("beforeend", tarjetas);
+
+            siguienteIndice += talleres.length;
+            totalTalleres = total;
+            if (estado) estado.textContent = `${totalTalleres} ${totalTalleres === 1 ? "taller" : "talleres"}`;
+            actualizarBotonCarga(siguienteIndice < totalTalleres);
         } catch (error) {
             console.error("No se pudieron cargar los talleres de la provincia:", error);
-            contenedor.innerHTML = `<p class="mensaje-talleres">No se pudieron cargar los talleres de la provincia. Inténtalo de nuevo más tarde.</p>`;
+            if (reiniciar) contenedor.innerHTML = '<p class="mensaje-talleres">No se pudieron cargar los talleres de la provincia.</p>';
             if (estado) estado.textContent = "Error de carga";
+            actualizarBotonCarga(false);
+        } finally {
+            cargando = false;
         }
     }
 
-    cargar();
+    botonCargarMas?.addEventListener("click", () => cargarTalleres(false));
+    Promise.allSettled([cargarMunicipios(), cargarTalleres(true)]);
 }());

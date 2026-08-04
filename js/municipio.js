@@ -16,6 +16,7 @@
     let totalWorkshops = 0;
     let loading = false;
     let selectedService = "";
+    let legacyWorkshopsPromise = null;
 
     function escapeHTML(value) {
         const element = document.createElement("div");
@@ -47,6 +48,46 @@
             .map((part) => safeTerm(part))
             .filter(Boolean);
         return [...new Set(aliases.length ? aliases : [safeTerm(name)])];
+    }
+
+    function normalizeText(value) {
+        return String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function workshopSlug(workshop) {
+        if (workshop.slug) return String(workshop.slug);
+        const base = `${workshop.nombre || "taller"}-${workshop.ciudad || ""}`
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[’']/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+        return workshop.id ? `${base}-${String(workshop.id).slice(0, 8)}` : base;
+    }
+
+    function workshopPageURL(workshop) {
+        const parameters = new URLSearchParams({
+            id: workshop.id || "",
+            slug: workshopSlug(workshop),
+            nombre: workshop.nombre || workshop.nombre_taller || "Taller",
+            direccion: [workshop.direccion, workshop.ciudad, workshop.provincia].filter(Boolean).join(", ")
+        });
+        if (workshop.telefono) parameters.set("telefono", workshop.telefono);
+        if (workshop.web) parameters.set("web", workshop.web);
+        if (workshop.descripcion) parameters.set("descripcion", workshop.descripcion);
+        if (workshop.verificado) parameters.set("verificado", "true");
+        if (workshop.updated_at) parameters.set("actualizado", workshop.updated_at);
+        if (Array.isArray(workshop.servicios) && workshop.servicios.length) {
+            parameters.set("servicios", workshop.servicios.join("|"));
+        }
+        return `../pages/taller.html?${parameters.toString()}`;
     }
 
     function scheduleHTML(schedule) {
@@ -84,6 +125,7 @@
         const links = [];
         if (phone) links.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
         if (web) links.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        links.push(`<a href="${escapeHTML(workshopPageURL(workshop))}">Ver ficha</a>`);
 
         return `
             <article class="taller-card">
@@ -132,13 +174,58 @@
         if (status) status.textContent = message;
     }
 
-    function setLoadMore(show, busy = false) {
+    function setPagination(busy = false) {
         const wrapper = document.getElementById("contenedor-cargar-mas");
-        const button = document.getElementById("boton-cargar-mas");
-        if (!wrapper || !button) return;
-        wrapper.hidden = !show;
-        button.disabled = busy;
-        button.textContent = busy ? "Cargando talleres…" : "Cargar más talleres";
+        const previous = document.getElementById("boton-pagina-anterior");
+        const next = document.getElementById("boton-pagina-siguiente");
+        const page = document.getElementById("estado-paginacion");
+        if (!wrapper || !previous || !next || !page) return;
+        const totalPages = Math.max(1, Math.ceil(totalWorkshops / PAGE_SIZE));
+        const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
+        wrapper.hidden = totalWorkshops <= PAGE_SIZE;
+        previous.disabled = busy || offset <= 0;
+        next.disabled = busy || offset + PAGE_SIZE >= totalWorkshops;
+        page.textContent = `Página ${currentPage} de ${totalPages}`;
+    }
+
+    async function loadLegacyWorkshops(municipality, aliases) {
+        if (legacyWorkshopsPromise) return legacyWorkshopsPromise;
+        legacyWorkshopsPromise = (async () => {
+            const byId = new Map();
+            for (const alias of aliases) {
+                let from = 0;
+                let total = Infinity;
+                while (from < total && from < 10000) {
+                    const { data, error } = await client.rpc("buscar_talleres_publicos", {
+                        p_poblacion: alias,
+                        p_servicio: selectedService,
+                        p_desde: from,
+                        p_limite: 100
+                    });
+                    if (error) throw error;
+                    const batch = Array.isArray(data) ? data : [];
+                    if (!batch.length) break;
+                    batch.forEach((workshop) => {
+                        const key = workshop.id || `${workshop.nombre}-${workshop.direccion}`;
+                        byId.set(key, workshop);
+                    });
+                    const reported = Number(batch[0]?.total_resultados);
+                    total = Number.isFinite(reported) ? reported : from + batch.length;
+                    from += batch.length;
+                    if (batch.length < 100) break;
+                }
+            }
+
+            const normalizedAliases = municipalityAliases(municipality).map(normalizeText);
+            return [...byId.values()]
+                .filter((workshop) => normalizedAliases.includes(normalizeText(workshop.ciudad)))
+                .sort((a, b) => String(a.nombre || "").localeCompare(
+                    String(b.nombre || ""),
+                    "es",
+                    { sensitivity: "base" }
+                ));
+        })();
+        return legacyWorkshopsPromise;
     }
 
     async function loadWorkshops(reset = true) {
@@ -146,25 +233,34 @@
         if (!container || loading) return;
 
         const municipality = container.dataset.municipio || "";
+        const municipalityCode = container.dataset.codigoMunicipal || "";
         const aliases = municipalityAliases(municipality);
         if (reset) {
             offset = 0;
             totalWorkshops = 0;
+            legacyWorkshopsPromise = null;
             container.innerHTML = `<p class="mensaje-talleres">Cargando talleres de ${escapeHTML(municipality)}…</p>`;
-            setLoadMore(false);
+            setPagination(true);
         }
 
         loading = true;
-        if (!reset) setLoadMore(true, true);
+        setPagination(true);
 
         try {
-            const { data, error } = await client.rpc("buscar_talleres_publicos", {
-                p_poblacion: aliases.join("|"),
+            const { data: directoryData, error: directoryError } = await client.rpc("buscar_talleres_municipio", {
+                p_codigo_municipal: municipalityCode,
                 p_servicio: selectedService,
                 p_desde: offset,
                 p_limite: PAGE_SIZE
             });
-            if (error) throw error;
+            let data;
+            if (!directoryError) {
+                data = Array.isArray(directoryData) ? directoryData : [];
+            } else {
+                const legacy = await loadLegacyWorkshops(municipality, aliases);
+                data = legacy.slice(offset, offset + PAGE_SIZE);
+                if (data.length) data[0] = { ...data[0], total_resultados: legacy.length };
+            }
 
             if (!data?.length && reset) {
                 container.innerHTML = `
@@ -175,33 +271,30 @@
                     </div>
                 `;
                 setStatus("0 talleres publicados");
-                setLoadMore(false);
+                setPagination(false);
                 return;
             }
             if (!data?.length) {
-                setLoadMore(false);
+                setPagination(false);
                 return;
             }
 
             const withPhotos = await signedPhotos(data || []);
             const cards = withPhotos.map(cardHTML).join("");
-            if (reset) container.innerHTML = cards;
-            else container.insertAdjacentHTML("beforeend", cards);
+            container.innerHTML = cards;
 
-            offset += data.length;
             const totalReported = Number(data[0]?.total_resultados);
             if (Number.isFinite(totalReported)) totalWorkshops = totalReported;
-            else totalWorkshops = Math.max(totalWorkshops, offset);
-            const more = offset < totalWorkshops;
+            else totalWorkshops = Math.max(totalWorkshops, offset + data.length);
             setStatus(`${totalWorkshops} ${totalWorkshops === 1 ? "taller publicado" : "talleres publicados"}`);
-            setLoadMore(more);
+            setPagination(false);
         } catch (error) {
             console.error("No se pudieron cargar los talleres del municipio:", error);
             if (reset) {
                 container.innerHTML = "<p class=\"mensaje-talleres\">No se pudieron cargar los talleres en este momento.</p>";
             }
             setStatus("Error al cargar");
-            setLoadMore(false);
+            setPagination(false);
         } finally {
             loading = false;
         }
@@ -210,7 +303,17 @@
     function init() {
         const form = document.getElementById("buscador-municipio");
         const service = document.getElementById("servicio");
-        const moreButton = document.getElementById("boton-cargar-mas");
+        const pagination = document.getElementById("contenedor-cargar-mas");
+        if (pagination) {
+            pagination.classList.add("municipio-paginacion");
+            pagination.innerHTML = `
+                <button id="boton-pagina-anterior" class="boton boton-claro" type="button">← Anterior</button>
+                <span id="estado-paginacion" aria-live="polite">Página 1 de 1</span>
+                <button id="boton-pagina-siguiente" class="boton" type="button">Siguiente →</button>
+            `;
+        }
+        const previousButton = document.getElementById("boton-pagina-anterior");
+        const nextButton = document.getElementById("boton-pagina-siguiente");
 
         form?.addEventListener("submit", (event) => {
             event.preventDefault();
@@ -219,7 +322,17 @@
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
 
-        moreButton?.addEventListener("click", () => loadWorkshops(false));
+        previousButton?.addEventListener("click", () => {
+            offset = Math.max(0, offset - PAGE_SIZE);
+            loadWorkshops(false);
+            document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
+        });
+        nextButton?.addEventListener("click", () => {
+            if (offset + PAGE_SIZE >= totalWorkshops) return;
+            offset += PAGE_SIZE;
+            loadWorkshops(false);
+            document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
+        });
         loadWorkshops(true);
     }
 
