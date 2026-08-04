@@ -23,6 +23,13 @@
     min-width: 0;
 }
 
+/* Oculta el enlace antiguo de texto “Ver ficha”.
+   El botón azul .enlace-ficha-taller permanece visible. */
+.taller-card .taller-contactos a[href*="pages/taller.html"],
+.taller-card .taller-contactos a[href*="/taller.html"] {
+    display: none !important;
+}
+
 .taller-card .taller-contactos a,
 .taller-card .enlace-ficha-taller,
 .taller-card .enlace-google-maps {
