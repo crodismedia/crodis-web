@@ -73,21 +73,8 @@
     }
 
     function workshopPageURL(workshop) {
-        const parameters = new URLSearchParams({
-            id: workshop.id || "",
-            slug: workshopSlug(workshop),
-            nombre: workshop.nombre || workshop.nombre_taller || "Taller",
-            direccion: [workshop.direccion, workshop.ciudad, workshop.provincia].filter(Boolean).join(", ")
-        });
-        if (workshop.telefono) parameters.set("telefono", workshop.telefono);
-        if (workshop.web) parameters.set("web", workshop.web);
-        if (workshop.descripcion) parameters.set("descripcion", workshop.descripcion);
-        if (workshop.verificado) parameters.set("verificado", "true");
-        if (workshop.updated_at) parameters.set("actualizado", workshop.updated_at);
-        if (Array.isArray(workshop.servicios) && workshop.servicios.length) {
-            parameters.set("servicios", workshop.servicios.join("|"));
-        }
-        return `../pages/taller.html?${parameters.toString()}`;
+        const slug = workshopSlug(workshop);
+        return slug ? `/talleres/${encodeURIComponent(slug)}` : "";
     }
 
     function scheduleHTML(schedule) {
@@ -125,7 +112,7 @@
         const links = [];
         if (phone) links.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
         if (web) links.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-        links.push(`<a href="${escapeHTML(workshopPageURL(workshop))}">Ver ficha</a>`);
+        links.push(`<a class="enlace-ficha-taller" href="${escapeHTML(workshopPageURL(workshop))}">Ver ficha</a>`);
 
         return `
             <article class="taller-card">
