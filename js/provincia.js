@@ -92,21 +92,8 @@
     }
 
     function urlFicha(taller) {
-        const parametros = new URLSearchParams({
-            id: taller.id || "",
-            slug: slugTaller(taller),
-            nombre: taller.nombre || taller.nombre_taller || "Taller",
-            direccion: [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).join(", ")
-        });
-        if (taller.telefono) parametros.set("telefono", taller.telefono);
-        if (taller.web) parametros.set("web", taller.web);
-        if (taller.descripcion) parametros.set("descripcion", taller.descripcion);
-        if (taller.verificado) parametros.set("verificado", "true");
-        if (taller.updated_at) parametros.set("actualizado", taller.updated_at);
-        if (Array.isArray(taller.servicios) && taller.servicios.length) {
-            parametros.set("servicios", taller.servicios.join("|"));
-        }
-        return `../pages/taller.html?${parametros.toString()}`;
+        const slug = slugTaller(taller);
+        return slug ? `/talleres/${encodeURIComponent(slug)}` : "";
     }
 
     async function adjuntarFotosFirmadas(talleres) {
@@ -155,7 +142,7 @@
                     <span class="taller-contactos">
                         ${telefono ? `<a href="tel:${escapar(telefono)}">Llamar</a>` : ""}
                         ${web ? `<a href="${escapar(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ""}
-                        <a href="${escapar(urlFicha(taller))}">Ver ficha</a>
+                        <a class="enlace-ficha-taller" href="${escapar(urlFicha(taller))}">Ver ficha</a>
                     </span>
                 </div>
             </div>
