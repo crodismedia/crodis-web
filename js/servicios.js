@@ -100,6 +100,16 @@
         document.head.appendChild(enlace);
     }
 
+    function cargarUrlsLimpiasTaller() {
+        if (document.querySelector('script[data-tallermap-urls-taller]')) return;
+        const script = document.createElement("script");
+        const profundidad = window.location.pathname.split("/").filter(Boolean).length;
+        script.src = profundidad > 1 ? "../js/taller-urls.js" : "js/taller-urls.js";
+        script.defer = true;
+        script.dataset.tallermapUrlsTaller = "true";
+        document.head.appendChild(script);
+    }
+
     function textoLimpio(elemento) { return String(elemento?.textContent || "").replace(/^⌖\s*/, "").replace(/\s+/g, " ").trim(); }
 
     function crearParametrosFicha(tarjeta, nombre, ubicacion) {
@@ -154,6 +164,7 @@
         rellenarTarjetas(document.getElementById("lista-servicios-publicos"));
         mejorarPortadaInicial();
         cargarEstilosAccionesTaller();
+        cargarUrlsLimpiasTaller();
         observarTarjetas();
     }
 
