@@ -66,6 +66,48 @@
             .join(", ");
     }
 
+    function telefonoInternacional(valor) {
+        const digitos = String(valor || "").replace(/\D/g, "");
+        if (/^[67]\d{8}$/.test(digitos)) return `34${digitos}`;
+        if (/^34[67]\d{8}$/.test(digitos)) return digitos;
+        return "";
+    }
+
+    function registrarAccion(tipo, taller) {
+        const detalle = {
+            tipo,
+            taller_id: taller.id || id || null,
+            taller_slug: taller.slug || slug || null,
+            taller_nombre: taller.nombre || "Taller",
+            pagina: window.location.pathname
+        };
+
+        if (typeof window.gtag === "function") {
+            window.gtag("event", "contacto_taller", {
+                metodo: tipo,
+                taller_id: detalle.taller_id || detalle.taller_slug || detalle.taller_nombre,
+                taller_nombre: detalle.taller_nombre
+            });
+        }
+
+        window.dispatchEvent(new CustomEvent("tallermap:contacto", { detail: detalle }));
+    }
+
+    function crearAccion({ clase, href, etiqueta, aria, tipo, taller, nuevaPestana = false }) {
+        const enlace = document.createElement("a");
+        enlace.className = clase;
+        enlace.href = href;
+        enlace.textContent = etiqueta;
+        enlace.setAttribute("aria-label", aria || etiqueta);
+        enlace.dataset.accion = tipo;
+        if (nuevaPestana) {
+            enlace.target = "_blank";
+            enlace.rel = "noopener noreferrer";
+        }
+        enlace.addEventListener("click", () => registrarAccion(tipo, taller), { passive: true });
+        return enlace;
+    }
+
     async function obtenerTaller() {
         const legado = datosLegados();
         if (!cliente || (!id && !slug)) return legado;
@@ -118,6 +160,7 @@
         const nombre = taller.nombre || "Taller publicado en TallerMap";
         const direccion = direccionCompleta(taller);
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
+        const whatsapp = telefonoInternacional(telefono);
         const web = urlSegura(taller.web);
         const descripcion = taller.descripcion || "Consulta los datos públicos disponibles de este taller.";
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
@@ -165,12 +208,51 @@
         const acciones = document.getElementById("taller-acciones");
         if (acciones) {
             acciones.replaceChildren();
-            if (telefono) acciones.insertAdjacentHTML("beforeend", `<a class="boton" href="tel:${telefono}">Llamar</a>`);
+            if (telefono) {
+                acciones.appendChild(crearAccion({
+                    clase: "boton accion-principal",
+                    href: `tel:${telefono}`,
+                    etiqueta: "☎ Llamar ahora",
+                    aria: `Llamar a ${nombre}`,
+                    tipo: "llamada",
+                    taller
+                }));
+            }
             if (direccion) {
                 const consulta = [nombre, direccion, "España"].filter(Boolean).join(", ");
-                acciones.insertAdjacentHTML("beforeend", `<a class="boton" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>`);
+                acciones.appendChild(crearAccion({
+                    clase: "boton accion-mapa",
+                    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`,
+                    etiqueta: "⌖ Cómo llegar",
+                    aria: `Abrir la ubicación de ${nombre} en Google Maps`,
+                    tipo: "mapa",
+                    taller,
+                    nuevaPestana: true
+                }));
             }
-            if (web) acciones.insertAdjacentHTML("beforeend", `<a class="boton boton-claro" href="${web}" target="_blank" rel="noopener noreferrer">Página web</a>`);
+            if (whatsapp) {
+                const mensaje = `Hola, he encontrado vuestro taller en TallerMap y quisiera pedir información.`;
+                acciones.appendChild(crearAccion({
+                    clase: "boton accion-whatsapp",
+                    href: `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`,
+                    etiqueta: "WhatsApp",
+                    aria: `Contactar con ${nombre} por WhatsApp`,
+                    tipo: "whatsapp",
+                    taller,
+                    nuevaPestana: true
+                }));
+            }
+            if (web) {
+                acciones.appendChild(crearAccion({
+                    clase: "boton boton-claro accion-web",
+                    href: web,
+                    etiqueta: "Página web",
+                    aria: `Visitar la página web de ${nombre}`,
+                    tipo: "web",
+                    taller,
+                    nuevaPestana: true
+                }));
+            }
         }
 
         const serviciosContenedor = document.getElementById("taller-servicios");
@@ -186,7 +268,7 @@
         const datos = document.getElementById("taller-datos");
         if (datos) {
             datos.replaceChildren();
-            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> ${telefono}</p>`);
+            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> <a href="tel:${telefono}">${escaparHTML(telefono)}</a></p>`);
             if (taller.codigo_postal) datos.insertAdjacentHTML("beforeend", `<p><strong>Código postal:</strong> ${escaparHTML(taller.codigo_postal)}</p>`);
             if (taller.ciudad) datos.insertAdjacentHTML("beforeend", `<p><strong>Municipio:</strong> ${escaparHTML(taller.ciudad)}</p>`);
             if (taller.provincia) datos.insertAdjacentHTML("beforeend", `<p><strong>Provincia:</strong> ${escaparHTML(taller.provincia)}</p>`);
