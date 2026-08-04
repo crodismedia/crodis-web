@@ -1,0 +1,33 @@
+name: Fetch RII Valencia artifact
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-rii:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download official RII Division A CSV
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          curl --fail --location --retry 4 --retry-delay 3 \
+            --user-agent "TallerMap-data-check/1.0" \
+            "https://www6.serviciosmin.gob.es/Aplicaciones/OpenDataModule_AC202101/UbicacionRIII/Consulta%20RII%20division%20A.csv" \
+            --output "out/Consulta_RII_division_A.csv"
+          test -s "out/Consulta_RII_division_A.csv"
+          file "out/Consulta_RII_division_A.csv"
+          wc -c "out/Consulta_RII_division_A.csv"
+
+      - name: Upload official CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: rii-division-a-csv
+          path: out/Consulta_RII_division_A.csv
+          if-no-files-found: error
+          retention-days: 1
