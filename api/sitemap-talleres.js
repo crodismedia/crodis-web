@@ -13,6 +13,15 @@ function escapeXML(value) {
         .replace(/'/g, "&apos;");
 }
 
+function safeSlug(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
 async function fetchWorkshopPage(offset) {
     const endpoint = `${SUPABASE_URL}/rest/v1/rpc/listar_talleres_sitemap`;
     const end = offset + PAGE_SIZE - 1;
@@ -73,12 +82,14 @@ export default async function handler(_request, response) {
         new Map(
             workshops
                 .filter((workshop) => workshop && workshop.slug)
-                .map((workshop) => [workshop.slug, workshop])
+                .map((workshop) => [safeSlug(workshop.slug), workshop])
+                .filter(([slug]) => Boolean(slug))
         ).values()
     );
 
     const entries = uniqueWorkshops.map((workshop) => {
-        const location = `${SITE_URL}/pages/taller.html?slug=${encodeURIComponent(workshop.slug)}`;
+        const slug = safeSlug(workshop.slug);
+        const location = `${SITE_URL}/talleres/${encodeURIComponent(slug)}`;
         const lastModified = workshop.updated_at
             ? `<lastmod>${escapeXML(String(workshop.updated_at).slice(0, 10))}</lastmod>`
             : "";
