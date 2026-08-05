@@ -22,7 +22,7 @@
     };
 
     const TAMANO_PAGINA = 30;
-    const RADIOS_CERCANOS_KM = Array.from({ length: 50 }, (_, indice) => indice + 1);
+    const RADIOS_CERCANOS_KM = Array.from({ length: 10 }, (_, indice) => indice + 1);
     let siguienteIndice = 0;
     let poblacionActual = "";
     let servicioActual = "";
@@ -246,7 +246,14 @@
                 p_desde: desde,
                 p_limite: TAMANO_PAGINA
             });
-            const talleres = Array.isArray(data) ? data : [];
+            const talleres = (Array.isArray(data) ? data : []).filter((taller) => {
+                    const distancia = Number(taller.distancia_km);
+
+                    return Number.isFinite(distancia) &&
+                        distancia >= 0 &&
+                        distancia <= radio &&
+                        distancia <= 10;
+                });
             if (error) {
                 console.error("No se pudieron cargar los talleres:", error);
                 if (reiniciar) {
@@ -320,7 +327,7 @@
             if (!talleres.length) {
                 mostrarEstado(
                     contenedor,
-                    "No encontramos talleres con coordenadas en un radio de 50 km. Puedes buscar por población."
+                    "No encontramos talleres fiables en un radio de 10 km. Busca por población."
                 );
                 actualizarNumeroResultados(0, "0 cercanos");
                 return { total: 0, radio: radioUtilizado };
