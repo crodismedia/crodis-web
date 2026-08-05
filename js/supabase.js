@@ -3,6 +3,7 @@
 
     const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
     const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
+    const TAMANO_PAGINA = 30;
 
     if (!window.supabase?.createClient) {
         console.error("No se ha cargado la biblioteca de Supabase.");
@@ -12,33 +13,24 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     window.supabaseClient = supabaseClient;
 
-    const ETIQUETAS_SERVICIOS = window.TallerMapServicios?.etiquetas || {
-        "mecanica-general": "Mecánica general",
-        "chapa-pintura": "Chapa y pintura",
-        neumaticos: "Neumáticos",
-        "diagnosis-electronica": "Diagnosis electrónica",
-        "aire-acondicionado": "Aire acondicionado",
-        "hibridos-electricos": "Híbridos y eléctricos"
-    };
-
-    const TAMANO_PAGINA = 30;
-    const RADIOS_CERCANOS_KM = Array.from({ length: 10 }, (_, indice) => indice + 1);
     let siguienteIndice = 0;
     let poblacionActual = "";
     let servicioActual = "";
     let totalResultadosActual = 0;
-    let cargandoTalleres = false;
-    let modoUbicacion = false;
+    let cargando = false;
 
     function escaparHTML(valor) {
         const elemento = document.createElement("div");
         elemento.textContent = valor ?? "";
         return elemento.innerHTML;
     }
-    window.escaparHTML = escaparHTML;
 
-    function etiquetaServicio(servicio) {
-        return ETIQUETAS_SERVICIOS[servicio] || servicio;
+    function terminoSeguro(valor) {
+        return String(valor || "")
+            .replace(/[,%().]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 80);
     }
 
     function webSegura(valor) {
@@ -46,41 +38,15 @@
         try {
             const url = new URL(String(valor));
             return ["http:", "https:"].includes(url.protocol) ? url.href : "";
-        } catch (_error) {
+        } catch {
             return "";
         }
     }
 
-    function horarioHtml(horarios) {
-        if (!horarios || typeof horarios !== "object") return "";
-        const dias = [
-            ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
-            ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
-            ["domingo", "Domingo"]
-        ];
-        const filas = dias.map(([clave, etiqueta]) => {
-            const horario = horarios[clave];
-            if (!horario) return "";
-            const texto = horario.cerrado
-                ? "Cerrado"
-                : (horario.turnos || []).map((turno) => `${turno.apertura}–${turno.cierre}`).join(" y ");
-            return texto
-                ? `<div><dt>${etiqueta}</dt><dd>${escaparHTML(texto)}</dd></div>`
-                : "";
-        }).filter(Boolean).join("");
-        return filas
-            ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${filas}</dl></details>`
-            : "";
-    }
-
-    function distanciaHtml(distanciaKm) {
-        const distancia = Number(distanciaKm);
-        if (!Number.isFinite(distancia) || distancia < 0) return "";
-        const texto = new Intl.NumberFormat("es-ES", {
-            minimumFractionDigits: distancia < 10 ? 1 : 0,
-            maximumFractionDigits: distancia < 10 ? 1 : 0
-        }).format(distancia);
-        return `<p class="ubicacion"><strong>A ${texto} km de tu ubicación</strong></p>`;
+    function etiquetaDesdeSlug(slug) {
+        return String(slug || "")
+            .replace(/-/g, " ")
+            .replace(/\b\p{L}/gu, letra => letra.toUpperCase());
     }
 
     function slugTaller(taller) {
@@ -95,377 +61,258 @@
         return taller.id ? `${base}-${String(taller.id).slice(0, 8)}` : base;
     }
 
-    function urlFicha(taller) {
-        const slug = slugTaller(taller);
-        return slug ? `/talleres/${encodeURIComponent(slug)}` : "";
-    }
-
-    function crearTarjetaTaller(taller) {
-        const nombre = escaparHTML(taller.nombre || taller.nombre_taller || "Taller sin nombre");
-        const ciudad = escaparHTML(taller.ciudad || "");
-        const provincia = escaparHTML(taller.provincia || "");
-        const direccion = escaparHTML(taller.direccion || "");
-        const descripcion = escaparHTML(
-            taller.descripcion || "Información próximamente disponible."
-        );
-        const ubicacion = [direccion, ciudad, provincia].filter(Boolean).join(", ");
+    function crearTarjeta(taller) {
+        const nombre = escaparHTML(taller.nombre || "Taller sin nombre");
+        const ubicacion = [taller.direccion, taller.ciudad, taller.provincia]
+            .filter(Boolean)
+            .map(escaparHTML)
+            .join(", ");
+        const descripcion = escaparHTML(taller.descripcion || "Información próximamente disponible.");
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = webSegura(taller.web);
-        const fotoPrincipal = webSegura(taller.fotoFirmada);
-        const cantidadFotos = Array.isArray(taller.fotos) ? taller.fotos.length : 0;
-        const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
-        const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
-        const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
-        const horario = horarioHtml(taller.horarios);
-        const distancia = distanciaHtml(taller.distancia_km);
+        const servicios = Array.isArray(taller.servicios) ? taller.servicios.slice(0, 4) : [];
+        const foto = webSegura(taller.fotoFirmada);
         const enlaces = [];
 
-        if (telefono) {
-            enlaces.push(`<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`);
-        }
-        if (web) {
-            enlaces.push(`<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-        }
-        enlaces.push(`<a class="enlace-ficha-taller" href="${escaparHTML(urlFicha(taller))}">Ver ficha</a>`);
-        const contacto = enlaces.length
-            ? `<span class="taller-contactos">${enlaces.join("")}</span>`
-            : "<span>Sin contacto publicado</span>";
+        if (telefono) enlaces.push(`<a href="tel:${escaparHTML(telefono)}">Llamar</a>`);
+        if (web) enlaces.push(`<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        enlaces.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slugTaller(taller))}">Ver ficha</a>`);
 
         return `
             <article class="taller-card">
                 <div class="taller-imagen taller-imagen-1">
-                    ${fotoPrincipal ? `<img src="${escaparHTML(fotoPrincipal)}" alt="Fotografía de ${nombre}" loading="lazy">` : ""}
-                    <span class="verificado">${distintivo}</span>
-                    ${cantidadFotos ? `<span class="numero-fotos">${cantidadFotos} ${cantidadFotos === 1 ? "foto" : "fotos"}</span>` : ""}
+                    ${foto ? `<img src="${escaparHTML(foto)}" alt="Fotografía de ${nombre}" loading="lazy">` : ""}
+                    <span class="verificado">${taller.verificado ? "✓ Verificado" : "Publicado"}</span>
                 </div>
                 <div class="taller-informacion">
                     <div class="valoracion">★ Nuevo <span>Ficha publicada</span></div>
                     <h3>${nombre}</h3>
                     <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
-                    ${distancia}
                     <p class="taller-descripcion">${descripcion}</p>
                     <div class="especialidades">
-                        ${etiquetas.map((servicio) => `<span>${escaparHTML(etiquetaServicio(servicio))}</span>`).join("")}
+                        ${(servicios.length ? servicios : ["taller-mecanico"])
+                            .map(servicio => `<span>${escaparHTML(etiquetaDesdeSlug(servicio))}</span>`)
+                            .join("")}
                     </div>
-                    ${horario}
                     <div class="taller-pie">
                         <span class="abierto">● Disponible</span>
-                        ${contacto}
+                        <span class="taller-contactos">${enlaces.join("")}</span>
                     </div>
                 </div>
-            </article>
-        `;
+            </article>`;
     }
 
-    function mostrarEstado(contenedor, mensaje) {
-        contenedor.innerHTML = `<p class="mensaje-talleres">${escaparHTML(mensaje)}</p>`;
-    }
-
-    function escribirEstadistica(id, valor) {
-        const elemento = document.getElementById(id);
-        const numero = Number(valor);
-        if (!elemento || !Number.isFinite(numero) || numero < 0) return;
-        elemento.textContent = new Intl.NumberFormat("es-ES").format(numero);
-    }
-
-    async function cargarEstadisticas() {
-        const { data, error } = await supabaseClient.rpc("estadisticas_publicas");
-        if (error) {
-            console.error("No se pudieron cargar las estadísticas públicas:", error);
-            return;
+    function mostrarEstado(mensaje) {
+        const contenedor = document.getElementById("lista-talleres");
+        if (contenedor) {
+            contenedor.innerHTML = `<p class="mensaje-talleres">${escaparHTML(mensaje)}</p>`;
         }
-        escribirEstadistica("contador-altas-cabecera", data?.talleres_activos);
-        escribirEstadistica("estadistica-talleres", data?.talleres_activos);
-        escribirEstadistica("estadistica-provincias", 3);
-        escribirEstadistica("estadistica-servicios", data?.servicios_disponibles);
     }
 
-    function terminoSeguro(valor) {
-        return String(valor || "")
-            .replace(/[,%().]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim()
-            .slice(0, 80);
+    function actualizarNumeroResultados(total) {
+        const indicador = document.querySelector(".mapa-estado");
+        if (indicador) {
+            indicador.textContent = `${total} ${total === 1 ? "disponible" : "disponibles"}`;
+        }
     }
 
-    function actualizarBotonCarga(hayMas, cargando = false) {
-        const contenedorBoton = document.getElementById("contenedor-cargar-mas");
+    function actualizarBoton(hayMas, estaCargando = false) {
+        const contenedor = document.getElementById("contenedor-cargar-mas");
         const boton = document.getElementById("boton-cargar-mas");
-        if (!contenedorBoton || !boton) return;
-
-        contenedorBoton.hidden = modoUbicacion || !hayMas;
-        boton.disabled = cargando;
-        boton.textContent = cargando ? "Cargando talleres..." : "Cargar más talleres";
+        if (!contenedor || !boton) return;
+        contenedor.hidden = !hayMas;
+        boton.disabled = estaCargando;
+        boton.textContent = estaCargando ? "Cargando talleres..." : "Cargar más talleres";
     }
 
     async function adjuntarFotosFirmadas(talleres) {
-        const rutas = [...new Set(talleres
-            .map((taller) => Array.isArray(taller.fotos) ? taller.fotos[0] : "")
-            .filter(Boolean))];
-        if (!rutas.length || !supabaseClient.storage?.from) return talleres;
+        const rutas = [...new Set(
+            talleres
+                .map(taller => Array.isArray(taller.fotos) ? taller.fotos[0] : "")
+                .filter(Boolean)
+        )];
+
+        if (!rutas.length) return talleres;
 
         const { data, error } = await supabaseClient.storage
             .from("fotos-talleres")
             .createSignedUrls(rutas, 3600);
+
         if (error) {
-            console.error("No se pudieron preparar las fotografías públicas:", error);
+            console.error("No se pudieron preparar las fotografías:", error);
             return talleres;
         }
 
         const porRuta = new Map(
-            (data || []).map((foto) => [foto.path, foto.signedUrl || foto.signedURL || ""])
+            (data || []).map(item => [item.path, item.signedUrl || item.signedURL || ""])
         );
-        return talleres.map((taller) => ({
+
+        return talleres.map(taller => ({
             ...taller,
             fotoFirmada: porRuta.get(Array.isArray(taller.fotos) ? taller.fotos[0] : "") || ""
         }));
     }
 
+    async function cargarServicios() {
+        const selector = document.getElementById("servicio");
+        if (!selector) return;
+
+        const seleccionado = selector.value;
+        const { data, error } = await supabaseClient
+            .from("servicios")
+            .select("slug,nombre")
+            .eq("activo", true)
+            .order("nombre", { ascending: true });
+
+        if (error) {
+            console.error("No se pudo cargar el catálogo de servicios:", error);
+            return;
+        }
+
+        selector.replaceChildren();
+        const todos = document.createElement("option");
+        todos.value = "";
+        todos.textContent = "Todos los servicios";
+        selector.appendChild(todos);
+
+        (data || []).forEach(servicio => {
+            const opcion = document.createElement("option");
+            opcion.value = servicio.slug;
+            opcion.textContent = servicio.nombre;
+            selector.appendChild(opcion);
+        });
+
+        if ([...selector.options].some(opcion => opcion.value === seleccionado)) {
+            selector.value = seleccionado;
+        }
+
+        const parametros = new URLSearchParams(window.location.search);
+        const servicioUrl = parametros.get("servicio") || "";
+        if ([...selector.options].some(opcion => opcion.value === servicioUrl)) {
+            selector.value = servicioUrl;
+        }
+    }
+
+    async function cargarEstadisticas() {
+        const { data, error } = await supabaseClient.rpc("estadisticas_publicas");
+        if (error) return;
+
+        const escribir = (id, valor) => {
+            const elemento = document.getElementById(id);
+            const numero = Number(valor);
+            if (elemento && Number.isFinite(numero)) {
+                elemento.textContent = new Intl.NumberFormat("es-ES").format(numero);
+            }
+        };
+
+        escribir("contador-altas-cabecera", data?.talleres_activos);
+        escribir("estadistica-talleres", data?.talleres_activos);
+        escribir("estadistica-servicios", data?.servicios_disponibles);
+    }
+
     async function cargarTalleres(poblacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
-        if (!contenedor || cargandoTalleres) return;
+        if (!contenedor || cargando) return;
 
-        modoUbicacion = false;
         if (reiniciar) {
             siguienteIndice = 0;
             totalResultadosActual = 0;
             poblacionActual = terminoSeguro(poblacion);
-            servicioActual = servicio;
-            mostrarEstado(contenedor, "Cargando talleres...");
-            actualizarBotonCarga(false);
+            servicioActual = terminoSeguro(servicio);
+            mostrarEstado("Cargando talleres...");
+            actualizarBoton(false);
         }
 
-        const desde = siguienteIndice;
-        cargandoTalleres = true;
-        if (!reiniciar) actualizarBotonCarga(true, true);
+        cargando = true;
+        if (!reiniciar) actualizarBoton(true, true);
 
         try {
             const { data, error } = await supabaseClient.rpc("buscar_talleres_publicos", {
                 p_poblacion: poblacionActual,
                 p_servicio: servicioActual,
-                p_desde: desde,
+                p_desde: siguienteIndice,
                 p_limite: TAMANO_PAGINA
             });
-            const talleres = (Array.isArray(data) ? data : []).filter((taller) => {
-                    const distancia = Number(taller.distancia_km);
 
-                    return Number.isFinite(distancia) &&
-                        distancia >= 0 &&
-                        distancia <= radio &&
-                        distancia <= 10;
-                });
             if (error) {
                 console.error("No se pudieron cargar los talleres:", error);
-                if (reiniciar) {
-                    mostrarEstado(
-                        contenedor,
-                        "No se pudieron cargar los talleres. Comprueba la configuración pública de Supabase."
-                    );
-                }
-                actualizarBotonCarga(!reiniciar);
+                if (reiniciar) mostrarEstado("No se pudieron cargar los talleres.");
+                actualizarBoton(false);
                 return;
             }
-            if (!talleres.length && reiniciar) {
-                mostrarEstado(contenedor, "No hemos encontrado talleres con esos criterios.");
-                actualizarNumeroResultados(0);
-                actualizarBotonCarga(false);
-                return;
-            }
+
+            const talleres = Array.isArray(data) ? data : [];
+
             if (!talleres.length) {
-                actualizarBotonCarga(false);
+                if (reiniciar) {
+                    mostrarEstado("No hemos encontrado talleres con esos criterios.");
+                    actualizarNumeroResultados(0);
+                }
+                actualizarBoton(false);
                 return;
             }
 
             const talleresConFotos = await adjuntarFotosFirmadas(talleres);
-            const tarjetas = talleresConFotos.map(crearTarjetaTaller).join("");
-            if (reiniciar) contenedor.innerHTML = tarjetas;
-            else contenedor.insertAdjacentHTML("beforeend", tarjetas);
+            const html = talleresConFotos.map(crearTarjeta).join("");
+
+            if (reiniciar) contenedor.innerHTML = html;
+            else contenedor.insertAdjacentHTML("beforeend", html);
 
             siguienteIndice += talleres.length;
-            const totalInformado = Number(talleres[0]?.total_resultados);
-            if (Number.isFinite(totalInformado)) totalResultadosActual = totalInformado;
-            else totalResultadosActual = Math.max(totalResultadosActual, siguienteIndice);
-            const hayMas = siguienteIndice < totalResultadosActual;
+            const total = Number(talleres[0]?.total_resultados);
+            totalResultadosActual = Number.isFinite(total) ? total : siguienteIndice;
+
             actualizarNumeroResultados(totalResultadosActual);
-            actualizarBotonCarga(hayMas);
+            actualizarBoton(siguienteIndice < totalResultadosActual);
         } finally {
-            cargandoTalleres = false;
+            cargando = false;
         }
     }
 
-    async function cargarTalleresCercanos(latitud, longitud, servicio = "") {
-        const contenedor = document.getElementById("lista-talleres");
-        if (!contenedor || cargandoTalleres) return null;
+    function iniciar() {
+        const formulario = document.getElementById("formulario-buscador-publico");
+        const poblacion = document.getElementById("poblacion");
+        const servicio = document.getElementById("servicio");
+        const cargarMas = document.getElementById("boton-cargar-mas");
 
-        modoUbicacion = true;
-        siguienteIndice = 0;
-        poblacionActual = "";
-        servicioActual = servicio;
-        cargandoTalleres = true;
-        mostrarEstado(contenedor, "Calculando talleres cercanos...");
-        actualizarBotonCarga(false);
+        cargarServicios();
+        cargarEstadisticas();
 
-        try {
-            let talleres = [];
-            let radioUtilizado = RADIOS_CERCANOS_KM.at(-1);
-
-            for (const radio of RADIOS_CERCANOS_KM) {
-                const { data, error } = await supabaseClient.rpc("buscar_talleres_cercanos", {
-                    p_latitud: latitud,
-                    p_longitud: longitud,
-                    p_radio_km: radio,
-                    p_servicio: servicio || null,
-                    p_limite: 50
-                });
-
-                if (error) throw error;
-                talleres = Array.isArray(data) ? data : [];
-                radioUtilizado = radio;
-                if (talleres.length) break;
-            }
-
-            if (!talleres.length) {
-                mostrarEstado(
-                    contenedor,
-                    "No encontramos talleres fiables en un radio de 10 km. Busca por población."
-                );
-                actualizarNumeroResultados(0, "0 cercanos");
-                return { total: 0, radio: radioUtilizado };
-            }
-
-            const talleresConFotos = await adjuntarFotosFirmadas(talleres);
-            contenedor.innerHTML = talleresConFotos.map(crearTarjetaTaller).join("");
-            actualizarNumeroResultados(talleres.length, `${talleres.length} por cercanía`);
-            return { total: talleres.length, radio: radioUtilizado };
-        } catch (error) {
-            console.error("No se pudieron buscar talleres cercanos:", error);
-            mostrarEstado(
-                contenedor,
-                "No se pudo calcular la distancia. Comprueba la función buscar_talleres_cercanos en Supabase."
-            );
-            actualizarNumeroResultados(0);
-            return null;
-        } finally {
-            cargandoTalleres = false;
-            actualizarBotonCarga(false);
-        }
-    }
-
-    function actualizarNumeroResultados(total, textoPersonalizado = "") {
-        const indicador = document.querySelector(".mapa-estado");
-        if (indicador) {
-            indicador.textContent = textoPersonalizado
-                || `${total} ${total === 1 ? "disponible" : "disponibles"}`;
-        }
-    }
-
-    function iniciarAplicacion() {
-        const contenedor = document.getElementById("lista-talleres");
-        if (!contenedor) return;
-
-        const formularioBusqueda = document.querySelector("form.buscador");
-        const campoPoblacion = document.getElementById("poblacion");
-        const campoServicio = document.getElementById("servicio");
-        const botonCargarMas = document.getElementById("boton-cargar-mas");
-        const botonUbicacion = document.getElementById("usar-mi-ubicacion");
-        const estadoUbicacion = document.getElementById("estado-ubicacion");
-
-        function escribirEstadoUbicacion(mensaje, esError = false) {
-            if (!estadoUbicacion) return;
-            estadoUbicacion.textContent = mensaje;
-            estadoUbicacion.classList.toggle("estado-ubicacion-error", esError);
-        }
-
-        function obtenerPosicionActual() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("geolocation-no-disponible"));
-                    return;
-                }
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 120000
-                });
-            });
-        }
-
-        async function buscarDesdeMiUbicacion() {
-            if (!botonUbicacion) return;
-
-            botonUbicacion.disabled = true;
-            botonUbicacion.textContent = "Localizando…";
-            escribirEstadoUbicacion("Solicitando permiso y calculando distancias reales…");
-
-            try {
-                const posicion = await obtenerPosicionActual();
-                const latitud = Number(posicion.coords.latitude);
-                const longitud = Number(posicion.coords.longitude);
-                if (!Number.isFinite(latitud) || !Number.isFinite(longitud)) {
-                    throw new Error("coordenadas-no-validas");
-                }
-
-                if (campoPoblacion) campoPoblacion.value = "";
-                const resultado = await cargarTalleresCercanos(
-                    latitud,
-                    longitud,
-                    campoServicio?.value || ""
-                );
-                document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
-
-                if (resultado?.total) {
-                    escribirEstadoUbicacion(
-                        `${resultado.total} ${resultado.total === 1 ? "taller encontrado" : "talleres encontrados"} a menos de ${resultado.radio} km, ordenados por distancia.`
-                    );
-                } else if (resultado) {
-                    escribirEstadoUbicacion(
-                        "No hay talleres con coordenadas a menos de 50 km. Prueba la búsqueda por población.",
-                        true
-                    );
-                } else {
-                    escribirEstadoUbicacion("No se pudo completar la búsqueda por distancia.", true);
-                }
-            } catch (error) {
-                const permisoDenegado = error?.code === 1;
-                escribirEstadoUbicacion(
-                    permisoDenegado
-                        ? "No has permitido acceder a tu ubicación. Puedes escribir la población manualmente."
-                        : "No se pudo obtener tu ubicación. Puedes escribir la población manualmente.",
-                    true
-                );
-            } finally {
-                botonUbicacion.disabled = false;
-                botonUbicacion.innerHTML = '<span aria-hidden="true">⌖</span> 2 · Mi ubicación';
-            }
-        }
-
-        formularioBusqueda?.addEventListener("submit", (evento) => {
+        formulario?.addEventListener("submit", evento => {
             evento.preventDefault();
-            cargarTalleres(campoPoblacion?.value || "", campoServicio?.value || "");
+            cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
 
-        botonUbicacion?.addEventListener("click", buscarDesdeMiUbicacion);
-
-        botonCargarMas?.addEventListener("click", () => {
-            if (!modoUbicacion) cargarTalleres(poblacionActual, servicioActual, false);
+        cargarMas?.addEventListener("click", () => {
+            cargarTalleres(poblacionActual, servicioActual, false);
         });
 
-        document.querySelectorAll("[data-servicio]").forEach((enlace) => {
-            enlace.addEventListener("click", (evento) => {
+        document.querySelectorAll("[data-servicio]").forEach(enlace => {
+            enlace.addEventListener("click", evento => {
                 evento.preventDefault();
-                if (campoServicio) campoServicio.value = enlace.dataset.servicio || "";
-                formularioBusqueda?.requestSubmit();
+                if (servicio) servicio.value = enlace.dataset.servicio || "";
+                formulario?.requestSubmit();
             });
         });
 
-        cargarEstadisticas();
-        cargarTalleres();
+        const parametros = new URLSearchParams(window.location.search);
+        const poblacionUrl = (parametros.get("poblacion") || "").trim();
+        const servicioUrl = (parametros.get("servicio") || "").trim();
+
+        if (poblacion && poblacionUrl) poblacion.value = poblacionUrl;
+
+        window.setTimeout(() => {
+            if (servicio && servicioUrl && [...servicio.options].some(o => o.value === servicioUrl)) {
+                servicio.value = servicioUrl;
+            }
+            cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
+        }, 250);
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", iniciarAplicacion);
+        document.addEventListener("DOMContentLoaded", iniciar, { once: true });
     } else {
-        iniciarAplicacion();
+        iniciar();
     }
 }());
