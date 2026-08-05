@@ -11,6 +11,110 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Centro de control | TallerMap</title>
     <link rel="stylesheet" href="../css/estilo.css">
+    <style>
+        .admin-shell {
+            min-height: calc(100vh - 92px);
+            display: grid;
+            place-items: center;
+            padding: 48px 20px;
+            background: linear-gradient(180deg, #f7f8fa 0%, #ffffff 100%);
+        }
+
+        .admin-shell-tarjeta {
+            width: min(760px, 100%);
+            padding: clamp(28px, 5vw, 54px);
+            border: 1px solid #e4e7eb;
+            border-radius: 24px;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+            text-align: center;
+        }
+
+        .admin-shell-insignia {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #eefbf3;
+            color: #166534;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .admin-shell-tarjeta h1 {
+            margin: 0 0 14px;
+            font-size: clamp(2rem, 5vw, 3.3rem);
+            line-height: 1.08;
+        }
+
+        .admin-shell-tarjeta p {
+            max-width: 590px;
+            margin: 0 auto;
+            color: #52606d;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .admin-shell-resumen {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 34px 0;
+            text-align: left;
+        }
+
+        .admin-shell-resumen article {
+            padding: 18px;
+            border: 1px solid #e8ebef;
+            border-radius: 16px;
+            background: #fafbfc;
+        }
+
+        .admin-shell-resumen strong,
+        .admin-shell-resumen span {
+            display: block;
+        }
+
+        .admin-shell-resumen strong {
+            margin-bottom: 6px;
+            color: #17202a;
+        }
+
+        .admin-shell-resumen span {
+            color: #667085;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .admin-shell-estado {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .admin-shell-estado-correcto {
+            background: #ecfdf3;
+            color: #166534;
+        }
+
+        .admin-shell-estado-error {
+            background: #fef2f2;
+            color: #b42318;
+        }
+
+        @media (max-width: 720px) {
+            .admin-shell-resumen {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body class="pagina-registro pagina-admin-total">
     <header class="cabecera">
@@ -28,257 +132,38 @@
         </div>
     </header>
 
-    <main class="admin-principal">
-        <section class="contenedor">
-            <div class="admin-cabecera">
-                <div>
-                    <span class="etiqueta">Administración total</span>
-                    <h1>Gestión de talleres</h1>
-                    <p>Crea, edita, verifica, desactiva o elimina fichas. Todas las acciones quedan registradas.</p>
-                </div>
-                <div class="admin-acciones-principales">
-                    <button id="boton-nuevo-taller" class="boton" type="button">+ Nuevo taller</button>
-                    <button id="boton-recargar" class="boton boton-secundario" type="button">Actualizar</button>
-                </div>
+    <main class="admin-shell">
+        <section class="admin-shell-tarjeta" aria-labelledby="titulo-centro-control">
+            <span class="admin-shell-insignia">Nueva administración en preparación</span>
+            <h1 id="titulo-centro-control">El panel anterior ha sido retirado</h1>
+            <p>
+                La base de datos, las fichas de talleres y el acceso administrativo permanecen intactos.
+                Esta pantalla es la base segura sobre la que se construirá el nuevo Centro de Control Profesional de TallerMap.
+            </p>
+
+            <div class="admin-shell-resumen" aria-label="Estado de la transición">
+                <article>
+                    <strong>Datos protegidos</strong>
+                    <span>No se ha eliminado ningún taller ni información de Supabase.</span>
+                </article>
+                <article>
+                    <strong>Acceso conservado</strong>
+                    <span>El login y la validación de permisos de administrador siguen activos.</span>
+                </article>
+                <article>
+                    <strong>Base limpia</strong>
+                    <span>La interfaz antigua ya no carga sus módulos ni herramientas.</span>
+                </article>
             </div>
 
-            <div class="admin-metricas" aria-label="Resumen de talleres">
-                <article><strong id="metrica-total">—</strong><span>Total</span></article>
-                <article><strong id="metrica-activos">—</strong><span>Activos</span></article>
-                <article><strong id="metrica-inactivos">—</strong><span>Inactivos</span></article>
-                <article><strong id="metrica-verificados">—</strong><span>Verificados</span></article>
-                <article><strong id="metrica-no-verificados">—</strong><span>No verificados</span></article>
+            <div id="estado-acceso-admin" class="admin-shell-estado" role="status" aria-live="polite">
+                Verificando acceso administrativo…
             </div>
-
-            <section class="admin-ubicaciones" aria-labelledby="titulo-ubicaciones">
-                <div class="admin-seccion-cabecera">
-                    <div>
-                        <span class="etiqueta">Distribución territorial</span>
-                        <h2 id="titulo-ubicaciones">Talleres dados de alta por ubicación</h2>
-                        <p>Vista exclusiva por provincia y población, sin mezclar servicios ni datos comerciales.</p>
-                    </div>
-                    <button id="boton-exportar-ubicaciones" class="boton boton-secundario" type="button">Exportar ubicaciones</button>
-                </div>
-                <div class="admin-filtros-ubicacion">
-                    <label>
-                        <span>Provincia</span>
-                        <select id="filtro-ubicacion-provincia"></select>
-                    </label>
-                    <label>
-                        <span>Población</span>
-                        <input id="filtro-ubicacion-ciudad" type="search" maxlength="100" placeholder="Ej.: Silla">
-                    </label>
-                    <button id="boton-limpiar-ubicacion" class="boton-enlace" type="button">Limpiar filtros</button>
-                </div>
-                <p id="resumen-ubicaciones" class="admin-resumen-ubicaciones" aria-live="polite">Cargando ubicaciones…</p>
-                <div class="admin-tabla-contenedor">
-                    <table class="admin-tabla-ubicaciones">
-                        <thead>
-                            <tr>
-                                <th>Provincia</th>
-                                <th>Población</th>
-                                <th>Total</th>
-                                <th>Activos</th>
-                                <th>Inactivos</th>
-                                <th>Verificados</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-ubicaciones"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section class="admin-buscador-internet" aria-labelledby="titulo-buscador-internet">
-                <div class="admin-seccion-cabecera">
-                    <div>
-                        <span class="etiqueta">Captación y ampliación</span>
-                        <h2 id="titulo-buscador-internet">Buscar talleres externos</h2>
-                        <p>Localiza candidatos por población o código postal y pásalos al editor antes de publicarlos.</p>
-                    </div>
-                </div>
-                <form id="formulario-buscador-internet" class="admin-filtros-internet">
-    <label class="campo-sugerencias">
-        <span>Población o código postal</span>
-
-        <input
-            id="busqueda-internet-ubicacion"
-            type="search"
-            minlength="3"
-            maxlength="120"
-            placeholder="Empieza a escribir: Requena, Silla, 464..."
-            autocomplete="off"
-            aria-autocomplete="list"
-            aria-controls="sugerencias-poblaciones"
-            required
-        >
-
-        <div
-            id="sugerencias-poblaciones"
-            class="lista-sugerencias-poblaciones"
-            role="listbox"
-            hidden
-        ></div>
-    </label>
-
-    <button
-        id="boton-buscar-internet"
-        class="boton"
-        type="submit"
-    >
-        Buscar candidatos
-    </button>
-</form>
-                <p id="estado-buscador-internet" class="admin-resumen-ubicaciones" aria-live="polite">
-                    La búsqueda es manual y no publica ningún taller automáticamente.
-                </p>
-                <div id="resultados-buscador-internet" class="admin-candidatos"></div>
-                <p class="admin-atribucion">
-                    Fuente: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© colaboradores de OpenStreetMap, datos ODbL</a>.
-                </p>
-            </section>
-
-            <div class="admin-herramientas">
-                <label class="admin-busqueda">
-                    <span>Buscar</span>
-                    <input id="filtro-busqueda" type="search" placeholder="Nombre, población o teléfono">
-                </label>
-                <label>
-                    <span>Publicación</span>
-                    <select id="filtro-estado">
-                        <option value="todos">Todos</option>
-                        <option value="activos">Activos</option>
-                        <option value="inactivos">Inactivos</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Verificación</span>
-                    <select id="filtro-verificacion">
-                        <option value="todos">Todos</option>
-                        <option value="verificados">Verificados</option>
-                        <option value="no-verificados">No verificados</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Ordenar</span>
-                    <select id="filtro-orden">
-                        <option value="recientes">Más recientes</option>
-                        <option value="actualizados">Actualizados recientemente</option>
-                        <option value="nombre">Nombre A–Z</option>
-                        <option value="poblacion">Población A–Z</option>
-                    </select>
-                </label>
-                <button id="boton-exportar" class="boton boton-secundario" type="button">Exportar CSV</button>
-            </div>
-
-            <div id="mensaje-admin" class="mensaje-formulario" role="status" aria-live="polite" hidden></div>
-
-            <section id="editor-admin" class="admin-editor" hidden>
-                <div class="admin-editor-cabecera">
-                    <div>
-                        <span class="etiqueta">Editor administrativo</span>
-                        <h2 id="titulo-editor">Crear taller</h2>
-                    </div>
-                    <button id="boton-cancelar-editor" class="boton-enlace" type="button">Cerrar editor</button>
-                </div>
-
-                <form id="formulario-admin-taller" class="formulario-registro" novalidate>
-                    <div class="formulario-grid">
-                        <div class="campo-formulario campo-ancho">
-                            <label for="admin-nombre">Nombre del taller *</label>
-                            <input id="admin-nombre" type="text" minlength="2" maxlength="120" required>
-                        </div>
-                        <div class="campo-formulario">
-                            <label for="admin-telefono">Teléfono *</label>
-                            <input id="admin-telefono" type="tel" minlength="9" maxlength="30" required>
-                        </div>
-                        <div class="campo-formulario campo-ancho">
-                            <label for="admin-web">Página web <span class="campo-opcional">(opcional)</span></label>
-                            <input id="admin-web" type="url" maxlength="255" placeholder="https://www.ejemplo.es">
-                        </div>
-                        <div class="campo-formulario campo-ancho">
-                            <label for="admin-direccion">Dirección *</label>
-                            <input id="admin-direccion" type="text" minlength="5" maxlength="255" required>
-                        </div>
-                        <div class="campo-formulario">
-                            <label for="admin-codigo-postal">Código postal *</label>
-                            <input id="admin-codigo-postal" type="text" pattern="[0-9]{5}" minlength="5" maxlength="5" inputmode="numeric" required>
-                        </div>
-                        <div class="campo-formulario">
-                            <label for="admin-ciudad">Población *</label>
-                            <input id="admin-ciudad" type="text" minlength="2" maxlength="100" list="admin-localidades" required>
-                            <datalist id="admin-localidades"></datalist>
-                        </div>
-                        <div class="campo-formulario campo-ancho">
-                            <label for="admin-provincia">Provincia *</label>
-                            <select id="admin-provincia" required></select>
-                            <small id="admin-estado-postal" class="campo-estado">Debe coincidir con el código postal.</small>
-                        </div>
-
-                        <fieldset class="campo-formulario campo-ancho horarios-formulario">
-                            <legend>Horario semanal *</legend>
-                            <div class="horarios-acciones">
-                                <button id="admin-copiar-horario" class="boton-enlace" type="button">Copiar el lunes de martes a viernes</button>
-                                <button id="admin-cerrar-fin-semana" class="boton-enlace" type="button">Cerrar sábado y domingo</button>
-                            </div>
-                            <div class="horarios-cabecera" aria-hidden="true">
-                                <span>Día</span><span>Apertura</span><span>Cierre</span><span>2.ª apertura</span><span>2.º cierre</span>
-                            </div>
-                            <div id="admin-lista-horarios" class="lista-horarios"></div>
-                        </fieldset>
-
-                        <fieldset class="campo-formulario campo-ancho servicios-formulario">
-                            <legend>Servicios *</legend>
-                            <div id="admin-lista-servicios" class="servicios-opciones"></div>
-                        </fieldset>
-
-                        <div class="campo-formulario campo-ancho">
-                            <label for="admin-descripcion">Descripción *</label>
-                            <textarea id="admin-descripcion" rows="6" minlength="10" maxlength="1500" required></textarea>
-                        </div>
-
-                        <fieldset class="campo-formulario campo-ancho admin-fotos-editor">
-                            <legend>Fotografías</legend>
-                            <p class="campo-ayuda">Conserva o elimina las existentes y añade nuevas. Máximo 5 fotografías de 5 MB.</p>
-                            <div id="admin-fotos-actuales" class="solicitud-fotos"></div>
-                            <input id="admin-fotos-nuevas" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-                        </fieldset>
-
-                        <fieldset class="campo-formulario campo-ancho admin-estados-editor">
-                            <legend>Estado de la ficha</legend>
-                            <label><input id="admin-activo" type="checkbox" checked> Publicada y activa</label>
-                            <label><input id="admin-verificado" type="checkbox"> Taller verificado</label>
-                        </fieldset>
-                    </div>
-                    <div class="admin-editor-acciones">
-                        <button id="boton-guardar-admin" class="boton" type="submit">Guardar ficha</button>
-                        <button id="boton-cancelar-admin" class="boton boton-secundario" type="button">Cancelar</button>
-                    </div>
-                </form>
-            </section>
-
-            <div id="lista-solicitudes" class="lista-solicitudes" aria-live="polite"></div>
-
-            <nav class="admin-paginacion" aria-label="Paginación de talleres">
-                <button id="pagina-anterior" class="boton boton-secundario boton-pequeno" type="button">← Anterior</button>
-                <span id="estado-pagina">Página 1</span>
-                <button id="pagina-siguiente" class="boton boton-secundario boton-pequeno" type="button">Siguiente →</button>
-            </nav>
-
-            <details class="admin-historial">
-                <summary>Ver actividad reciente</summary>
-                <button id="boton-recargar-historial" class="boton-enlace" type="button">Actualizar historial</button>
-                <div id="lista-historial"></div>
-            </details>
         </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/provincias.js"></script>
     <script src="../js/supabase.js"></script>
-    <script src="../js/admin.js"></script>
-    <script src="../js/corregir-codificacion.js"></script>
-    <script src="../js/admin-campos-opcionales.js"></script>
+    <script src="../js/admin-shell.js"></script>
 </body>
 </html>
