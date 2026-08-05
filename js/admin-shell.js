@@ -5,8 +5,6 @@
   const estado=$('estado-acceso-admin');
   const form=$('form-taller');
   const resultados=$('resultados-talleres');
-  let campoActivo=null;
-
   const campos=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia','descripcion'];
 
   function textoSeguro(v){return String(v??'').replace(/[<>]/g,'').trim();}
@@ -70,20 +68,54 @@
     $('url-externa').value=url;$('visor-externo').src=url;
   }
 
+  function marcarDestino(id){
+    document.querySelectorAll('[data-drop]').forEach(c=>c.classList.toggle('tm-target',c.id===id));
+  }
+
+  function aplicarDato(){
+    if(form.hidden){mensaje('Selecciona primero un taller.');return;}
+    const destino=$('campo-destino').value;
+    const candidato=valorCampo('dato-candidato');
+    const campo=$(destino);
+    if(!campo||!candidato){mensaje('Indica el campo y el dato que deseas transferir.');return;}
+    const actual=campo.value.trim();
+    const modo=$('modo-transferencia').value;
+    if(modo==='anadir'){
+      const separador=(destino==='servicios'||destino==='horarios'||destino==='descripcion')?'\n':' · ';
+      campo.value=actual?`${actual}${separador}${candidato}`:candidato;
+      mensaje(`Dato añadido a ${destino}. Revisa y guarda la ficha.`,true);
+    }else{
+      const detalle=actual?`Dato actual:\n${actual}\n\nDato encontrado:\n${candidato}\n\n¿Deseas sustituirlo?`:`El campo está vacío. ¿Deseas usar este dato?\n\n${candidato}`;
+      if(!window.confirm(detalle))return;
+      campo.value=destino==='web'?normalizarUrl(candidato):candidato;
+      mensaje(`Dato aplicado a ${destino}. Revisa y guarda la ficha.`,true);
+    }
+    campo.focus();campo.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
   document.querySelectorAll('[data-drop]').forEach(campo=>{
-    campo.addEventListener('focus',()=>campoActivo=campo);
+    campo.addEventListener('focus',()=>{$('campo-destino').value=campo.id;marcarDestino(campo.id);});
     campo.addEventListener('dragover',e=>{e.preventDefault();campo.classList.add('tm-drop');});
     campo.addEventListener('dragleave',()=>campo.classList.remove('tm-drop'));
-    campo.addEventListener('drop',e=>{e.preventDefault();campo.classList.remove('tm-drop');const texto=e.dataTransfer.getData('text/plain');if(texto)campo.value=texto.trim();});
+    campo.addEventListener('drop',e=>{
+      e.preventDefault();campo.classList.remove('tm-drop');
+      const texto=e.dataTransfer.getData('text/plain').trim();
+      if(!texto)return;
+      $('campo-destino').value=campo.id;$('dato-candidato').value=texto;marcarDestino(campo.id);aplicarDato();
+    });
   });
 
-  document.addEventListener('copy',()=>{});
+  $('campo-destino').addEventListener('change',e=>marcarDestino(e.target.value));
+  $('btn-aplicar-dato').addEventListener('click',aplicarDato);
+  $('btn-limpiar-dato').addEventListener('click',()=>{$('dato-candidato').value='';});
+  $('dato-candidato').addEventListener('dragover',e=>e.preventDefault());
+  $('dato-candidato').addEventListener('drop',e=>{e.preventDefault();const texto=e.dataTransfer.getData('text/plain');if(texto)$('dato-candidato').value=texto.trim();});
+
   $('btn-copiar-seleccion').addEventListener('click',async()=>{
-    try{const texto=window.getSelection()?.toString().trim();if(!texto){mensaje('Selecciona texto en una fuente abierta fuera del iframe y vuelve a copiar.');return;}await navigator.clipboard.writeText(texto);mensaje('Texto copiado.',true);}catch{mensaje('El navegador no permitió copiar la selección.');}
+    try{const texto=window.getSelection()?.toString().trim();if(!texto){mensaje('Selecciona texto fuera del iframe o cópialo desde la fuente abierta en otra pestaña.');return;}await navigator.clipboard.writeText(texto);mensaje('Texto copiado.',true);}catch{mensaje('El navegador no permitió copiar la selección.');}
   });
-  $('btn-pegar-campo').addEventListener('click',async()=>{
-    if(!campoActivo){mensaje('Selecciona primero un campo de la ficha.');return;}
-    try{campoActivo.value=(await navigator.clipboard.readText()).trim();mensaje(`Dato pegado en ${campoActivo.id}.`,true);}catch{mensaje('El navegador no permitió leer el portapapeles.');}
+  $('btn-pegar-candidato').addEventListener('click',async()=>{
+    try{$('dato-candidato').value=(await navigator.clipboard.readText()).trim();mensaje('Dato pegado en la bandeja de transferencia.',true);}catch{mensaje('El navegador no permitió leer el portapapeles.');}
   });
 
   $('btn-buscar').addEventListener('click',buscar);
@@ -100,4 +132,5 @@
 
   proteger().then(buscar);
   abrirUrl();
+  marcarDestino('telefono');
 }());
