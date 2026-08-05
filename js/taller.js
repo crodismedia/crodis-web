@@ -360,7 +360,7 @@
         if (meta) meta.content = `Teléfono, dirección, servicios y cómo llegar a ${nombre}${taller.ciudad ? ` en ${taller.ciudad}` : ""}. Consulta su ficha en TallerMap.`.slice(0, 158);
 
         const robots = document.getElementById("robots-taller");
-        if (robots) robots.content = nombre && direccion && (telefono || web) ? "index,follow,max-image-preview:large" : "noindex,follow";
+        if (robots) robots.content = nombre && taller.ciudad && taller.provincia ? "index,follow,max-image-preview:large" : "noindex,follow";
 
         const [contexto, relacionados] = await Promise.all([
             obtenerContexto(taller),
