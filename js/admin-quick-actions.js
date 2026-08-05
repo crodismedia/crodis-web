@@ -1,0 +1,1 @@
+(function(){'use strict';window.TallerMapAdminQuickActions={version:'1.0.0'};}());
