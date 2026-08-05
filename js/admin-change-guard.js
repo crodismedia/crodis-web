@@ -59,8 +59,18 @@
 
   function hayCambios(){return diferencias().length>0;}
 
+  function cargarValidaciones(){
+    if(document.querySelector('script[data-admin-validation]'))return;
+    const script=document.createElement('script');
+    script.src='../js/admin-validation.js';
+    script.dataset.adminValidation='true';
+    script.defer=true;
+    document.head.appendChild(script);
+  }
+
   function conectar(){
     construir();
+    cargarValidaciones();
     IDS.forEach(id=>{const nodo=$(id);if(!nodo)return;nodo.addEventListener('input',()=>{if(!restaurando)renderizar();});nodo.addEventListener('change',()=>{if(!restaurando)renderizar();});});
 
     document.addEventListener('click',e=>{
