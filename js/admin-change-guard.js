@@ -72,6 +72,7 @@
     construir();
     cargarModulo('../js/admin-validation.js','data-admin-validation');
     cargarModulo('../js/admin-activity-log.js','data-admin-activity');
+    cargarModulo('../js/admin-quick-actions.js','data-admin-quick-actions');
     IDS.forEach(id=>{const nodo=$(id);if(!nodo)return;nodo.addEventListener('input',()=>{if(!restaurando)renderizar();});nodo.addEventListener('change',()=>{if(!restaurando)renderizar();});});
 
     document.addEventListener('click',e=>{
