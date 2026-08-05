@@ -12,7 +12,7 @@
     .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}
     .tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;flex-wrap:wrap}
     .tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}.tm-btn-danger{background:#fee2e2;color:#991b1b}
-    .tm-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:calc(100vh - 62px)}
+    .tm-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(340px,1fr);height:calc(100vh - 62px)}
     .tm-pane{min-width:0;overflow:auto;background:#fff}.tm-pane+ .tm-pane{border-left:1px solid var(--b)}
     .tm-pane-head{position:sticky;top:0;z-index:3;padding:14px;background:#fff;border-bottom:1px solid var(--b)}
     .tm-pane-head h2{margin:0 0 4px;font-size:1.08rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.9rem}
@@ -23,6 +23,7 @@
     .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.96);border-top:1px solid var(--b)}
     .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 155px);position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:rgba(17,24,39,.9);color:#fff;font-size:.82rem;pointer-events:none}
     .tm-source-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-status{font-size:.85rem;color:var(--muted);margin-top:8px}.tm-tabs{display:none}
+    @media(max-width:1100px){.tm-layout{grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr)}}
     @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:70vh}.tm-form{grid-template-columns:1fr}}
   </style>
 </head>
