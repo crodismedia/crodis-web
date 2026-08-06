@@ -1,54 +1,13 @@
 (function(){
   'use strict';
 
-  const SERVICIOS = [
-    'Mecánica general','Cambio de aceite','Frenos','Neumáticos','Diagnosis',
-    'Aire acondicionado','Electricidad','Baterías','Embrague','Distribución',
-    'Suspensión','Escape','Pre-ITV','Chapa y pintura','Alineación'
-  ];
   const DIAS = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
   const LABORABLES = ['lunes','martes','miércoles','jueves','viernes'];
   const $ = (id) => document.getElementById(id);
 
-  function normalizar(v){
-    return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  }
-
   function emitir(campo){
     campo.dispatchEvent(new Event('input',{bubbles:true}));
     campo.dispatchEvent(new Event('change',{bubbles:true}));
-  }
-
-  function montarServicios(){
-    const campo = $('servicios');
-    if (!campo || $('servicios-estructurados') || $('lista-servicios-editor')) return;
-    const panel = document.createElement('div');
-    panel.id = 'servicios-estructurados';
-    panel.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;margin-bottom:8px';
-    panel.innerHTML = SERVICIOS.map((s,i)=>`<label style="display:flex;gap:7px;align-items:center;padding:7px;border:1px solid #dfe3e8;border-radius:9px;background:#fff"><input type="checkbox" data-servicio="${i}" style="width:auto">${s}</label>`).join('');
-    campo.parentElement.insertBefore(panel,campo);
-
-    function reflejarDesdeTexto(){
-      const actuales = campo.value.split(/[\n,;]+/).map(normalizar).filter(Boolean);
-      panel.querySelectorAll('[data-servicio]').forEach((check)=>{
-        const nombre = SERVICIOS[Number(check.dataset.servicio)];
-        check.checked = actuales.some((x)=>x===normalizar(nombre));
-      });
-    }
-
-    panel.addEventListener('change',(e)=>{
-      const check = e.target.closest('[data-servicio]');
-      if (!check) return;
-      const nombre = SERVICIOS[Number(check.dataset.servicio)];
-      let lista = campo.value.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
-      lista = lista.filter((x)=>normalizar(x)!==normalizar(nombre));
-      if (check.checked) lista.push(nombre);
-      campo.value = [...new Set(lista)].join('\n');
-      emitir(campo);
-    });
-    campo.addEventListener('input',reflejarDesdeTexto);
-    document.addEventListener('click',(e)=>{if(e.target.closest('.tm-result')) setTimeout(reflejarDesdeTexto,0);});
-    reflejarDesdeTexto();
   }
 
   function interpretarHorario(valor){
@@ -63,22 +22,34 @@
   function montarHorarios(){
     const campo = $('horarios');
     if (!campo || $('horarios-estructurados')) return;
-    const panel = document.createElement('div');
+
+    campo.hidden = true;
+    campo.setAttribute('aria-hidden','true');
+
+    const panel = document.createElement('section');
     panel.id = 'horarios-estructurados';
-    panel.style.cssText = 'display:grid;gap:9px;margin-bottom:8px';
+    panel.style.cssText = 'display:grid;gap:10px;margin-bottom:8px';
     panel.innerHTML = `
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px;border:1px solid #dfe3e8;border-radius:10px;background:#f8fafc">
-        <span style="font-size:.84rem;color:#475467">Configura el lunes y aplica el mismo horario de lunes a viernes.</span>
-        <button id="aplicar-lunes-viernes" type="button" class="tm-btn tm-btn-soft" style="border:1px solid #cfd5dc">Aplicar de lunes a viernes</button>
+      <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;padding:12px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc">
+        <div>
+          <strong style="display:block;margin-bottom:3px">Horario semanal</strong>
+          <span style="font-size:.84rem;color:#667085">Configura el lunes y copia el mismo horario al resto de días laborables.</span>
+        </div>
+        <button id="aplicar-lunes-viernes" type="button" class="tm-btn tm-btn-soft" style="border:1px solid #cfd5dc">Aplicar lunes–viernes</button>
       </div>
-      ${DIAS.map((dia)=>`<div style="display:grid;grid-template-columns:90px 1fr 1fr auto;gap:7px;align-items:center"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre" aria-label="Apertura ${dia}"><input type="time" data-dia="${dia}" data-tipo="cierra" aria-label="Cierre ${dia}"><label style="display:flex;gap:5px;align-items:center"><input type="checkbox" data-cerrado="${dia}" style="width:auto"> Cerrado</label></div>`).join('')}
+      ${DIAS.map((dia)=>`<div class="tm-horario-dia" style="display:grid;grid-template-columns:100px minmax(120px,1fr) minmax(120px,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre" aria-label="Apertura ${dia}"><input type="time" data-dia="${dia}" data-tipo="cierra" aria-label="Cierre ${dia}"><label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cerrado="${dia}" style="width:auto"> Cerrado</label></div>`).join('')}
+      <style>@media(max-width:700px){#horarios-estructurados .tm-horario-dia{grid-template-columns:1fr 1fr}#horarios-estructurados .tm-horario-dia strong{grid-column:1/-1}}</style>
     `;
     campo.parentElement.insertBefore(panel,campo);
 
     function actualizarBloqueo(dia){
       const cerrado = panel.querySelector(`[data-cerrado="${dia}"]`).checked;
-      panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).disabled = cerrado;
-      panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).disabled = cerrado;
+      const abre = panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`);
+      const cierra = panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`);
+      abre.disabled = cerrado;
+      cierra.disabled = cerrado;
+      abre.style.opacity = cerrado ? '.45' : '1';
+      cierra.style.opacity = cerrado ? '.45' : '1';
     }
 
     function sincronizarTexto(){
@@ -124,13 +95,15 @@
     });
 
     campo.addEventListener('input',reflejarDesdeTexto);
-    document.addEventListener('click',(e)=>{if(e.target.closest('.tm-result')) setTimeout(reflejarDesdeTexto,0);});
+    document.addEventListener('click',(e)=>{
+      if(e.target.closest('.tm-result')) setTimeout(reflejarDesdeTexto,0);
+    });
     reflejarDesdeTexto();
   }
 
   function iniciar(){
-    montarServicios();
     montarHorarios();
+    document.getElementById('prueba-guiada')?.remove();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',iniciar);
