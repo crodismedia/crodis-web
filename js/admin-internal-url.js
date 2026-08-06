@@ -42,7 +42,7 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  ['admin-research-center.js','admin-editor-cleanup.js'].forEach(archivo=>{
+  ['admin-research-center.js','admin-editor-cleanup.js','admin-no-suggestions.js'].forEach(archivo=>{
     const script=document.createElement('script');
     script.src=`../js/${archivo}`;
     script.defer=true;
