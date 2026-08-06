@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Gestionar mi taller | TallerMap</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilo.css">
+  <style>
+    body{background:#f5f7f9}.portal{max-width:820px;margin:38px auto;padding:0 18px}.card{background:#fff;border-radius:18px;padding:28px;box-shadow:0 12px 35px rgba(0,0,0,.08)}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:22px 0}.step{padding:10px;border-radius:12px;background:#eef1f4;text-align:center;font-weight:800;font-size:.84rem}.step.active{background:#dcfce7;color:#166534}
+    .notice{padding:15px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:800}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid #cfd5dc;border-radius:10px;font:inherit}.field textarea{min-height:100px}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}.status{margin-top:16px;font-weight:700}.hidden{display:none!important}
+    @media(max-width:650px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.steps{grid-template-columns:1fr 1fr}.card{padding:22px}}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="../index.html" class="marca"><img class="marca-icono marca-icono-logo" src="../favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Portal de propietarios</small></span></a><a href="../index.html" class="boton boton-pequeno">Volver</a></div></header>
+<main class="portal">
+  <section class="card">
+    <span class="etiqueta">Acceso seguro</span>
+    <h1>Gestionar o dar de baja mi taller</h1>
+    <p>El acceso se concede únicamente al propietario o representante autorizado. Ningún dato podrá modificarse hasta completar la verificación.</p>
+    <div class="steps" aria-label="Fases de acceso"><div class="step active">1. Identificación</div><div class="step">2. Cuenta</div><div class="step">3. Verificación</div><div class="step">4. Gestión</div></div>
+    <div id="taller-resumen" class="notice">Comprobando la ficha seleccionada…</div>
+    <form id="form-reclamacion" class="grid">
+      <input type="hidden" id="taller-id" name="taller_id">
+      <input type="hidden" id="taller-slug" name="taller_slug">
+      <div class="field"><label for="nombre-responsable">Nombre y apellidos</label><input id="nombre-responsable" required maxlength="120" autocomplete="name"></div>
+      <div class="field"><label for="cargo">Relación con el taller</label><select id="cargo" required><option value="">Selecciona</option><option value="propietario">Propietario/a</option><option value="administrador">Administrador/a</option><option value="representante">Representante autorizado/a</option></select></div>
+      <div class="field"><label for="email-contacto">Correo de contacto</label><input id="email-contacto" type="email" required maxlength="160" autocomplete="email"></div>
+      <div class="field"><label for="telefono-contacto">Teléfono de contacto</label><input id="telefono-contacto" type="tel" required maxlength="30" autocomplete="tel"></div>
+      <div class="field full"><label for="metodo-verificacion">Método principal de verificación</label><select id="metodo-verificacion" required><option value="">Selecciona</option><option value="telefono_taller">Código al teléfono publicado del taller</option><option value="email_taller">Código al correo publicado del taller</option><option value="dominio_web">Correo con dominio de la web oficial</option><option value="documento">Documento acreditativo y revisión manual</option></select></div>
+      <div class="field full"><label><input id="declaracion" type="checkbox" required> Declaro que soy propietario/a o representante autorizado/a y que los datos aportados son veraces.</label></div>
+      <div class="field full"><label><input id="privacidad" type="checkbox" required> Acepto que TallerMap compruebe la titularidad antes de conceder acceso.</label></div>
+      <div class="actions full"><a class="boton boton-claro" href="javascript:history.back()">Cancelar</a><button class="boton" type="submit">Continuar con la verificación</button></div>
+    </form>
+    <p id="estado-reclamacion" class="status" aria-live="polite"></p>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/reclamar-taller.js"></script>
+</body>
+</html>
