@@ -8,74 +8,50 @@
   <link rel="stylesheet" href="../css/estilo.css">
   <style>
     :root{--b:#dfe3e8;--bg:#f5f7f9;--ink:#17202a;--muted:#667085;--accent:#15803d}
-    *{box-sizing:border-box}
-    body{margin:0}
-    .tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
-    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:#111827;color:#fff;position:sticky;top:0;z-index:20}
-    .tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    *{box-sizing:border-box}body{margin:0}.tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
+    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:#111827;color:#fff;position:sticky;top:0;z-index:20}.tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}
-    .tm-layout{width:min(1180px,100%);margin:0 auto;padding:18px}
-    .tm-pane{min-width:0;background:#fff;border:1px solid var(--b);border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,.06);overflow:visible}
-    .tm-pane-head{padding:20px 22px 14px;background:#fff;border-bottom:1px solid var(--b);border-radius:18px 18px 0 0}
-    .tm-pane-head h1{margin:0 0 5px;font-size:1.35rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.92rem}
+    .tm-layout{width:min(1180px,100%);margin:0 auto;padding:18px}.tm-pane{min-width:0;background:#fff;border:1px solid var(--b);border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,.06)}
+    .tm-pane-head{padding:20px 22px 14px;border-bottom:1px solid var(--b)}.tm-pane-head h1{margin:0 0 5px;font-size:1.35rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.92rem}
     .tm-body{padding:20px 22px 0;position:relative}.tm-search{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:14px}
     input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:11px 12px;background:#fff;font:inherit}textarea{resize:vertical;min-height:100px}
-    .tm-results{display:none;position:absolute;z-index:15;top:70px;left:22px;right:22px;max-height:340px;overflow:auto;padding:8px;background:#fff;border:1px solid var(--b);border-radius:14px;box-shadow:0 16px 36px rgba(17,24,39,.16)}
-    .tm-results:not(:empty){display:grid;grid-template-columns:1fr;gap:7px}
+    .tm-results{display:none;position:absolute;z-index:15;top:70px;left:22px;right:22px;max-height:340px;overflow:auto;padding:8px;background:#fff;border:1px solid var(--b);border-radius:14px;box-shadow:0 16px 36px rgba(17,24,39,.16)}.tm-results:not(:empty){display:grid;gap:7px}
     .tm-result{padding:11px;text-align:left;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
-    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tm-field{display:grid;gap:6px;padding:9px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.84rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
-    .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-    .tm-savebar{position:sticky;bottom:0;z-index:10;display:flex;gap:9px;justify-content:flex-end;padding:14px 0 18px;background:rgba(255,255,255,.97);border-top:1px solid var(--b)}
-    .tm-status{font-size:.88rem;color:var(--muted);margin:10px 0 18px}
-    .tm-legacy-source{display:none!important}
-    @media(max-width:700px){.tm-top{align-items:flex-start}.tm-layout{padding:10px}.tm-pane-head,.tm-body{padding-left:14px;padding-right:14px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-savebar{display:grid;grid-template-columns:1fr 1fr}.tm-savebar .tm-btn{width:100%}.tm-results{left:14px;right:14px;top:118px}}
+    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tm-field{display:grid;gap:6px;padding:9px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field>label,.tm-field>span{font-size:.84rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
+    .tm-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tm-services .servicios-grupo{margin:0;padding:12px;border:1px solid var(--b);border-radius:12px;background:#fff}.tm-services h3{margin:0 0 9px;font-size:.92rem}.tm-services label{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:.86rem;line-height:1.25;cursor:pointer}.tm-services input{width:auto;margin:2px 0 0;accent-color:#16a34a}.tm-help{margin:0;color:var(--muted);font-size:.82rem}
+    .tm-savebar{position:sticky;bottom:0;z-index:10;display:flex;gap:9px;justify-content:flex-end;padding:14px 0 18px;background:rgba(255,255,255,.97);border-top:1px solid var(--b)}.tm-status{font-size:.88rem;color:var(--muted);margin:10px 0 18px}.tm-legacy-source{display:none!important}
+    @media(max-width:900px){.tm-services{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:700px){.tm-top{align-items:flex-start}.tm-layout{padding:10px}.tm-pane-head,.tm-body{padding-left:14px;padding-right:14px}.tm-form,.tm-search,.tm-services{grid-template-columns:1fr}.tm-savebar{display:grid;grid-template-columns:1fr 1fr}.tm-savebar .tm-btn{width:100%}.tm-results{left:14px;right:14px;top:118px}}
   </style>
 </head>
 <body class="tm-admin">
-<header class="tm-top">
-  <strong>TallerMap · Editor de talleres</strong>
-  <div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div>
-</header>
-<main class="tm-layout">
-  <section class="tm-pane active" data-pane="ficha">
-    <div class="tm-pane-head"><h1>Gestión de fichas</h1><p>Busca un taller, modifica sus datos y guarda los cambios. Naranja: vacío; azul: modificado; verde: guardado.</p></div>
-    <div class="tm-body">
-      <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary" type="button">Buscar</button></div>
-      <div id="resultados-talleres" class="tm-results"></div>
-      <form id="form-taller" class="tm-form" hidden>
-        <input id="taller-id" type="hidden">
-        <div class="tm-field full"><label for="nombre">Nombre</label><input id="nombre" data-drop="nombre"></div>
-        <div class="tm-field"><label for="telefono">Teléfono</label><input id="telefono" data-drop="telefono"></div>
-        <div class="tm-field"><label for="web">Web</label><input id="web" data-drop="web"></div>
-        <div class="tm-field full"><label for="direccion">Dirección</label><input id="direccion" data-drop="direccion"></div>
-        <div class="tm-field"><label for="codigo_postal">Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
-        <div class="tm-field"><label for="ciudad">Población</label><input id="ciudad" data-drop="ciudad"></div>
-        <div class="tm-field full"><label for="provincia">Provincia</label><input id="provincia" data-drop="provincia"></div>
-        <div class="tm-field full"><label for="servicios">Servicios</label><textarea id="servicios" data-drop="servicios"></textarea></div>
-        <div class="tm-field full"><label for="horarios">Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
-        <div class="tm-field full"><label for="descripcion">Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
-        <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar en Google</button><button type="submit" class="tm-btn tm-btn-primary">Guardar cambios</button></div>
-      </form>
-      <p id="estado-ficha" class="tm-status">Escribe un término y pulsa Buscar.</p>
-    </div>
-  </section>
-</main>
-
-<section class="tm-legacy-source" aria-hidden="true">
-  <button data-tab="ficha" type="button"></button><button data-tab="fuente" type="button"></button>
-  <div data-pane="fuente">
-    <input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico">
-    <button id="btn-cargar-url" type="button"></button><button id="btn-nueva-pestana" type="button"></button>
-    <button id="btn-pegar-candidato" type="button"></button><button id="btn-analizar" type="button"></button>
-    <select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select>
-    <select id="modo-transferencia"><option value="sustituir">Sustituir</option><option value="anadir">Añadir</option></select>
-    <textarea id="dato-candidato"></textarea><button id="btn-aplicar-dato" type="button"></button><button id="btn-limpiar-dato" type="button"></button>
-    <span id="contador-detectados"></span><div id="inspector-resultados"></div><iframe id="visor-externo" title="Fuente externa"></iframe>
-    <button id="btn-abrir-externa-grande" type="button"></button><button id="btn-pegar-externa-grande" type="button"></button>
+<header class="tm-top"><strong>TallerMap · Editor de talleres</strong><div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div></header>
+<main class="tm-layout"><section class="tm-pane active" data-pane="ficha">
+  <div class="tm-pane-head"><h1>Gestión de fichas</h1><p>Busca un taller, modifica sus datos y guarda los cambios.</p></div>
+  <div class="tm-body">
+    <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary" type="button">Buscar</button></div>
+    <div id="resultados-talleres" class="tm-results"></div>
+    <form id="form-taller" class="tm-form" hidden>
+      <input id="taller-id" type="hidden">
+      <div class="tm-field full"><label for="nombre">Nombre</label><input id="nombre" data-drop="nombre"></div>
+      <div class="tm-field"><label for="telefono">Teléfono</label><input id="telefono" data-drop="telefono"></div>
+      <div class="tm-field"><label for="web">Web</label><input id="web" data-drop="web"></div>
+      <div class="tm-field full"><label for="direccion">Dirección</label><input id="direccion" data-drop="direccion"></div>
+      <div class="tm-field"><label for="codigo_postal">Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
+      <div class="tm-field"><label for="ciudad">Población</label><input id="ciudad" data-drop="ciudad"></div>
+      <div class="tm-field full"><label for="provincia">Provincia</label><input id="provincia" data-drop="provincia"></div>
+      <div class="tm-field full" id="campo-servicios"><span>Servicios del taller</span><p class="tm-help">Marca o desmarca cada servicio. Están organizados igual que en TallerMap.</p><div id="lista-servicios-editor" class="tm-services"></div><textarea id="servicios" data-drop="servicios" hidden></textarea></div>
+      <div class="tm-field full"><label for="horarios">Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
+      <div class="tm-field full"><label for="descripcion">Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
+      <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar en Google</button><button type="submit" class="tm-btn tm-btn-primary">Guardar cambios</button></div>
+    </form>
+    <p id="estado-ficha" class="tm-status">Escribe un término y pulsa Buscar.</p>
   </div>
-</section>
+</section></main>
+<section class="tm-legacy-source" aria-hidden="true"><button data-tab="ficha" type="button"></button><button data-tab="fuente" type="button"></button><div data-pane="fuente"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" type="button"></button><button id="btn-nueva-pestana" type="button"></button><button id="btn-pegar-candidato" type="button"></button><button id="btn-analizar" type="button"></button><select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select><select id="modo-transferencia"><option value="sustituir">Sustituir</option><option value="anadir">Añadir</option></select><textarea id="dato-candidato"></textarea><button id="btn-aplicar-dato" type="button"></button><button id="btn-limpiar-dato" type="button"></button><span id="contador-detectados"></span><div id="inspector-resultados"></div><iframe id="visor-externo" title="Fuente externa"></iframe><button id="btn-abrir-externa-grande" type="button"></button><button id="btn-pegar-externa-grande" type="button"></button></div></section>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
+<script src="../js/servicios.js"></script>
 <script src="../js/admin-shell.js"></script>
 <script src="../js/admin-enrichment.js"></script>
 <script src="../js/admin-internal-url.js"></script>
@@ -87,11 +63,15 @@
   'use strict';
   const input=document.getElementById('buscar-taller');
   const resultados=document.getElementById('resultados-talleres');
-  if(!input||!resultados)return;
-  const limpiarVacio=()=>{if(!input.value.trim())resultados.innerHTML='';};
-  new MutationObserver(limpiarVacio).observe(resultados,{childList:true,subtree:true});
-  input.addEventListener('input',()=>{if(!input.value.trim())resultados.innerHTML='';});
-  resultados.addEventListener('click',e=>{if(e.target.closest('[data-i]'))setTimeout(()=>{resultados.innerHTML='';},0);});
+  const contenedor=document.getElementById('lista-servicios-editor');
+  const oculto=document.getElementById('servicios');
+  if(window.TallerMapServicios&&contenedor)window.TallerMapServicios.rellenarCheckboxes(contenedor);
+  function valoresGuardados(){return String(oculto?.value||'').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);}
+  function sincronizarCasillas(){const activos=new Set(valoresGuardados());contenedor?.querySelectorAll('input[name="servicios"]').forEach(c=>c.checked=activos.has(c.value)||activos.has(c.nextSibling?.textContent?.trim()));}
+  function sincronizarOculto(){if(!oculto)return;oculto.value=[...contenedor.querySelectorAll('input[name="servicios"]:checked')].map(c=>c.value).join('\n');oculto.dispatchEvent(new Event('input',{bubbles:true}));}
+  contenedor?.addEventListener('change',sincronizarOculto);
+  resultados?.addEventListener('click',e=>{if(e.target.closest('[data-i]'))setTimeout(()=>{sincronizarCasillas();resultados.innerHTML='';},0);});
+  input?.addEventListener('input',()=>{if(!input.value.trim())resultados.innerHTML='';});
   document.addEventListener('click',e=>{if(!e.target.closest('.tm-search')&&!e.target.closest('#resultados-talleres'))resultados.innerHTML='';});
 })();
 </script>
