@@ -83,13 +83,17 @@
         });
     }
 
-    function actualizarFichaUnaVez() {
+    function slugActual() {
         const ruta = window.location.pathname;
         const parametros = new URLSearchParams(window.location.search);
-        const slug = ruta.startsWith(CLEAN_PREFIX)
+        return ruta.startsWith(CLEAN_PREFIX)
             ? slugSeguro(ruta.slice(CLEAN_PREFIX.length))
             : slugSeguro(parametros.get("slug") || "");
+    }
 
+    function actualizarFichaUnaVez() {
+        const ruta = window.location.pathname;
+        const slug = slugActual();
         if (!slug) return;
         const limpia = urlLimpia(slug);
         const absoluta = `${SITE_URL}${limpia}`;
@@ -103,6 +107,17 @@
         if (canonical) canonical.href = absoluta;
     }
 
+    function configurarGestionPropietario() {
+        const boton = document.getElementById("reclamar-ficha");
+        if (!boton) return;
+        const slug = slugActual();
+        const destino = new URL("/pages/reclamar-taller.html", window.location.origin);
+        if (slug) destino.searchParams.set("slug", slug);
+        boton.href = `${destino.pathname}${destino.search}`;
+        boton.textContent = "Gestionar o dar de baja este taller";
+        boton.removeAttribute("target");
+    }
+
     function iniciar() {
         document.querySelectorAll(".taller-card").forEach(limpiarEnlacesTarjeta);
         document.querySelectorAll("a.taller-relacionado").forEach((enlace) => {
@@ -110,6 +125,7 @@
             if (slug) enlace.href = urlLimpia(slug);
         });
         actualizarFichaUnaVez();
+        configurarGestionPropietario();
 
         const raiz = document.body;
         if (!raiz) return;
@@ -117,6 +133,7 @@
             cambios.forEach((cambio) => {
                 cambio.addedNodes.forEach(procesarNodo);
             });
+            configurarGestionPropietario();
         }).observe(raiz, { childList: true, subtree: true });
     }
 
