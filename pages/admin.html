@@ -4,67 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Editor asistido | TallerMap</title>
+  <title>Editor de talleres | TallerMap</title>
   <link rel="stylesheet" href="../css/estilo.css">
   <style>
     :root{--b:#dfe3e8;--bg:#f5f7f9;--ink:#17202a;--muted:#667085;--accent:#15803d}
-    *{box-sizing:border-box}.tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
-    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}.tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;flex-wrap:wrap}
+    *{box-sizing:border-box}
+    body{margin:0}
+    .tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
+    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:#111827;color:#fff;position:sticky;top:0;z-index:20}
+    .tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}
-    .tm-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(340px,1fr);height:calc(100vh - 62px)}.tm-pane{min-width:0;overflow:auto;background:#fff}.tm-pane+.tm-pane{border-left:1px solid var(--b)}
-    .tm-pane-head{position:sticky;top:0;z-index:3;padding:14px;background:#fff;border-bottom:1px solid var(--b)}.tm-pane-head h2{margin:0 0 4px;font-size:1.08rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.9rem}
-    .tm-body{padding:14px}.tm-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:10px 11px;background:#fff;font:inherit}textarea{resize:vertical;min-height:92px}
-    .tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
-    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
-    .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.96);border-top:1px solid var(--b)}
-    .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 560px);min-height:280px;position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:12px;border-radius:12px;background:rgba(17,24,39,.94);color:#fff;font-size:.82rem}.tm-webnote strong,.tm-webnote span{display:block}.tm-webnote span{margin-top:4px;color:#e5e7eb}.tm-webnote-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-webnote .tm-btn{padding:9px 12px}.tm-webnote .tm-btn-primary{background:#16a34a;color:#fff}.tm-webnote .tm-btn-soft{background:#fff;color:#111827}
-    .tm-source-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-status{font-size:.85rem;color:var(--muted);margin-top:8px}.tm-tabs{display:none}.tm-transfer,.tm-inspector{margin-top:12px;padding:12px;border:1px solid var(--b);border-radius:14px;background:#f8fafc}.tm-transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tm-transfer textarea{min-height:76px}.tm-transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-    .tm-inspector-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.tm-inspector-list{display:grid;gap:8px;margin-top:10px}.tm-suggestion{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--b);border-radius:10px;background:#fff}.tm-suggestion small,.tm-suggestion span{display:block}.tm-suggestion small{color:var(--muted);font-weight:700;text-transform:uppercase}.tm-suggestion span{overflow-wrap:anywhere}.tm-suggestion button{padding:7px 9px}.tm-empty{color:var(--muted);font-size:.85rem}
-    @media(max-width:1100px){.tm-layout{grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr)}}
-    @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:44vh;min-height:260px}.tm-form,.tm-transfer-grid{grid-template-columns:1fr}.tm-urlbar{grid-template-columns:1fr 1fr}.tm-urlbar input{grid-column:1/-1}.tm-webnote{position:relative;left:auto;right:auto;bottom:auto;margin:12px}.tm-web{position:absolute;inset:0}}
+    .tm-layout{width:min(1180px,100%);margin:0 auto;padding:18px}
+    .tm-pane{min-width:0;background:#fff;border:1px solid var(--b);border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,.06);overflow:visible}
+    .tm-pane-head{padding:20px 22px 14px;background:#fff;border-bottom:1px solid var(--b);border-radius:18px 18px 0 0}
+    .tm-pane-head h1{margin:0 0 5px;font-size:1.35rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.92rem}
+    .tm-body{padding:20px 22px 0}.tm-search{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:14px}
+    input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:11px 12px;background:#fff;font:inherit}textarea{resize:vertical;min-height:100px}
+    .tm-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-bottom:18px}
+    .tm-result{padding:11px;text-align:left;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
+    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tm-field{display:grid;gap:6px;padding:9px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.84rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
+    .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+    .tm-savebar{position:sticky;bottom:0;z-index:10;display:flex;gap:9px;justify-content:flex-end;padding:14px 0 18px;background:rgba(255,255,255,.97);border-top:1px solid var(--b)}
+    .tm-status{font-size:.88rem;color:var(--muted);margin:10px 0 18px}
+    .tm-legacy-source{display:none!important}
+    @media(max-width:700px){.tm-top{align-items:flex-start}.tm-layout{padding:10px}.tm-pane-head,.tm-body{padding-left:14px;padding-right:14px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-savebar{display:grid;grid-template-columns:1fr 1fr}.tm-savebar .tm-btn{width:100%}.tm-results{grid-template-columns:1fr}}
   </style>
 </head>
 <body class="tm-admin">
-<header class="tm-top"><strong>TallerMap · Editor asistido</strong><div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div></header>
-<nav class="tm-tabs" aria-label="Cambiar panel"><button class="active" data-tab="ficha">Ficha</button><button data-tab="fuente">Fuente externa</button></nav>
+<header class="tm-top">
+  <strong>TallerMap · Editor de talleres</strong>
+  <div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div>
+</header>
 <main class="tm-layout">
   <section class="tm-pane active" data-pane="ficha">
-    <div class="tm-pane-head"><h2>Ficha de Supabase</h2><p>La ficha izquierda es el dato oficial. Naranja: vacío; azul: modificado; verde: guardado.</p></div>
+    <div class="tm-pane-head"><h1>Gestión de fichas</h1><p>Busca un taller, modifica sus datos y guarda los cambios. Naranja: vacío; azul: modificado; verde: guardado.</p></div>
     <div class="tm-body">
-      <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary">Buscar</button></div>
+      <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary" type="button">Buscar</button></div>
       <div id="resultados-talleres" class="tm-results"></div>
       <form id="form-taller" class="tm-form" hidden>
         <input id="taller-id" type="hidden">
-        <div class="tm-field full"><label>Nombre</label><input id="nombre" data-drop="nombre"></div>
-        <div class="tm-field"><label>Teléfono</label><input id="telefono" data-drop="telefono"></div>
-        <div class="tm-field"><label>Web</label><input id="web" data-drop="web"></div>
-        <div class="tm-field full"><label>Dirección</label><input id="direccion" data-drop="direccion"></div>
-        <div class="tm-field"><label>Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
-        <div class="tm-field"><label>Población</label><input id="ciudad" data-drop="ciudad"></div>
-        <div class="tm-field full"><label>Provincia</label><input id="provincia" data-drop="provincia"></div>
-        <div class="tm-field full"><label>Servicios</label><textarea id="servicios" data-drop="servicios"></textarea></div>
-        <div class="tm-field full"><label>Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
-        <div class="tm-field full"><label>Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
-        <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar este taller</button><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
+        <div class="tm-field full"><label for="nombre">Nombre</label><input id="nombre" data-drop="nombre"></div>
+        <div class="tm-field"><label for="telefono">Teléfono</label><input id="telefono" data-drop="telefono"></div>
+        <div class="tm-field"><label for="web">Web</label><input id="web" data-drop="web"></div>
+        <div class="tm-field full"><label for="direccion">Dirección</label><input id="direccion" data-drop="direccion"></div>
+        <div class="tm-field"><label for="codigo_postal">Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
+        <div class="tm-field"><label for="ciudad">Población</label><input id="ciudad" data-drop="ciudad"></div>
+        <div class="tm-field full"><label for="provincia">Provincia</label><input id="provincia" data-drop="provincia"></div>
+        <div class="tm-field full"><label for="servicios">Servicios</label><textarea id="servicios" data-drop="servicios"></textarea></div>
+        <div class="tm-field full"><label for="horarios">Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
+        <div class="tm-field full"><label for="descripcion">Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
+        <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar en Google</button><button type="submit" class="tm-btn tm-btn-primary">Guardar cambios</button></div>
       </form>
       <p id="estado-ficha" class="tm-status">Selecciona un taller para editarlo.</p>
     </div>
   </section>
-  <section class="tm-pane" data-pane="fuente">
-    <div class="tm-pane-head"><h2>Fuente externa</h2><p>Abre la fuente, copia sus datos y vuelve aquí para pegarlos y analizarlos.</p>
-      <div class="tm-urlbar"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" class="tm-btn tm-btn-primary">Mostrar</button><button id="btn-nueva-pestana" class="tm-btn tm-btn-soft">Abrir en pestaña</button></div>
-      <div class="tm-source-tools"><button id="btn-pegar-candidato" class="tm-btn tm-btn-soft">Pegar desde portapapeles</button><button id="btn-analizar" class="tm-btn tm-btn-primary">Analizar datos</button></div>
-      <section class="tm-transfer" aria-labelledby="titulo-transferencia">
-        <strong id="titulo-transferencia">Transferir a la ficha</strong>
-        <div class="tm-transfer-grid"><label>Campo de destino<select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select></label><label>Modo<select id="modo-transferencia"><option value="sustituir">Sustituir con confirmación</option><option value="anadir">Añadir sin borrar</option></select></label></div>
-        <label>Texto obtenido de la fuente<textarea id="dato-candidato" placeholder="Pega aquí toda la información o un dato concreto"></textarea></label>
-        <div class="tm-transfer-actions"><button id="btn-aplicar-dato" type="button" class="tm-btn tm-btn-primary">Aplicar dato</button><button id="btn-limpiar-dato" type="button" class="tm-btn tm-btn-soft">Limpiar</button></div>
-      </section>
-      <section class="tm-inspector"><div class="tm-inspector-head"><strong>Datos detectados</strong><span id="contador-detectados" class="tm-status">0 propuestas</span></div><div id="inspector-resultados" class="tm-inspector-list"><p class="tm-empty">Pega texto y pulsa “Analizar datos”.</p></div></section>
-    </div>
-    <div class="tm-webwrap"><iframe id="visor-externo" class="tm-web" title="Fuente externa" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe><div class="tm-webnote"><strong>¿La página no se muestra?</strong><span>Algunas webs bloquean su apertura dentro del panel. Ábrela en una pestaña, copia la información del taller y vuelve para pegarla.</span><div class="tm-webnote-actions"><button id="btn-abrir-externa-grande" type="button" class="tm-btn tm-btn-primary">Abrir página externa</button><button id="btn-pegar-externa-grande" type="button" class="tm-btn tm-btn-soft">Pegar y analizar</button></div></div></div>
-  </section>
 </main>
+
+<!-- Elementos técnicos ocultos para mantener compatibilidad con las funciones existentes. -->
+<section class="tm-legacy-source" aria-hidden="true">
+  <button data-tab="ficha" type="button"></button><button data-tab="fuente" type="button"></button>
+  <div data-pane="fuente">
+    <input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico">
+    <button id="btn-cargar-url" type="button"></button><button id="btn-nueva-pestana" type="button"></button>
+    <button id="btn-pegar-candidato" type="button"></button><button id="btn-analizar" type="button"></button>
+    <select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select>
+    <select id="modo-transferencia"><option value="sustituir">Sustituir</option><option value="anadir">Añadir</option></select>
+    <textarea id="dato-candidato"></textarea><button id="btn-aplicar-dato" type="button"></button><button id="btn-limpiar-dato" type="button"></button>
+    <span id="contador-detectados"></span><div id="inspector-resultados"></div><iframe id="visor-externo" title="Fuente externa"></iframe>
+    <button id="btn-abrir-externa-grande" type="button"></button><button id="btn-pegar-externa-grande" type="button"></button>
+  </div>
+</section>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-shell.js"></script>
@@ -73,16 +82,5 @@
 <script src="../js/admin-gallery.js"></script>
 <script src="../js/admin-structured-fields.js"></script>
 <script src="../js/admin-change-guard.js"></script>
-<script>
-(function(){
-  'use strict';
-  const abrir=document.getElementById('btn-abrir-externa-grande');
-  const pegar=document.getElementById('btn-pegar-externa-grande');
-  const botonPestana=document.getElementById('btn-nueva-pestana');
-  const botonPegar=document.getElementById('btn-pegar-candidato');
-  if(abrir&&botonPestana)abrir.addEventListener('click',()=>botonPestana.click());
-  if(pegar&&botonPegar)pegar.addEventListener('click',()=>botonPegar.click());
-})();
-</script>
 </body>
 </html>
