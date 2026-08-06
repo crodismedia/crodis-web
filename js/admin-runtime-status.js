@@ -12,10 +12,20 @@
     ['Historial','admin-activity-log.js'],
     ['Acciones rápidas','admin-quick-actions.js'],
     ['Calidad','admin-quality-score.js'],
-    ['Navegación por lote','admin-batch-navigation.js']
+    ['Navegación por lote','admin-batch-navigation.js'],
+    ['Guardado robusto','admin-save-guard.js']
   ];
 
+  function cargarGuardado(){
+    if([...document.scripts].some(s=>(s.src||'').endsWith('admin-save-guard.js')))return;
+    const script=document.createElement('script');
+    script.src='../js/admin-save-guard.js';
+    script.async=false;
+    document.body.appendChild(script);
+  }
+
   function construir(){
+    cargarGuardado();
     const form=$('form-taller');
     if(!form||$('estado-plataforma'))return;
     const panel=document.createElement('section');
@@ -24,7 +34,7 @@
     panel.innerHTML='<label>Estado de la plataforma</label><div id="estado-plataforma-contenido" style="display:grid;gap:7px;padding:10px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc"><span class="tm-status">Comprobando conexión, sesión y módulos…</span></div><button id="btn-recomprobar-plataforma" type="button" class="tm-btn tm-btn-soft" style="justify-self:start">Comprobar de nuevo</button>';
     form.insertBefore(panel,form.firstElementChild?.nextSibling||null);
     $('btn-recomprobar-plataforma')?.addEventListener('click',comprobar);
-    comprobar();
+    setTimeout(comprobar,50);
   }
 
   function fila(ok,texto,detalle=''){
@@ -67,5 +77,6 @@
     box.innerHTML=resultados.join('');
   }
 
+  document.addEventListener('tallermap:ficha-guardada',()=>setTimeout(comprobar,50));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',construir);else construir();
 }());
