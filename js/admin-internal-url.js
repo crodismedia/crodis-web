@@ -44,8 +44,10 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  const research=document.createElement('script');
-  research.src='../js/admin-research-center.js';
-  research.defer=true;
-  document.body.appendChild(research);
+  ['admin-research-center.js','admin-auto-research.js'].forEach((archivo)=>{
+    const script=document.createElement('script');
+    script.src=`../js/${archivo}`;
+    script.defer=true;
+    document.body.appendChild(script);
+  });
 }());
