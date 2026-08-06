@@ -1,0 +1,1 @@
+Trigger manual de despliegue tras renovar Vercel. No afecta a la aplicación.
