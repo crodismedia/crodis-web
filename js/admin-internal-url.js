@@ -44,7 +44,7 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  ['admin-research-center.js','admin-auto-research.js'].forEach((archivo)=>{
+  ['admin-research-center.js','admin-auto-research.js','admin-horario-partido.js'].forEach((archivo)=>{
     const script=document.createElement('script');
     script.src=`../js/${archivo}`;
     script.defer=true;
