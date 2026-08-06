@@ -103,6 +103,147 @@
         if (canonical) canonical.href = absoluta;
     }
 
+    function asegurarMeta(selector, atributos) {
+        let elemento = document.head.querySelector(selector);
+        if (!elemento) {
+            elemento = document.createElement("meta");
+            Object.entries(atributos).forEach(([clave, valor]) => elemento.setAttribute(clave, valor));
+            document.head.appendChild(elemento);
+        }
+        return elemento;
+    }
+
+    function valorDato(etiqueta) {
+        const filas = document.querySelectorAll("#taller-datos p");
+        for (const fila of filas) {
+            const fuerte = fila.querySelector("strong");
+            if (!fuerte) continue;
+            if (fuerte.textContent.trim().toLowerCase() === `${etiqueta.toLowerCase()}:`) {
+                return fila.textContent.replace(fuerte.textContent, "").trim();
+            }
+        }
+        return "";
+    }
+
+    function actualizarDatosEstructurados() {
+        const nombre = document.getElementById("taller-nombre")?.textContent.trim() || "";
+        const descripcion = document.getElementById("taller-descripcion")?.textContent.trim() || "";
+        const ciudad = valorDato("Municipio");
+        const provincia = valorDato("Provincia");
+        const codigoPostal = valorDato("Código postal");
+        const direccion = valorDato("Dirección");
+        const telefono = document.querySelector('#taller-datos a[href^="tel:"]')?.textContent.trim() || "";
+        const web = document.querySelector('#taller-acciones a.accion-web')?.href || "";
+        const canonical = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
+        const servicios = [...document.querySelectorAll("#taller-servicios span")]
+            .map((elemento) => elemento.textContent.trim())
+            .filter(Boolean);
+
+        const esFichaReal = Boolean(
+            nombre
+            && nombre !== "Ficha de taller"
+            && nombre !== "Taller publicado en TallerMap"
+            && ciudad
+            && provincia
+        );
+
+        const robots = document.getElementById("robots-taller")
+            || document.querySelector('meta[name="robots"]');
+        if (robots) {
+            robots.content = esFichaReal
+                ? "index,follow,max-image-preview:large"
+                : "noindex,follow";
+        }
+
+        if (!esFichaReal) return;
+
+        const datos = {
+            "@context": "https://schema.org",
+            "@type": "AutoRepair",
+            "@id": `${canonical}#negocio`,
+            name: nombre,
+            url: canonical,
+            description: descripcion || `Información pública de ${nombre} en ${ciudad}.`,
+            address: {
+                "@type": "PostalAddress",
+                streetAddress: direccion || undefined,
+                postalCode: codigoPostal || undefined,
+                addressLocality: ciudad,
+                addressRegion: provincia,
+                addressCountry: "ES"
+            },
+            telephone: telefono || undefined,
+            sameAs: web ? [web] : undefined,
+            areaServed: {
+                "@type": "City",
+                name: ciudad
+            },
+            serviceType: servicios.length ? servicios : undefined
+        };
+
+        const limpiar = (objeto) => {
+            Object.keys(objeto).forEach((clave) => {
+                const valor = objeto[clave];
+                if (valor && typeof valor === "object" && !Array.isArray(valor)) limpiar(valor);
+                if (valor === undefined || valor === "" || (Array.isArray(valor) && !valor.length)) {
+                    delete objeto[clave];
+                }
+            });
+            return objeto;
+        };
+
+        const scriptNegocio = document.getElementById("datos-estructurados-taller");
+        if (scriptNegocio) scriptNegocio.textContent = JSON.stringify(limpiar(datos));
+
+        const migas = [...document.querySelectorAll("#migas-pan a, #migas-pan span:not(.ficha-migas-separador)")]
+            .map((elemento, indice) => ({
+                "@type": "ListItem",
+                position: indice + 1,
+                name: elemento.textContent.trim(),
+                item: elemento.tagName === "A" ? elemento.href : canonical
+            }))
+            .filter((elemento) => elemento.name);
+
+        const scriptMigas = document.getElementById("datos-estructurados-migas");
+        if (scriptMigas) {
+            scriptMigas.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: migas
+            });
+        }
+
+        const titulo = `${nombre} | Taller mecánico en ${ciudad}, ${provincia} | TallerMap`.slice(0, 68);
+        const resumen = `Consulta teléfono, dirección, servicios y cómo llegar a ${nombre} en ${ciudad}, ${provincia}. Ficha actualizada en TallerMap.`.slice(0, 158);
+        document.title = titulo;
+
+        const metaDescripcion = document.querySelector('meta[name="description"]');
+        if (metaDescripcion) metaDescripcion.content = resumen;
+
+        const ogTitle = asegurarMeta('meta[property="og:title"]', { property: "og:title" });
+        const ogDescription = asegurarMeta('meta[property="og:description"]', { property: "og:description" });
+        const ogUrl = asegurarMeta('meta[property="og:url"]', { property: "og:url" });
+        const ogType = asegurarMeta('meta[property="og:type"]', { property: "og:type" });
+        const ogSite = asegurarMeta('meta[property="og:site_name"]', { property: "og:site_name" });
+        const twitterCard = asegurarMeta('meta[name="twitter:card"]', { name: "twitter:card" });
+        const twitterTitle = asegurarMeta('meta[name="twitter:title"]', { name: "twitter:title" });
+        const twitterDescription = asegurarMeta('meta[name="twitter:description"]', { name: "twitter:description" });
+
+        ogTitle.content = titulo;
+        ogDescription.content = resumen;
+        ogUrl.content = canonical;
+        ogType.content = "website";
+        ogSite.content = "TallerMap";
+        twitterCard.content = "summary";
+        twitterTitle.content = titulo;
+        twitterDescription.content = resumen;
+    }
+
+    function programarSEO() {
+        window.clearTimeout(programarSEO.temporizador);
+        programarSEO.temporizador = window.setTimeout(actualizarDatosEstructurados, 120);
+    }
+
     function iniciar() {
         document.querySelectorAll(".taller-card").forEach(limpiarEnlacesTarjeta);
         document.querySelectorAll("a.taller-relacionado").forEach((enlace) => {
@@ -110,6 +251,7 @@
             if (slug) enlace.href = urlLimpia(slug);
         });
         actualizarFichaUnaVez();
+        programarSEO();
 
         const raiz = document.body;
         if (!raiz) return;
@@ -117,7 +259,14 @@
             cambios.forEach((cambio) => {
                 cambio.addedNodes.forEach(procesarNodo);
             });
-        }).observe(raiz, { childList: true, subtree: true });
+            programarSEO();
+        }).observe(raiz, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true,
+            attributeFilter: ["href", "content"]
+        });
     }
 
     if (document.readyState === "loading") {
