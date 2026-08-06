@@ -5,6 +5,34 @@
     const CLEAN_PREFIX = "/talleres/";
     const LEGACY_PATH = "/pages/taller.html";
 
+    const NOMBRES_SERVICIOS = {
+        "mecanica-general": "Mecánica general",
+        "mantenimiento-programado": "Mantenimiento programado",
+        "cambio-aceite-filtros": "Cambio de aceite y filtros",
+        "pre-itv": "Pre-ITV",
+        "frenos": "Frenos",
+        "embrague": "Embrague",
+        "correa-distribucion": "Correa de distribución",
+        "sistema-refrigeracion": "Sistema de refrigeración",
+        "escape-catalizador": "Escape y catalizador",
+        "caja-cambios": "Caja de cambios",
+        "neumaticos": "Neumáticos",
+        "alineacion-direccion": "Alineación y dirección",
+        "equilibrado-ruedas": "Equilibrado de ruedas",
+        "suspension-amortiguadores": "Suspensión y amortiguadores",
+        "direccion": "Dirección",
+        "diagnosis-electronica": "Diagnosis electrónica",
+        "electricidad-automovil": "Electricidad del automóvil",
+        "baterias": "Baterías",
+        "alternador-motor-arranque": "Alternador y motor de arranque",
+        "centralitas-electronica": "Centralitas y electrónica",
+        "sistemas-adas": "Sistemas ADAS",
+        "tapiceria": "Tapicería",
+        "chapa-pintura": "Chapa y pintura",
+        "aire-acondicionado": "Aire acondicionado",
+        "hibridos-electricos": "Híbridos y eléctricos"
+    };
+
     function slugSeguro(valor) {
         return String(valor || "")
             .normalize("NFD")
@@ -125,7 +153,50 @@
         return "";
     }
 
+    function nombreServicio(valor) {
+        const original = String(valor || "").trim();
+        if (!original) return "";
+        const clave = slugSeguro(original);
+        if (NOMBRES_SERVICIOS[clave]) return NOMBRES_SERVICIOS[clave];
+        return original
+            .replace(/[-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/^./, (letra) => letra.toUpperCase());
+    }
+
+    function corregirPresentacionFicha() {
+        const direccion = valorDato("Dirección");
+        const codigoPostal = valorDato("Código postal");
+        const ciudad = valorDato("Municipio");
+        const provincia = valorDato("Provincia");
+        const direccionVisible = [direccion, codigoPostal, ciudad, provincia]
+            .map((valor) => String(valor || "").trim())
+            .filter(Boolean)
+            .filter((valor, indice, lista) => lista.findIndex((otro) => otro.toLowerCase() === valor.toLowerCase()) === indice)
+            .join(", ");
+
+        const elementoDireccion = document.getElementById("taller-direccion");
+        if (elementoDireccion && direccionVisible && elementoDireccion.textContent.trim() !== direccionVisible) {
+            elementoDireccion.textContent = direccionVisible;
+        }
+
+        document.querySelectorAll("#taller-servicios span").forEach((elemento) => {
+            const legible = nombreServicio(elemento.textContent);
+            if (legible && elemento.textContent.trim() !== legible) elemento.textContent = legible;
+        });
+
+        const botonWeb = document.querySelector("#taller-acciones a.accion-web");
+        if (botonWeb) {
+            botonWeb.classList.add("boton");
+            botonWeb.classList.remove("boton-claro");
+            if (botonWeb.textContent.trim() !== "Página web") botonWeb.textContent = "Página web";
+        }
+    }
+
     function actualizarDatosEstructurados() {
+        corregirPresentacionFicha();
+
         const nombre = document.getElementById("taller-nombre")?.textContent.trim() || "";
         const descripcion = document.getElementById("taller-descripcion")?.textContent.trim() || "";
         const ciudad = valorDato("Municipio");
