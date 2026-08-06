@@ -17,11 +17,11 @@
     .tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
     .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
     .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.96);border-top:1px solid var(--b)}
-    .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 560px);min-height:280px;position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:rgba(17,24,39,.9);color:#fff;font-size:.82rem;pointer-events:none}
+    .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 560px);min-height:280px;position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:12px;border-radius:12px;background:rgba(17,24,39,.94);color:#fff;font-size:.82rem}.tm-webnote strong,.tm-webnote span{display:block}.tm-webnote span{margin-top:4px;color:#e5e7eb}.tm-webnote-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-webnote .tm-btn{padding:9px 12px}.tm-webnote .tm-btn-primary{background:#16a34a;color:#fff}.tm-webnote .tm-btn-soft{background:#fff;color:#111827}
     .tm-source-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-status{font-size:.85rem;color:var(--muted);margin-top:8px}.tm-tabs{display:none}.tm-transfer,.tm-inspector{margin-top:12px;padding:12px;border:1px solid var(--b);border-radius:14px;background:#f8fafc}.tm-transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tm-transfer textarea{min-height:76px}.tm-transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
     .tm-inspector-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.tm-inspector-list{display:grid;gap:8px;margin-top:10px}.tm-suggestion{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--b);border-radius:10px;background:#fff}.tm-suggestion small,.tm-suggestion span{display:block}.tm-suggestion small{color:var(--muted);font-weight:700;text-transform:uppercase}.tm-suggestion span{overflow-wrap:anywhere}.tm-suggestion button{padding:7px 9px}.tm-empty{color:var(--muted);font-size:.85rem}
     @media(max-width:1100px){.tm-layout{grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr)}}
-    @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:55vh}.tm-form,.tm-transfer-grid{grid-template-columns:1fr}}
+    @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:44vh;min-height:260px}.tm-form,.tm-transfer-grid{grid-template-columns:1fr}.tm-urlbar{grid-template-columns:1fr 1fr}.tm-urlbar input{grid-column:1/-1}.tm-webnote{position:relative;left:auto;right:auto;bottom:auto;margin:12px}.tm-web{position:absolute;inset:0}}
   </style>
 </head>
 <body class="tm-admin">
@@ -51,8 +51,8 @@
     </div>
   </section>
   <section class="tm-pane" data-pane="fuente">
-    <div class="tm-pane-head"><h2>Fuente externa</h2><p>Pega información de la fuente; el inspector separará los datos útiles.</p>
-      <div class="tm-urlbar"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" class="tm-btn tm-btn-primary">Abrir</button><button id="btn-nueva-pestana" class="tm-btn tm-btn-soft">Pestaña</button></div>
+    <div class="tm-pane-head"><h2>Fuente externa</h2><p>Abre la fuente, copia sus datos y vuelve aquí para pegarlos y analizarlos.</p>
+      <div class="tm-urlbar"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" class="tm-btn tm-btn-primary">Mostrar</button><button id="btn-nueva-pestana" class="tm-btn tm-btn-soft">Abrir en pestaña</button></div>
       <div class="tm-source-tools"><button id="btn-pegar-candidato" class="tm-btn tm-btn-soft">Pegar desde portapapeles</button><button id="btn-analizar" class="tm-btn tm-btn-primary">Analizar datos</button></div>
       <section class="tm-transfer" aria-labelledby="titulo-transferencia">
         <strong id="titulo-transferencia">Transferir a la ficha</strong>
@@ -62,7 +62,7 @@
       </section>
       <section class="tm-inspector"><div class="tm-inspector-head"><strong>Datos detectados</strong><span id="contador-detectados" class="tm-status">0 propuestas</span></div><div id="inspector-resultados" class="tm-inspector-list"><p class="tm-empty">Pega texto y pulsa “Analizar datos”.</p></div></section>
     </div>
-    <div class="tm-webwrap"><iframe id="visor-externo" class="tm-web" title="Fuente externa" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe><div class="tm-webnote">Algunas páginas impiden mostrarse dentro del panel. Usa “Pestaña” cuando ocurra.</div></div>
+    <div class="tm-webwrap"><iframe id="visor-externo" class="tm-web" title="Fuente externa" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe><div class="tm-webnote"><strong>¿La página no se muestra?</strong><span>Algunas webs bloquean su apertura dentro del panel. Ábrela en una pestaña, copia la información del taller y vuelve para pegarla.</span><div class="tm-webnote-actions"><button id="btn-abrir-externa-grande" type="button" class="tm-btn tm-btn-primary">Abrir página externa</button><button id="btn-pegar-externa-grande" type="button" class="tm-btn tm-btn-soft">Pegar y analizar</button></div></div></div>
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
@@ -72,5 +72,16 @@
 <script src="../js/admin-gallery.js"></script>
 <script src="../js/admin-structured-fields.js"></script>
 <script src="../js/admin-change-guard.js"></script>
+<script>
+(function(){
+  'use strict';
+  const abrir=document.getElementById('btn-abrir-externa-grande');
+  const pegar=document.getElementById('btn-pegar-externa-grande');
+  const botonPestana=document.getElementById('btn-nueva-pestana');
+  const botonPegar=document.getElementById('btn-pegar-candidato');
+  if(abrir&&botonPestana)abrir.addEventListener('click',()=>botonPestana.click());
+  if(pegar&&botonPegar)pegar.addEventListener('click',()=>botonPegar.click());
+})();
+</script>
 </body>
 </html>
