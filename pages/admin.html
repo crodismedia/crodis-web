@@ -18,16 +18,17 @@
     .tm-pane{min-width:0;background:#fff;border:1px solid var(--b);border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,.06);overflow:visible}
     .tm-pane-head{padding:20px 22px 14px;background:#fff;border-bottom:1px solid var(--b);border-radius:18px 18px 0 0}
     .tm-pane-head h1{margin:0 0 5px;font-size:1.35rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.92rem}
-    .tm-body{padding:20px 22px 0}.tm-search{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:14px}
+    .tm-body{padding:20px 22px 0;position:relative}.tm-search{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:14px}
     input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:11px 12px;background:#fff;font:inherit}textarea{resize:vertical;min-height:100px}
-    .tm-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-bottom:18px}
+    .tm-results{display:none;position:absolute;z-index:15;top:70px;left:22px;right:22px;max-height:340px;overflow:auto;padding:8px;background:#fff;border:1px solid var(--b);border-radius:14px;box-shadow:0 16px 36px rgba(17,24,39,.16)}
+    .tm-results:not(:empty){display:grid;grid-template-columns:1fr;gap:7px}
     .tm-result{padding:11px;text-align:left;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
     .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tm-field{display:grid;gap:6px;padding:9px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.84rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
     .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
     .tm-savebar{position:sticky;bottom:0;z-index:10;display:flex;gap:9px;justify-content:flex-end;padding:14px 0 18px;background:rgba(255,255,255,.97);border-top:1px solid var(--b)}
     .tm-status{font-size:.88rem;color:var(--muted);margin:10px 0 18px}
     .tm-legacy-source{display:none!important}
-    @media(max-width:700px){.tm-top{align-items:flex-start}.tm-layout{padding:10px}.tm-pane-head,.tm-body{padding-left:14px;padding-right:14px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-savebar{display:grid;grid-template-columns:1fr 1fr}.tm-savebar .tm-btn{width:100%}.tm-results{grid-template-columns:1fr}}
+    @media(max-width:700px){.tm-top{align-items:flex-start}.tm-layout{padding:10px}.tm-pane-head,.tm-body{padding-left:14px;padding-right:14px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-savebar{display:grid;grid-template-columns:1fr 1fr}.tm-savebar .tm-btn{width:100%}.tm-results{left:14px;right:14px;top:118px}}
   </style>
 </head>
 <body class="tm-admin">
@@ -55,12 +56,11 @@
         <div class="tm-field full"><label for="descripcion">Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
         <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar en Google</button><button type="submit" class="tm-btn tm-btn-primary">Guardar cambios</button></div>
       </form>
-      <p id="estado-ficha" class="tm-status">Selecciona un taller para editarlo.</p>
+      <p id="estado-ficha" class="tm-status">Escribe un término y pulsa Buscar.</p>
     </div>
   </section>
 </main>
 
-<!-- Elementos técnicos ocultos para mantener compatibilidad con las funciones existentes. -->
 <section class="tm-legacy-source" aria-hidden="true">
   <button data-tab="ficha" type="button"></button><button data-tab="fuente" type="button"></button>
   <div data-pane="fuente">
@@ -82,5 +82,18 @@
 <script src="../js/admin-gallery.js"></script>
 <script src="../js/admin-structured-fields.js"></script>
 <script src="../js/admin-change-guard.js"></script>
+<script>
+(function(){
+  'use strict';
+  const input=document.getElementById('buscar-taller');
+  const resultados=document.getElementById('resultados-talleres');
+  if(!input||!resultados)return;
+  const limpiarVacio=()=>{if(!input.value.trim())resultados.innerHTML='';};
+  new MutationObserver(limpiarVacio).observe(resultados,{childList:true,subtree:true});
+  input.addEventListener('input',()=>{if(!input.value.trim())resultados.innerHTML='';});
+  resultados.addEventListener('click',e=>{if(e.target.closest('[data-i]'))setTimeout(()=>{resultados.innerHTML='';},0);});
+  document.addEventListener('click',e=>{if(!e.target.closest('.tm-search')&&!e.target.closest('#resultados-talleres'))resultados.innerHTML='';});
+})();
+</script>
 </body>
 </html>
