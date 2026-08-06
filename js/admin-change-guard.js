@@ -8,6 +8,7 @@
     ['../js/admin-quick-actions.js','data-admin-quick-actions'],
     ['../js/admin-quality-score.js','data-admin-quality'],
     ['../js/admin-batch-navigation.js','data-admin-batch-navigation'],
+    ['../js/admin-external-source.js','data-admin-external-source'],
     ['../js/admin-runtime-status.js','data-admin-runtime-status'],
     ['../js/admin-guided-test.js','data-admin-guided-test']
   ];
