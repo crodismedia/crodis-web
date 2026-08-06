@@ -29,7 +29,8 @@
   }
 
   $('resultados-talleres')?.addEventListener('click',()=>setTimeout(actualizar,100));
-  new MutationObserver(actualizar).observe($('taller-id'),{attributes:true,attributeFilter:['value']});
+  const tallerId=$('taller-id');
+  if(tallerId)new MutationObserver(actualizar).observe(tallerId,{attributes:true,attributeFilter:['value']});
 
   $('copiar-url-interna')?.addEventListener('click',async()=>{
     const url=$('url-interna-ficha')?.value;
@@ -42,7 +43,9 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  ['admin-research-center.js','admin-editor-cleanup.js','admin-no-suggestions.js'].forEach(archivo=>{
+  // Mantiene el centro de investigación y vuelve a activar la búsqueda.
+  // No se carga admin-no-suggestions.js porque eliminaba resultados válidos.
+  ['admin-research-center.js','admin-auto-research.js','admin-editor-cleanup.js'].forEach(archivo=>{
     const script=document.createElement('script');
     script.src=`../js/${archivo}`;
     script.defer=true;
