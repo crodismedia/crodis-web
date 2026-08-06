@@ -15,9 +15,7 @@
   function slugSeguro(v){return String(v||'').trim().replace(/^\/+|\/+$/g,'');}
   function urlPorDatos(id,slug){
     const limpio=slugSeguro(slug);
-    return limpio
-      ? `https://www.tallermap.es/talleres/${encodeURIComponent(limpio)}`
-      : `https://www.tallermap.es/pages/taller.html?id=${encodeURIComponent(id)}`;
+    return limpio?`https://www.tallermap.es/talleres/${encodeURIComponent(limpio)}`:`https://www.tallermap.es/pages/taller.html?id=${encodeURIComponent(id)}`;
   }
 
   async function actualizar(){
@@ -44,9 +42,7 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  // El panel ya no carga la búsqueda automática de talleres.
-  // Se mantiene únicamente la comparación manual de la ficha abierta y el horario partido.
-  ['admin-research-center.js','admin-horario-partido.js'].forEach((archivo)=>{
+  ['admin-research-center.js','admin-editor-cleanup.js'].forEach(archivo=>{
     const script=document.createElement('script');
     script.src=`../js/${archivo}`;
     script.defer=true;
