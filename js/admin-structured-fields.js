@@ -3,6 +3,7 @@
 
   const DIAS = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
   const LABORABLES = ['lunes','martes','miércoles','jueves','viernes'];
+  const FIN_DE_SEMANA = ['sábado','domingo'];
   const $ = (id) => document.getElementById(id);
 
   function emitir(campo){
@@ -33,11 +34,11 @@
       <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;padding:12px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc">
         <div>
           <strong style="display:block;margin-bottom:3px">Horario semanal</strong>
-          <span style="font-size:.84rem;color:#667085">Configura el lunes y copia el mismo horario al resto de días laborables.</span>
+          <span style="font-size:.84rem;color:#667085">Configura el lunes y copia el mismo horario al resto de días laborables. Sábado y domingo aparecen cerrados por defecto, pero puedes desmarcar Cerrado y asignarles horario.</span>
         </div>
         <button id="aplicar-lunes-viernes" type="button" class="tm-btn tm-btn-soft" style="border:1px solid #cfd5dc">Aplicar lunes–viernes</button>
       </div>
-      ${DIAS.map((dia)=>`<div class="tm-horario-dia" style="display:grid;grid-template-columns:100px minmax(120px,1fr) minmax(120px,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre" aria-label="Apertura ${dia}"><input type="time" data-dia="${dia}" data-tipo="cierra" aria-label="Cierre ${dia}"><label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cerrado="${dia}" style="width:auto"> Cerrado</label></div>`).join('')}
+      ${DIAS.map((dia)=>`<div class="tm-horario-dia" style="display:grid;grid-template-columns:100px minmax(120px,1fr) minmax(120px,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre" aria-label="Apertura ${dia}"><input type="time" data-dia="${dia}" data-tipo="cierra" aria-label="Cierre ${dia}"><label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cerrado="${dia}" style="width:auto" ${FIN_DE_SEMANA.includes(dia)?'checked':''}> Cerrado</label></div>`).join('')}
       <style>@media(max-width:700px){#horarios-estructurados .tm-horario-dia{grid-template-columns:1fr 1fr}#horarios-estructurados .tm-horario-dia strong{grid-column:1/-1}}</style>
     `;
     campo.parentElement.insertBefore(panel,campo);
@@ -66,14 +67,16 @@
 
     function reflejarDesdeTexto(){
       const obj = interpretarHorario(campo.value);
-      if (!obj) return;
       DIAS.forEach((dia)=>{
-        const valor = obj[dia] || {};
-        panel.querySelector(`[data-cerrado="${dia}"]`).checked = Boolean(valor.cerrado);
+        const tieneValor = Boolean(obj && Object.prototype.hasOwnProperty.call(obj,dia));
+        const valor = tieneValor ? (obj[dia] || {}) : {};
+        const cerradoPorDefecto = FIN_DE_SEMANA.includes(dia) && !tieneValor;
+        panel.querySelector(`[data-cerrado="${dia}"]`).checked = tieneValor ? Boolean(valor.cerrado) : cerradoPorDefecto;
         panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).value = valor.abre || '';
         panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).value = valor.cierra || '';
         actualizarBloqueo(dia);
       });
+      if (!obj) sincronizarTexto();
     }
 
     panel.addEventListener('change',(e)=>{
