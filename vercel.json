@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+
   "redirects": [
     {
       "source": "/:path*",
@@ -18,6 +19,7 @@
       "permanent": true
     }
   ],
+
   "rewrites": [
     {
       "source": "/talleres/:slug",
@@ -32,13 +34,14 @@
       "destination": "/api/sitemap-talleres"
     }
   ],
+
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://cnyptelvbsndpkzbrete.supabase.co wss://cnyptelvbsndpkzbrete.supabase.co https://api.zippopotam.us https://nominatim.openstreetmap.org https://overpass-api.de https://overpass.private.coffee https://maps.mail.ru; font-src 'self'; manifest-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com; script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://cnyptelvbsndpkzbrete.supabase.co wss://cnyptelvbsndpkzbrete.supabase.co https://api.zippopotam.us https://nominatim.openstreetmap.org https://overpass-api.de https://overpass.private.coffee https://maps.mail.ru https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https://www.googletagmanager.com; manifest-src 'self'; upgrade-insecure-requests"
         },
         {
           "key": "Referrer-Policy",
@@ -66,6 +69,7 @@
         }
       ]
     },
+
     {
       "source": "/(css|js|images)/(.*)",
       "headers": [
@@ -75,6 +79,7 @@
         }
       ]
     },
+
     {
       "source": "/sitemap.xml",
       "headers": [
@@ -88,6 +93,7 @@
         }
       ]
     },
+
     {
       "source": "/sitemap-index.xml",
       "headers": [
@@ -101,6 +107,7 @@
         }
       ]
     },
+
     {
       "source": "/sitemap-provincias.xml",
       "headers": [
@@ -114,6 +121,7 @@
         }
       ]
     },
+
     {
       "source": "/sitemap-talleres.xml",
       "headers": [
@@ -127,6 +135,7 @@
         }
       ]
     },
+
     {
       "source": "/servicios/sitemap.xml",
       "headers": [
@@ -140,6 +149,7 @@
         }
       ]
     },
+
     {
       "source": "/robots.txt",
       "headers": [
