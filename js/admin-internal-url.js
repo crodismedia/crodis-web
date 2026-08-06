@@ -43,4 +43,9 @@
     const url=$('url-interna-ficha')?.value;
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
+
+  const research=document.createElement('script');
+  research.src='../js/admin-research-center.js';
+  research.defer=true;
+  document.body.appendChild(research);
 }());
