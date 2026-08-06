@@ -1,12 +1,15 @@
 import json
 import os
+import re
+import unicodedata
+from difflib import SequenceMatcher
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://cnyptelvbsndpkzbrete.supabase.co")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
-USER_AGENT = "TallerMap/1.0 (contacto@tallermap.es)"
+USER_AGENT = "TallerMap/1.1 (contacto@tallermap.es)"
 
 
 def http_json(url, method="GET", headers=None, body=None, timeout=18):
@@ -25,16 +28,57 @@ def validar_admin(token):
         "Content-Type": "application/json",
     }
     try:
-        result = http_json(f"{SUPABASE_URL}/rest/v1/rpc/es_administrador", "POST", headers, {})
-        return result is True
+        return http_json(f"{SUPABASE_URL}/rest/v1/rpc/es_administrador", "POST", headers, {}) is True
     except Exception:
         return False
 
 
+def normalizar(value):
+    text = unicodedata.normalize("NFD", str(value or "").lower())
+    text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+    text = re.sub(r"\b(calle|c/|avenida|avda|av|carretera|ctra|talleres|taller)\b", " ", text)
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def similitud(left, right):
+    a, b = normalizar(left), normalizar(right)
+    if not a or not b:
+        return None
+    if a == b or a in b or b in a:
+        return 1.0
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def puntuar(ficha, candidato):
+    checks = (
+        ("nombre", 35),
+        ("direccion", 30),
+        ("codigo_postal", 20),
+        ("ciudad", 15),
+    )
+    obtained = available = 0.0
+    details = {}
+    for field, weight in checks:
+        score = similitud(ficha.get(field), candidato.get(field))
+        details[field] = None if score is None else round(score * 100)
+        if score is not None:
+            available += weight
+            obtained += weight * score
+    total = round((obtained / available) * 100) if available else 0
+    candidato["coincidencia"] = total
+    candidato["coincidencias"] = details
+    return candidato
+
+
 def geocodificar(datos):
-    query = ", ".join(x for x in [datos.get("direccion"), datos.get("codigo_postal"), datos.get("ciudad"), datos.get("provincia"), "España"] if x)
+    query = ", ".join(
+        item for item in [datos.get("direccion"), datos.get("codigo_postal"), datos.get("ciudad"), datos.get("provincia"), "España"] if item
+    )
     params = urlencode({"q": query, "format": "jsonv2", "limit": 1, "countrycodes": "es"})
-    result = http_json(f"https://nominatim.openstreetmap.org/search?{params}", headers={"User-Agent": USER_AGENT})
+    result = http_json(
+        f"https://nominatim.openstreetmap.org/search?{params}",
+        headers={"User-Agent": USER_AGENT},
+    )
     if not result:
         return None
     return float(result[0]["lat"]), float(result[0]["lon"])
@@ -46,25 +90,31 @@ def investigar(datos):
         return []
     lat, lon = centro
     query = f'''[out:json][timeout:20];(
-      nwr(around:5000,{lat},{lon})[shop=car_repair];
-      nwr(around:5000,{lat},{lon})[craft=car_repair];
-      nwr(around:5000,{lat},{lon})[amenity=car_repair];
-    );out center tags 30;'''
+      nwr(around:7000,{lat},{lon})[shop=car_repair];
+      nwr(around:7000,{lat},{lon})[craft=car_repair];
+      nwr(around:7000,{lat},{lon})[amenity=car_repair];
+    );out center tags 60;'''
     payload = urlencode({"data": query}).encode("utf-8")
-    req = Request("https://overpass-api.de/api/interpreter", data=payload, headers={"User-Agent": USER_AGENT})
-    with urlopen(req, timeout=25) as response:
+    request = Request(
+        "https://overpass-api.de/api/interpreter",
+        data=payload,
+        headers={"User-Agent": USER_AGENT},
+    )
+    with urlopen(request, timeout=25) as response:
         raw = json.loads(response.read().decode("utf-8"))
 
-    candidatos = []
+    candidates = []
+    seen = set()
     for element in raw.get("elements", []):
         tags = element.get("tags", {})
         name = tags.get("name") or tags.get("brand") or "Taller sin nombre"
-        street = " ".join(x for x in [tags.get("addr:street"), tags.get("addr:housenumber")] if x)
-        candidatos.append({
+        street = " ".join(item for item in [tags.get("addr:street"), tags.get("addr:housenumber")] if item)
+        candidate = {
             "nombre": name,
             "direccion": street,
             "codigo_postal": tags.get("addr:postcode", ""),
             "ciudad": tags.get("addr:city") or tags.get("addr:town") or tags.get("addr:village", ""),
+            "provincia": tags.get("addr:province", ""),
             "telefono": tags.get("contact:phone") or tags.get("phone", ""),
             "web": tags.get("contact:website") or tags.get("website", ""),
             "email": tags.get("contact:email") or tags.get("email", ""),
@@ -72,8 +122,15 @@ def investigar(datos):
             "fuente": "OpenStreetMap",
             "osm_tipo": element.get("type"),
             "osm_id": element.get("id"),
-        })
-    return candidatos
+        }
+        key = (normalizar(name), normalizar(street), candidate["codigo_postal"])
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(puntuar(datos, candidate))
+
+    candidates.sort(key=lambda item: (item["coincidencia"], bool(item["telefono"]), bool(item["web"])), reverse=True)
+    return candidates[:15]
 
 
 class handler(BaseHTTPRequestHandler):
@@ -92,8 +149,11 @@ class handler(BaseHTTPRequestHandler):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            datos = json.loads(self.rfile.read(length) or b"{}")
-            resultados = investigar(datos)
-            self._send(200, {"resultados": resultados, "total": len(resultados)})
+            data = json.loads(self.rfile.read(length) or b"{}")
+            if not data.get("nombre") or not (data.get("codigo_postal") or data.get("ciudad")):
+                self._send(400, {"error": "Se necesita nombre y ubicación"})
+                return
+            results = investigar(data)
+            self._send(200, {"resultados": results, "total": len(results)})
         except Exception as exc:
             self._send(502, {"error": "No se pudo completar la búsqueda automática", "detalle": str(exc)[:180]})
