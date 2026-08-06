@@ -2,6 +2,14 @@
   'use strict';
 
   const IDS=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia','servicios','horarios','descripcion'];
+  const MODULOS=[
+    ['../js/admin-validation.js','data-admin-validation'],
+    ['../js/admin-activity-log.js','data-admin-activity'],
+    ['../js/admin-quick-actions.js','data-admin-quick-actions'],
+    ['../js/admin-quality-score.js','data-admin-quality'],
+    ['../js/admin-batch-navigation.js','data-admin-batch-navigation'],
+    ['../js/admin-runtime-status.js','data-admin-runtime-status']
+  ];
   let original={};
   let tallerId='';
   let restaurando=false;
@@ -60,22 +68,41 @@
   function hayCambios(){return diferencias().length>0;}
 
   function cargarModulo(src,atributo){
-    if(document.querySelector(`script[${atributo}]`))return;
-    const script=document.createElement('script');
-    script.src=src;
-    script.setAttribute(atributo,'true');
-    script.defer=true;
-    document.head.appendChild(script);
+    return new Promise((resolve,reject)=>{
+      const existente=document.querySelector(`script[${atributo}]`);
+      if(existente){
+        if(existente.dataset.loaded==='true')return resolve();
+        existente.addEventListener('load',resolve,{once:true});
+        existente.addEventListener('error',()=>reject(new Error(`No se pudo cargar ${src}`)),{once:true});
+        return;
+      }
+      const script=document.createElement('script');
+      script.src=src;
+      script.setAttribute(atributo,'true');
+      script.async=false;
+      script.addEventListener('load',()=>{script.dataset.loaded='true';resolve();},{once:true});
+      script.addEventListener('error',()=>reject(new Error(`No se pudo cargar ${src}`)),{once:true});
+      document.body.appendChild(script);
+    });
   }
 
-  function conectar(){
+  async function cargarModulosEnOrden(){
+    window.TallerMapAdminModules={estado:'cargando',cargados:[],errores:[]};
+    for(const [src,atributo] of MODULOS){
+      try{
+        await cargarModulo(src,atributo);
+        window.TallerMapAdminModules.cargados.push(src);
+      }catch(error){
+        console.error(error);
+        window.TallerMapAdminModules.errores.push({src,mensaje:error.message});
+      }
+    }
+    window.TallerMapAdminModules.estado=window.TallerMapAdminModules.errores.length?'con_errores':'listo';
+    document.dispatchEvent(new CustomEvent('tallermap:admin-modules-ready',{detail:window.TallerMapAdminModules}));
+  }
+
+  async function conectar(){
     construir();
-    cargarModulo('../js/admin-validation.js','data-admin-validation');
-    cargarModulo('../js/admin-activity-log.js','data-admin-activity');
-    cargarModulo('../js/admin-quick-actions.js','data-admin-quick-actions');
-    cargarModulo('../js/admin-quality-score.js','data-admin-quality');
-    cargarModulo('../js/admin-batch-navigation.js','data-admin-batch-navigation');
-    cargarModulo('../js/admin-runtime-status.js','data-admin-runtime-status');
     IDS.forEach(id=>{const nodo=$(id);if(!nodo)return;nodo.addEventListener('input',()=>{if(!restaurando)renderizar();});nodo.addEventListener('change',()=>{if(!restaurando)renderizar();});});
 
     document.addEventListener('click',e=>{
@@ -105,7 +132,9 @@
         e.preventDefault();e.stopImmediatePropagation();
       }
     },true);
+
+    await cargarModulosEnOrden();
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',conectar);else conectar();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',conectar,{once:true});else conectar();
 }());
