@@ -7,6 +7,7 @@
     'Suspensión','Escape','Pre-ITV','Chapa y pintura','Alineación'
   ];
   const DIAS = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+  const LABORABLES = ['lunes','martes','miércoles','jueves','viernes'];
   const $ = (id) => document.getElementById(id);
 
   function normalizar(v){
@@ -20,7 +21,7 @@
 
   function montarServicios(){
     const campo = $('servicios');
-    if (!campo || $('servicios-estructurados')) return;
+    if (!campo || $('servicios-estructurados') || $('lista-servicios-editor')) return;
     const panel = document.createElement('div');
     panel.id = 'servicios-estructurados';
     panel.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;margin-bottom:8px';
@@ -64,9 +65,21 @@
     if (!campo || $('horarios-estructurados')) return;
     const panel = document.createElement('div');
     panel.id = 'horarios-estructurados';
-    panel.style.cssText = 'display:grid;gap:7px;margin-bottom:8px';
-    panel.innerHTML = DIAS.map((dia)=>`<div style="display:grid;grid-template-columns:90px 1fr 1fr auto;gap:7px;align-items:center"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre"><input type="time" data-dia="${dia}" data-tipo="cierra"><label style="display:flex;gap:5px;align-items:center"><input type="checkbox" data-cerrado="${dia}" style="width:auto"> Cerrado</label></div>`).join('');
+    panel.style.cssText = 'display:grid;gap:9px;margin-bottom:8px';
+    panel.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px;border:1px solid #dfe3e8;border-radius:10px;background:#f8fafc">
+        <span style="font-size:.84rem;color:#475467">Configura el lunes y aplica el mismo horario de lunes a viernes.</span>
+        <button id="aplicar-lunes-viernes" type="button" class="tm-btn tm-btn-soft" style="border:1px solid #cfd5dc">Aplicar de lunes a viernes</button>
+      </div>
+      ${DIAS.map((dia)=>`<div style="display:grid;grid-template-columns:90px 1fr 1fr auto;gap:7px;align-items:center"><strong style="text-transform:capitalize">${dia}</strong><input type="time" data-dia="${dia}" data-tipo="abre" aria-label="Apertura ${dia}"><input type="time" data-dia="${dia}" data-tipo="cierra" aria-label="Cierre ${dia}"><label style="display:flex;gap:5px;align-items:center"><input type="checkbox" data-cerrado="${dia}" style="width:auto"> Cerrado</label></div>`).join('')}
+    `;
     campo.parentElement.insertBefore(panel,campo);
+
+    function actualizarBloqueo(dia){
+      const cerrado = panel.querySelector(`[data-cerrado="${dia}"]`).checked;
+      panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).disabled = cerrado;
+      panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).disabled = cerrado;
+    }
 
     function sincronizarTexto(){
       const obj = {};
@@ -88,18 +101,28 @@
         panel.querySelector(`[data-cerrado="${dia}"]`).checked = Boolean(valor.cerrado);
         panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).value = valor.abre || '';
         panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).value = valor.cierra || '';
+        actualizarBloqueo(dia);
       });
     }
 
     panel.addEventListener('change',(e)=>{
-      if (e.target.matches('[data-cerrado]')) {
-        const dia = e.target.dataset.cerrado;
-        const desactivar = e.target.checked;
-        panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).disabled = desactivar;
-        panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).disabled = desactivar;
-      }
+      if (e.target.matches('[data-cerrado]')) actualizarBloqueo(e.target.dataset.cerrado);
       sincronizarTexto();
     });
+
+    panel.querySelector('#aplicar-lunes-viernes').addEventListener('click',()=>{
+      const lunesCerrado = panel.querySelector('[data-cerrado="lunes"]').checked;
+      const lunesAbre = panel.querySelector('[data-dia="lunes"][data-tipo="abre"]').value;
+      const lunesCierra = panel.querySelector('[data-dia="lunes"][data-tipo="cierra"]').value;
+      LABORABLES.forEach((dia)=>{
+        panel.querySelector(`[data-cerrado="${dia}"]`).checked = lunesCerrado;
+        panel.querySelector(`[data-dia="${dia}"][data-tipo="abre"]`).value = lunesAbre;
+        panel.querySelector(`[data-dia="${dia}"][data-tipo="cierra"]`).value = lunesCierra;
+        actualizarBloqueo(dia);
+      });
+      sincronizarTexto();
+    });
+
     campo.addEventListener('input',reflejarDesdeTexto);
     document.addEventListener('click',(e)=>{if(e.target.closest('.tm-result')) setTimeout(reflejarDesdeTexto,0);});
     reflejarDesdeTexto();
