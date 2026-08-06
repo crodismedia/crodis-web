@@ -44,7 +44,9 @@
     if(url)window.open(url,'_blank','noopener,noreferrer');
   });
 
-  ['admin-research-center.js','admin-auto-research.js','admin-horario-partido.js'].forEach((archivo)=>{
+  // El panel ya no carga la búsqueda automática de talleres.
+  // Se mantiene únicamente la comparación manual de la ficha abierta y el horario partido.
+  ['admin-research-center.js','admin-horario-partido.js'].forEach((archivo)=>{
     const script=document.createElement('script');
     script.src=`../js/${archivo}`;
     script.defer=true;
