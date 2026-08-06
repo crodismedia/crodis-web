@@ -75,6 +75,7 @@
     cargarModulo('../js/admin-quick-actions.js','data-admin-quick-actions');
     cargarModulo('../js/admin-quality-score.js','data-admin-quality');
     cargarModulo('../js/admin-batch-navigation.js','data-admin-batch-navigation');
+    cargarModulo('../js/admin-runtime-status.js','data-admin-runtime-status');
     IDS.forEach(id=>{const nodo=$(id);if(!nodo)return;nodo.addEventListener('input',()=>{if(!restaurando)renderizar();});nodo.addEventListener('change',()=>{if(!restaurando)renderizar();});});
 
     document.addEventListener('click',e=>{
