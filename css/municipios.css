@@ -17,6 +17,10 @@
     text-decoration: none;
 }
 
+.migas span[aria-hidden="true"] + span[aria-hidden="true"] {
+    display: none;
+}
+
 .municipio-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
