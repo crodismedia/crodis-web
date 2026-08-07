@@ -17,6 +17,19 @@
     text-decoration: none;
 }
 
+/* Los separadores originales se ocultan y se recrean visualmente para evitar duplicados. */
+.migas > span[aria-hidden="true"] {
+    display: none;
+}
+
+.migas > a:not(:first-child)::before,
+.migas > span:not([aria-hidden="true"])::before {
+    content: "›";
+    display: inline-block;
+    margin-right: 8px;
+    color: #64748b;
+}
+
 .municipio-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);

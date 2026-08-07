@@ -122,6 +122,107 @@
         document.head.appendChild(script);
     }
 
+    function asegurarMeta(selector, atributos) {
+        let meta = document.head.querySelector(selector);
+        if (!meta) {
+            meta = document.createElement("meta");
+            Object.entries(atributos).forEach(([clave, valor]) => meta.setAttribute(clave, valor));
+            document.head.appendChild(meta);
+        }
+        return meta;
+    }
+
+    function provinciaMunicipio(codigo) {
+        const prefijo = String(codigo || "").slice(0, 2);
+        const provincias = {
+            "03": { nombre: "Alicante", slug: "alicante" },
+            "12": { nombre: "Castellón", slug: "castellon" },
+            "46": { nombre: "Valencia", slug: "valencia" }
+        };
+        return provincias[prefijo] || null;
+    }
+
+    function mejorarSeoMunicipio() {
+        if (!document.body.classList.contains("pagina-municipio")) return;
+
+        const contenedor = document.getElementById("lista-talleres");
+        const municipio = String(contenedor?.dataset.municipio || document.querySelector("h1")?.textContent || "").replace(/^Talleres mecánicos en\s*/i, "").trim();
+        const codigo = contenedor?.dataset.codigoMunicipal || "";
+        if (!municipio) return;
+
+        const canonical = document.querySelector('link[rel="canonical"]')?.href || `${window.location.origin}${window.location.pathname}`;
+        const descripcion = document.querySelector('meta[name="description"]')?.content || `Encuentra talleres mecánicos en ${municipio} y consulta servicios, dirección, teléfono y horarios en TallerMap.`;
+        const titulo = document.title || `Talleres mecánicos en ${municipio} | TallerMap`;
+
+        const social = [
+            ['meta[property="og:type"]', { property: "og:type" }, "website"],
+            ['meta[property="og:site_name"]', { property: "og:site_name" }, "TallerMap"],
+            ['meta[property="og:title"]', { property: "og:title" }, titulo],
+            ['meta[property="og:description"]', { property: "og:description" }, descripcion],
+            ['meta[property="og:url"]', { property: "og:url" }, canonical],
+            ['meta[property="og:image"]', { property: "og:image" }, "https://www.tallermap.es/images/cartel-tallermap.png"],
+            ['meta[name="twitter:card"]', { name: "twitter:card" }, "summary_large_image"],
+            ['meta[name="twitter:title"]', { name: "twitter:title" }, titulo],
+            ['meta[name="twitter:description"]', { name: "twitter:description" }, descripcion],
+            ['meta[name="twitter:image"]', { name: "twitter:image" }, "https://www.tallermap.es/images/cartel-tallermap.png"]
+        ];
+        social.forEach(([selector, atributos, valor]) => {
+            asegurarMeta(selector, atributos).content = valor;
+        });
+
+        const parametros = new URLSearchParams(window.location.search);
+        if (parametros.get("servicio")) {
+            asegurarMeta('meta[name="robots"]', { name: "robots" }).content = "noindex,follow,max-image-preview:large";
+        }
+
+        const provincia = provinciaMunicipio(codigo);
+        const migas = document.querySelector("nav.migas");
+        if (provincia && migas && !migas.querySelector('[data-provincia-municipio]')) {
+            const spans = [...migas.querySelectorAll("span")];
+            const ultimoSeparador = spans.find((span) => span.getAttribute("aria-hidden") === "true" && span.nextElementSibling && span.nextElementSibling.tagName === "SPAN");
+            const enlace = document.createElement("a");
+            enlace.href = `../provincias/${provincia.slug}.html`;
+            enlace.textContent = provincia.nombre;
+            enlace.dataset.provinciaMunicipio = "true";
+            const separador = document.createElement("span");
+            separador.setAttribute("aria-hidden", "true");
+            separador.textContent = "›";
+            if (ultimoSeparador) migas.insertBefore(enlace, ultimoSeparador);
+            else migas.append(enlace, separador);
+            if (ultimoSeparador) migas.insertBefore(separador, ultimoSeparador);
+        }
+
+        if (provincia) {
+            document.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
+                try {
+                    const datos = JSON.parse(script.textContent || "null");
+                    if (!datos || datos["@type"] !== "CollectionPage") return;
+                    datos.about = {
+                        "@type": "Place",
+                        name: municipio,
+                        identifier: codigo,
+                        containedInPlace: {
+                            "@type": "AdministrativeArea",
+                            name: provincia.nombre,
+                            url: `https://www.tallermap.es/provincias/${provincia.slug}.html`
+                        }
+                    };
+                    if (datos.breadcrumb?.itemListElement?.length) {
+                        datos.breadcrumb.itemListElement = [
+                            { "@type": "ListItem", position: 1, name: "Inicio", item: "https://www.tallermap.es/" },
+                            { "@type": "ListItem", position: 2, name: "Municipios", item: "https://www.tallermap.es/municipios/" },
+                            { "@type": "ListItem", position: 3, name: provincia.nombre, item: `https://www.tallermap.es/provincias/${provincia.slug}.html` },
+                            { "@type": "ListItem", position: 4, name: municipio, item: canonical }
+                        ];
+                    }
+                    script.textContent = JSON.stringify(datos);
+                } catch (_error) {
+                    // Mantener el JSON-LD original si no puede interpretarse.
+                }
+            });
+        }
+    }
+
     function textoLimpio(elemento) {
         return String(elemento?.textContent || "").replace(/^⌖\s*/, "").replace(/\s+/g, " ").trim();
     }
@@ -205,6 +306,7 @@
         mejorarPortadaInicial();
         cargarEstilosAccionesTaller();
         cargarUrlsLimpiasTaller();
+        mejorarSeoMunicipio();
         observarTarjetas();
     }
 
