@@ -171,9 +171,11 @@
         });
 
         const parametros = new URLSearchParams(window.location.search);
-        if (parametros.get("servicio")) {
-            asegurarMeta('meta[name="robots"]', { name: "robots" }).content = "noindex,follow,max-image-preview:large";
-        }
+        const metaRobots = asegurarMeta('meta[name="robots"]', { name: "robots" });
+        const servicioFiltrado = String(parametros.get("servicio") || "").trim();
+        metaRobots.content = servicioFiltrado
+            ? "noindex,follow,max-image-preview:large"
+            : "index,follow,max-image-preview:large";
 
         const provincia = provinciaMunicipio(codigo);
         const migas = document.querySelector("nav.migas");
