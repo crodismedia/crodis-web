@@ -1,5 +1,6 @@
 -- TallerMap · Fase 8: reclamación segura de fichas por propietarios
 -- Ejecutar en Supabase SQL Editor antes de probar la interfaz de reclamaciones.
+-- Incluye asociación de propietarios, moderación y registro de actividad.
 
 begin;
 
@@ -87,9 +88,50 @@ using (
     or public.es_administrador()
 );
 
+-- Registra la creación de una reclamación en el historial general si existe.
+create or replace function public.registrar_reclamacion_taller()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+    if to_regclass('public.registro_actividad') is not null then
+        insert into public.registro_actividad (
+            taller_id,
+            usuario_id,
+            accion,
+            origen,
+            datos_anteriores,
+            datos_nuevos,
+            campos_modificados
+        ) values (
+            new.taller_id,
+            new.usuario_id,
+            'reclamar_taller',
+            'propietario',
+            null,
+            jsonb_build_object(
+                'reclamacion_id', new.id,
+                'estado', new.estado,
+                'relacion', new.relacion,
+                'email', new.email
+            ),
+            array['estado','relacion','email']::text[]
+        );
+    end if;
+    return new;
+end;
+$$;
+
+drop trigger if exists trg_registrar_reclamacion_taller
+    on public.reclamaciones_taller;
+create trigger trg_registrar_reclamacion_taller
+after insert on public.reclamaciones_taller
+for each row execute function public.registrar_reclamacion_taller();
+
 -- Las resoluciones administrativas se hacen exclusivamente mediante RPC.
 -- No se concede UPDATE directo a usuarios autenticados.
-
 create or replace function public.resolver_reclamacion_taller(
     p_reclamacion_id uuid,
     p_aprobar boolean
@@ -102,6 +144,7 @@ as $$
 declare
     v_reclamacion public.reclamaciones_taller%rowtype;
     v_propietario uuid;
+    v_estado text;
 begin
     if auth.uid() is null or not public.es_administrador() then
         raise exception 'administrador_requerido' using errcode = '42501';
@@ -142,16 +185,46 @@ begin
                reviewed_by = auth.uid()
          where id = p_reclamacion_id;
 
-        return 'aprobada';
+        v_estado := 'aprobada';
+    else
+        update public.reclamaciones_taller
+           set estado = 'rechazada',
+               reviewed_at = now(),
+               reviewed_by = auth.uid()
+         where id = p_reclamacion_id;
+
+        v_estado := 'rechazada';
     end if;
 
-    update public.reclamaciones_taller
-       set estado = 'rechazada',
-           reviewed_at = now(),
-           reviewed_by = auth.uid()
-     where id = p_reclamacion_id;
+    if to_regclass('public.registro_actividad') is not null then
+        insert into public.registro_actividad (
+            taller_id,
+            usuario_id,
+            accion,
+            origen,
+            datos_anteriores,
+            datos_nuevos,
+            campos_modificados
+        ) values (
+            v_reclamacion.taller_id,
+            auth.uid(),
+            case when p_aprobar then 'aprobar_reclamacion' else 'rechazar_reclamacion' end,
+            'administracion',
+            jsonb_build_object(
+                'reclamacion_id', v_reclamacion.id,
+                'estado', v_reclamacion.estado,
+                'usuario_id', v_reclamacion.usuario_id
+            ),
+            jsonb_build_object(
+                'reclamacion_id', v_reclamacion.id,
+                'estado', v_estado,
+                'usuario_id', v_reclamacion.usuario_id
+            ),
+            array['estado']::text[]
+        );
+    end if;
 
-    return 'rechazada';
+    return v_estado;
 end;
 $$;
 
@@ -166,4 +239,12 @@ revoke all on function public.resolver_reclamacion_taller(uuid, boolean)
 grant execute on function public.resolver_reclamacion_taller(uuid, boolean)
     to authenticated;
 
+revoke all on function public.registrar_reclamacion_taller()
+    from public, anon, authenticated;
+
 commit;
+
+-- El acceso de propietario usa Supabase Auth con enlace mágico.
+-- shouldCreateUser=true crea la cuenta si no existe y accede si ya existe.
+-- Los cambios posteriores realizados desde actualizar_mi_taller() quedan
+-- registrados por el trigger general de public.talleres en registro_actividad.
