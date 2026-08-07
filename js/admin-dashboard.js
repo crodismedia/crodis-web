@@ -21,15 +21,29 @@
     });
 
     const nav=document.querySelector(".admin-nav");
-    if(nav&&!nav.querySelector('a[href="admin-actividad.html"]')){
+    if(nav){
       const separador=nav.querySelector(".separador");
-      const enlace=document.createElement("a");
-      enlace.href="admin-actividad.html";
-      enlace.innerHTML="<span>↻</span>Actividad";
-      nav.insertBefore(enlace,separador||null);
+      if(!nav.querySelector('a[href="admin-duplicados.html"]')){
+        const enlaceDuplicados=document.createElement("a");
+        enlaceDuplicados.href="admin-duplicados.html";
+        enlaceDuplicados.innerHTML="<span>≋</span>Duplicados";
+        nav.insertBefore(enlaceDuplicados,separador||null);
+      }
+      if(!nav.querySelector('a[href="admin-actividad.html"]')){
+        const enlaceActividad=document.createElement("a");
+        enlaceActividad.href="admin-actividad.html";
+        enlaceActividad.innerHTML="<span>↻</span>Actividad";
+        nav.insertBefore(enlaceActividad,separador||null);
+      }
     }
 
     const acciones=document.querySelector(".admin-quick");
+    if(acciones&&!acciones.querySelector('a[href="admin-duplicados.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-duplicados.html";
+      enlace.innerHTML="<strong>Revisar duplicados</strong><span>Detecta fichas que comparten teléfono, nombre, población o código postal.</span>";
+      acciones.appendChild(enlace);
+    }
     if(acciones&&!acciones.querySelector('a[href="admin-actividad.html"]')){
       const enlace=document.createElement("a");
       enlace.href="admin-actividad.html";
