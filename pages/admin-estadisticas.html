@@ -43,17 +43,17 @@
         <article class="admin-card stats-card"><span>Talleres totales</span><strong id="stat-total">—</strong></article>
         <article class="admin-card stats-card"><span>Verificados</span><strong id="stat-verificados">—</strong><small id="stat-verificados-pct" class="stats-note">—</small></article>
         <article class="admin-card stats-card"><span>Fichas completas</span><strong id="stat-completos">—</strong><small id="stat-completos-pct" class="stats-note">—</small></article>
-        <article class="admin-card stats-card"><span>Altas últimos 30 días</span><strong id="stat-altas30">—</strong></article>
+        <article class="admin-card stats-card"><span>Fichas creadas últimos 30 días</span><strong id="stat-altas30">—</strong></article>
       </section>
       <section class="stats-two">
-        <article class="admin-card"><div class="admin-panel-head"><div><h3>Altas por mes</h3><p>Últimos 6 meses según fecha de creación.</p></div></div><div id="stats-meses" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
+        <article class="admin-card"><div class="admin-panel-head"><div><h3>Fichas creadas por mes</h3><p>Últimos 6 meses según <code>created_at</code> de la base de datos.</p></div></div><div id="stats-meses" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Distribución por provincia</h3><p>Valores principales almacenados en la base.</p></div></div><div id="stats-provincias" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
       </section>
       <section class="stats-two">
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Municipios con más talleres</h3><p>Top 10 por número de fichas.</p></div></div><div id="stats-municipios" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Estado de calidad</h3><p>Campos básicos que más requieren atención.</p></div></div><div class="admin-panel-body"><table class="stats-table"><thead><tr><th>Control</th><th>Correctos</th><th>Pendientes</th></tr></thead><tbody id="stats-calidad"><tr><td colspan="3">Cargando…</td></tr></tbody></table></div></article>
       </section>
-      <p class="stats-note">Esta pantalla es solo de lectura y no modifica talleres ni configuración.</p>
+      <p class="stats-note">La fecha <code>created_at</code> refleja cuándo se creó la ficha en TallerMap; una importación masiva puede concentrar muchas fichas en el mismo mes. Esta pantalla es solo de lectura.</p>
     </div>
   </main>
 </div>
