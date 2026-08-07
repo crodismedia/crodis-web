@@ -74,6 +74,22 @@
         enlaceExportar.innerHTML="<span>⇩</span>Exportaciones";
         nav.insertBefore(enlaceExportar,referencia);
       }
+      if(!nav.querySelector('a[href="admin-calidad.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceCalidad=document.createElement("a");
+        enlaceCalidad.href="admin-calidad.html";
+        enlaceCalidad.innerHTML="<span>◇</span>Calidad de datos";
+        nav.insertBefore(enlaceCalidad,referencia);
+      }
+      if(!nav.querySelector('a[href="admin-salud.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceSalud=document.createElement("a");
+        enlaceSalud.href="admin-salud.html";
+        enlaceSalud.innerHTML="<span>●</span>Estado del sistema";
+        nav.insertBefore(enlaceSalud,referencia);
+      }
     }
 
     const acciones=document.querySelector(".admin-quick");
@@ -111,6 +127,18 @@
       const enlace=document.createElement("a");
       enlace.href="admin-exportar.html";
       enlace.innerHTML="<strong>Exportar talleres</strong><span>Genera un CSV filtrado por provincia, verificación y calidad sin modificar la base de datos.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-calidad.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-calidad.html";
+      enlace.innerHTML="<strong>Auditar calidad de datos</strong><span>Detecta teléfonos, códigos postales, provincias y webs con formatos dudosos.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-salud.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-salud.html";
+      enlace.innerHTML="<strong>Estado del sistema</strong><span>Comprueba sesión, permisos y acceso de lectura a las tablas esenciales.</span>";
       acciones.appendChild(enlace);
     }
   }
