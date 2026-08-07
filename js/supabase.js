@@ -24,6 +24,7 @@
     let servicioActual = "";
     let totalResultadosActual = 0;
     let cargando = false;
+    let versionBusqueda = 0;
 
     function escaparHTML(valor) {
         const elemento = document.createElement("div");
@@ -132,6 +133,7 @@
         const nombreOriginal = taller.nombre || "Taller sin nombre";
         const nombre = escaparHTML(nombreOriginal);
         const ubicacion = construirUbicacion(taller);
+        const slug = slugTaller(taller);
 
         const descripcion = escaparHTML(
             taller.descripcion
@@ -160,7 +162,7 @@
 
         enlaces.push(
             `<a class="enlace-ficha-taller" ` +
-            `href="/talleres/${encodeURIComponent(slugTaller(taller))}">` +
+            `href="/talleres/${encodeURIComponent(slug)}">` +
             `Ver ficha</a>`
         );
 
@@ -177,7 +179,7 @@
             .join("");
 
         return `
-            <article class="taller-card">
+            <article class="taller-card" data-taller-slug="${escaparHTML(slug)}">
                 <div class="taller-imagen taller-imagen-1">
                     ${
                         foto
@@ -185,6 +187,7 @@
                                 src="${escaparHTML(foto)}"
                                 alt="Fotografía de ${nombre}"
                                 loading="lazy"
+                                decoding="async"
                               >`
                             : ""
                     }
@@ -377,6 +380,49 @@
         });
     }
 
+    function incorporarFotosEnSegundoPlano(talleres, version) {
+        void adjuntarFotosFirmadas(talleres)
+            .then(talleresConFotos => {
+                if (version !== versionBusqueda) return;
+
+                const tarjetas = [
+                    ...document.querySelectorAll(
+                        "#lista-talleres .taller-card[data-taller-slug]"
+                    )
+                ];
+
+                talleresConFotos.forEach(taller => {
+                    const foto = webSegura(taller.fotoFirmada);
+                    if (!foto) return;
+
+                    const slug = slugTaller(taller);
+                    const tarjeta = tarjetas.find(
+                        elemento => elemento.dataset.tallerSlug === slug
+                    );
+                    const contenedorImagen = tarjeta?.querySelector(
+                        ".taller-imagen"
+                    );
+
+                    if (!contenedorImagen || contenedorImagen.querySelector("img")) {
+                        return;
+                    }
+
+                    const imagen = document.createElement("img");
+                    imagen.src = foto;
+                    imagen.alt = `Fotografía de ${taller.nombre || "taller"}`;
+                    imagen.loading = "lazy";
+                    imagen.decoding = "async";
+                    contenedorImagen.prepend(imagen);
+                });
+            })
+            .catch(error => {
+                console.error(
+                    "No se pudieron incorporar las fotografías:",
+                    error
+                );
+            });
+    }
+
     async function cargarServicios() {
         const selector = document.getElementById("servicio");
 
@@ -508,6 +554,7 @@
         if (!contenedor || cargando) return;
 
         if (reiniciar) {
+            versionBusqueda += 1;
             siguienteIndice = 0;
             totalResultadosActual = 0;
 
@@ -523,6 +570,7 @@
             );
         }
 
+        const versionActual = versionBusqueda;
         cargando = true;
         actualizarBotonBuscar(true);
 
@@ -575,10 +623,7 @@
                 return;
             }
 
-            const talleresConFotos =
-                await adjuntarFotosFirmadas(talleres);
-
-            const html = talleresConFotos
+            const html = talleres
                 .map(crearTarjeta)
                 .join("");
 
@@ -607,6 +652,11 @@
 
             actualizarBoton(
                 siguienteIndice < totalResultadosActual
+            );
+
+            incorporarFotosEnSegundoPlano(
+                talleres,
+                versionActual
             );
         } catch (error) {
             console.error(
