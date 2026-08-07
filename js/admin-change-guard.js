@@ -9,7 +9,8 @@
     ['../js/admin-quality-score.js','data-admin-quality'],
     ['../js/admin-batch-navigation.js','data-admin-batch-navigation'],
     ['../js/admin-runtime-status.js','data-admin-runtime-status'],
-    ['../js/admin-guided-test.js','data-admin-guided-test']
+    ['../js/admin-guided-test.js','data-admin-guided-test'],
+    ['../js/admin-right-panel-fix.js?v=1','data-admin-right-panel-fix']
   ];
   let original={};
   let tallerId='';
