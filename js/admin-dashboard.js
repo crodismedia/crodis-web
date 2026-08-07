@@ -82,6 +82,14 @@
         enlaceCalidad.innerHTML="<span>◇</span>Calidad de datos";
         nav.insertBefore(enlaceCalidad,referencia);
       }
+      if(!nav.querySelector('a[href="admin-estadisticas.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceEstadisticas=document.createElement("a");
+        enlaceEstadisticas.href="admin-estadisticas.html";
+        enlaceEstadisticas.innerHTML="<span>▥</span>Estadísticas";
+        nav.insertBefore(enlaceEstadisticas,referencia);
+      }
       if(!nav.querySelector('a[href="admin-salud.html"]')){
         const enlacesSeparador=nav.querySelectorAll(".separador");
         const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
@@ -133,6 +141,12 @@
       const enlace=document.createElement("a");
       enlace.href="admin-calidad.html";
       enlace.innerHTML="<strong>Auditar calidad de datos</strong><span>Detecta teléfonos, códigos postales, provincias y webs con formatos dudosos.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-estadisticas.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-estadisticas.html";
+      enlace.innerHTML="<strong>Ver estadísticas</strong><span>Controla crecimiento, verificación, fichas completas y distribución territorial.</span>";
       acciones.appendChild(enlace);
     }
     if(acciones&&!acciones.querySelector('a[href="admin-salud.html"]')){
