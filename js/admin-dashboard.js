@@ -20,6 +20,11 @@
       }
     });
 
+    document.querySelectorAll('a[href="../provincias/index.html"],a[href="../municipios/index.html"]').forEach(enlace=>{
+      enlace.href="admin-cobertura.html";
+      if(enlace.textContent.toLowerCase().includes("provincias"))enlace.innerHTML="<span>⌖</span>Cobertura";
+    });
+
     const nav=document.querySelector(".admin-nav");
     if(nav){
       const separador=nav.querySelector(".separador");
@@ -35,6 +40,14 @@
         enlaceActividad.innerHTML="<span>↻</span>Actividad";
         nav.insertBefore(enlaceActividad,separador||null);
       }
+      if(!nav.querySelector('a[href="admin-cobertura.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceCobertura=document.createElement("a");
+        enlaceCobertura.href="admin-cobertura.html";
+        enlaceCobertura.innerHTML="<span>⌖</span>Cobertura";
+        nav.insertBefore(enlaceCobertura,referencia);
+      }
     }
 
     const acciones=document.querySelector(".admin-quick");
@@ -48,6 +61,12 @@
       const enlace=document.createElement("a");
       enlace.href="admin-actividad.html";
       enlace.innerHTML="<strong>Ver actividad</strong><span>Consulta el historial de cambios registrados sobre los talleres.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-cobertura.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-cobertura.html";
+      enlace.innerHTML="<strong>Revisar cobertura</strong><span>Compara provincias, municipios y fichas con datos geográficos incompletos.</span>";
       acciones.appendChild(enlace);
     }
   }
