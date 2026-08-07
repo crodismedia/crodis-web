@@ -18,12 +18,13 @@
   function normalizarComparacion(v){return String(v||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();}
 
   async function proteger(){
-    if(!supabase){estado.textContent='Sin conexión';return;}
+    if(!supabase){estado.textContent='Sin conexión';return false;}
     const {data:{session}}=await supabase.auth.getSession();
-    if(!session){location.replace('admin-login.html');return;}
+    if(!session){location.replace('admin-login.html');return false;}
     const {data:admin,error}=await supabase.rpc('es_administrador');
-    if(error||!admin){await supabase.auth.signOut();location.replace('admin-login.html');return;}
+    if(error||!admin){await supabase.auth.signOut();location.replace('admin-login.html');return false;}
     estado.textContent='Acceso verificado';
+    return true;
   }
 
   async function buscar(){
@@ -35,6 +36,25 @@
     if(error){resultados.innerHTML='';mensaje(`Error al consultar: ${error.message}`);return;}
     resultados.innerHTML=(data||[]).map((t,i)=>`<button type="button" class="tm-result" data-i="${i}"><strong>${escaparHtml(textoSeguro(t.nombre)||'Sin nombre')}</strong><span>${escaparHtml(textoSeguro(t.telefono))} · ${escaparHtml(textoSeguro(t.ciudad))} ${escaparHtml(textoSeguro(t.codigo_postal))}</span></button>`).join('')||'<div class="tm-result">No hay resultados.</div>';
     resultados.querySelectorAll('[data-i]').forEach(btn=>btn.addEventListener('click',()=>cargar(data[Number(btn.dataset.i)],btn)));
+  }
+
+  async function cargarPorId(id){
+    const limpio=String(id||'').trim();
+    if(!limpio)return false;
+    resultados.innerHTML='<div class="tm-result">Abriendo taller…</div>';
+    const {data,error}=await supabase.from('talleres')
+      .select('id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,web,descripcion,servicios,horarios')
+      .eq('id',limpio)
+      .maybeSingle();
+    if(error||!data){
+      resultados.innerHTML='';
+      mensaje(error?`No se pudo abrir el taller: ${error.message}`:'No se encontró el taller solicitado.');
+      return false;
+    }
+    $('buscar-taller').value=data.nombre||data.telefono||limpio;
+    resultados.innerHTML=`<button type="button" class="tm-result active"><strong>${escaparHtml(textoSeguro(data.nombre)||'Sin nombre')}</strong><span>${escaparHtml(textoSeguro(data.telefono))} · ${escaparHtml(textoSeguro(data.ciudad))} ${escaparHtml(textoSeguro(data.codigo_postal))}</span></button>`;
+    cargar(data,resultados.querySelector('.tm-result'));
+    return true;
   }
 
   function actualizarEstadoCampo(id){
@@ -137,5 +157,14 @@
   $('btn-pegar-candidato').addEventListener('click',async()=>{try{$('dato-candidato').value=(await navigator.clipboard.readText()).trim();analizar();mensaje('Contenido pegado y analizado.',true);}catch{mensaje('El navegador no permitió leer el portapapeles.');}});
   $('btn-buscar').addEventListener('click',buscar);$('buscar-taller').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscar();}});form.addEventListener('submit',guardar);$('btn-google').addEventListener('click',abrirBusquedaTaller);$('btn-cargar-url').addEventListener('click',abrirUrl);$('btn-nueva-pestana').addEventListener('click',abrirPestana);$('boton-cerrar-sesion').addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('admin-login.html');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-pane]').forEach(x=>x.classList.toggle('active',x.dataset.pane===b.dataset.tab));}));
-  proteger().then(buscar);abrirUrl();marcarDestino('telefono');
+
+  async function iniciar(){
+    const autorizado=await proteger();
+    if(!autorizado)return;
+    const id=new URLSearchParams(location.search).get('id');
+    if(id&&await cargarPorId(id))return;
+    await buscar();
+  }
+
+  iniciar();abrirUrl();marcarDestino('telefono');
 }());
