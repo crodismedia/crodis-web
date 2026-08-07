@@ -3,9 +3,15 @@
   const supabase=window.supabaseClient;
   const $=(id)=>document.getElementById(id);
   const PAGE_SIZE=50;
+  const BATCH_SIZE=100;
+  const STORAGE_KEY="tallermap_enriquecimiento_lote_v1";
   let filas=[];
   let filtradas=[];
   let pagina=1;
+  let modoLote=false;
+  let loteActual=[];
+  let loteOffset=0;
+  let revisadas=new Set();
 
   function txt(v){return String(v??"").trim();}
   function normalizar(v){return txt(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
@@ -64,19 +70,19 @@
   function queryCampo(t,campo){
     const base=contextoBase(t);
     const extras={
-      telefono:'teléfono contacto',
-      web:'web oficial',
-      direccion:'dirección taller',
-      codigo_postal:'dirección código postal',
-      ciudad:'ubicación municipio',
-      horarios:'horario apertura',
-      servicios:'servicios taller mecánico'
+      telefono:"teléfono contacto",
+      web:"web oficial",
+      direccion:"dirección taller",
+      codigo_postal:"dirección código postal",
+      ciudad:"ubicación municipio",
+      horarios:"horario apertura",
+      servicios:"servicios taller mecánico"
     };
-    return [base,extras[campo]||'taller mecánico'].filter(Boolean).join(" ");
+    return [base,extras[campo]||"taller mecánico"].filter(Boolean).join(" ");
   }
-  function abrirGoogle(t,campo){window.open(`https://www.google.com/search?q=${encodeURIComponent(queryCampo(t,campo))}`,'_blank','noopener,noreferrer');}
-  function abrirMaps(t){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([txt(t.nombre),txt(t.direccion),txt(t.ciudad),txt(t.codigo_postal),txt(t.provincia)].filter(Boolean).join(" "))}`,'_blank','noopener,noreferrer');}
-  function abrirEditor(t){location.href=`admin-editor.html?id=${encodeURIComponent(t.id)}`;}
+  function abrirGoogle(t,campo){window.open(`https://www.google.com/search?q=${encodeURIComponent(queryCampo(t,campo))}`,"_blank","noopener,noreferrer");}
+  function abrirMaps(t){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([txt(t.nombre),txt(t.direccion),txt(t.ciudad),txt(t.codigo_postal),txt(t.provincia)].filter(Boolean).join(" "))}`,"_blank","noopener,noreferrer");}
+  function abrirEditor(t){guardarEstadoLote();location.href=`admin-editor.html?id=${encodeURIComponent(t.id)}`;}
 
   function metricas(talleres){
     $("enr-total").textContent=talleres.length.toLocaleString("es-ES");
@@ -91,11 +97,11 @@
     $("enr-provincia").innerHTML='<option value="">Todas las provincias</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
   }
 
-  function aplicarFiltros(){
+  function calcularFiltradas(){
     const filtro=$("enr-filtro").value;
     const provincia=$("enr-provincia").value;
     const q=normalizar($("enr-buscar").value);
-    filtradas=filas.filter(f=>{
+    return filas.filter(f=>{
       if(filtro==="alta"&&f.prioridad!=="alta")return false;
       if(["telefono","web","direccion","codigo_postal","ciudad","servicios","horarios"].includes(filtro)&&f.checks[filtro])return false;
       if(provincia&&txt(f.provincia)!==provincia)return false;
@@ -105,6 +111,11 @@
       }
       return true;
     });
+  }
+
+  function aplicarFiltros(){
+    filtradas=calcularFiltradas();
+    salirLote(false);
     pagina=1;
     render();
   }
@@ -117,15 +128,105 @@
     return botones.join("");
   }
 
+  function guardarEstadoLote(){
+    try{
+      const payload={
+        modoLote,
+        loteOffset,
+        loteIds:loteActual.map(t=>String(t.id)),
+        revisadas:[...revisadas],
+        filtro:$("enr-filtro")?.value||"todas",
+        provincia:$("enr-provincia")?.value||"",
+        buscar:$("enr-buscar")?.value||""
+      };
+      sessionStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
+    }catch(_error){}
+  }
+
+  function limpiarEstadoLote(){try{sessionStorage.removeItem(STORAGE_KEY);}catch(_error){}}
+
+  function actualizarEstadoLote(){
+    const btnPreparar=$("enr-preparar-lote");
+    const btnSiguiente=$("enr-siguiente-lote");
+    const btnSalir=$("enr-salir-lote");
+    if(!modoLote){
+      $("enr-lote-estado").textContent="Sin lote activo";
+      $("enr-lote-progreso").textContent=`${filtradas.length.toLocaleString("es-ES")} fichas coinciden con los filtros actuales.`;
+      btnPreparar.hidden=false;
+      btnSiguiente.hidden=true;
+      btnSalir.hidden=true;
+      return;
+    }
+    const numero=Math.floor(loteOffset/BATCH_SIZE)+1;
+    const totalLotes=Math.max(1,Math.ceil(filtradas.length/BATCH_SIZE));
+    const revisadasLote=loteActual.filter(t=>revisadas.has(String(t.id))).length;
+    $("enr-lote-estado").textContent=`Lote ${numero} de ${totalLotes} · ${loteActual.length} fichas`;
+    $("enr-lote-progreso").textContent=`${revisadasLote} de ${loteActual.length} marcadas como revisadas · posiciones ${loteOffset+1}-${Math.min(loteOffset+loteActual.length,filtradas.length)} de ${filtradas.length.toLocaleString("es-ES")}`;
+    btnPreparar.hidden=true;
+    btnSiguiente.hidden=loteOffset+BATCH_SIZE>=filtradas.length;
+    btnSalir.hidden=false;
+  }
+
+  function prepararLote(offset=0){
+    if(!filtradas.length){alert("No hay fichas con los filtros actuales.");return;}
+    loteOffset=Math.max(0,offset);
+    loteActual=filtradas.slice(loteOffset,loteOffset+BATCH_SIZE);
+    if(!loteActual.length){alert("No quedan más fichas en esta selección.");return;}
+    modoLote=true;
+    revisadas=new Set();
+    pagina=1;
+    guardarEstadoLote();
+    render();
+  }
+
+  function siguienteLote(){prepararLote(loteOffset+BATCH_SIZE);}
+
+  function salirLote(renderizar=true){
+    modoLote=false;
+    loteActual=[];
+    loteOffset=0;
+    revisadas=new Set();
+    limpiarEstadoLote();
+    pagina=1;
+    if(renderizar)render();
+  }
+
+  function alternarRevisada(id){
+    const key=String(id);
+    if(revisadas.has(key))revisadas.delete(key);else revisadas.add(key);
+    guardarEstadoLote();
+    render();
+  }
+
+  function restaurarEstadoLote(){
+    let saved=null;
+    try{saved=JSON.parse(sessionStorage.getItem(STORAGE_KEY)||"null");}catch(_error){saved=null;}
+    if(!saved)return false;
+    if(saved.filtro&&$("enr-filtro"))$("enr-filtro").value=saved.filtro;
+    if($("enr-provincia"))$("enr-provincia").value=saved.provincia||"";
+    if($("enr-buscar"))$("enr-buscar").value=saved.buscar||"";
+    filtradas=calcularFiltradas();
+    if(!saved.modoLote)return false;
+    const ids=new Set((saved.loteIds||[]).map(String));
+    loteActual=filtradas.filter(t=>ids.has(String(t.id)));
+    loteOffset=Number.isFinite(Number(saved.loteOffset))?Number(saved.loteOffset):0;
+    revisadas=new Set((saved.revisadas||[]).map(String));
+    modoLote=loteActual.length>0;
+    return modoLote;
+  }
+
   function render(){
-    const totalPaginas=Math.max(1,Math.ceil(filtradas.length/PAGE_SIZE));
+    const fuente=modoLote?loteActual:filtradas;
+    const totalPaginas=Math.max(1,Math.ceil(fuente.length/PAGE_SIZE));
     if(pagina>totalPaginas)pagina=totalPaginas;
     const inicio=(pagina-1)*PAGE_SIZE;
-    const lote=filtradas.slice(inicio,inicio+PAGE_SIZE);
+    const lote=fuente.slice(inicio,inicio+PAGE_SIZE);
     $("enr-tabla").innerHTML=lote.map(t=>{
       const falta=t.faltanValor.map(k=>k.replace("codigo_postal","CP").replace("ciudad","población")).join(", ")||"—";
       const ubic=[t.ciudad,t.provincia,t.codigo_postal].filter(Boolean).join(" · ")||"—";
       const clase=t.prioridad==="alta"?"bad":t.prioridad==="media"?"warn":"ok";
+      const revisada=revisadas.has(String(t.id));
+      const estado=modoLote?`<button class="admin-btn${revisada?" primary":""}" type="button" data-revisada="${esc(t.id)}">${revisada?"✓ Revisada":"Marcar revisada"}</button>`:"—";
       return `<tr>
         <td><strong>${esc(t.nombre||"Sin nombre")}</strong><small>${esc(t.id)}</small></td>
         <td>${esc(ubic)}<small>${esc(t.direccion||"")}</small></td>
@@ -133,20 +234,23 @@
         <td>${esc(falta)}</td>
         <td><div class="admin-row-actions">${botonesInvestigacion(t)}</div></td>
         <td><button class="admin-btn primary" type="button" data-editor="${esc(t.id)}">Investigar y editar</button></td>
+        <td>${estado}</td>
       </tr>`;
-    }).join("")||'<tr><td colspan="6">No hay fichas con estos filtros.</td></tr>';
-    $("enr-pagina").textContent=`Página ${pagina} de ${totalPaginas} · ${filtradas.length.toLocaleString("es-ES")} fichas`;
+    }).join("")||'<tr><td colspan="7">No hay fichas con estos filtros.</td></tr>';
+    $("enr-pagina").textContent=`Página ${pagina} de ${totalPaginas} · ${fuente.length.toLocaleString("es-ES")} fichas${modoLote?" en el lote":""}`;
     $("enr-anterior").disabled=pagina<=1;
     $("enr-siguiente").disabled=pagina>=totalPaginas;
     const porId=new Map(filas.map(f=>[String(f.id),f]));
     document.querySelectorAll("[data-buscar-campo]").forEach(b=>b.addEventListener("click",()=>abrirGoogle(porId.get(b.dataset.id),b.dataset.buscarCampo)));
     document.querySelectorAll("[data-maps]").forEach(b=>b.addEventListener("click",()=>abrirMaps(porId.get(b.dataset.maps))));
     document.querySelectorAll("[data-editor]").forEach(b=>b.addEventListener("click",()=>abrirEditor(porId.get(b.dataset.editor))));
+    document.querySelectorAll("[data-revisada]").forEach(b=>b.addEventListener("click",()=>alternarRevisada(b.dataset.revisada)));
+    actualizarEstadoLote();
   }
 
   async function cargar(){
     $("admin-estado").textContent="Analizando fichas…";
-    $("enr-tabla").innerHTML='<tr><td colspan="6">Analizando…</td></tr>';
+    $("enr-tabla").innerHTML='<tr><td colspan="7">Analizando…</td></tr>';
     try{
       const talleres=await cargarTodos();
       filas=talleres.map(evaluar)
@@ -155,13 +259,15 @@
       filtradas=[...filas];
       metricas(talleres);
       provincias();
+      restaurarEstadoLote();
+      if(!modoLote)filtradas=calcularFiltradas();
       pagina=1;
       render();
       $("admin-estado").textContent=`${filas.length.toLocaleString("es-ES")} fichas por enriquecer`;
     }catch(error){
       console.error(error);
       $("admin-estado").textContent=`Error: ${error.message||"no se pudo analizar"}`;
-      $("enr-tabla").innerHTML='<tr><td colspan="6">No se pudieron cargar las fichas.</td></tr>';
+      $("enr-tabla").innerHTML='<tr><td colspan="7">No se pudieron cargar las fichas.</td></tr>';
     }
   }
 
@@ -169,8 +275,11 @@
   $("enr-filtro")?.addEventListener("change",aplicarFiltros);
   $("enr-provincia")?.addEventListener("change",aplicarFiltros);
   $("enr-buscar")?.addEventListener("input",aplicarFiltros);
+  $("enr-preparar-lote")?.addEventListener("click",()=>prepararLote(0));
+  $("enr-siguiente-lote")?.addEventListener("click",siguienteLote);
+  $("enr-salir-lote")?.addEventListener("click",()=>salirLote(true));
   $("enr-anterior")?.addEventListener("click",()=>{if(pagina>1){pagina--;render();}});
-  $("enr-siguiente")?.addEventListener("click",()=>{if(pagina*PAGE_SIZE<filtradas.length){pagina++;render();}});
-  $("btn-cerrar-sesion")?.addEventListener("click",async()=>{await supabase.auth.signOut();location.replace("admin-login.html");});
+  $("enr-siguiente")?.addEventListener("click",()=>{const fuente=modoLote?loteActual:filtradas;if(pagina*PAGE_SIZE<fuente.length){pagina++;render();}});
+  $("btn-cerrar-sesion")?.addEventListener("click",async()=>{limpiarEstadoLote();await supabase.auth.signOut();location.replace("admin-login.html");});
   proteger().then(ok=>{if(ok)cargar();});
 }());
