@@ -11,6 +11,11 @@
   function enlazarGestionTalleres(){
     document.querySelectorAll('a[href="admin-editor.html"]').forEach(enlace=>{
       const texto=enlace.textContent.replace(/\s+/g," ").trim().toLowerCase();
+      if(texto.includes("altas y edición")){
+        enlace.href="admin-altas.html";
+        enlace.innerHTML="<span>＋</span>Altas recientes";
+        return;
+      }
       if(texto.includes("revisiones")||texto.includes("completar datos")){
         enlace.href="admin-revisiones.html";
         return;
@@ -64,6 +69,12 @@
     }
 
     const acciones=document.querySelector(".admin-quick");
+    if(acciones&&!acciones.querySelector('a[href="admin-altas.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-altas.html";
+      enlace.innerHTML="<strong>Seguir altas recientes</strong><span>Revisa las nuevas fichas de las últimas horas o días y detecta incorporaciones incompletas.</span>";
+      acciones.appendChild(enlace);
+    }
     if(acciones&&!acciones.querySelector('a[href="admin-duplicados.html"]')){
       const enlace=document.createElement("a");
       enlace.href="admin-duplicados.html";
