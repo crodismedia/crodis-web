@@ -1,0 +1,1 @@
+Cola de trabajo simplificada para fichas incompletas y editor con navegador de apoyo basado en Yandex + Google Maps. Sin sugerencias automáticas de otros talleres.

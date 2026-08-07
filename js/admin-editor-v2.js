@@ -14,12 +14,41 @@
   function urlWeb(v){const x=String(v||'').trim();return !x?'':/^https?:\/\//i.test(x)?x:`https://${x}`;}
   function consultaActual(){return [valor('nombre'),valor('direccion'),valor('codigo_postal'),valor('ciudad'),valor('provincia')].filter(Boolean).join(' ');}
 
-  function actualizarMaps(){
+  function mostrarUrl(url,mostrarEnCampo=true){
+    const visor=$('visor-navegador'),vacio=$('navegador-vacio');
+    if(!url){visor.hidden=true;vacio.hidden=false;return;}
+    if(mostrarEnCampo)$('navegador-url').value=url;
+    visor.src=url;
+    visor.hidden=false;
+    vacio.hidden=true;
+  }
+
+  function abrirYandex(){
     const q=consultaActual();
-    const visor=$('visor-maps'),vacio=$('map-vacio');
-    if(!q){visor.hidden=true;vacio.hidden=false;return;}
-    visor.src=`https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
-    visor.hidden=false;vacio.hidden=true;
+    if(!q)return;
+    $('navegador-url').value=q;
+    mostrarUrl(`https://yandex.com/search/?text=${encodeURIComponent(q)}`,false);
+    $('btn-yandex')?.classList.add('active');
+    $('btn-maps')?.classList.remove('active');
+  }
+
+  function abrirMaps(){
+    const q=consultaActual()||valor('navegador-url');
+    if(!q)return;
+    $('navegador-url').value=q;
+    mostrarUrl(`https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`,false);
+    $('btn-maps')?.classList.add('active');
+    $('btn-yandex')?.classList.remove('active');
+  }
+
+  function navegarManual(){
+    const entrada=valor('navegador-url');
+    if(!entrada)return;
+    if(/^https?:\/\//i.test(entrada))mostrarUrl(entrada,false);
+    else if(/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(entrada))mostrarUrl(`https://${entrada}`,false);
+    else mostrarUrl(`https://yandex.com/search/?text=${encodeURIComponent(entrada)}`,false);
+    $('btn-yandex')?.classList.add('active');
+    $('btn-maps')?.classList.remove('active');
   }
 
   async function proteger(){
@@ -50,7 +79,8 @@
     originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));
     form.hidden=false;resultados.innerHTML='';
     editables.forEach(id=>$(id)?.dispatchEvent(new Event('input',{bubbles:true})));
-    actualizarMaps();msg(`Editando: ${t.nombre}`,true);
+    abrirYandex();
+    msg(`Editando: ${t.nombre}`,true);
   }
 
   function serviciosPayload(){return valor('servicios').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);}
@@ -62,17 +92,25 @@
     msg('Guardando cambios…');
     const {error}=await supabase.from('talleres').update(payload).eq('id',id);
     if(error){msg(`No se pudo guardar: ${error.message}`);return;}
-    originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));msg('Ficha guardada correctamente en Supabase.',true);actualizarMaps();
+    originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));msg('Ficha guardada correctamente en Supabase.',true);
+    if(new URLSearchParams(location.search).get('cola')==='1'){
+      const bar=form.querySelector('.tm-savebar');
+      if(bar&&!document.getElementById('btn-volver-cola')){
+        const volver=document.createElement('a');
+        volver.id='btn-volver-cola';volver.className='tm-btn tm-btn-soft';volver.href='admin-autocompletar.html';volver.textContent='Volver a pendientes';bar.prepend(volver);
+      }
+    }
   }
 
-  $('btn-google')?.addEventListener('click',()=>{const q=consultaActual();if(q)window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener,noreferrer');});
-  $('btn-maps')?.addEventListener('click',actualizarMaps);
+  $('btn-yandex')?.addEventListener('click',abrirYandex);
+  $('btn-maps')?.addEventListener('click',abrirMaps);
+  $('btn-ir')?.addEventListener('click',navegarManual);
+  $('navegador-url')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();navegarManual();}});
   $('btn-buscar')?.addEventListener('click',buscar);
   $('buscar-taller')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscar();}});
   $('buscar-taller')?.addEventListener('input',()=>{if(valor('buscar-taller').length<2)resultados.innerHTML='';});
   form?.addEventListener('submit',guardar);
   $('boton-cerrar-sesion')?.addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('admin-login.html');});
-  ['nombre','direccion','codigo_postal','ciudad','provincia'].forEach(id=>$(id)?.addEventListener('change',actualizarMaps));
 
   proteger().then(ok=>{
     if(!ok)return;
