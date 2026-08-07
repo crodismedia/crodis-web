@@ -25,6 +25,11 @@
       if(enlace.textContent.toLowerCase().includes("provincias"))enlace.innerHTML="<span>⌖</span>Cobertura";
     });
 
+    document.querySelectorAll('a[href="../index.html#servicios"]').forEach(enlace=>{
+      enlace.href="admin-servicios.html";
+      enlace.innerHTML="<span>⚙</span>Servicios";
+    });
+
     const nav=document.querySelector(".admin-nav");
     if(nav){
       const separador=nav.querySelector(".separador");
@@ -48,6 +53,14 @@
         enlaceCobertura.innerHTML="<span>⌖</span>Cobertura";
         nav.insertBefore(enlaceCobertura,referencia);
       }
+      if(!nav.querySelector('a[href="admin-servicios.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceServicios=document.createElement("a");
+        enlaceServicios.href="admin-servicios.html";
+        enlaceServicios.innerHTML="<span>⚙</span>Servicios";
+        nav.insertBefore(enlaceServicios,referencia);
+      }
     }
 
     const acciones=document.querySelector(".admin-quick");
@@ -67,6 +80,12 @@
       const enlace=document.createElement("a");
       enlace.href="admin-cobertura.html";
       enlace.innerHTML="<strong>Revisar cobertura</strong><span>Compara provincias, municipios y fichas con datos geográficos incompletos.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-servicios.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-servicios.html";
+      enlace.innerHTML="<strong>Analizar servicios</strong><span>Comprueba el uso del catálogo y detecta fichas sin servicios o valores no reconocidos.</span>";
       acciones.appendChild(enlace);
     }
   }
