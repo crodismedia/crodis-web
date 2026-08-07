@@ -54,6 +54,21 @@
 
       <section class="admin-card">
         <div class="admin-panel-head">
+          <div><h3>Trabajo por lotes</h3><p>Prepara exactamente 100 fichas según los filtros actuales. El lote solo organiza la investigación: no modifica Supabase ni abre 100 ventanas automáticamente.</p></div>
+          <div class="admin-top-actions">
+            <button id="enr-preparar-lote" class="admin-btn primary" type="button">Preparar lote de 100</button>
+            <button id="enr-siguiente-lote" class="admin-btn" type="button" hidden>Siguiente lote de 100</button>
+            <button id="enr-salir-lote" class="admin-btn" type="button" hidden>Salir del lote</button>
+          </div>
+        </div>
+        <div class="admin-panel-body">
+          <strong id="enr-lote-estado">Sin lote activo</strong>
+          <p id="enr-lote-progreso" class="admin-vacio">Aplica primero los filtros que quieras y después prepara el lote.</p>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head">
           <div><h3>Fichas incompletas</h3><p>La puntuación pondera teléfono, dirección, CP, población, web, servicios, horarios y descripción. Cada botón de investigación añade contexto específico a la búsqueda. La base de datos no se modifica desde esta pantalla.</p></div>
           <div class="admin-top-actions">
             <select id="enr-filtro" class="admin-btn">
@@ -73,8 +88,8 @@
         <div class="admin-filtros"><input id="enr-buscar" type="search" placeholder="Buscar taller, población, CP o provincia"></div>
         <div class="admin-table-wrap">
           <table class="admin-table">
-            <thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Investigación dirigida</th><th>Editar</th></tr></thead>
-            <tbody id="enr-tabla"><tr><td colspan="6">Cargando…</td></tr></tbody>
+            <thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Investigación dirigida</th><th>Editar</th><th>Estado</th></tr></thead>
+            <tbody id="enr-tabla"><tr><td colspan="7">Cargando…</td></tr></tbody>
           </table>
         </div>
         <div class="admin-pagination"><button id="enr-anterior" class="admin-btn" type="button">Anterior</button><span id="enr-pagina">Página 1</span><button id="enr-siguiente" class="admin-btn" type="button">Siguiente</button></div>
@@ -88,6 +103,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-enriquecer.js?v=2"></script>
+<script src="../js/admin-enriquecer.js?v=3"></script>
 </body>
 </html>
