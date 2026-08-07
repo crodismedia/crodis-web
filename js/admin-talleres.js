@@ -11,7 +11,7 @@
   function escapar(v){return String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
   function terminoSeguro(v){return String(v||"").replace(/[,%().]/g," ").replace(/\s+/g," ").trim().slice(0,80);}
   function estado(texto,tipo=""){const el=$("admin-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
-  function slugTaller(t){if(t.slug)return String(t.slug);const base=`${t.nombre||"taller"}-${t.ciudad||""}`.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");return t.id?`${base}-${String(t.id).slice(0,8)}`:base;}
+  function slugPublico(t){return String(t.slug||"").trim();}
 
   function configurarNav(){
     document.querySelectorAll(".admin-nav a").forEach(a=>{
@@ -66,7 +66,10 @@
     if(!filas.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No hay talleres con estos filtros.</td></tr>';}
     else tbody.innerHTML=filas.map(t=>{
       const faltan=calidadTaller(t);
-      const slug=slugTaller(t);
+      const slug=slugPublico(t);
+      const enlaceFicha=slug
+        ? `<a href="/talleres/${encodeURIComponent(slug)}" target="_blank" rel="noopener">Ver ficha</a>`
+        : '<span class="admin-chip soft" title="Esta ficha no tiene slug público almacenado">Sin slug</span>';
       return `<tr>
         <td><input class="fila-check" type="checkbox" data-id="${escapar(t.id)}" ${seleccion.has(String(t.id))?"checked":""}></td>
         <td><strong>${escapar(t.nombre||"Sin nombre")}</strong><small>${escapar(t.codigo_postal||"")}</small></td>
@@ -75,7 +78,7 @@
         <td>${escapar(t.provincia||"—")}</td>
         <td>${faltan.length?`<span class="chip warn">Falta ${escapar(faltan.join(", "))}</span>`:'<span class="chip ok">Completa</span>'}</td>
         <td>${t.verificado?'<span class="chip ok">Verificado</span>':'<span class="chip">Publicado</span>'}</td>
-        <td><div class="actions"><a href="admin-editor.html">Editar</a><a href="/talleres/${encodeURIComponent(slug)}" target="_blank" rel="noopener">Ver ficha</a><button class="verify" data-toggle="${escapar(t.id)}" data-value="${t.verificado?"false":"true"}">${t.verificado?"Quitar verificación":"Verificar"}</button></div></td>
+        <td><div class="actions"><a href="admin-editor.html?id=${encodeURIComponent(t.id)}">Editar</a>${enlaceFicha}<button class="verify" data-toggle="${escapar(t.id)}" data-value="${t.verificado?"false":"true"}">${t.verificado?"Quitar verificación":"Verificar"}</button></div></td>
       </tr>`;
     }).join("");
 
