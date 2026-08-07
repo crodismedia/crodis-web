@@ -11,6 +11,10 @@
   function enlazarGestionTalleres(){
     document.querySelectorAll('a[href="admin-editor.html"]').forEach(enlace=>{
       const texto=enlace.textContent.replace(/\s+/g," ").trim().toLowerCase();
+      if(texto.includes("revisiones")||texto.includes("completar datos")){
+        enlace.href="admin-revisiones.html";
+        return;
+      }
       if(texto.includes("talleres")||texto.includes("buscar taller")){
         enlace.href="admin-talleres.html";
       }
