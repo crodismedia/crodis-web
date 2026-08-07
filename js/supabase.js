@@ -6,6 +6,17 @@
 
     const TAMANO_PAGINA = 20;
     const LIMITE_TERMINO = 80;
+    const CODIGOS_CAPITALES = new Map([
+        ["alicante", "03014"],
+        ["alacant", "03014"],
+        ["alacant alicante", "03014"],
+        ["castellon", "12040"],
+        ["castello", "12040"],
+        ["castellon de la plana", "12040"],
+        ["castello de la plana", "12040"],
+        ["castello de la plana castellon de la plana", "12040"],
+        ["valencia", "46250"]
+    ]);
 
     if (!window.supabase?.createClient) {
         console.error("No se ha cargado la biblioteca de Supabase.");
@@ -25,6 +36,7 @@
     let totalResultadosActual = 0;
     let cargando = false;
     let versionBusqueda = 0;
+    let codigoMunicipioActual = "";
 
     function escaparHTML(valor) {
         const elemento = document.createElement("div");
@@ -38,6 +50,20 @@
             .replace(/\s+/g, " ")
             .trim()
             .slice(0, LIMITE_TERMINO);
+    }
+
+    function normalizarTexto(valor) {
+        return String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("es")
+            .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function codigoMunicipioPreferente(ubicacion) {
+        return CODIGOS_CAPITALES.get(normalizarTexto(ubicacion)) || "";
     }
 
     function webSegura(valor) {
@@ -330,6 +356,35 @@
         });
     }
 
+    async function ejecutarBusquedaMunicipio({ codigoMunicipal, servicio, desde, limite }) {
+        return supabaseClient.rpc("buscar_talleres_municipio", {
+            p_codigo_municipal: codigoMunicipal,
+            p_servicio: servicio,
+            p_desde: desde,
+            p_limite: limite
+        });
+    }
+
+    async function ejecutarBusquedaActual({ ubicacion, servicio, desde, limite }) {
+        if (codigoMunicipioActual) {
+            const resultadoMunicipio = await ejecutarBusquedaMunicipio({
+                codigoMunicipal: codigoMunicipioActual,
+                servicio,
+                desde,
+                limite
+            });
+
+            if (!resultadoMunicipio.error) return resultadoMunicipio;
+
+            console.warn(
+                "La búsqueda optimizada por municipio falló; se usa la búsqueda general:",
+                resultadoMunicipio.error
+            );
+        }
+
+        return ejecutarBusquedaProfesional({ ubicacion, servicio, desde, limite });
+    }
+
     async function cargarTalleres(poblacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
         if (!contenedor || cargando) return;
@@ -340,6 +395,7 @@
             totalResultadosActual = 0;
             poblacionActual = terminoSeguro(poblacion);
             servicioActual = terminoSeguro(servicio);
+            codigoMunicipioActual = codigoMunicipioPreferente(poblacionActual);
 
             mostrarEstado("Buscando talleres...");
             actualizarNumeroResultados(0);
@@ -353,7 +409,7 @@
         if (!reiniciar) actualizarBoton(true, true);
 
         try {
-            const { data, error } = await ejecutarBusquedaProfesional({
+            const { data, error } = await ejecutarBusquedaActual({
                 ubicacion: poblacionActual,
                 servicio: servicioActual,
                 desde: siguienteIndice,
