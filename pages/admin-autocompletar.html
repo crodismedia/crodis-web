@@ -39,17 +39,17 @@
   <main class="admin-main">
     <header class="admin-top"><h1>Autocompletado de fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
     <div class="admin-content">
-      <section class="admin-hero"><div><h2>Cola de fichas incompletas</h2><p>Prioriza talleres con campos vacíos y muestra sugerencias seguras. Esta primera versión no escribe automáticamente en la base de datos.</p></div></section>
+      <section class="admin-hero"><div><h2>Cola de fichas incompletas</h2><p>Prioriza talleres con campos vacíos y propone mejoras locales de alta confianza. Puedes aplicar únicamente las sugerencias seguras después de revisar una confirmación; el resto sigue pasando por el editor.</p></div></section>
 
       <section class="admin-metrics">
         <article class="admin-card admin-metric"><span>Talleres analizados</span><strong id="auto-total">—</strong><small>Registros revisados</small></article>
-        <article class="admin-card admin-metric alert"><span>Incompletos</span><strong id="auto-incompletos">—</strong><small>Falta al menos un campo clave</small></article>
+        <article class="admin-card admin-metric alert"><span>Pendientes</span><strong id="auto-incompletos">—</strong><small>Incompletas o con normalización segura</small></article>
         <article class="admin-card admin-metric alert"><span>Prioridad alta</span><strong id="auto-alta">—</strong><small>Menos del 60% completo</small></article>
-        <article class="admin-card admin-metric"><span>Con sugerencia segura</span><strong id="auto-sugerencias">—</strong><small>Se puede proponer una mejora local</small></article>
+        <article class="admin-card admin-metric"><span>Aplicables</span><strong id="auto-sugerencias">—</strong><small>Tienen un cambio automático seguro</small></article>
       </section>
 
       <section class="admin-card">
-        <div class="admin-panel-head"><div><h3>Fichas a completar</h3><p>Ordenadas por menor nivel de completitud.</p></div><select id="auto-filtro" class="admin-btn"><option value="todas">Todas las incompletas</option><option value="alta">Prioridad alta</option><option value="sugerencia">Con sugerencia segura</option></select></div>
+        <div class="admin-panel-head"><div><h3>Fichas a completar</h3><p>Ordenadas por menor nivel de completitud. “Aplicar seguras” vuelve a leer la ficha antes de escribir y muestra exactamente qué campos se modificarán.</p></div><select id="auto-filtro" class="admin-btn"><option value="todas">Todas las pendientes</option><option value="alta">Prioridad alta</option><option value="sugerencia">Con cambio seguro</option></select></div>
         <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Sugerencia</th><th>Acciones</th></tr></thead><tbody id="auto-tabla"><tr><td colspan="6">Cargando…</td></tr></tbody></table></div>
       </section>
     </div>
@@ -57,6 +57,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-autocompletar.js"></script>
+<script src="../js/admin-autocompletar.js?v=2"></script>
 </body>
 </html>
