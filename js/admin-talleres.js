@@ -13,6 +13,12 @@
   function estado(texto,tipo=""){const el=$("admin-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
   function slugTaller(t){if(t.slug)return String(t.slug);const base=`${t.nombre||"taller"}-${t.ciudad||""}`.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");return t.id?`${base}-${String(t.id).slice(0,8)}`:base;}
 
+  function configurarNav(){
+    document.querySelectorAll(".admin-nav a").forEach(a=>{
+      if(a.textContent.trim().includes("Revisiones"))a.href="admin-revisiones.html";
+    });
+  }
+
   async function proteger(){
     if(!supabase){estado("Sin conexión","error");return false;}
     const {data:{session}}=await supabase.auth.getSession();
@@ -123,6 +129,7 @@
   }
 
   async function iniciar(){
+    configurarNav();
     enlazar();
     if(!await proteger())return;
     await cargarProvincias();
