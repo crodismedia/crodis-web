@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Autocompletado de fichas | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="admin-brand" href="admin.html"><img src="../favicon.svg" alt="" width="42" height="42"><span><strong>TallerMap</strong><small>Centro de control</small></span></a>
+    <nav class="admin-nav" aria-label="Administración">
+      <a href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-reclamaciones.html"><span>♙</span>Reclamaciones</a>
+      <a href="admin-valoraciones.html"><span>★</span>Valoraciones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
+      <div class="separador"></div>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a class="activo" href="admin-autocompletar.html"><span>✦</span>Autocompletar fichas</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
+      <div class="separador"></div>
+      <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
+    </nav>
+    <div class="admin-side-foot"><strong id="admin-usuario">Verificando usuario…</strong><span>Sesión administrativa protegida</span><button id="btn-cerrar-sesion" type="button">Cerrar sesión</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-top"><h1>Autocompletado de fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
+    <div class="admin-content">
+      <section class="admin-hero"><div><h2>Cola de fichas incompletas</h2><p>Prioriza talleres con campos vacíos y propone mejoras locales de alta confianza. Los lotes solo aplican provincia derivada del CP, normalización de teléfono y normalización de web; cada ficha se vuelve a leer antes de escribir.</p></div></section>
+
+      <section class="admin-metrics">
+        <article class="admin-card admin-metric"><span>Talleres analizados</span><strong id="auto-total">—</strong><small>Registros revisados</small></article>
+        <article class="admin-card admin-metric alert"><span>Pendientes</span><strong id="auto-incompletos">—</strong><small>Incompletas o con normalización segura</small></article>
+        <article class="admin-card admin-metric alert"><span>Prioridad alta</span><strong id="auto-alta">—</strong><small>Menos del 60% completo</small></article>
+        <article class="admin-card admin-metric"><span>Aplicables</span><strong id="auto-sugerencias">—</strong><small>Tienen un cambio automático seguro</small></article>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head">
+          <div><h3>Fichas a completar</h3><p>Ordenadas por menor nivel de completitud. El proceso por lotes se detiene al primer error y muestra un resumen final.</p></div>
+          <div class="admin-row-actions">
+            <select id="auto-filtro" class="admin-btn"><option value="todas">Todas las pendientes</option><option value="alta">Prioridad alta</option><option value="sugerencia">Con cambio seguro</option></select>
+            <button id="btn-lote-100" class="admin-btn primary" type="button">Aplicar lote seguro (100)</button>
+            <button id="btn-lote-todas" class="admin-btn" type="button">Aplicar todas las seguras</button>
+            <button id="btn-detener-lote" class="admin-btn" type="button" hidden>Detener</button>
+          </div>
+        </div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Sugerencia</th><th>Acciones</th></tr></thead><tbody id="auto-tabla"><tr><td colspan="6">Cargando…</td></tr></tbody></table></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-autocompletar.js?v=4"></script>
+</body>
+</html>
