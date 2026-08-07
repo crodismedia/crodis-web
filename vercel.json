@@ -71,11 +71,31 @@
     },
 
     {
-      "source": "/(css|js|images)/(.*)",
+      "source": "/(css|js)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+
+    {
+      "source": "/(favicon.ico|favicon.svg|apple-touch-icon.png|site.webmanifest)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=2592000"
         }
       ]
     },
