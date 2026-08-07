@@ -26,18 +26,18 @@
       <h1>Reclamar una ficha</h1>
       <p>Solicita acceso para gestionar los datos de tu taller. La reclamación no concede acceso automáticamente: TallerMap la revisará antes de asociar la ficha a tu cuenta.</p>
       <div id="claim-workshop" class="claim-workshop"><strong>Cargando taller…</strong></div>
-      <p class="claim-note">Para proteger la ficha, primero verificamos tu correo electrónico mediante un enlace de acceso. Después podrás enviar la solicitud.</p>
+      <p class="claim-note">El acceso funciona sin contraseña. Verificamos tu correo con un enlace seguro: si todavía no tienes cuenta, se crea al verificarlo; si ya existe, simplemente inicia sesión.</p>
     </section>
 
     <section class="claim-card">
       <div id="claim-message" class="claim-status claim-hidden" role="status" aria-live="polite"></div>
 
       <div id="claim-login">
-        <h2>Verifica tu correo</h2>
+        <h2>Crear cuenta o acceder</h2>
         <div class="claim-form">
           <label>Correo electrónico
             <input id="claim-email" type="email" autocomplete="email" required placeholder="tu@correo.es">
-            <small>Usaremos este correo como identidad de la reclamación.</small>
+            <small>Te enviaremos un enlace seguro. No necesitas crear una contraseña.</small>
           </label>
           <button id="claim-send-link" class="boton boton-enviar" type="button">Recibir enlace de acceso</button>
         </div>
@@ -64,7 +64,7 @@
             <textarea id="claim-note" rows="5" maxlength="1500" placeholder="Por ejemplo: web oficial, teléfono del negocio, cargo o cualquier dato que ayude a verificar que gestionas este taller."></textarea>
           </label>
           <div class="claim-actions"><button id="claim-submit" class="boton boton-enviar" type="submit">Enviar reclamación</button></div>
-          <p class="claim-note">El administrador podrá aprobar o rechazar la solicitud. Si se aprueba, la ficha aparecerá en tu área “Gestionar mi taller”.</p>
+          <p class="claim-note">La solicitud y su resolución quedarán registradas en el historial administrativo. Si se aprueba, la ficha aparecerá en tu área “Gestionar mi taller”.</p>
         </form>
       </div>
     </section>
