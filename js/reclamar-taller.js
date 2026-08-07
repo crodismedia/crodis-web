@@ -65,11 +65,13 @@
     const email=limpiar($('claim-email').value,254).toLowerCase();
     if(!email||!$('claim-email').checkValidity()){mensaje('Escribe un correo electrónico válido.','error');$('claim-email').focus();return;}
     const btn=$('claim-send-link');btn.disabled=true;btn.textContent='Enviando enlace…';
-    const destino=new URL(location.href);destino.hash='';
+    const regreso=`${location.pathname}${location.search}`;
+    const destino=new URL('/pages/auth-propietario.html',location.origin);
+    destino.searchParams.set('next',regreso);
     const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:destino.href,shouldCreateUser:true}});
     btn.disabled=false;btn.textContent='Recibir enlace de acceso';
     if(error){mensaje('No se ha podido enviar el enlace. Inténtalo de nuevo dentro de un minuto.','error');return;}
-    mensaje('Te hemos enviado un enlace de acceso. Ábrelo desde tu correo para continuar la reclamación.','ok');
+    mensaje('Te hemos enviado un enlace de acceso. Ábrelo desde tu correo. Verás una pantalla de confirmación y después podrás continuar con esta reclamación.','ok');
   });
 
   $('claim-logout')?.addEventListener('click',async()=>{await supabase.auth.signOut();location.reload();});
