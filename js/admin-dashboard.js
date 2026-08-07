@@ -8,6 +8,15 @@
   function fecha(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?"—":new Intl.DateTimeFormat("es-ES",{dateStyle:"medium",timeStyle:"short"}).format(d);}
   function estado(texto,tipo=""){const el=$("admin-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
 
+  function enlazarGestionTalleres(){
+    document.querySelectorAll('a[href="admin-editor.html"]').forEach(enlace=>{
+      const texto=enlace.textContent.replace(/\s+/g," ").trim().toLowerCase();
+      if(texto.includes("talleres")||texto.includes("buscar taller")){
+        enlace.href="admin-talleres.html";
+      }
+    });
+  }
+
   async function proteger(){
     if(!supabase){estado("Sin conexión con Supabase","error");return false;}
     const {data:{session}}=await supabase.auth.getSession();
@@ -66,6 +75,7 @@
   }
 
   async function iniciar(){
+    enlazarGestionTalleres();
     if(!await proteger())return;
     await Promise.allSettled([cargarMetricas(),cargarProvincias(),cargarRecientes()]);
     estado("Panel actualizado","ok");
