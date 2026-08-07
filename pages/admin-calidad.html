@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Calidad de datos | TallerMap</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
+</head>
+<body class="admin-body">
+  <aside class="admin-sidebar">
+    <div class="admin-brand"><a href="admin.html">TallerMap</a><span>Administración</span></div>
+    <nav class="admin-nav" aria-label="Administración">
+      <a href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a class="active" href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
+      <div class="separador"></div>
+      <a href="../index.html"><span>↗</span>Ver web pública</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div><button id="admin-menu" class="admin-menu" type="button" aria-label="Abrir menú">☰</button><strong>Calidad de datos</strong><span id="admin-estado">Verificando acceso…</span></div>
+      <div><span id="admin-usuario">Administrador</span><button id="btn-cerrar-sesion" class="admin-btn secundario" type="button">Cerrar sesión</button></div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-title-row">
+        <div><p class="admin-kicker">AUDITORÍA</p><h1>Calidad de datos avanzada</h1><p>Detecta formatos dudosos o inconsistencias que pueden afectar al buscador, las fichas públicas y el SEO.</p></div>
+        <button id="btn-analizar" class="admin-btn primario" type="button">Analizar datos</button>
+      </div>
+
+      <div class="admin-metrics admin-metrics-5">
+        <article class="admin-metric"><span>Talleres analizados</span><strong id="metrica-total">—</strong><small>Registros revisados</small></article>
+        <article class="admin-metric"><span>Teléfonos dudosos</span><strong id="metrica-telefono">—</strong><small>Longitud distinta de 9 dígitos</small></article>
+        <article class="admin-metric"><span>CP dudosos</span><strong id="metrica-cp">—</strong><small>No tienen 5 dígitos</small></article>
+        <article class="admin-metric"><span>Provincias dudosas</span><strong id="metrica-provincia">—</strong><small>Fuera de Alicante, Castellón o Valencia</small></article>
+        <article class="admin-metric"><span>Webs dudosas</span><strong id="metrica-web">—</strong><small>Formato no válido</small></article>
+      </div>
+
+      <section class="admin-card">
+        <div class="admin-card-head"><div><h2>Incidencias detectadas</h2><p>Esta pantalla es de lectura: no corrige ni elimina nada automáticamente.</p></div></div>
+        <div class="admin-filtros">
+          <input id="buscar" type="search" placeholder="Buscar taller, ciudad, provincia, teléfono o CP">
+          <select id="filtro-tipo">
+            <option value="">Todas las incidencias</option>
+            <option value="telefono">Teléfono dudoso</option>
+            <option value="cp">Código postal dudoso</option>
+            <option value="provincia">Provincia dudosa</option>
+            <option value="ciudad">Sin población</option>
+            <option value="web">Web dudosa</option>
+          </select>
+          <select id="filtro-provincia"><option value="">Todas las provincias</option></select>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Taller</th><th>Ubicación</th><th>Dato</th><th>Incidencia</th><th>Acciones</th></tr></thead>
+            <tbody id="tabla-calidad"><tr><td colspan="5">Pulsa “Analizar datos”.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="admin-pagination"><button id="btn-anterior" class="admin-btn secundario" type="button">Anterior</button><span id="pagina-info">Página 1</span><button id="btn-siguiente" class="admin-btn secundario" type="button">Siguiente</button></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/admin-calidad.js"></script>
+</body>
+</html>
