@@ -11,20 +11,20 @@
   function estado(texto,tipo=""){const el=$("admin-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
   function valor(obj,claves){for(const k of claves){if(obj&&obj[k]!==undefined&&obj[k]!==null&&obj[k]!=="")return obj[k];}return "";}
   function texto(obj){try{return JSON.stringify(obj);}catch{return String(obj||"");}}
-  function fechaRegistro(r){return valor(r,["created_at","fecha","timestamp","updated_at"]);}
+  function fechaRegistro(r){return valor(r,["creado_at","created_at","fecha","timestamp","updated_at"]);}
   function accionRegistro(r){return String(valor(r,["accion","action","tipo","operacion","evento"])||"Cambio");}
   function tallerRegistro(r){return valor(r,["taller_id","id_taller","registro_id","entity_id"]);}
-  function usuarioRegistro(r){return valor(r,["usuario","user_id","email","origen","actor"]);}
+  function usuarioRegistro(r){return valor(r,["usuario_id","usuario","user_id","email","origen","actor"]);}
   function detalleRegistro(r){
     const directo=valor(r,["detalle","detalles","descripcion","cambios","datos","payload","registro"]);
     if(directo&&typeof directo==="object")return JSON.stringify(directo,null,2);
     if(directo)return String(directo);
     const copia={...r};
-    ["id","created_at","fecha","timestamp","updated_at","accion","action","tipo","operacion","evento","taller_id","id_taller","registro_id","entity_id","usuario","user_id","email","origen","actor"].forEach(k=>delete copia[k]);
+    ["id","creado_at","created_at","fecha","timestamp","updated_at","accion","action","tipo","operacion","evento","taller_id","id_taller","registro_id","entity_id","usuario_id","usuario","user_id","email","origen","actor"].forEach(k=>delete copia[k]);
     return Object.keys(copia).length?JSON.stringify(copia,null,2):"—";
   }
   function formatoFecha(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):new Intl.DateTimeFormat("es-ES",{dateStyle:"medium",timeStyle:"medium"}).format(d);}
-  function claseAccion(a){const t=String(a).toLowerCase();if(t.includes("delete")||t.includes("borr")||t.includes("elimin"))return "delete";if(t.includes("insert")||t.includes("alta")||t.includes("crear"))return "insert";if(t.includes("update")||t.includes("actual")||t.includes("edit"))return "update";return "";}
+  function claseAccion(a){const t=String(a).toLowerCase();if(t.includes("delete")||t.includes("borr")||t.includes("elimin")||t.includes("rechaz"))return "delete";if(t.includes("insert")||t.includes("alta")||t.includes("crear")||t.includes("reclamar")||t.includes("aprobar"))return "insert";if(t.includes("update")||t.includes("actual")||t.includes("edit"))return "update";return "";}
 
   async function proteger(){
     if(!supabase){estado("Sin conexión","error");return false;}
@@ -38,7 +38,7 @@
   }
 
   async function consultarActividad(){
-    let respuesta=await supabase.from("registro_actividad").select("*").order("created_at",{ascending:false}).limit(500);
+    let respuesta=await supabase.from("registro_actividad").select("*").order("creado_at",{ascending:false}).limit(500);
     if(respuesta.error){
       respuesta=await supabase.from("registro_actividad").select("*").limit(500);
     }
