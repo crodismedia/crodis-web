@@ -66,6 +66,14 @@
         enlaceServicios.innerHTML="<span>⚙</span>Servicios";
         nav.insertBefore(enlaceServicios,referencia);
       }
+      if(!nav.querySelector('a[href="admin-exportar.html"]')){
+        const enlacesSeparador=nav.querySelectorAll(".separador");
+        const referencia=enlacesSeparador[enlacesSeparador.length-1]||null;
+        const enlaceExportar=document.createElement("a");
+        enlaceExportar.href="admin-exportar.html";
+        enlaceExportar.innerHTML="<span>⇩</span>Exportaciones";
+        nav.insertBefore(enlaceExportar,referencia);
+      }
     }
 
     const acciones=document.querySelector(".admin-quick");
@@ -97,6 +105,12 @@
       const enlace=document.createElement("a");
       enlace.href="admin-servicios.html";
       enlace.innerHTML="<strong>Analizar servicios</strong><span>Comprueba el uso del catálogo y detecta fichas sin servicios o valores no reconocidos.</span>";
+      acciones.appendChild(enlace);
+    }
+    if(acciones&&!acciones.querySelector('a[href="admin-exportar.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-exportar.html";
+      enlace.innerHTML="<strong>Exportar talleres</strong><span>Genera un CSV filtrado por provincia, verificación y calidad sin modificar la base de datos.</span>";
       acciones.appendChild(enlace);
     }
   }
