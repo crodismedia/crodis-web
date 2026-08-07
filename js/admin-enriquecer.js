@@ -60,9 +60,22 @@
     return {...t,checks,faltan,faltanValor,puntos,prioridad};
   }
 
-  function queryTaller(t){return [txt(t.nombre),txt(t.direccion),txt(t.ciudad),txt(t.codigo_postal),txt(t.provincia)].filter(Boolean).join(" ");}
-  function abrirGoogle(t){window.open(`https://www.google.com/search?q=${encodeURIComponent(queryTaller(t))}`,'_blank','noopener,noreferrer');}
-  function abrirMaps(t){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryTaller(t))}`,'_blank','noopener,noreferrer');}
+  function contextoBase(t){return [txt(t.nombre),txt(t.ciudad),txt(t.codigo_postal),txt(t.provincia)].filter(Boolean).join(" ");}
+  function queryCampo(t,campo){
+    const base=contextoBase(t);
+    const extras={
+      telefono:'teléfono contacto',
+      web:'web oficial',
+      direccion:'dirección taller',
+      codigo_postal:'dirección código postal',
+      ciudad:'ubicación municipio',
+      horarios:'horario apertura',
+      servicios:'servicios taller mecánico'
+    };
+    return [base,extras[campo]||'taller mecánico'].filter(Boolean).join(" ");
+  }
+  function abrirGoogle(t,campo){window.open(`https://www.google.com/search?q=${encodeURIComponent(queryCampo(t,campo))}`,'_blank','noopener,noreferrer');}
+  function abrirMaps(t){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([txt(t.nombre),txt(t.direccion),txt(t.ciudad),txt(t.codigo_postal),txt(t.provincia)].filter(Boolean).join(" "))}`,'_blank','noopener,noreferrer');}
   function abrirEditor(t){location.href=`admin-editor.html?id=${encodeURIComponent(t.id)}`;}
 
   function metricas(talleres){
@@ -84,11 +97,7 @@
     const q=normalizar($("enr-buscar").value);
     filtradas=filas.filter(f=>{
       if(filtro==="alta"&&f.prioridad!=="alta")return false;
-      if(filtro==="telefono"&&f.checks.telefono)return false;
-      if(filtro==="web"&&f.checks.web)return false;
-      if(filtro==="direccion"&&f.checks.direccion)return false;
-      if(filtro==="servicios"&&f.checks.servicios)return false;
-      if(filtro==="horarios"&&f.checks.horarios)return false;
+      if(["telefono","web","direccion","codigo_postal","ciudad","servicios","horarios"].includes(filtro)&&f.checks[filtro])return false;
       if(provincia&&txt(f.provincia)!==provincia)return false;
       if(q){
         const texto=normalizar([f.nombre,f.ciudad,f.codigo_postal,f.provincia,f.direccion,f.telefono].join(" "));
@@ -100,13 +109,21 @@
     render();
   }
 
+  function botonesInvestigacion(t){
+    const orden=["telefono","web","direccion","codigo_postal","ciudad","horarios","servicios"];
+    const etiquetas={telefono:"Teléfono",web:"Web",direccion:"Dirección",codigo_postal:"CP",ciudad:"Población",horarios:"Horarios",servicios:"Servicios"};
+    const botones=orden.filter(k=>!t.checks[k]).slice(0,4).map(k=>`<button class="admin-btn" type="button" data-buscar-campo="${esc(k)}" data-id="${esc(t.id)}">${esc(etiquetas[k])}</button>`);
+    botones.push(`<button class="admin-btn" type="button" data-maps="${esc(t.id)}">Maps</button>`);
+    return botones.join("");
+  }
+
   function render(){
     const totalPaginas=Math.max(1,Math.ceil(filtradas.length/PAGE_SIZE));
     if(pagina>totalPaginas)pagina=totalPaginas;
     const inicio=(pagina-1)*PAGE_SIZE;
     const lote=filtradas.slice(inicio,inicio+PAGE_SIZE);
     $("enr-tabla").innerHTML=lote.map(t=>{
-      const falta=t.faltanValor.map(k=>k.replace("codigo_postal","CP")).join(", ")||"—";
+      const falta=t.faltanValor.map(k=>k.replace("codigo_postal","CP").replace("ciudad","población")).join(", ")||"—";
       const ubic=[t.ciudad,t.provincia,t.codigo_postal].filter(Boolean).join(" · ")||"—";
       const clase=t.prioridad==="alta"?"bad":t.prioridad==="media"?"warn":"ok";
       return `<tr>
@@ -114,7 +131,7 @@
         <td>${esc(ubic)}<small>${esc(t.direccion||"")}</small></td>
         <td><span class="admin-badge ${clase}">${t.puntos}%</span></td>
         <td>${esc(falta)}</td>
-        <td><div class="admin-row-actions"><button class="admin-btn" type="button" data-google="${esc(t.id)}">Google</button><button class="admin-btn" type="button" data-maps="${esc(t.id)}">Maps</button></div></td>
+        <td><div class="admin-row-actions">${botonesInvestigacion(t)}</div></td>
         <td><button class="admin-btn primary" type="button" data-editor="${esc(t.id)}">Investigar y editar</button></td>
       </tr>`;
     }).join("")||'<tr><td colspan="6">No hay fichas con estos filtros.</td></tr>';
@@ -122,7 +139,7 @@
     $("enr-anterior").disabled=pagina<=1;
     $("enr-siguiente").disabled=pagina>=totalPaginas;
     const porId=new Map(filas.map(f=>[String(f.id),f]));
-    document.querySelectorAll("[data-google]").forEach(b=>b.addEventListener("click",()=>abrirGoogle(porId.get(b.dataset.google))));
+    document.querySelectorAll("[data-buscar-campo]").forEach(b=>b.addEventListener("click",()=>abrirGoogle(porId.get(b.dataset.id),b.dataset.buscarCampo)));
     document.querySelectorAll("[data-maps]").forEach(b=>b.addEventListener("click",()=>abrirMaps(porId.get(b.dataset.maps))));
     document.querySelectorAll("[data-editor]").forEach(b=>b.addEventListener("click",()=>abrirEditor(porId.get(b.dataset.editor))));
   }
