@@ -41,7 +41,7 @@
     <header class="admin-top"><h1>Enriquecimiento de fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
     <div class="admin-content">
       <section class="admin-hero">
-        <div><h2>Cola de investigación</h2><p>Prioriza fichas que ya existen pero todavía carecen de datos útiles. La investigación se abre en fuentes externas y la incorporación final se revisa en el editor antes de guardar.</p></div>
+        <div><h2>Cola de investigación</h2><p>Prioriza fichas que ya existen pero todavía carecen de datos útiles. Las búsquedas se preparan según el campo que falta para reducir trabajo manual y evitar mezclar talleres homónimos.</p></div>
       </section>
 
       <section class="admin-metrics">
@@ -54,7 +54,7 @@
 
       <section class="admin-card">
         <div class="admin-panel-head">
-          <div><h3>Fichas incompletas</h3><p>La puntuación pondera teléfono, dirección, CP, población, web, servicios, horarios y descripción. No se modifica la base de datos desde esta pantalla.</p></div>
+          <div><h3>Fichas incompletas</h3><p>La puntuación pondera teléfono, dirección, CP, población, web, servicios, horarios y descripción. Cada botón de investigación añade contexto específico a la búsqueda. La base de datos no se modifica desde esta pantalla.</p></div>
           <div class="admin-top-actions">
             <select id="enr-filtro" class="admin-btn">
               <option value="todas">Todas</option>
@@ -62,6 +62,8 @@
               <option value="telefono">Sin teléfono</option>
               <option value="web">Sin web</option>
               <option value="direccion">Sin dirección</option>
+              <option value="codigo_postal">Sin código postal</option>
+              <option value="ciudad">Sin población</option>
               <option value="servicios">Sin servicios</option>
               <option value="horarios">Sin horarios</option>
             </select>
@@ -71,17 +73,21 @@
         <div class="admin-filtros"><input id="enr-buscar" type="search" placeholder="Buscar taller, población, CP o provincia"></div>
         <div class="admin-table-wrap">
           <table class="admin-table">
-            <thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Investigar</th><th>Editar</th></tr></thead>
+            <thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Investigación dirigida</th><th>Editar</th></tr></thead>
             <tbody id="enr-tabla"><tr><td colspan="6">Cargando…</td></tr></tbody>
           </table>
         </div>
         <div class="admin-pagination"><button id="enr-anterior" class="admin-btn" type="button">Anterior</button><span id="enr-pagina">Página 1</span><button id="enr-siguiente" class="admin-btn" type="button">Siguiente</button></div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head"><div><h3>Criterio de confianza</h3><p>Antes de incorporar un dato, comprueba que nombre + población o dirección coinciden. Teléfono o web con coincidencia territorial se consideran una señal fuerte; datos aislados sin ubicación deben revisarse manualmente.</p></div></div>
       </section>
     </div>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-enriquecer.js"></script>
+<script src="../js/admin-enriquecer.js?v=2"></script>
 </body>
 </html>
