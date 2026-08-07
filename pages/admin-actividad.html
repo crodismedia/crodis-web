@@ -14,7 +14,7 @@
     .admin-main{min-width:0}.admin-top{height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.admin-top h1{font-size:1.18rem;margin:0}.admin-status{font-size:.84rem;color:var(--muted)}.admin-status[data-tipo="ok"]{color:var(--green)}.admin-status[data-tipo="error"]{color:var(--danger)}
     .admin-content{padding:28px;max-width:1550px;margin:0 auto}.admin-hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.admin-hero h2{font-size:1.7rem;margin:0 0 7px}.admin-hero p{margin:0;color:var(--muted);max-width:760px}.admin-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}.admin-btn.primary{background:var(--green);border-color:var(--green);color:#fff}.admin-btn:disabled{opacity:.55;cursor:not-allowed}
     .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}.metric{padding:17px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.metric span{display:block;color:var(--muted);font-size:.79rem;font-weight:800;text-transform:uppercase}.metric strong{display:block;font-size:1.65rem;margin-top:7px}.toolbar{display:grid;grid-template-columns:minmax(280px,1.4fr) minmax(180px,.6fr) auto;gap:10px;align-items:end;padding:16px;margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.field{display:grid;gap:5px}.field label{font-size:.76rem;font-weight:800;color:var(--muted);text-transform:uppercase}.field input,.field select{width:100%;border:1px solid #cfd9d2;border-radius:10px;padding:10px 11px;background:#fff}
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:1050px}.table th{text-align:left;color:var(--muted);font-size:.73rem;text-transform:uppercase;letter-spacing:.04em;padding:11px 13px;border-bottom:1px solid var(--line);background:#fafcfb}.table td{padding:12px 13px;border-bottom:1px solid #edf1ee;font-size:.86rem;vertical-align:top}.table strong{display:block}.table small{display:block;color:var(--muted);margin-top:3px}.chip{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:.72rem;font-weight:800;background:#eef2ef;color:#536158}.chip.insert{background:#e8f7ed;color:#16713a}.chip.update{background:#eef5ff;color:#275ea8}.chip.delete{background:#feeceb;color:#a12820}.details{max-width:460px;white-space:pre-wrap;word-break:break-word;color:#47554d;font-size:.8rem}.footer{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}.footer span{color:var(--muted);font-size:.84rem}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:1050px}.table th{text-align:left;color:var(--muted);font-size:.73rem;text-transform:uppercase;letter-spacing:.04em;padding:11px 13px;border-bottom:1px solid var(--line);background:#fafcfb}.table td{padding:12px 13px;border-bottom:1px solid #edf1ee;font-size:.86rem;vertical-align:top}.table strong{display:block}.table small{display:block;color:var(--muted);margin-top:3px}.chip{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:.72rem;font-weight:800;background:#eef2ef;color:#536158}.chip.insert{background:#e8f7ed;color:#16713a}.chip.update{background:#eef5ff;color:#275ea8}.chip.delete{background:#feeceb;color:#a12820}.details-summary{max-width:540px;color:#35443b;line-height:1.45}.details-raw{margin-top:8px;max-width:560px}.details-raw summary{cursor:pointer;color:var(--green);font-weight:750;font-size:.78rem}.details-raw pre{max-height:320px;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#f7faf8;border:1px solid var(--line);border-radius:9px;padding:10px;color:#536158;font-size:.74rem;line-height:1.4}.footer{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}.footer span{color:var(--muted);font-size:.84rem}
     @media(max-width:900px){.metrics{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}}@media(max-width:820px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static;height:auto;padding:14px}.admin-nav{grid-template-columns:repeat(2,1fr)}.admin-nav .separador{display:none}.admin-side-foot{display:none}.admin-top{padding:0 16px}.admin-content{padding:18px}.admin-hero{display:block}}
   </style>
 </head>
@@ -25,13 +25,18 @@
     <nav class="admin-nav" aria-label="Administración">
       <a href="admin.html"><span>⌂</span>Resumen</a>
       <a href="admin-talleres.html"><span>▤</span>Talleres</a>
-      <a href="admin-editor.html"><span>＋</span>Altas y edición</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
       <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-reclamaciones.html"><span>♙</span>Reclamaciones</a>
+      <a href="admin-valoraciones.html"><span>★</span>Valoraciones</a>
       <a class="activo" href="admin-actividad.html"><span>↻</span>Actividad</a>
       <div class="separador"></div>
-      <a href="../provincias/index.html"><span>⌖</span>Provincias</a>
-      <a href="../municipios/index.html"><span>◫</span>Municipios</a>
-      <a href="../index.html#servicios"><span>⚙</span>Servicios</a>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
       <div class="separador"></div>
       <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
     </nav>
@@ -40,14 +45,14 @@
   <main class="admin-main">
     <header class="admin-top"><h1>Actividad e historial</h1><span id="admin-estado" class="admin-status">Verificando acceso…</span></header>
     <div class="admin-content">
-      <section class="admin-hero"><div><h2>Historial de cambios</h2><p>Consulta las modificaciones registradas sobre talleres. Esta pantalla es de lectura: no modifica ni elimina registros.</p></div><button id="btn-recargar" class="admin-btn primary" type="button">Actualizar</button></section>
+      <section class="admin-hero"><div><h2>Historial de cambios</h2><p>Consulta las modificaciones registradas sobre talleres y reclamaciones. El resumen se muestra limpio; el JSON técnico queda plegado y solo se abre cuando lo necesitas.</p></div><button id="btn-recargar" class="admin-btn primary" type="button">Actualizar</button></section>
       <section class="metrics">
         <article class="metric"><span>Registros cargados</span><strong id="act-total">—</strong></article>
         <article class="metric"><span>Últimas 24 h</span><strong id="act-hoy">—</strong></article>
         <article class="metric"><span>Talleres afectados</span><strong id="act-talleres">—</strong></article>
       </section>
       <section class="toolbar">
-        <div class="field"><label for="act-busqueda">Buscar</label><input id="act-busqueda" type="search" placeholder="Taller, ID, acción o contenido del cambio"></div>
+        <div class="field"><label for="act-busqueda">Buscar</label><input id="act-busqueda" type="search" placeholder="Taller, ID, acción, correo o contenido"></div>
         <div class="field"><label for="act-tipo">Acción</label><select id="act-tipo"><option value="">Todas</option></select></div>
         <button id="btn-filtrar" class="admin-btn primary" type="button">Filtrar</button>
       </section>
@@ -60,6 +65,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-actividad.js"></script>
+<script src="../js/admin-actividad.js?v=20260807-2"></script>
 </body>
 </html>
