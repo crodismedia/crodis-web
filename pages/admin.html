@@ -4,72 +4,114 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Editor asistido | TallerMap</title>
-  <link rel="stylesheet" href="../css/estilo.css">
+  <title>Centro de control | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
-    :root{--b:#dfe3e8;--bg:#f5f7f9;--ink:#17202a;--muted:#667085;--accent:#15803d}
-    *{box-sizing:border-box}.tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
-    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}.tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}
-    .tm-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(340px,1fr);height:calc(100vh - 62px)}.tm-pane{min-width:0;overflow:auto;background:#fff}.tm-pane+.tm-pane{border-left:1px solid var(--b)}
-    .tm-pane-head{position:sticky;top:0;z-index:3;padding:14px;background:#fff;border-bottom:1px solid var(--b)}.tm-pane-head h2{margin:0 0 4px;font-size:1.08rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.9rem}
-    .tm-body{padding:14px}.tm-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:10px 11px;background:#fff;font:inherit}textarea{resize:vertical;min-height:92px}
-    .tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
-    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
-    .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.96);border-top:1px solid var(--b)}
-    .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 560px);min-height:280px;position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:rgba(17,24,39,.9);color:#fff;font-size:.82rem;pointer-events:none}
-    .tm-source-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-status{font-size:.85rem;color:var(--muted);margin-top:8px}.tm-tabs{display:none}.tm-transfer,.tm-inspector{margin-top:12px;padding:12px;border:1px solid var(--b);border-radius:14px;background:#f8fafc}.tm-transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tm-transfer textarea{min-height:76px}.tm-transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-    .tm-inspector-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.tm-inspector-list{display:grid;gap:8px;margin-top:10px}.tm-suggestion{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--b);border-radius:10px;background:#fff}.tm-suggestion small,.tm-suggestion span{display:block}.tm-suggestion small{color:var(--muted);font-weight:700;text-transform:uppercase}.tm-suggestion span{overflow-wrap:anywhere}.tm-suggestion button{padding:7px 9px}.tm-empty{color:var(--muted);font-size:.85rem}
-    @media(max-width:1100px){.tm-layout{grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr)}}
-    @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:55vh}.tm-form,.tm-transfer-grid{grid-template-columns:1fr}}
+    :root{--bg:#f4f7f5;--panel:#fff;--panel2:#f8faf9;--ink:#17211b;--muted:#66736b;--line:#dfe7e1;--green:#138a43;--green2:#0f6f36;--dark:#111a15;--warn:#b45309;--shadow:0 12px 35px rgba(21,45,30,.07)}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}a{color:inherit;text-decoration:none}button{font:inherit}
+    .admin-shell{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}
+    .admin-side{background:var(--dark);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px}.admin-brand{display:flex;align-items:center;gap:11px;padding:0 8px}.admin-brand img{width:42px;height:42px}.admin-brand strong{display:block;font-size:1.08rem}.admin-brand small{display:block;color:#aab8af;margin-top:2px}
+    .admin-nav{display:grid;gap:5px}.admin-nav a{padding:11px 12px;border-radius:10px;color:#d7e1da;font-weight:650}.admin-nav a:hover,.admin-nav a.activo{background:#1c2b22;color:#fff}.admin-nav a span{display:inline-block;width:25px;color:#8dd7a8}.admin-nav .separador{height:1px;background:#26372d;margin:8px 6px}
+    .admin-side-foot{margin-top:auto;padding:12px;border-top:1px solid #293a30;color:#aab8af;font-size:.86rem}.admin-side-foot strong{display:block;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis}.admin-side-foot button{margin-top:10px;width:100%;border:1px solid #3b4d42;background:transparent;color:#fff;border-radius:9px;padding:9px;cursor:pointer}
+    .admin-main{min-width:0}.admin-top{height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.admin-top h1{font-size:1.18rem;margin:0}.admin-top-actions{display:flex;align-items:center;gap:10px}.admin-status{font-size:.84rem;color:var(--muted)}.admin-status[data-tipo="ok"]{color:var(--green)}.admin-status[data-tipo="error"]{color:#b42318}
+    .admin-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}.admin-btn:hover{border-color:#b9c9be}.admin-btn.primary{background:var(--green);border-color:var(--green);color:#fff}.admin-btn.primary:hover{background:var(--green2)}
+    .admin-content{padding:28px;max-width:1500px;margin:0 auto}.admin-hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}.admin-hero h2{font-size:1.7rem;margin:0 0 7px}.admin-hero p{margin:0;color:var(--muted);max-width:700px}.admin-hero-actions{display:flex;gap:9px;flex-wrap:wrap}
+    .admin-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:22px}.admin-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.admin-metric{padding:18px}.admin-metric span{display:block;color:var(--muted);font-size:.82rem;font-weight:700}.admin-metric strong{display:block;font-size:1.8rem;margin-top:8px;letter-spacing:-.03em}.admin-metric small{display:block;color:var(--muted);margin-top:5px}.admin-metric.alert strong{color:var(--warn)}
+    .admin-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,.85fr);gap:16px;margin-bottom:18px}.admin-panel-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.admin-panel-head h3{margin:0;font-size:1rem}.admin-panel-head p{margin:3px 0 0;color:var(--muted);font-size:.82rem}.admin-panel-body{padding:16px 18px}
+    .admin-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.admin-quick a{border:1px solid var(--line);border-radius:12px;padding:15px;background:var(--panel2);transition:.15s}.admin-quick a:hover{transform:translateY(-1px);border-color:#a9c9b3;background:#f2faf5}.admin-quick strong,.admin-quick span{display:block}.admin-quick span{color:var(--muted);font-size:.82rem;margin-top:4px;line-height:1.35}
+    .admin-provincia{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #edf1ee}.admin-provincia:last-child{border-bottom:0}.admin-provincia span{color:#34423a}.admin-provincia strong{font-variant-numeric:tabular-nums}.admin-vacio{color:var(--muted);font-size:.88rem}
+    .admin-table-wrap{overflow:auto}.admin-table{width:100%;border-collapse:collapse;min-width:850px}.admin-table th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;padding:11px 14px;border-bottom:1px solid var(--line);background:#fafcfb}.admin-table td{padding:13px 14px;border-bottom:1px solid #edf1ee;font-size:.88rem;vertical-align:middle}.admin-table td strong{display:block}.admin-table td small{display:block;color:#95a098;margin-top:3px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.admin-chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.74rem;font-weight:800;background:#eef2ef;color:#536158}.admin-chip.ok{background:#e8f7ed;color:#16713a}
+    @media(max-width:1180px){.admin-metrics{grid-template-columns:repeat(3,1fr)}.admin-grid{grid-template-columns:1fr}.admin-quick{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:820px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static;height:auto;padding:14px}.admin-nav{grid-template-columns:repeat(2,1fr)}.admin-nav .separador{display:none}.admin-side-foot{display:none}.admin-top{padding:0 16px}.admin-content{padding:18px}.admin-hero{display:block}.admin-hero-actions{margin-top:14px}.admin-metrics{grid-template-columns:repeat(2,1fr)}.admin-quick{grid-template-columns:1fr}}
+    @media(max-width:520px){.admin-metrics{grid-template-columns:1fr}.admin-top h1{font-size:1rem}.admin-status{display:none}}
   </style>
 </head>
-<body class="tm-admin">
-<header class="tm-top"><strong>TallerMap · Editor asistido</strong><div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div></header>
-<nav class="tm-tabs" aria-label="Cambiar panel"><button class="active" data-tab="ficha">Ficha</button><button data-tab="fuente">Fuente externa</button></nav>
-<main class="tm-layout">
-  <section class="tm-pane active" data-pane="ficha">
-    <div class="tm-pane-head"><h2>Ficha de Supabase</h2><p>La ficha izquierda es el dato oficial. Naranja: vacío; azul: modificado; verde: guardado.</p></div>
-    <div class="tm-body">
-      <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary">Buscar</button></div>
-      <div id="resultados-talleres" class="tm-results"></div>
-      <form id="form-taller" class="tm-form" hidden>
-        <input id="taller-id" type="hidden">
-        <div class="tm-field full"><label>Nombre</label><input id="nombre" data-drop="nombre"></div>
-        <div class="tm-field"><label>Teléfono</label><input id="telefono" data-drop="telefono"></div>
-        <div class="tm-field"><label>Web</label><input id="web" data-drop="web"></div>
-        <div class="tm-field full"><label>Dirección</label><input id="direccion" data-drop="direccion"></div>
-        <div class="tm-field"><label>Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
-        <div class="tm-field"><label>Población</label><input id="ciudad" data-drop="ciudad"></div>
-        <div class="tm-field full"><label>Provincia</label><input id="provincia" data-drop="provincia"></div>
-        <div class="tm-field full"><label>Servicios</label><textarea id="servicios" data-drop="servicios"></textarea></div>
-        <div class="tm-field full"><label>Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
-        <div class="tm-field full"><label>Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
-        <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar este taller</button><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
-      </form>
-      <p id="estado-ficha" class="tm-status">Selecciona un taller para editarlo.</p>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="admin-brand" href="admin.html">
+      <img src="../favicon.svg" alt="" width="42" height="42">
+      <span><strong>TallerMap</strong><small>Centro de control</small></span>
+    </a>
+    <nav class="admin-nav" aria-label="Administración">
+      <a class="activo" href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-editor.html"><span>▤</span>Talleres</a>
+      <a href="admin-editor.html"><span>＋</span>Altas y edición</a>
+      <a href="admin-editor.html"><span>✓</span>Revisiones</a>
+      <div class="separador"></div>
+      <a href="../provincias/index.html"><span>⌖</span>Provincias</a>
+      <a href="../municipios/index.html"><span>◫</span>Municipios</a>
+      <a href="../index.html#servicios"><span>⚙</span>Servicios</a>
+      <div class="separador"></div>
+      <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
+    </nav>
+    <div class="admin-side-foot">
+      <strong id="admin-usuario">Verificando usuario…</strong>
+      <span>Sesión administrativa protegida</span>
+      <button id="btn-cerrar-sesion" type="button">Cerrar sesión</button>
     </div>
-  </section>
-  <section class="tm-pane" data-pane="fuente">
-    <div class="tm-pane-head"><h2>Fuente externa</h2><p>Pega información de la fuente; el inspector separará los datos útiles.</p>
-      <div class="tm-urlbar"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" class="tm-btn tm-btn-primary">Abrir</button><button id="btn-nueva-pestana" class="tm-btn tm-btn-soft">Pestaña</button></div>
-      <div class="tm-source-tools"><button id="btn-pegar-candidato" class="tm-btn tm-btn-soft">Pegar desde portapapeles</button><button id="btn-analizar" class="tm-btn tm-btn-primary">Analizar datos</button></div>
-      <section class="tm-transfer" aria-labelledby="titulo-transferencia">
-        <strong id="titulo-transferencia">Transferir a la ficha</strong>
-        <div class="tm-transfer-grid"><label>Campo de destino<select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select></label><label>Modo<select id="modo-transferencia"><option value="sustituir">Sustituir con confirmación</option><option value="anadir">Añadir sin borrar</option></select></label></div>
-        <label>Texto obtenido de la fuente<textarea id="dato-candidato" placeholder="Pega aquí toda la información o un dato concreto"></textarea></label>
-        <div class="tm-transfer-actions"><button id="btn-aplicar-dato" type="button" class="tm-btn tm-btn-primary">Aplicar dato</button><button id="btn-limpiar-dato" type="button" class="tm-btn tm-btn-soft">Limpiar</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-top">
+      <h1>Panel de administración</h1>
+      <div class="admin-top-actions">
+        <span id="admin-estado" class="admin-status">Verificando acceso…</span>
+        <button id="btn-recargar" class="admin-btn" type="button">Actualizar</button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <section class="admin-hero">
+        <div>
+          <h2>Resumen de TallerMap</h2>
+          <p>Control de calidad, edición y mantenimiento de la base de datos desde un único punto.</p>
+        </div>
+        <div class="admin-hero-actions">
+          <a class="admin-btn" href="admin-editor.html">Buscar taller</a>
+          <a class="admin-btn primary" href="admin-editor.html">Editar talleres</a>
+        </div>
       </section>
-      <section class="tm-inspector"><div class="tm-inspector-head"><strong>Datos detectados</strong><span id="contador-detectados" class="tm-status">0 propuestas</span></div><div id="inspector-resultados" class="tm-inspector-list"><p class="tm-empty">Pega texto y pulsa “Analizar datos”.</p></div></section>
+
+      <section class="admin-metrics" aria-label="Métricas principales">
+        <article class="admin-card admin-metric"><span>Talleres totales</span><strong id="metrica-total">—</strong><small>Fichas en la base de datos</small></article>
+        <article class="admin-card admin-metric"><span>Verificados</span><strong id="metrica-verificados">—</strong><small>Marcados como verificados</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin teléfono</span><strong id="metrica-sin-telefono">—</strong><small>Requieren revisión</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin dirección</span><strong id="metrica-sin-direccion">—</strong><small>Fichas incompletas</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin código postal</span><strong id="metrica-sin-cp">—</strong><small>Prioridad de limpieza</small></article>
+      </section>
+
+      <section class="admin-grid">
+        <article class="admin-card">
+          <div class="admin-panel-head"><div><h3>Acciones rápidas</h3><p>Las tareas más frecuentes del administrador.</p></div></div>
+          <div class="admin-panel-body admin-quick">
+            <a href="admin-editor.html"><strong>Buscar y editar taller</strong><span>Localiza una ficha por nombre, teléfono, población o código postal.</span></a>
+            <a href="admin-editor.html"><strong>Completar datos</strong><span>Corrige teléfono, dirección, servicios, horarios y descripción.</span></a>
+            <a href="../municipios/index.html"><strong>Revisar directorio</strong><span>Comprueba el resultado público por municipios.</span></a>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <div class="admin-panel-head"><div><h3>Distribución por provincia</h3><p>Principales valores almacenados.</p></div></div>
+          <div id="lista-provincias" class="admin-panel-body"><p class="admin-vacio">Cargando…</p></div>
+        </article>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head"><div><h3>Últimos talleres añadidos</h3><p>Las 10 incorporaciones más recientes.</p></div><a class="admin-btn" href="admin-editor.html">Abrir editor</a></div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Taller</th><th>Población</th><th>Provincia</th><th>Teléfono</th><th>Estado</th><th>Alta</th></tr></thead>
+            <tbody id="tabla-recientes"><tr><td colspan="6">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
     </div>
-    <div class="tm-webwrap"><iframe id="visor-externo" class="tm-web" title="Fuente externa" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe><div class="tm-webnote">Algunas páginas impiden mostrarse dentro del panel. Usa “Pestaña” cuando ocurra.</div></div>
-  </section>
-</main>
+  </main>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-shell.js"></script>
-<script src="../js/admin-gallery.js"></script>
-<script src="../js/admin-structured-fields.js"></script>
-<script src="../js/admin-change-guard.js"></script>
+<script src="../js/admin-dashboard.js"></script>
 </body>
 </html>
