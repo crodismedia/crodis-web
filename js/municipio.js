@@ -97,7 +97,7 @@
             : "";
     }
 
-    function cardHTML(workshop) {
+    function cardHTML(workshop, index) {
         const name = escapeHTML(workshop.nombre || workshop.nombre_taller || "Taller sin nombre");
         const city = escapeHTML(workshop.ciudad || "");
         const province = escapeHTML(workshop.provincia || "");
@@ -115,9 +115,9 @@
         links.push(`<a class="enlace-ficha-taller" href="${escapeHTML(workshopPageURL(workshop))}">Ver ficha</a>`);
 
         return `
-            <article class="taller-card">
+            <article class="taller-card" data-taller-index="${index}">
                 <div class="taller-imagen taller-imagen-1">
-                    ${photo ? `<img src="${escapeHTML(photo)}" alt="Fotografía de ${name}" loading="lazy">` : ""}
+                    ${photo ? `<img src="${escapeHTML(photo)}" alt="Fotografía de ${name}" loading="lazy" decoding="async">` : ""}
                     <span class="verificado">${workshop.verificado ? "✓ Verificado" : "Publicado"}</span>
                 </div>
                 <div class="taller-informacion">
@@ -154,6 +154,29 @@
             ...workshop,
             fotoFirmada: byPath.get(Array.isArray(workshop.fotos) ? workshop.fotos[0] : "") || ""
         }));
+    }
+
+    async function loadPhotosAfterPaint(container, workshops, renderVersion) {
+        try {
+            const withPhotos = await signedPhotos(workshops);
+            if (container.dataset.renderVersion !== renderVersion) return;
+
+            withPhotos.forEach((workshop, index) => {
+                const photo = safeWeb(workshop.fotoFirmada);
+                if (!photo) return;
+                const imageBox = container.querySelector(`[data-taller-index="${index}"] .taller-imagen`);
+                if (!imageBox || imageBox.querySelector("img")) return;
+
+                const image = document.createElement("img");
+                image.src = photo;
+                image.alt = `Fotografía de ${workshop.nombre || workshop.nombre_taller || "taller"}`;
+                image.loading = "lazy";
+                image.decoding = "async";
+                imageBox.prepend(image);
+            });
+        } catch (error) {
+            console.warn("Las fotos de los talleres se cargarán más tarde:", error);
+        }
     }
 
     function setStatus(message) {
@@ -305,15 +328,17 @@
                 return;
             }
 
-            const withPhotos = await signedPhotos(data || []);
-            const cards = withPhotos.map(cardHTML).join("");
-            container.innerHTML = cards;
+            const renderVersion = `${Date.now()}-${offset}-${selectedService}`;
+            container.dataset.renderVersion = renderVersion;
+            container.innerHTML = data.map((workshop, index) => cardHTML(workshop, index)).join("");
 
             const totalReported = Number(data[0]?.total_resultados);
             if (Number.isFinite(totalReported)) totalWorkshops = totalReported;
             else totalWorkshops = Math.max(totalWorkshops, offset + data.length);
             setStatus(`${totalWorkshops} ${totalWorkshops === 1 ? "taller publicado" : "talleres publicados"}`);
             setPagination(false);
+
+            void loadPhotosAfterPaint(container, data, renderVersion);
         } catch (error) {
             console.error("No se pudieron cargar los talleres del municipio:", error);
             if (reset) {
