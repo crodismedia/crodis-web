@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Reclamaciones | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="admin-brand" href="admin.html"><img src="../favicon.svg" alt="" width="42" height="42"><span><strong>TallerMap</strong><small>Centro de control</small></span></a>
+    <nav class="admin-nav" aria-label="Administración">
+      <a href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a class="activo" href="admin-reclamaciones.html"><span>♙</span>Reclamaciones</a>
+      <a href="admin-valoraciones.html"><span>★</span>Valoraciones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
+      <div class="separador"></div>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
+      <div class="separador"></div>
+      <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
+    </nav>
+    <div class="admin-side-foot"><strong id="admin-usuario">Verificando usuario…</strong><span>Sesión administrativa protegida</span><button id="btn-cerrar-sesion" type="button">Cerrar sesión</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-top"><h1>Reclamaciones de fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
+    <div class="admin-content">
+      <section class="admin-hero"><div><h2>Propietarios y responsables</h2><p>Revisa las solicitudes antes de asociar una cuenta a un taller.</p></div></section>
+      <section class="admin-metrics">
+        <article class="admin-card admin-metric alert"><span>Pendientes</span><strong id="claim-pending">—</strong><small>Requieren revisión</small></article>
+        <article class="admin-card admin-metric"><span>Aprobadas</span><strong id="claim-approved">—</strong><small>Fichas asociadas</small></article>
+        <article class="admin-card admin-metric"><span>Rechazadas</span><strong id="claim-rejected">—</strong><small>Solicitudes no aceptadas</small></article>
+        <article class="admin-card admin-metric"><span>Revocadas</span><strong id="claim-revoked">—</strong><small>Accesos retirados</small></article>
+      </section>
+      <section class="admin-card">
+        <div class="admin-panel-head"><div><h3>Solicitudes</h3><p>La aprobación vincula la cuenta del solicitante con la ficha. Una aprobación puede revocarse sin borrar el historial.</p></div><select id="claim-filter" class="admin-btn"><option value="pendiente">Pendientes</option><option value="todas">Todas</option><option value="aprobada">Aprobadas</option><option value="rechazada">Rechazadas</option><option value="revocada">Revocadas</option></select></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Taller</th><th>Solicitante</th><th>Relación</th><th>Información</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody id="claim-table"><tr><td colspan="7">Cargando…</td></tr></tbody></table></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-reclamaciones.js?v=20260807-revocar-1"></script>
+</body>
+</html>

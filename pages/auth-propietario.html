@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Acceso de propietario | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilo.css">
+  <style>
+    .auth-wrap{max-width:640px;margin:56px auto;padding:0 18px 80px}.auth-card{background:#fff;border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,.08);padding:30px}.auth-status{padding:16px;border-radius:12px;background:#f5f7fa;margin:18px 0}.auth-status.ok{background:#e9f8ef;color:#126534}.auth-status.error{background:#fff0f0;color:#9a2222}.auth-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.auth-hidden{display:none!important}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido">
+  <a href="../index.html" class="marca"><img class="marca-icono marca-icono-logo" src="../favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Acceso de propietario</small></span></a>
+</div></header>
+<main class="auth-wrap">
+  <section class="auth-card">
+    <span class="etiqueta">Área de propietarios</span>
+    <h1>Verificando tu acceso</h1>
+    <p id="auth-copy">Estamos comprobando el enlace seguro que has abierto desde tu correo.</p>
+    <div id="auth-status" class="auth-status" role="status" aria-live="polite">Comprobando sesión…</div>
+    <div class="auth-actions">
+      <a id="auth-continue" class="boton boton-enviar auth-hidden" href="#">Continuar con la reclamación</a>
+      <a id="auth-retry" class="boton-enlace auth-hidden" href="../index.html">Volver a TallerMap</a>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth-propietario.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,follow">
+  <title>Reclamar ficha de taller | TallerMap</title>
+  <meta name="description" content="Solicita la gestión de una ficha de taller publicada en TallerMap.">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilo.css">
+  <style>
+    .claim-wrap{max-width:920px;margin:40px auto;padding:0 18px 70px}.claim-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px}.claim-card{background:#fff;border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,.08);padding:28px}.claim-card h1,.claim-card h2{margin-top:0}.claim-workshop{padding:18px;border-radius:14px;background:#f5f7fa;margin:18px 0}.claim-workshop strong{display:block;font-size:1.15rem}.claim-workshop span{display:block;margin-top:6px;color:#5b6470}.claim-status{padding:14px 16px;border-radius:12px;background:#f5f7fa;margin:14px 0}.claim-status.ok{background:#e9f8ef;color:#126534}.claim-status.error{background:#fff0f0;color:#9a2222}.claim-form{display:grid;gap:14px}.claim-form label{display:grid;gap:6px;font-weight:700}.claim-form input,.claim-form select,.claim-form textarea{width:100%;box-sizing:border-box;border:1px solid #ccd2da;border-radius:10px;padding:12px;font:inherit}.claim-form small{font-weight:400;color:#657080}.claim-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.claim-note{font-size:.92rem;color:#657080}.claim-session{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:16px;padding:12px 14px;border-radius:12px;background:#f5f7fa}.claim-session button{border:0;background:none;text-decoration:underline;cursor:pointer}.claim-hidden{display:none!important}@media(max-width:760px){.claim-grid{grid-template-columns:1fr}.claim-card{padding:22px}.claim-wrap{margin-top:24px}}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido">
+  <a href="../index.html" class="marca"><img class="marca-icono marca-icono-logo" src="../favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Reclamación de ficha</small></span></a>
+  <a href="../index.html" class="boton-enlace">Volver al inicio</a>
+</div></header>
+
+<main class="claim-wrap">
+  <div class="claim-grid">
+    <section class="claim-card">
+      <span class="etiqueta">Área de propietarios</span>
+      <h1>Reclamar una ficha</h1>
+      <p>Solicita acceso para gestionar los datos de tu taller. La reclamación no concede acceso automáticamente: TallerMap la revisará antes de asociar la ficha a tu cuenta.</p>
+      <div id="claim-workshop" class="claim-workshop"><strong>Cargando taller…</strong></div>
+      <p class="claim-note">El acceso funciona sin contraseña. Verificamos tu correo con un enlace seguro: si todavía no tienes cuenta, se crea al verificarlo; si ya existe, simplemente inicia sesión.</p>
+    </section>
+
+    <section class="claim-card">
+      <div id="claim-message" class="claim-status claim-hidden" role="status" aria-live="polite"></div>
+
+      <div id="claim-login">
+        <h2>Crear cuenta o acceder</h2>
+        <div class="claim-form">
+          <label>Correo electrónico
+            <input id="claim-email" type="email" autocomplete="email" required placeholder="tu@correo.es">
+            <small>Te enviaremos un enlace seguro. No necesitas crear una contraseña.</small>
+          </label>
+          <button id="claim-send-link" class="boton boton-enviar" type="button">Recibir enlace de acceso</button>
+        </div>
+      </div>
+
+      <div id="claim-panel" class="claim-hidden">
+        <div class="claim-session"><div><strong>Correo verificado</strong><div id="claim-session-email"></div></div><button id="claim-logout" type="button">Cerrar sesión</button></div>
+        <form id="claim-form" class="claim-form" novalidate>
+          <label>Nombre y apellidos
+            <input id="claim-name" type="text" minlength="2" maxlength="120" autocomplete="name" required>
+          </label>
+          <label>Teléfono de contacto
+            <input id="claim-phone" type="tel" minlength="6" maxlength="30" autocomplete="tel">
+          </label>
+          <label>Relación con el taller
+            <select id="claim-relation" required>
+              <option value="propietario">Propietario/a</option>
+              <option value="responsable">Responsable o gerente</option>
+              <option value="empleado">Empleado/a autorizado/a</option>
+              <option value="otro">Otra relación</option>
+            </select>
+          </label>
+          <label>Información para verificar la reclamación
+            <textarea id="claim-note" rows="5" maxlength="1500" placeholder="Por ejemplo: web oficial, teléfono del negocio, cargo o cualquier dato que ayude a verificar que gestionas este taller."></textarea>
+          </label>
+          <div class="claim-actions"><button id="claim-submit" class="boton boton-enviar" type="submit">Enviar reclamación</button></div>
+          <p class="claim-note">La solicitud y su resolución quedarán registradas en el historial administrativo. Si se aprueba, la ficha aparecerá en tu área “Gestionar mi taller”.</p>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap</span><span>Una plataforma de CRODIS Media</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/reclamar-taller.js"></script>
+</body>
+</html>

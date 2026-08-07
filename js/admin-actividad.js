@@ -11,20 +11,79 @@
   function estado(texto,tipo=""){const el=$("admin-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
   function valor(obj,claves){for(const k of claves){if(obj&&obj[k]!==undefined&&obj[k]!==null&&obj[k]!=="")return obj[k];}return "";}
   function texto(obj){try{return JSON.stringify(obj);}catch{return String(obj||"");}}
-  function fechaRegistro(r){return valor(r,["created_at","fecha","timestamp","updated_at"]);}
+  function fechaRegistro(r){return valor(r,["creado_at","created_at","fecha","timestamp","updated_at"]);}
   function accionRegistro(r){return String(valor(r,["accion","action","tipo","operacion","evento"])||"Cambio");}
   function tallerRegistro(r){return valor(r,["taller_id","id_taller","registro_id","entity_id"]);}
-  function usuarioRegistro(r){return valor(r,["usuario","user_id","email","origen","actor"]);}
-  function detalleRegistro(r){
-    const directo=valor(r,["detalle","detalles","descripcion","cambios","datos","payload","registro"]);
-    if(directo&&typeof directo==="object")return JSON.stringify(directo,null,2);
-    if(directo)return String(directo);
-    const copia={...r};
-    ["id","created_at","fecha","timestamp","updated_at","accion","action","tipo","operacion","evento","taller_id","id_taller","registro_id","entity_id","usuario","user_id","email","origen","actor"].forEach(k=>delete copia[k]);
-    return Object.keys(copia).length?JSON.stringify(copia,null,2):"—";
+  function usuarioRegistro(r){return valor(r,["usuario_id","usuario","user_id","email","origen","actor"]);}
+  function origenRegistro(r){return valor(r,["origen","source"]);}
+
+  function datosNuevos(r){
+    const v=valor(r,["datos_nuevos","new_data","nuevo","after"]);
+    return v&&typeof v==="object"?v:null;
   }
+  function datosAnteriores(r){
+    const v=valor(r,["datos_anteriores","old_data","anterior","before"]);
+    return v&&typeof v==="object"?v:null;
+  }
+  function camposRegistro(r){
+    const v=valor(r,["campos_modificados","campos","fields"]);
+    return Array.isArray(v)?v.filter(Boolean):[];
+  }
+
+  function resumenEspecial(r){
+    const accion=accionRegistro(r).toLowerCase();
+    const nuevos=datosNuevos(r)||{};
+    const anteriores=datosAnteriores(r)||{};
+    const reclamacion=nuevos.reclamacion_id||anteriores.reclamacion_id||"";
+    const usuario=nuevos.usuario_id||anteriores.usuario_id||"";
+
+    if(accion==="reclamar_taller"){
+      const partes=["Solicitud de reclamación creada"];
+      if(nuevos.email)partes.push(`correo: ${nuevos.email}`);
+      if(nuevos.relacion)partes.push(`relación: ${nuevos.relacion}`);
+      if(reclamacion)partes.push(`solicitud: ${reclamacion}`);
+      return partes.join(" · ");
+    }
+    if(accion==="aprobar_reclamacion"){
+      return `Reclamación aprobada${usuario?` · propietario: ${usuario}`:""}${reclamacion?` · solicitud: ${reclamacion}`:""}`;
+    }
+    if(accion==="rechazar_reclamacion"){
+      return `Reclamación rechazada${usuario?` · solicitante: ${usuario}`:""}${reclamacion?` · solicitud: ${reclamacion}`:""}`;
+    }
+    if(accion==="revocar_reclamacion"){
+      return `Acceso de propietario revocado${usuario?` · propietario: ${usuario}`:""}${reclamacion?` · solicitud: ${reclamacion}`:""}`;
+    }
+    return "";
+  }
+
+  function detalleCompacto(r){
+    const especial=resumenEspecial(r);
+    if(especial)return especial;
+
+    const campos=camposRegistro(r);
+    if(campos.length){
+      const visibles=campos.slice(0,8).join(", ");
+      return `Campos modificados: ${visibles}${campos.length>8?` (+${campos.length-8})`:""}`;
+    }
+
+    const accion=accionRegistro(r).toLowerCase();
+    if(accion.includes("eliminar")||accion.includes("delete"))return "Taller eliminado. Los datos anteriores quedan disponibles en el detalle técnico.";
+    if(accion.includes("crear")||accion.includes("insert")||accion.includes("alta"))return "Registro creado.";
+    if(accion.includes("actual")||accion.includes("update")||accion.includes("edit"))return "Registro actualizado.";
+
+    const directo=valor(r,["detalle","detalles","descripcion"]);
+    if(directo&&typeof directo!=="object")return String(directo).slice(0,300);
+    return "Cambio registrado.";
+  }
+
+  function detalleTecnico(r){
+    const copia={...r};
+    ["id","creado_at","created_at","fecha","timestamp","updated_at","accion","action","tipo","operacion","evento","taller_id","id_taller","registro_id","entity_id","usuario_id","usuario","user_id","email","origen","actor"].forEach(k=>delete copia[k]);
+    try{return JSON.stringify(copia,null,2);}catch{return String(copia||"");}
+  }
+
   function formatoFecha(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):new Intl.DateTimeFormat("es-ES",{dateStyle:"medium",timeStyle:"medium"}).format(d);}
-  function claseAccion(a){const t=String(a).toLowerCase();if(t.includes("delete")||t.includes("borr")||t.includes("elimin"))return "delete";if(t.includes("insert")||t.includes("alta")||t.includes("crear"))return "insert";if(t.includes("update")||t.includes("actual")||t.includes("edit"))return "update";return "";}
+  function claseAccion(a){const t=String(a).toLowerCase();if(t.includes("delete")||t.includes("borr")||t.includes("elimin")||t.includes("rechaz")||t.includes("revocar"))return "delete";if(t.includes("insert")||t.includes("alta")||t.includes("crear")||t.includes("reclamar")||t.includes("aprobar"))return "insert";if(t.includes("update")||t.includes("actual")||t.includes("edit"))return "update";return "";}
 
   async function proteger(){
     if(!supabase){estado("Sin conexión","error");return false;}
@@ -38,10 +97,8 @@
   }
 
   async function consultarActividad(){
-    let respuesta=await supabase.from("registro_actividad").select("*").order("created_at",{ascending:false}).limit(500);
-    if(respuesta.error){
-      respuesta=await supabase.from("registro_actividad").select("*").limit(500);
-    }
+    let respuesta=await supabase.from("registro_actividad").select("*").order("creado_at",{ascending:false}).limit(500);
+    if(respuesta.error)respuesta=await supabase.from("registro_actividad").select("*").limit(500);
     if(respuesta.error)throw respuesta.error;
     const data=Array.isArray(respuesta.data)?respuesta.data:[];
     data.sort((a,b)=>new Date(fechaRegistro(b)||0)-new Date(fechaRegistro(a)||0));
@@ -87,8 +144,11 @@
       const accion=accionRegistro(r);
       const taller=tallerRegistro(r);
       const usuario=usuarioRegistro(r);
-      const detalle=detalleRegistro(r);
-      return `<tr><td>${formatoFecha(fechaRegistro(r))}</td><td><span class="chip ${claseAccion(accion)}">${esc(accion)}</span></td><td>${taller?`<strong>${esc(taller)}</strong>`:"—"}</td><td>${esc(usuario||"Sistema / no indicado")}</td><td><div class="details">${esc(detalle)}</div></td></tr>`;
+      const origen=origenRegistro(r);
+      const resumen=detalleCompacto(r);
+      const tecnico=detalleTecnico(r);
+      const actor=[usuario,origen&&origen!==usuario?origen:""] .filter(Boolean).join(" · ")||"Sistema / no indicado";
+      return `<tr><td>${formatoFecha(fechaRegistro(r))}</td><td><span class="chip ${claseAccion(accion)}">${esc(accion)}</span></td><td>${taller?`<strong>${esc(taller)}</strong>`:"—"}</td><td>${esc(actor)}</td><td><div class="details-summary">${esc(resumen)}</div>${tecnico&&tecnico!=="{}"?`<details class="details-raw"><summary>Ver detalle técnico</summary><pre>${esc(tecnico)}</pre></details>`:""}</td></tr>`;
     }).join(""):'<tr><td colspan="5">No hay registros con estos filtros.</td></tr>';
     const paginas=Math.max(1,Math.ceil(filtrados.length/PAGE_SIZE));
     $("act-info").textContent=`${filtrados.length.toLocaleString("es-ES")} registros · página ${pagina+1} de ${paginas}`;
