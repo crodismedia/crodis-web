@@ -7,7 +7,6 @@
   const campos=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia','descripcion'];
   const editables=[...campos,'servicios','horarios'];
   let originales={};
-  let urlActual='';
 
   function valor(id){return String($(id)?.value||'').trim();}
   function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));}
@@ -15,11 +14,10 @@
   function urlWeb(v){const x=String(v||'').trim();return !x?'':/^https?:\/\//i.test(x)?x:`https://${x}`;}
   function consultaActual(){return [valor('nombre'),valor('direccion'),valor('codigo_postal'),valor('ciudad'),valor('provincia')].filter(Boolean).join(' ');}
 
-  function mostrarUrl(url){
+  function mostrarUrl(url,mostrarEnCampo=true){
     const visor=$('visor-navegador'),vacio=$('navegador-vacio');
     if(!url){visor.hidden=true;vacio.hidden=false;return;}
-    urlActual=url;
-    $('navegador-url').value=url;
+    if(mostrarEnCampo)$('navegador-url').value=url;
     visor.src=url;
     visor.hidden=false;
     vacio.hidden=true;
@@ -28,27 +26,29 @@
   function abrirYandex(){
     const q=consultaActual();
     if(!q)return;
-    mostrarUrl(`https://yandex.com/search/?text=${encodeURIComponent(q)}`);
+    $('navegador-url').value=q;
+    mostrarUrl(`https://yandex.com/search/?text=${encodeURIComponent(q)}`,false);
     $('btn-yandex')?.classList.add('active');
     $('btn-maps')?.classList.remove('active');
   }
 
   function abrirMaps(){
-    const q=consultaActual();
+    const q=consultaActual()||valor('navegador-url');
     if(!q)return;
-    mostrarUrl(`https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`);
+    $('navegador-url').value=q;
+    mostrarUrl(`https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`,false);
     $('btn-maps')?.classList.add('active');
     $('btn-yandex')?.classList.remove('active');
   }
 
   function navegarManual(){
-    let entrada=valor('navegador-url');
+    const entrada=valor('navegador-url');
     if(!entrada)return;
-    if(!/^https?:\/\//i.test(entrada)){
-      if(/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(entrada))entrada=`https://${entrada}`;
-      else entrada=`https://yandex.com/search/?text=${encodeURIComponent(entrada)}`;
-    }
-    mostrarUrl(entrada);
+    if(/^https?:\/\//i.test(entrada))mostrarUrl(entrada,false);
+    else if(/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(entrada))mostrarUrl(`https://${entrada}`,false);
+    else mostrarUrl(`https://yandex.com/search/?text=${encodeURIComponent(entrada)}`,false);
+    $('btn-yandex')?.classList.add('active');
+    $('btn-maps')?.classList.remove('active');
   }
 
   async function proteger(){
@@ -106,7 +106,6 @@
   $('btn-maps')?.addEventListener('click',abrirMaps);
   $('btn-ir')?.addEventListener('click',navegarManual);
   $('navegador-url')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();navegarManual();}});
-  $('btn-abrir-fuera')?.addEventListener('click',()=>{if(urlActual)window.open(urlActual,'_blank','noopener,noreferrer');});
   $('btn-buscar')?.addEventListener('click',buscar);
   $('buscar-taller')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscar();}});
   $('buscar-taller')?.addEventListener('input',()=>{if(valor('buscar-taller').length<2)resultados.innerHTML='';});
