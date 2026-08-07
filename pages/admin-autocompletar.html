@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Autocompletado de fichas | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="admin-brand" href="admin.html"><img src="../favicon.svg" alt="" width="42" height="42"><span><strong>TallerMap</strong><small>Centro de control</small></span></a>
+    <nav class="admin-nav" aria-label="Administración">
+      <a href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-reclamaciones.html"><span>♙</span>Reclamaciones</a>
+      <a href="admin-valoraciones.html"><span>★</span>Valoraciones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
+      <div class="separador"></div>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a class="activo" href="admin-autocompletar.html"><span>✦</span>Autocompletar fichas</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
+      <div class="separador"></div>
+      <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
+    </nav>
+    <div class="admin-side-foot"><strong id="admin-usuario">Verificando usuario…</strong><span>Sesión administrativa protegida</span><button id="btn-cerrar-sesion" type="button">Cerrar sesión</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-top"><h1>Autocompletado de fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
+    <div class="admin-content">
+      <section class="admin-hero"><div><h2>Cola de fichas incompletas</h2><p>Prioriza talleres con campos vacíos y muestra sugerencias seguras. Esta primera versión no escribe automáticamente en la base de datos.</p></div></section>
+
+      <section class="admin-metrics">
+        <article class="admin-card admin-metric"><span>Talleres analizados</span><strong id="auto-total">—</strong><small>Registros revisados</small></article>
+        <article class="admin-card admin-metric alert"><span>Incompletos</span><strong id="auto-incompletos">—</strong><small>Falta al menos un campo clave</small></article>
+        <article class="admin-card admin-metric alert"><span>Prioridad alta</span><strong id="auto-alta">—</strong><small>Menos del 60% completo</small></article>
+        <article class="admin-card admin-metric"><span>Con sugerencia segura</span><strong id="auto-sugerencias">—</strong><small>Se puede proponer una mejora local</small></article>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head"><div><h3>Fichas a completar</h3><p>Ordenadas por menor nivel de completitud.</p></div><select id="auto-filtro" class="admin-btn"><option value="todas">Todas las incompletas</option><option value="alta">Prioridad alta</option><option value="sugerencia">Con sugerencia segura</option></select></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Taller</th><th>Ubicación</th><th>Completitud</th><th>Faltan</th><th>Sugerencia</th><th>Acciones</th></tr></thead><tbody id="auto-tabla"><tr><td colspan="6">Cargando…</td></tr></tbody></table></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-autocompletar.js"></script>
+</body>
+</html>
