@@ -2,12 +2,16 @@
   "use strict";
   const supabase=window.supabaseClient;
   const $=(id)=>document.getElementById(id);
+  const LOTE_SEGURO=100;
   let filas=[];
+  let procesandoLote=false;
+  let detenerSolicitado=false;
 
   function esc(v){return String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
   function txt(v){return String(v??"").trim();}
   function digitos(v){return txt(v).replace(/\D/g,"");}
   function normalizar(v){return txt(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+  function esperar(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
   function provinciaPorCp(cp){
     const p=digitos(cp).slice(0,2);
     if(p==="03")return "Alicante";
@@ -102,37 +106,52 @@
     $("auto-sugerencias").textContent=filas.filter(f=>f.aplicable).length.toLocaleString("es-ES");
   }
 
+  async function leerFichaActual(id){
+    const {data,error}=await supabase.from("talleres")
+      .select("id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,verificado")
+      .eq("id",id)
+      .maybeSingle();
+    if(error)throw error;
+    return data;
+  }
+
+  async function aplicarCambiosSeguros(id,cambios){
+    const {error}=await supabase.rpc("aplicar_autocompletado_seguro_admin",{
+      p_taller_id:id,
+      p_cambios:cambios
+    });
+    if(error)throw error;
+  }
+
+  async function procesarFichaSegura(id){
+    const actual=await leerFichaActual(id);
+    if(!actual)return {estado:"omitida",motivo:"ficha no encontrada"};
+    const propuesta=propuestaSegura(actual);
+    if(!propuesta.aplicable)return {estado:"omitida",motivo:"sin cambios seguros pendientes"};
+    await aplicarCambiosSeguros(id,propuesta.cambios);
+    return {estado:"actualizada",cambios:propuesta.cambios};
+  }
+
   async function aplicarSeguras(id,boton){
-    if(boton?.disabled)return;
+    if(procesandoLote||boton?.disabled)return;
     boton.disabled=true;
     $("admin-estado").textContent="Verificando ficha antes de aplicar…";
     try{
-      const {data:actual,error:leerError}=await supabase.from("talleres")
-        .select("id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,verificado")
-        .eq("id",id)
-        .maybeSingle();
-      if(leerError)throw leerError;
+      const actual=await leerFichaActual(id);
       if(!actual)throw new Error("La ficha ya no existe");
-
       const propuesta=propuestaSegura(actual);
       if(!propuesta.aplicable){
         alert("La ficha ya no tiene cambios automáticos seguros pendientes.");
         await cargar();
         return;
       }
-
       const resumen=Object.entries(propuesta.cambios).map(([campo,valor])=>`${campo}: ${valor}`).join("\n");
       if(!confirm(`Se aplicarán únicamente estos cambios seguros:\n\n${resumen}\n\n¿Continuar?`)){
         $("admin-estado").textContent="Aplicación cancelada";
         boton.disabled=false;
         return;
       }
-
-      const {error}=await supabase.rpc("aplicar_autocompletado_seguro_admin",{
-        p_taller_id:id,
-        p_cambios:propuesta.cambios
-      });
-      if(error)throw error;
+      await aplicarCambiosSeguros(id,propuesta.cambios);
       $("admin-estado").textContent="Sugerencias seguras aplicadas";
       await cargar();
     }catch(error){
@@ -140,6 +159,64 @@
       $("admin-estado").textContent=`Error: ${error.message||"no se pudo actualizar"}`;
       if(boton)boton.disabled=false;
     }
+  }
+
+  function bloquearControlesLote(activo){
+    procesandoLote=activo;
+    ["btn-recargar","btn-lote-100","btn-lote-todas","auto-filtro"].forEach(id=>{const el=$(id);if(el)el.disabled=activo;});
+    const detener=$("btn-detener-lote");
+    if(detener)detener.hidden=!activo;
+    document.querySelectorAll("[data-aplicar]").forEach(b=>{b.disabled=activo;});
+  }
+
+  async function procesarLote({todas=false}={}){
+    if(procesandoLote)return;
+    const aplicables=filas.filter(f=>f.aplicable);
+    const objetivo=todas?aplicables:aplicables.slice(0,LOTE_SEGURO);
+    if(!objetivo.length){alert("No hay fichas con cambios automáticos seguros pendientes.");return;}
+
+    const texto=todas
+      ? `Se procesarán ${objetivo.length.toLocaleString("es-ES")} fichas aplicables en bloques internos de ${LOTE_SEGURO}.`
+      : `Se procesarán hasta ${objetivo.length.toLocaleString("es-ES")} fichas con cambios seguros.`;
+    if(!confirm(`${texto}\n\nCada ficha se volverá a leer antes de escribir. El proceso se detendrá al primer error.\n\n¿Continuar?`))return;
+
+    detenerSolicitado=false;
+    bloquearControlesLote(true);
+    const resumen={procesadas:0,actualizadas:0,omitidas:0,errores:0,detenida:false,error:""};
+
+    try{
+      for(let i=0;i<objetivo.length;i++){
+        if(detenerSolicitado){resumen.detenida=true;break;}
+        const ficha=objetivo[i];
+        $("admin-estado").textContent=`Procesando ${i+1} de ${objetivo.length.toLocaleString("es-ES")} · actualizadas ${resumen.actualizadas} · omitidas ${resumen.omitidas}`;
+        try{
+          const resultado=await procesarFichaSegura(ficha.id);
+          resumen.procesadas+=1;
+          if(resultado.estado==="actualizada")resumen.actualizadas+=1;
+          else resumen.omitidas+=1;
+        }catch(error){
+          console.error("Error en lote de autocompletado",ficha.id,error);
+          resumen.procesadas+=1;
+          resumen.errores+=1;
+          resumen.error=error.message||"error desconocido";
+          break;
+        }
+        if((i+1)%LOTE_SEGURO===0&&i+1<objetivo.length)await esperar(350);
+      }
+    }finally{
+      bloquearControlesLote(false);
+      await cargar();
+    }
+
+    const partes=[
+      `${resumen.procesadas.toLocaleString("es-ES")} procesadas`,
+      `${resumen.actualizadas.toLocaleString("es-ES")} actualizadas`,
+      `${resumen.omitidas.toLocaleString("es-ES")} omitidas`,
+      `${resumen.errores.toLocaleString("es-ES")} errores`
+    ];
+    if(resumen.detenida)partes.push("proceso detenido por el administrador");
+    if(resumen.error)partes.push(`último error: ${resumen.error}`);
+    alert(`Resultado del lote:\n\n${partes.join("\n")}`);
   }
 
   function render(){
@@ -157,10 +234,12 @@
       return `<tr><td><strong>${esc(t.nombre||"Sin nombre")}</strong><br><small>${esc(t.id)}</small></td><td>${esc(ubic)}</td><td><span class="admin-badge ${clase}">${t.porcentaje}%</span></td><td>${esc(faltan)}</td><td>${esc(sugerencia)}</td><td><div class="admin-row-actions">${aplicar}<a class="admin-btn" href="admin-editor.html?id=${encodeURIComponent(t.id)}">Revisar</a></div></td></tr>`;
     }).join("")||'<tr><td colspan="6">No hay fichas con este filtro.</td></tr>';
     body.querySelectorAll("[data-aplicar]").forEach(b=>b.addEventListener("click",()=>aplicarSeguras(b.dataset.aplicar,b)));
-    if(lista.length>250)$("admin-estado").textContent=`Mostrando 250 de ${lista.length.toLocaleString("es-ES")} fichas`;
+    if(procesandoLote)document.querySelectorAll("[data-aplicar]").forEach(b=>{b.disabled=true;});
+    if(lista.length>250&&!procesandoLote)$("admin-estado").textContent=`Mostrando 250 de ${lista.length.toLocaleString("es-ES")} fichas`;
   }
 
   async function cargar(){
+    if(procesandoLote)return;
     $("admin-estado").textContent="Analizando fichas…";
     $("auto-tabla").innerHTML='<tr><td colspan="6">Analizando…</td></tr>';
     try{
@@ -178,6 +257,9 @@
 
   $("btn-recargar")?.addEventListener("click",cargar);
   $("auto-filtro")?.addEventListener("change",render);
-  $("btn-cerrar-sesion")?.addEventListener("click",async()=>{await supabase.auth.signOut();location.replace("admin-login.html");});
+  $("btn-lote-100")?.addEventListener("click",()=>procesarLote({todas:false}));
+  $("btn-lote-todas")?.addEventListener("click",()=>procesarLote({todas:true}));
+  $("btn-detener-lote")?.addEventListener("click",()=>{detenerSolicitado=true;$("admin-estado").textContent="Deteniendo al terminar la ficha actual…";});
+  $("btn-cerrar-sesion")?.addEventListener("click",async()=>{if(procesandoLote)return;await supabase.auth.signOut();location.replace("admin-login.html");});
   proteger().then(ok=>{if(ok)cargar();});
 }());
