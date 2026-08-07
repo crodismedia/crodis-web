@@ -2,6 +2,7 @@
   'use strict';
   const supabase=window.supabaseClient;
   const $=id=>document.getElementById(id);
+  const CLAVE_LOTE='tm_lote_revision';
   let filas=[];
   let procesando=false;
   let detener=false;
@@ -117,8 +118,15 @@
   function iniciarRevisionLote(){
     const lista=listaFiltrada().slice(0,tamanoLote());
     if(!lista.length){alert('No hay fichas pendientes con los filtros actuales.');return;}
-    const lote={ids:lista.map(x=>String(x.id)),indice:0,creado:Date.now(),origen:'admin-autocompletar.html'};
-    sessionStorage.setItem('tm_lote_revision',JSON.stringify(lote));
+    const lote={
+      ids:lista.map(x=>String(x.id)),
+      indice:0,
+      creadas:0,
+      omitidas:0,
+      creado:Date.now(),
+      origen:'admin-autocompletar.html'
+    };
+    localStorage.setItem(CLAVE_LOTE,JSON.stringify(lote));
     location.href=`admin-editor.html?id=${encodeURIComponent(lote.ids[0])}&lote=1`;
   }
 
