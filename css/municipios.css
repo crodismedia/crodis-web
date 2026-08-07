@@ -17,6 +17,13 @@
     text-decoration: none;
 }
 
+.migas a[data-provincia-municipio]::before {
+    content: "›";
+    margin-right: 8px;
+    color: inherit;
+    pointer-events: none;
+}
+
 .migas span[aria-hidden="true"] + span[aria-hidden="true"] {
     display: none;
 }
