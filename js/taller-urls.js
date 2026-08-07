@@ -26,5 +26,6 @@
   if (window.location.pathname === "/pages/taller.html" || window.location.pathname.startsWith("/talleres/")) {
     cargarEstilo("/css/valoraciones.css", "data-tallermap-valoraciones-css");
     cargar("/js/valoraciones.js", "data-tallermap-valoraciones");
+    cargar("/js/reclamacion-link.js", "data-tallermap-reclamacion-link");
   }
 }());
