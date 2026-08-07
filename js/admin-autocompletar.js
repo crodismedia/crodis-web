@@ -49,6 +49,35 @@
     return todos;
   }
 
+  function propuestaSegura(t){
+    const cambios={};
+    const textos=[];
+    const cp=digitos(t.codigo_postal);
+    const provinciaCp=cp.length===5?provinciaPorCp(cp):"";
+    const provinciaActual=provinciaCanonica(t.provincia);
+
+    if(!txt(t.provincia)&&provinciaCp){
+      cambios.provincia=provinciaCp;
+      textos.push(`Provincia: ${provinciaCp} (por CP ${cp})`);
+    }else if(provinciaCp&&provinciaActual&&provinciaCp!==provinciaActual){
+      textos.push(`Revisar provincia: el CP ${cp} corresponde a ${provinciaCp}`);
+    }
+
+    const tel=digitos(t.telefono);
+    if(txt(t.telefono)&&tel.length===9&&txt(t.telefono)!==tel){
+      cambios.telefono=tel;
+      textos.push(`Normalizar teléfono: ${tel}`);
+    }
+
+    const web=txt(t.web);
+    if(web&&!/^https?:\/\//i.test(web)&&web.includes(".")&&!/\s/.test(web)){
+      cambios.web=`https://${web}`;
+      textos.push(`Normalizar web: https://${web}`);
+    }
+
+    return {cambios,textos,aplicable:Object.keys(cambios).length>0};
+  }
+
   function evaluar(t){
     const campos=[
       ["nombre",txt(t.nombre)],
@@ -62,44 +91,69 @@
     const completos=campos.filter(([,v])=>Boolean(v)).length;
     const porcentaje=Math.round((completos/campos.length)*100);
     const faltan=campos.filter(([,v])=>!v).map(([k])=>k);
-    const sugerencias=[];
-
-    const cp=digitos(t.codigo_postal);
-    const provinciaCp=provinciaPorCp(cp);
-    const provinciaActual=provinciaCanonica(t.provincia);
-    if(!txt(t.provincia)&&provinciaCp)sugerencias.push(`Provincia: ${provinciaCp} (por CP ${cp})`);
-    else if(provinciaCp&&provinciaActual&&provinciaCp!==provinciaActual)sugerencias.push(`Revisar provincia: el CP ${cp} corresponde a ${provinciaCp}`);
-
-    const tel=digitos(t.telefono);
-    if(txt(t.telefono)&&tel.length===9&&txt(t.telefono)!==tel)sugerencias.push(`Normalizar teléfono: ${tel}`);
-
-    const web=txt(t.web);
-    if(web&&!/^https?:\/\//i.test(web)&&web.includes("."))sugerencias.push(`Normalizar web: https://${web}`);
-
-    return {...t,porcentaje,faltan,sugerencias,prioridad:porcentaje<60?"alta":porcentaje<85?"media":"baja"};
+    const propuesta=propuestaSegura(t);
+    return {...t,porcentaje,faltan,sugerencias:propuesta.textos,cambiosSeguros:propuesta.cambios,aplicable:propuesta.aplicable,prioridad:porcentaje<60?"alta":porcentaje<85?"media":"baja"};
   }
 
   function metricas(talleres){
-    const incompletos=filas.length;
     $("auto-total").textContent=talleres.length.toLocaleString("es-ES");
-    $("auto-incompletos").textContent=incompletos.toLocaleString("es-ES");
+    $("auto-incompletos").textContent=filas.length.toLocaleString("es-ES");
     $("auto-alta").textContent=filas.filter(f=>f.prioridad==="alta").length.toLocaleString("es-ES");
-    $("auto-sugerencias").textContent=filas.filter(f=>f.sugerencias.length).length.toLocaleString("es-ES");
+    $("auto-sugerencias").textContent=filas.filter(f=>f.aplicable).length.toLocaleString("es-ES");
+  }
+
+  async function aplicarSeguras(id,boton){
+    if(boton?.disabled)return;
+    boton.disabled=true;
+    $("admin-estado").textContent="Verificando ficha antes de aplicar…";
+    try{
+      const {data:actual,error:leerError}=await supabase.from("talleres")
+        .select("id,nombre,telefono,web,direccion,codigo_postal,ciudad,provincia,verificado")
+        .eq("id",id)
+        .maybeSingle();
+      if(leerError)throw leerError;
+      if(!actual)throw new Error("La ficha ya no existe");
+
+      const propuesta=propuestaSegura(actual);
+      if(!propuesta.aplicable){
+        alert("La ficha ya no tiene cambios automáticos seguros pendientes.");
+        await cargar();
+        return;
+      }
+
+      const resumen=Object.entries(propuesta.cambios).map(([campo,valor])=>`${campo}: ${valor}`).join("\n");
+      if(!confirm(`Se aplicarán únicamente estos cambios seguros:\n\n${resumen}\n\n¿Continuar?`)){
+        $("admin-estado").textContent="Aplicación cancelada";
+        boton.disabled=false;
+        return;
+      }
+
+      const {error}=await supabase.from("talleres").update(propuesta.cambios).eq("id",id);
+      if(error)throw error;
+      $("admin-estado").textContent="Sugerencias seguras aplicadas";
+      await cargar();
+    }catch(error){
+      console.error(error);
+      $("admin-estado").textContent=`Error: ${error.message||"no se pudo actualizar"}`;
+      if(boton)boton.disabled=false;
+    }
   }
 
   function render(){
     const filtro=$("auto-filtro").value;
     let lista=filas;
     if(filtro==="alta")lista=lista.filter(f=>f.prioridad==="alta");
-    if(filtro==="sugerencia")lista=lista.filter(f=>f.sugerencias.length);
+    if(filtro==="sugerencia")lista=lista.filter(f=>f.aplicable);
     const body=$("auto-tabla");
     body.innerHTML=lista.slice(0,250).map(t=>{
       const ubic=[t.ciudad,t.provincia,t.codigo_postal].filter(Boolean).join(" · ")||"—";
       const faltan=t.faltan.length?t.faltan.join(", "):"—";
       const sugerencia=t.sugerencias.length?t.sugerencias.join(" · "):"Sin sugerencia automática segura";
       const clase=t.prioridad==="alta"?"bad":t.prioridad==="media"?"warn":"ok";
-      return `<tr><td><strong>${esc(t.nombre||"Sin nombre")}</strong><br><small>${esc(t.id)}</small></td><td>${esc(ubic)}</td><td><span class="admin-badge ${clase}">${t.porcentaje}%</span></td><td>${esc(faltan)}</td><td>${esc(sugerencia)}</td><td><a class="admin-btn" href="admin-editor.html?id=${encodeURIComponent(t.id)}">Revisar</a></td></tr>`;
+      const aplicar=t.aplicable?`<button class="admin-btn primary" type="button" data-aplicar="${esc(t.id)}">Aplicar seguras</button>`:"";
+      return `<tr><td><strong>${esc(t.nombre||"Sin nombre")}</strong><br><small>${esc(t.id)}</small></td><td>${esc(ubic)}</td><td><span class="admin-badge ${clase}">${t.porcentaje}%</span></td><td>${esc(faltan)}</td><td>${esc(sugerencia)}</td><td><div class="admin-row-actions">${aplicar}<a class="admin-btn" href="admin-editor.html?id=${encodeURIComponent(t.id)}">Revisar</a></div></td></tr>`;
     }).join("")||'<tr><td colspan="6">No hay fichas con este filtro.</td></tr>';
+    body.querySelectorAll("[data-aplicar]").forEach(b=>b.addEventListener("click",()=>aplicarSeguras(b.dataset.aplicar,b)));
     if(lista.length>250)$("admin-estado").textContent=`Mostrando 250 de ${lista.length.toLocaleString("es-ES")} fichas`;
   }
 
@@ -108,10 +162,10 @@
     $("auto-tabla").innerHTML='<tr><td colspan="6">Analizando…</td></tr>';
     try{
       const talleres=await cargarTodos();
-      filas=talleres.map(evaluar).filter(t=>t.faltan.length>0).sort((a,b)=>a.porcentaje-b.porcentaje||String(a.nombre||"").localeCompare(String(b.nombre||""),"es"));
+      filas=talleres.map(evaluar).filter(t=>t.faltan.length>0||t.aplicable).sort((a,b)=>a.porcentaje-b.porcentaje||String(a.nombre||"").localeCompare(String(b.nombre||""),"es"));
       metricas(talleres);
       render();
-      $("admin-estado").textContent=`Análisis completado: ${filas.length.toLocaleString("es-ES")} incompletas`;
+      $("admin-estado").textContent=`Análisis completado: ${filas.length.toLocaleString("es-ES")} pendientes`;
     }catch(error){
       console.error(error);
       $("admin-estado").textContent=`Error: ${error.message||"no se pudo analizar"}`;
