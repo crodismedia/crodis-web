@@ -4,72 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Editor asistido | TallerMap</title>
-  <link rel="stylesheet" href="../css/estilo.css">
-  <style>
-    :root{--b:#dfe3e8;--bg:#f5f7f9;--ink:#17202a;--muted:#667085;--accent:#15803d}
-    *{box-sizing:border-box}.tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
-    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}.tm-top strong{font-size:1.1rem}.tm-top-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}
-    .tm-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(340px,1fr);height:calc(100vh - 62px)}.tm-pane{min-width:0;overflow:auto;background:#fff}.tm-pane+.tm-pane{border-left:1px solid var(--b)}
-    .tm-pane-head{position:sticky;top:0;z-index:3;padding:14px;background:#fff;border-bottom:1px solid var(--b)}.tm-pane-head h2{margin:0 0 4px;font-size:1.08rem}.tm-pane-head p{margin:0;color:var(--muted);font-size:.9rem}
-    .tm-body{padding:14px}.tm-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:10px 11px;background:#fff;font:inherit}textarea{resize:vertical;min-height:92px}
-    .tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
-    .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}
-    .tm-drop{outline:2px dashed #22c55e;outline-offset:2px;background:#f0fdf4}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.96);border-top:1px solid var(--b)}
-    .tm-urlbar{display:grid;grid-template-columns:1fr auto auto;gap:8px}.tm-webwrap{height:calc(100vh - 560px);min-height:280px;position:relative;background:#eef1f4}.tm-web{width:100%;height:100%;border:0;background:#fff}.tm-webnote{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:rgba(17,24,39,.9);color:#fff;font-size:.82rem;pointer-events:none}
-    .tm-source-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-status{font-size:.85rem;color:var(--muted);margin-top:8px}.tm-tabs{display:none}.tm-transfer,.tm-inspector{margin-top:12px;padding:12px;border:1px solid var(--b);border-radius:14px;background:#f8fafc}.tm-transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tm-transfer textarea{min-height:76px}.tm-transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tm-target{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-    .tm-inspector-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.tm-inspector-list{display:grid;gap:8px;margin-top:10px}.tm-suggestion{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--b);border-radius:10px;background:#fff}.tm-suggestion small,.tm-suggestion span{display:block}.tm-suggestion small{color:var(--muted);font-weight:700;text-transform:uppercase}.tm-suggestion span{overflow-wrap:anywhere}.tm-suggestion button{padding:7px 9px}.tm-empty{color:var(--muted);font-size:.85rem}
-    @media(max-width:1100px){.tm-layout{grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr)}}
-    @media(max-width:900px){.tm-layout{grid-template-columns:1fr;height:auto}.tm-pane{display:none;min-height:calc(100vh - 112px)}.tm-pane.active{display:block}.tm-pane+.tm-pane{border-left:0}.tm-tabs{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--b)}.tm-tabs button{flex:1;border:0;padding:12px;background:#fff;font-weight:800}.tm-tabs button.active{color:var(--accent);border-bottom:3px solid var(--accent)}.tm-webwrap{height:55vh}.tm-form,.tm-transfer-grid{grid-template-columns:1fr}}
-  </style>
+  <title>Centro de control | TallerMap</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
 </head>
-<body class="tm-admin">
-<header class="tm-top"><strong>TallerMap · Editor asistido</strong><div class="tm-top-actions"><span id="estado-acceso-admin">Verificando acceso…</span><button id="boton-cerrar-sesion" class="tm-btn tm-btn-soft" type="button">Cerrar sesión</button></div></header>
-<nav class="tm-tabs" aria-label="Cambiar panel"><button class="active" data-tab="ficha">Ficha</button><button data-tab="fuente">Fuente externa</button></nav>
-<main class="tm-layout">
-  <section class="tm-pane active" data-pane="ficha">
-    <div class="tm-pane-head"><h2>Ficha de Supabase</h2><p>La ficha izquierda es el dato oficial. Naranja: vacío; azul: modificado; verde: guardado.</p></div>
-    <div class="tm-body">
-      <div class="tm-search"><input id="buscar-taller" type="search" placeholder="Nombre, teléfono, población o código postal"><button id="btn-buscar" class="tm-btn tm-btn-primary">Buscar</button></div>
-      <div id="resultados-talleres" class="tm-results"></div>
-      <form id="form-taller" class="tm-form" hidden>
-        <input id="taller-id" type="hidden">
-        <div class="tm-field full"><label>Nombre</label><input id="nombre" data-drop="nombre"></div>
-        <div class="tm-field"><label>Teléfono</label><input id="telefono" data-drop="telefono"></div>
-        <div class="tm-field"><label>Web</label><input id="web" data-drop="web"></div>
-        <div class="tm-field full"><label>Dirección</label><input id="direccion" data-drop="direccion"></div>
-        <div class="tm-field"><label>Código postal</label><input id="codigo_postal" data-drop="codigo_postal"></div>
-        <div class="tm-field"><label>Población</label><input id="ciudad" data-drop="ciudad"></div>
-        <div class="tm-field full"><label>Provincia</label><input id="provincia" data-drop="provincia"></div>
-        <div class="tm-field full"><label>Servicios</label><textarea id="servicios" data-drop="servicios"></textarea></div>
-        <div class="tm-field full"><label>Horarios</label><textarea id="horarios" data-drop="horarios"></textarea></div>
-        <div class="tm-field full"><label>Descripción</label><textarea id="descripcion" data-drop="descripcion"></textarea></div>
-        <div class="tm-savebar full"><button id="btn-google" type="button" class="tm-btn tm-btn-soft">Buscar este taller</button><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
-      </form>
-      <p id="estado-ficha" class="tm-status">Selecciona un taller para editarlo.</p>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="admin-brand" href="admin.html">
+      <img src="../favicon.svg" alt="" width="42" height="42">
+      <span><strong>TallerMap</strong><small>Centro de control</small></span>
+    </a>
+    <nav class="admin-nav" aria-label="Administración">
+      <a class="activo" href="admin.html"><span>⌂</span>Resumen</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
+      <div class="separador"></div>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
+      <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
+      <div class="separador"></div>
+      <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
+    </nav>
+    <div class="admin-side-foot">
+      <strong id="admin-usuario">Verificando usuario…</strong>
+      <span>Sesión administrativa protegida</span>
+      <button id="btn-cerrar-sesion" type="button">Cerrar sesión</button>
     </div>
-  </section>
-  <section class="tm-pane" data-pane="fuente">
-    <div class="tm-pane-head"><h2>Fuente externa</h2><p>Pega información de la fuente; el inspector separará los datos útiles.</p>
-      <div class="tm-urlbar"><input id="url-externa" type="url" value="https://www.google.com/search?q=taller+mecanico"><button id="btn-cargar-url" class="tm-btn tm-btn-primary">Abrir</button><button id="btn-nueva-pestana" class="tm-btn tm-btn-soft">Pestaña</button></div>
-      <div class="tm-source-tools"><button id="btn-pegar-candidato" class="tm-btn tm-btn-soft">Pegar desde portapapeles</button><button id="btn-analizar" class="tm-btn tm-btn-primary">Analizar datos</button></div>
-      <section class="tm-transfer" aria-labelledby="titulo-transferencia">
-        <strong id="titulo-transferencia">Transferir a la ficha</strong>
-        <div class="tm-transfer-grid"><label>Campo de destino<select id="campo-destino"><option value="telefono">Teléfono</option><option value="web">Web</option><option value="direccion">Dirección</option><option value="codigo_postal">Código postal</option><option value="ciudad">Población</option><option value="provincia">Provincia</option><option value="horarios">Horarios</option><option value="servicios">Servicios</option><option value="descripcion">Descripción</option><option value="nombre">Nombre</option></select></label><label>Modo<select id="modo-transferencia"><option value="sustituir">Sustituir con confirmación</option><option value="anadir">Añadir sin borrar</option></select></label></div>
-        <label>Texto obtenido de la fuente<textarea id="dato-candidato" placeholder="Pega aquí toda la información o un dato concreto"></textarea></label>
-        <div class="tm-transfer-actions"><button id="btn-aplicar-dato" type="button" class="tm-btn tm-btn-primary">Aplicar dato</button><button id="btn-limpiar-dato" type="button" class="tm-btn tm-btn-soft">Limpiar</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-top">
+      <h1>Panel de administración</h1>
+      <div class="admin-top-actions">
+        <span id="admin-estado" class="admin-status">Verificando acceso…</span>
+        <button id="btn-recargar" class="admin-btn" type="button">Actualizar</button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <section class="admin-hero">
+        <div>
+          <h2>Resumen de TallerMap</h2>
+          <p>Control de calidad, edición y mantenimiento de la base de datos desde un único punto.</p>
+        </div>
+        <div class="admin-hero-actions">
+          <a class="admin-btn" href="admin-talleres.html">Buscar taller</a>
+          <a class="admin-btn primary" href="admin-editor.html">Editor completo</a>
+        </div>
       </section>
-      <section class="tm-inspector"><div class="tm-inspector-head"><strong>Datos detectados</strong><span id="contador-detectados" class="tm-status">0 propuestas</span></div><div id="inspector-resultados" class="tm-inspector-list"><p class="tm-empty">Pega texto y pulsa “Analizar datos”.</p></div></section>
+
+      <section class="admin-metrics" aria-label="Métricas principales">
+        <article class="admin-card admin-metric"><span>Talleres totales</span><strong id="metrica-total">—</strong><small>Fichas en la base de datos</small></article>
+        <article class="admin-card admin-metric"><span>Verificados</span><strong id="metrica-verificados">—</strong><small>Marcados como verificados</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin teléfono</span><strong id="metrica-sin-telefono">—</strong><small>Requieren revisión</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin dirección</span><strong id="metrica-sin-direccion">—</strong><small>Fichas incompletas</small></article>
+        <article class="admin-card admin-metric alert"><span>Sin código postal</span><strong id="metrica-sin-cp">—</strong><small>Prioridad de limpieza</small></article>
+      </section>
+
+      <section class="admin-grid">
+        <article class="admin-card">
+          <div class="admin-panel-head"><div><h3>Acciones rápidas</h3><p>Las tareas más frecuentes del administrador.</p></div></div>
+          <div class="admin-panel-body admin-quick">
+            <a href="admin-talleres.html"><strong>Buscar y gestionar talleres</strong><span>Localiza fichas, filtra, verifica y abre el editor exacto.</span></a>
+            <a href="admin-revisiones.html"><strong>Completar datos</strong><span>Prioriza fichas sin teléfono, dirección o código postal.</span></a>
+            <a href="admin-altas.html"><strong>Seguir altas recientes</strong><span>Revisa las nuevas fichas de las últimas horas o días.</span></a>
+            <a href="admin-duplicados.html"><strong>Revisar duplicados</strong><span>Detecta posibles coincidencias antes de fusionar nada.</span></a>
+            <a href="admin-actividad.html"><strong>Ver actividad</strong><span>Consulta el historial de cambios sobre los talleres.</span></a>
+            <a href="admin-cobertura.html"><strong>Revisar cobertura</strong><span>Compara provincias, municipios y datos geográficos incompletos.</span></a>
+            <a href="admin-servicios.html"><strong>Analizar servicios</strong><span>Comprueba el uso del catálogo y valores no reconocidos.</span></a>
+            <a href="admin-calidad.html"><strong>Auditar calidad de datos</strong><span>Detecta formatos dudosos en campos importantes.</span></a>
+            <a href="admin-estadisticas.html"><strong>Ver estadísticas</strong><span>Consulta crecimiento, completitud y reparto territorial.</span></a>
+            <a href="admin-exportar.html"><strong>Exportar talleres</strong><span>Genera un CSV filtrado sin modificar la base de datos.</span></a>
+            <a href="admin-salud.html"><strong>Estado del sistema</strong><span>Comprueba sesión, permisos y acceso a tablas esenciales.</span></a>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <div class="admin-panel-head"><div><h3>Distribución por provincia</h3><p>Principales valores almacenados.</p></div></div>
+          <div id="lista-provincias" class="admin-panel-body"><p class="admin-vacio">Cargando…</p></div>
+        </article>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-panel-head"><div><h3>Últimos talleres añadidos</h3><p>Las 10 incorporaciones más recientes.</p></div><a class="admin-btn" href="admin-altas.html">Ver altas recientes</a></div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Taller</th><th>Población</th><th>Provincia</th><th>Teléfono</th><th>Estado</th><th>Alta</th></tr></thead>
+            <tbody id="tabla-recientes"><tr><td colspan="6">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
     </div>
-    <div class="tm-webwrap"><iframe id="visor-externo" class="tm-web" title="Fuente externa" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe><div class="tm-webnote">Algunas páginas impiden mostrarse dentro del panel. Usa “Pestaña” cuando ocurra.</div></div>
-  </section>
-</main>
+  </main>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-shell.js"></script>
-<script src="../js/admin-gallery.js"></script>
-<script src="../js/admin-structured-fields.js"></script>
-<script src="../js/admin-change-guard.js"></script>
+<script src="../js/admin-dashboard.js"></script>
 </body>
 </html>
