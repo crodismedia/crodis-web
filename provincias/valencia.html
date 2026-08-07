@@ -4,67 +4,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Talleres mecánicos en la provincia de Valencia | TallerMap</title>
-    <meta name="description" content="Consulta talleres mecánicos en Valencia por municipio y accede a sus fichas públicas en TallerMap.">
+    <meta name="description" content="Encuentra talleres mecánicos en la provincia de Valencia por municipio. Consulta fichas, servicios, teléfono, dirección y cómo llegar en TallerMap.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <link rel="canonical" href="https://www.tallermap.es/provincias/valencia.html">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Talleres mecánicos en la provincia de Valencia | TallerMap">
-    <meta property="og:description" content="Directorio de talleres de Valencia organizado alfabéticamente por municipio.">
-    <meta property="og:url" content="https://www.tallermap.es/provincias/valencia.html">
-    <link rel="icon" href="../favicon.ico" sizes="any">
-    <link rel="stylesheet" href="../css/estilo.css">
-    <link rel="stylesheet" href="../css/municipios.css">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Talleres mecánicos en Valencia","url":"https://www.tallermap.es/provincias/valencia.html","isPartOf":{"@type":"WebSite","name":"TallerMap","url":"https://www.tallermap.es/"}}</script>
+    <meta property="og:type" content="website"><meta property="og:site_name" content="TallerMap"><meta property="og:title" content="Talleres mecánicos en la provincia de Valencia | TallerMap"><meta property="og:description" content="Directorio de talleres de Valencia organizado por municipio, con fichas públicas y servicios de automoción."><meta property="og:url" content="https://www.tallermap.es/provincias/valencia.html"><meta property="og:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
+    <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Talleres mecánicos en Valencia | TallerMap"><meta name="twitter:description" content="Busca talleres de automoción en la provincia de Valencia por municipio."><meta name="twitter:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
+    <link rel="icon" href="../favicon.ico" sizes="any"><link rel="icon" href="../favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../css/estilo.css"><link rel="stylesheet" href="../css/municipios.css">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Talleres mecánicos en la provincia de Valencia","description":"Directorio de talleres mecánicos de Valencia organizado por municipio.","url":"https://www.tallermap.es/provincias/valencia.html","isPartOf":{"@type":"WebSite","name":"TallerMap","url":"https://www.tallermap.es/"},"about":{"@type":"AdministrativeArea","name":"Valencia"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://www.tallermap.es/"},{"@type":"ListItem","position":2,"name":"Provincias","item":"https://www.tallermap.es/provincias/"},{"@type":"ListItem","position":3,"name":"Valencia","item":"https://www.tallermap.es/provincias/valencia.html"}]}}</script>
 </head>
 <body>
-<header class="cabecera">
-    <div class="contenedor cabecera-contenido">
-        <a class="marca" href="/">
-            <img class="marca-icono marca-icono-logo" src="../favicon.svg" alt="" width="46" height="46">
-            <span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span>
-        </a>
-        <a class="boton boton-pequeno" href="/#provincias">Volver a provincias</a>
-    </div>
-</header>
+<div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de talleres de automoción</span><a href="../pages/registro.html">¿Tienes un taller? Publica tu negocio</a></div></div>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a class="marca" href="/" aria-label="Volver al inicio de TallerMap"><img class="marca-icono marca-icono-logo" src="../favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><nav class="menu" aria-label="Navegación principal"><a href="/">Inicio</a><a href="../servicios/">Servicios</a><a href="./">Provincias</a><a href="../municipios/">Municipios</a></nav><a class="boton boton-pequeno" href="../pages/registro.html">Registrar taller</a></div></header>
 <main>
-    <section class="seccion">
-        <div class="contenedor">
-            <div class="titulo-seccion">
-                <span>Directorio municipal de Valencia</span>
-                <h1>Talleres mecánicos por municipio en Valencia</h1>
-                <p>Selecciona un municipio para consultar sus talleres publicados, ordenados alfabéticamente y paginados de 30 en 30.</p>
-            </div>
-            <ul id="lista-municipios-provincia" class="lista-municipios" aria-live="polite">
-                <li class="mensaje-talleres">Calculando talleres por municipio…</li>
-            </ul>
-        </div>
-    </section>
-    <section class="seccion seccion-gris">
-        <div class="contenedor">
-            <div class="cabecera-seccion">
-                <div class="titulo-seccion alineado-izquierda">
-                    <span>Provincia de Valencia</span>
-                    <h2>Todos los talleres de la provincia de Valencia</h2>
-                    <p>Listado general conservado y ordenado alfabéticamente por nombre.</p>
-                </div>
-                <span id="estado-provincia" class="orden-talleres mapa-estado" aria-live="polite">Cargando…</span>
-            </div>
-            <div id="lista-talleres-provincia" class="talleres-grid" data-provincia="Valencia" aria-live="polite">
-                <p class="mensaje-talleres">Cargando talleres de la provincia de Valencia…</p>
-            </div>
-            <div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor" hidden>
-                <button id="boton-cargar-mas-provincia" class="boton" type="button">Cargar más talleres</button>
-            </div>
-        </div>
-    </section>
+<section class="seccion"><div class="contenedor"><nav class="migas" aria-label="Migas de pan"><a href="/">Inicio</a><span aria-hidden="true">›</span><a href="./">Provincias</a><span aria-hidden="true">›</span><span>Valencia</span></nav><div class="titulo-seccion"><span>Directorio provincial</span><h1>Talleres mecánicos por municipio en Valencia</h1><p>Explora talleres publicados en la provincia de Valencia. Selecciona un municipio para consultar fichas, servicios y datos de contacto de los negocios disponibles.</p></div><ul id="lista-municipios-provincia" class="lista-municipios" aria-live="polite"><li class="mensaje-talleres">Calculando talleres por municipio…</li></ul></div></section>
+<section class="seccion seccion-gris"><div class="contenedor"><div class="cabecera-seccion"><div class="titulo-seccion alineado-izquierda"><span>Provincia de Valencia</span><h2>Todos los talleres de la provincia de Valencia</h2><p>Listado general ordenado alfabéticamente por nombre para facilitar la consulta del directorio.</p></div><span id="estado-provincia" class="orden-talleres mapa-estado" aria-live="polite">Cargando…</span></div><div id="lista-talleres-provincia" class="talleres-grid" data-provincia="Valencia" aria-live="polite"><p class="mensaje-talleres">Cargando talleres de la provincia de Valencia…</p></div><div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor" hidden><button id="boton-cargar-mas-provincia" class="boton" type="button">Cargar más talleres</button></div></div></section>
+<section class="seccion"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Especialidades</span><h2>Busca talleres en Valencia por servicio</h2><p>También puedes consultar TallerMap por tipo de reparación o mantenimiento.</p></div><div class="servicios-grid"><article class="servicio-card"><h3>Mecánica general</h3><a href="../servicios/mecanica-general.html">Ver talleres de mecánica general →</a></article><article class="servicio-card"><h3>Neumáticos</h3><a href="../servicios/neumaticos.html">Ver talleres de neumáticos →</a></article><article class="servicio-card"><h3>Chapa y pintura</h3><a href="../servicios/chapa-pintura.html">Ver talleres de chapa y pintura →</a></article></div></div></section>
 </main>
-<footer class="pie">
-    <div class="contenedor copyright">
-        <span>© 2026 TallerMap.</span>
-        <span><a href="../pages/registro.html">Registrar taller</a></span>
-    </div>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-<script src="../js/provincia.js"></script>
-</body>
-</html>
+<footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap.</span><span><a href="../pages/registro.html">Registrar taller</a> · <a href="../pages/privacidad.html">Privacidad</a></span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/provincia.js"></script>
+</body></html>
