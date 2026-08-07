@@ -7,25 +7,7 @@
   <title>Centro de control | TallerMap</title>
   <link rel="icon" href="../favicon.ico" sizes="any">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-  <style>
-    :root{--bg:#f4f7f5;--panel:#fff;--panel2:#f8faf9;--ink:#17211b;--muted:#66736b;--line:#dfe7e1;--green:#138a43;--green2:#0f6f36;--dark:#111a15;--warn:#b45309;--shadow:0 12px 35px rgba(21,45,30,.07)}
-    *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}a{color:inherit;text-decoration:none}button{font:inherit}
-    .admin-shell{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}
-    .admin-side{background:var(--dark);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px}.admin-brand{display:flex;align-items:center;gap:11px;padding:0 8px}.admin-brand img{width:42px;height:42px}.admin-brand strong{display:block;font-size:1.08rem}.admin-brand small{display:block;color:#aab8af;margin-top:2px}
-    .admin-nav{display:grid;gap:5px}.admin-nav a{padding:11px 12px;border-radius:10px;color:#d7e1da;font-weight:650}.admin-nav a:hover,.admin-nav a.activo{background:#1c2b22;color:#fff}.admin-nav a span{display:inline-block;width:25px;color:#8dd7a8}.admin-nav .separador{height:1px;background:#26372d;margin:8px 6px}
-    .admin-side-foot{margin-top:auto;padding:12px;border-top:1px solid #293a30;color:#aab8af;font-size:.86rem}.admin-side-foot strong{display:block;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis}.admin-side-foot button{margin-top:10px;width:100%;border:1px solid #3b4d42;background:transparent;color:#fff;border-radius:9px;padding:9px;cursor:pointer}
-    .admin-main{min-width:0}.admin-top{height:72px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.admin-top h1{font-size:1.18rem;margin:0}.admin-top-actions{display:flex;align-items:center;gap:10px}.admin-status{font-size:.84rem;color:var(--muted)}.admin-status[data-tipo="ok"]{color:var(--green)}.admin-status[data-tipo="error"]{color:#b42318}
-    .admin-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}.admin-btn:hover{border-color:#b9c9be}.admin-btn.primary{background:var(--green);border-color:var(--green);color:#fff}.admin-btn.primary:hover{background:var(--green2)}
-    .admin-content{padding:28px;max-width:1500px;margin:0 auto}.admin-hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}.admin-hero h2{font-size:1.7rem;margin:0 0 7px}.admin-hero p{margin:0;color:var(--muted);max-width:700px}.admin-hero-actions{display:flex;gap:9px;flex-wrap:wrap}
-    .admin-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:22px}.admin-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.admin-metric{padding:18px}.admin-metric span{display:block;color:var(--muted);font-size:.82rem;font-weight:700}.admin-metric strong{display:block;font-size:1.8rem;margin-top:8px;letter-spacing:-.03em}.admin-metric small{display:block;color:var(--muted);margin-top:5px}.admin-metric.alert strong{color:var(--warn)}
-    .admin-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,.85fr);gap:16px;margin-bottom:18px}.admin-panel-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.admin-panel-head h3{margin:0;font-size:1rem}.admin-panel-head p{margin:3px 0 0;color:var(--muted);font-size:.82rem}.admin-panel-body{padding:16px 18px}
-    .admin-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.admin-quick a{border:1px solid var(--line);border-radius:12px;padding:15px;background:var(--panel2);transition:.15s}.admin-quick a:hover{transform:translateY(-1px);border-color:#a9c9b3;background:#f2faf5}.admin-quick strong,.admin-quick span{display:block}.admin-quick span{color:var(--muted);font-size:.82rem;margin-top:4px;line-height:1.35}
-    .admin-provincia{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #edf1ee}.admin-provincia:last-child{border-bottom:0}.admin-provincia span{color:#34423a}.admin-provincia strong{font-variant-numeric:tabular-nums}.admin-vacio{color:var(--muted);font-size:.88rem}
-    .admin-table-wrap{overflow:auto}.admin-table{width:100%;border-collapse:collapse;min-width:850px}.admin-table th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;padding:11px 14px;border-bottom:1px solid var(--line);background:#fafcfb}.admin-table td{padding:13px 14px;border-bottom:1px solid #edf1ee;font-size:.88rem;vertical-align:middle}.admin-table td strong{display:block}.admin-table td small{display:block;color:#95a098;margin-top:3px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.admin-chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.74rem;font-weight:800;background:#eef2ef;color:#536158}.admin-chip.ok{background:#e8f7ed;color:#16713a}
-    @media(max-width:1180px){.admin-metrics{grid-template-columns:repeat(3,1fr)}.admin-grid{grid-template-columns:1fr}.admin-quick{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:820px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static;height:auto;padding:14px}.admin-nav{grid-template-columns:repeat(2,1fr)}.admin-nav .separador{display:none}.admin-side-foot{display:none}.admin-top{padding:0 16px}.admin-content{padding:18px}.admin-hero{display:block}.admin-hero-actions{margin-top:14px}.admin-metrics{grid-template-columns:repeat(2,1fr)}.admin-quick{grid-template-columns:1fr}}
-    @media(max-width:520px){.admin-metrics{grid-template-columns:1fr}.admin-top h1{font-size:1rem}.admin-status{display:none}}
-  </style>
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
 </head>
 <body>
 <div class="admin-shell">
@@ -36,14 +18,18 @@
     </a>
     <nav class="admin-nav" aria-label="Administración">
       <a class="activo" href="admin.html"><span>⌂</span>Resumen</a>
-      <a href="admin-editor.html"><span>▤</span>Talleres</a>
-      <a href="admin-editor.html"><span>＋</span>Altas y edición</a>
-      <a href="admin-editor.html"><span>✓</span>Revisiones</a>
+      <a href="admin-talleres.html"><span>▤</span>Talleres</a>
+      <a href="admin-altas.html"><span>＋</span>Altas recientes</a>
+      <a href="admin-revisiones.html"><span>✓</span>Revisiones</a>
+      <a href="admin-duplicados.html"><span>≋</span>Duplicados</a>
+      <a href="admin-actividad.html"><span>↻</span>Actividad</a>
       <div class="separador"></div>
-      <a href="../provincias/index.html"><span>⌖</span>Provincias</a>
-      <a href="../municipios/index.html"><span>◫</span>Municipios</a>
-      <a href="../index.html#servicios"><span>⚙</span>Servicios</a>
+      <a href="admin-cobertura.html"><span>⌖</span>Cobertura</a>
+      <a href="admin-servicios.html"><span>⚙</span>Servicios</a>
+      <a href="admin-calidad.html"><span>◇</span>Calidad de datos</a>
+      <a href="admin-estadisticas.html"><span>▥</span>Estadísticas</a>
       <a href="admin-exportar.html"><span>⇩</span>Exportaciones</a>
+      <a href="admin-salud.html"><span>●</span>Estado del sistema</a>
       <div class="separador"></div>
       <a href="../index.html" target="_blank" rel="noopener"><span>↗</span>Ver web pública</a>
     </nav>
@@ -70,8 +56,8 @@
           <p>Control de calidad, edición y mantenimiento de la base de datos desde un único punto.</p>
         </div>
         <div class="admin-hero-actions">
-          <a class="admin-btn" href="admin-editor.html">Buscar taller</a>
-          <a class="admin-btn primary" href="admin-editor.html">Editar talleres</a>
+          <a class="admin-btn" href="admin-talleres.html">Buscar taller</a>
+          <a class="admin-btn primary" href="admin-editor.html">Editor completo</a>
         </div>
       </section>
 
@@ -87,10 +73,17 @@
         <article class="admin-card">
           <div class="admin-panel-head"><div><h3>Acciones rápidas</h3><p>Las tareas más frecuentes del administrador.</p></div></div>
           <div class="admin-panel-body admin-quick">
-            <a href="admin-editor.html"><strong>Buscar y editar taller</strong><span>Localiza una ficha por nombre, teléfono, población o código postal.</span></a>
-            <a href="admin-editor.html"><strong>Completar datos</strong><span>Corrige teléfono, dirección, servicios, horarios y descripción.</span></a>
-            <a href="../municipios/index.html"><strong>Revisar directorio</strong><span>Comprueba el resultado público por municipios.</span></a>
+            <a href="admin-talleres.html"><strong>Buscar y gestionar talleres</strong><span>Localiza fichas, filtra, verifica y abre el editor exacto.</span></a>
+            <a href="admin-revisiones.html"><strong>Completar datos</strong><span>Prioriza fichas sin teléfono, dirección o código postal.</span></a>
+            <a href="admin-altas.html"><strong>Seguir altas recientes</strong><span>Revisa las nuevas fichas de las últimas horas o días.</span></a>
+            <a href="admin-duplicados.html"><strong>Revisar duplicados</strong><span>Detecta posibles coincidencias antes de fusionar nada.</span></a>
+            <a href="admin-actividad.html"><strong>Ver actividad</strong><span>Consulta el historial de cambios sobre los talleres.</span></a>
+            <a href="admin-cobertura.html"><strong>Revisar cobertura</strong><span>Compara provincias, municipios y datos geográficos incompletos.</span></a>
+            <a href="admin-servicios.html"><strong>Analizar servicios</strong><span>Comprueba el uso del catálogo y valores no reconocidos.</span></a>
+            <a href="admin-calidad.html"><strong>Auditar calidad de datos</strong><span>Detecta formatos dudosos en campos importantes.</span></a>
+            <a href="admin-estadisticas.html"><strong>Ver estadísticas</strong><span>Consulta crecimiento, completitud y reparto territorial.</span></a>
             <a href="admin-exportar.html"><strong>Exportar talleres</strong><span>Genera un CSV filtrado sin modificar la base de datos.</span></a>
+            <a href="admin-salud.html"><strong>Estado del sistema</strong><span>Comprueba sesión, permisos y acceso a tablas esenciales.</span></a>
           </div>
         </article>
 
@@ -101,7 +94,7 @@
       </section>
 
       <section class="admin-card">
-        <div class="admin-panel-head"><div><h3>Últimos talleres añadidos</h3><p>Las 10 incorporaciones más recientes.</p></div><a class="admin-btn" href="admin-editor.html">Abrir editor</a></div>
+        <div class="admin-panel-head"><div><h3>Últimos talleres añadidos</h3><p>Las 10 incorporaciones más recientes.</p></div><a class="admin-btn" href="admin-altas.html">Ver altas recientes</a></div>
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead><tr><th>Taller</th><th>Población</th><th>Provincia</th><th>Teléfono</th><th>Estado</th><th>Alta</th></tr></thead>
