@@ -19,6 +19,23 @@
         enlace.href="admin-talleres.html";
       }
     });
+
+    const nav=document.querySelector(".admin-nav");
+    if(nav&&!nav.querySelector('a[href="admin-actividad.html"]')){
+      const separador=nav.querySelector(".separador");
+      const enlace=document.createElement("a");
+      enlace.href="admin-actividad.html";
+      enlace.innerHTML="<span>↻</span>Actividad";
+      nav.insertBefore(enlace,separador||null);
+    }
+
+    const acciones=document.querySelector(".admin-quick");
+    if(acciones&&!acciones.querySelector('a[href="admin-actividad.html"]')){
+      const enlace=document.createElement("a");
+      enlace.href="admin-actividad.html";
+      enlace.innerHTML="<strong>Ver actividad</strong><span>Consulta el historial de cambios registrados sobre los talleres.</span>";
+      acciones.appendChild(enlace);
+    }
   }
 
   async function proteger(){
