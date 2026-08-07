@@ -128,7 +128,10 @@
         return;
       }
 
-      const {error}=await supabase.from("talleres").update(propuesta.cambios).eq("id",id);
+      const {error}=await supabase.rpc("aplicar_autocompletado_seguro_admin",{
+        p_taller_id:id,
+        p_cambios:propuesta.cambios
+      });
       if(error)throw error;
       $("admin-estado").textContent="Sugerencias seguras aplicadas";
       await cargar();
