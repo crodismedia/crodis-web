@@ -43,9 +43,10 @@
         <article class="admin-card admin-metric alert"><span>Pendientes</span><strong id="claim-pending">—</strong><small>Requieren revisión</small></article>
         <article class="admin-card admin-metric"><span>Aprobadas</span><strong id="claim-approved">—</strong><small>Fichas asociadas</small></article>
         <article class="admin-card admin-metric"><span>Rechazadas</span><strong id="claim-rejected">—</strong><small>Solicitudes no aceptadas</small></article>
+        <article class="admin-card admin-metric"><span>Revocadas</span><strong id="claim-revoked">—</strong><small>Accesos retirados</small></article>
       </section>
       <section class="admin-card">
-        <div class="admin-panel-head"><div><h3>Solicitudes</h3><p>La aprobación vincula la cuenta del solicitante con la ficha.</p></div><select id="claim-filter" class="admin-btn"><option value="pendiente">Pendientes</option><option value="todas">Todas</option><option value="aprobada">Aprobadas</option><option value="rechazada">Rechazadas</option></select></div>
+        <div class="admin-panel-head"><div><h3>Solicitudes</h3><p>La aprobación vincula la cuenta del solicitante con la ficha. Una aprobación puede revocarse sin borrar el historial.</p></div><select id="claim-filter" class="admin-btn"><option value="pendiente">Pendientes</option><option value="todas">Todas</option><option value="aprobada">Aprobadas</option><option value="rechazada">Rechazadas</option><option value="revocada">Revocadas</option></select></div>
         <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Taller</th><th>Solicitante</th><th>Relación</th><th>Información</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody id="claim-table"><tr><td colspan="7">Cargando…</td></tr></tbody></table></div>
       </section>
     </div>
