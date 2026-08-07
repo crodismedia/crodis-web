@@ -45,16 +45,16 @@
   </section>
   <section class="tm-pane">
     <div class="tm-pane-head">
-      <h2>Navegador de apoyo</h2><p>Yandex para investigar y Google Maps para localizar la ficha abierta.</p>
-      <div class="tm-browser-tools"><input id="navegador-url" type="text" placeholder="Escribe una URL o una búsqueda"><button id="btn-ir" class="tm-btn tm-btn-primary" type="button">Ir</button></div>
-      <div class="tm-browser-actions"><button id="btn-yandex" class="tm-btn tm-btn-primary active" type="button">Yandex</button><button id="btn-maps" class="tm-btn tm-btn-soft" type="button">Google Maps</button><button id="btn-abrir-fuera" class="tm-btn tm-btn-soft" type="button">Abrir fuera</button></div>
+      <h2>Navegador de apoyo</h2><p>Busca directamente dentro del panel derecho, sin abrir ventanas nuevas.</p>
+      <div class="tm-browser-tools"><input id="navegador-url" type="search" placeholder="Buscar en Yandex o escribir una URL"><button id="btn-ir" class="tm-btn tm-btn-primary" type="button">Buscar</button></div>
+      <div class="tm-browser-actions"><button id="btn-yandex" class="tm-btn tm-btn-primary active" type="button">Yandex</button><button id="btn-maps" class="tm-btn tm-btn-soft" type="button">Google Maps</button></div>
     </div>
-    <div class="tm-browser-wrap"><div id="navegador-vacio" class="tm-browser-empty">Selecciona una ficha o escribe una dirección para navegar.</div><iframe id="visor-navegador" class="tm-browser" title="Navegador de apoyo" hidden loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe></div>
+    <div class="tm-browser-wrap"><div id="navegador-vacio" class="tm-browser-empty">Selecciona una ficha o escribe una búsqueda arriba.</div><iframe id="visor-navegador" class="tm-browser" title="Navegador de apoyo" hidden loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-forms allow-modals allow-same-origin allow-scripts"></iframe></div>
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-editor-v2.js"></script>
+<script src="../js/admin-editor-v2.js?v=2"></script>
 <script src="../js/admin-internal-url.js"></script>
 <script src="../js/admin-gallery.js"></script>
 <script src="../js/admin-structured-fields.js"></script>
