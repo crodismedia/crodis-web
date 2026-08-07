@@ -28,7 +28,27 @@
   async function metricas(){const rs=await Promise.allSettled([contar(q=>q.eq("aprobada",false).eq("activa",true)),contar(q=>q.eq("aprobada",true).eq("activa",true)),contar(q=>q.eq("activa",false)),puntuacionesPublicadas()]);$("val-pendientes").textContent=rs[0].status==="fulfilled"?num(rs[0].value):"—";$("val-publicadas").textContent=rs[1].status==="fulfilled"?num(rs[1].value):"—";$("val-rechazadas").textContent=rs[2].status==="fulfilled"?num(rs[2].value):"—";if(rs[3].status==="fulfilled"&&rs[3].value.length){const a=rs[3].value.reduce((s,r)=>s+(Number(r.puntuacion)||0),0)/rs[3].value.length;$("val-media").textContent=a.toFixed(2).replace(".",",");}else $("val-media").textContent="—";}
 
   async function idsTalleresPorNombre(termino){if(!termino)return [];const {data,error}=await supabase.from("talleres").select("id").ilike("nombre",`%${termino}%`).limit(50);return error?[]:(data||[]).map(x=>x.id).filter(Boolean);}
-  async function aplicarFiltros(q){const est=$("val-estado").value;const puntuacion=$("val-puntuacion").value;const bus=limpio($("val-busqueda").value).replace(/[,%().]/g," ").replace(/\s+/g," ").slice(0,80);if(est==="pendiente")q=q.eq("aprobada",false).eq("activa",true);else if(est==="publicada")q=q.eq("aprobada",true).eq("activa",true);else if(est==="rechazada")q=q.eq("activa",false);if(puntuacion)q=q.eq("puntuacion",Number(puntuacion));if(bus){const ids=await idsTalleresPorNombre(bus);const partes=[`nombre_cliente.ilike.%${bus}%`,`titulo.ilike.%${bus}%`,`comentario.ilike.%${bus}%`];if(ids.length)partes.push(`taller_id.in.(${ids.join(",")})`);q=q.or(partes.join(","));}return q;}
+
+  async function prepararBusqueda(){
+    const bus=limpio($("val-busqueda").value).replace(/[,%().]/g," ").replace(/\s+/g," ").slice(0,80);
+    const ids=bus?await idsTalleresPorNombre(bus):[];
+    return {bus,ids};
+  }
+
+  function aplicarFiltros(q,bus,ids){
+    const est=$("val-estado").value;
+    const puntuacion=$("val-puntuacion").value;
+    if(est==="pendiente")q=q.eq("aprobada",false).eq("activa",true);
+    else if(est==="publicada")q=q.eq("aprobada",true).eq("activa",true);
+    else if(est==="rechazada")q=q.eq("activa",false);
+    if(puntuacion)q=q.eq("puntuacion",Number(puntuacion));
+    if(bus){
+      const partes=[`nombre_cliente.ilike.%${bus}%`,`titulo.ilike.%${bus}%`,`comentario.ilike.%${bus}%`];
+      if(ids.length)partes.push(`taller_id.in.(${ids.join(",")})`);
+      q=q.or(partes.join(","));
+    }
+    return q;
+  }
 
   async function mapaTalleres(datos){
     const ids=[...new Set((datos||[]).map(r=>r.taller_id).filter(Boolean))];
@@ -48,8 +68,9 @@
     estado("Cargando reseñas…");
     const cuerpo=$("tabla-valoraciones");
     try{
+      const {bus,ids}=await prepararBusqueda();
       let q=supabase.from("valoraciones").select("id,taller_id,nombre_cliente,puntuacion,titulo,comentario,aprobada,activa,created_at",{count:"exact"});
-      q=await aplicarFiltros(q);q=q.order("created_at",{ascending:false}).range(pagina*PAGE,pagina*PAGE+PAGE-1);
+      q=aplicarFiltros(q,bus,ids).order("created_at",{ascending:false}).range(pagina*PAGE,pagina*PAGE+PAGE-1);
       const respuesta=await conTimeout(q,{data:null,count:0,error:new Error("Tiempo de espera agotado al cargar reseñas")});
       const {data,count,error}=respuesta||{};
       if(error)throw error;
