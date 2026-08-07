@@ -195,6 +195,12 @@
     }
 
     function actualizarDatosEstructurados() {
+        const ruta = window.location.pathname;
+        const esPaginaFicha = ruta === LEGACY_PATH
+            || ruta.startsWith(CLEAN_PREFIX)
+            || Boolean(document.getElementById("taller-nombre"));
+        if (!esPaginaFicha) return;
+
         corregirPresentacionFicha();
 
         const nombre = document.getElementById("taller-nombre")?.textContent.trim() || "";
