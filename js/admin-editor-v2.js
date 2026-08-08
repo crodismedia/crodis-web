@@ -49,24 +49,15 @@
     if(botonGuardar)botonGuardar.disabled=true;
     msg('Eliminando ficha de Supabase…');
 
-    const {data,error}=await supabase
-      .from('talleres')
-      .delete()
-      .eq('id',id)
-      .select('id')
-      .maybeSingle();
+    const {error}=await supabase.rpc('admin_eliminar_taller',{
+      p_taller_id:id,
+      p_eliminar_solicitud:true
+    });
 
     if(error){
       botonEliminar.disabled=false;
       if(botonGuardar)botonGuardar.disabled=false;
       msg(`No se pudo eliminar: ${error.message}`);
-      return;
-    }
-
-    if(!data?.id){
-      botonEliminar.disabled=false;
-      if(botonGuardar)botonGuardar.disabled=false;
-      msg('No se eliminó la ficha. Comprueba el permiso de eliminación en Supabase.');
       return;
     }
 
