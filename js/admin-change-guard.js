@@ -116,6 +116,12 @@
       setTimeout(capturar,30);
     },true);
 
+    document.addEventListener('tallermap:ficha-eliminada',()=>{
+      tallerId='';
+      original={};
+      renderizar();
+    });
+
     const estado=$('estado-ficha');
     if(estado){
       new MutationObserver(()=>{

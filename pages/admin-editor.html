@@ -9,7 +9,7 @@
   <style>
     :root{--b:#dfe3e8;--bg:#f5f7f9;--ink:#17202a;--muted:#667085}
     *{box-sizing:border-box}body{margin:0}.tm-admin{min-height:100vh;background:var(--bg);color:var(--ink)}
-    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}.tm-top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}
+    .tm-top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:#111827;color:#fff}.tm-top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tm-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.tm-btn-primary{background:#16a34a;color:#fff}.tm-btn-soft{background:#fff;color:#111827}.tm-btn-danger{background:#dc2626;color:#fff}.tm-btn:disabled{opacity:.55;cursor:not-allowed}
     .tm-editor{max-width:1180px;margin:0 auto;padding:18px}.tm-card{background:#fff;border:1px solid var(--b);border-radius:16px;overflow:hidden}.tm-head{padding:16px;border-bottom:1px solid var(--b)}.tm-head h1{margin:0 0 5px;font-size:1.25rem}.tm-head p{margin:0;color:var(--muted)}.tm-body{padding:16px}
     .tm-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:10px 11px;background:#fff;font:inherit}textarea{resize:vertical;min-height:92px}.tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff;text-align:left}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
     .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.97);border-top:1px solid var(--b);z-index:5}.tm-status{font-size:.85rem;color:var(--muted);margin-top:10px}
@@ -44,7 +44,7 @@
         <div class="tm-field full"><label>Servicios</label><textarea id="servicios"></textarea></div>
         <div class="tm-field full"><label>Horarios</label><textarea id="horarios"></textarea></div>
         <div class="tm-field full"><label>Descripción</label><textarea id="descripcion"></textarea></div>
-        <div class="tm-savebar full"><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
+        <div class="tm-savebar full"><button id="btn-eliminar-ficha" type="button" class="tm-btn tm-btn-danger" style="margin-right:auto" disabled>Eliminar ficha</button><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
       </form>
       <p id="estado-ficha" class="tm-status">Busca y selecciona un taller.</p>
     </div>
@@ -52,11 +52,11 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-editor-v2.js?v=6"></script>
+<script src="../js/admin-editor-v2.js?v=7"></script>
 <script src="../js/admin-internal-url.js"></script>
 <script src="../js/admin-gallery.js"></script>
 <script src="../js/admin-structured-fields.js"></script>
 <script src="../js/admin-batch-nav.js?v=3"></script>
-<script src="../js/admin-change-guard.js"></script>
+<script src="../js/admin-change-guard.js?v=2"></script>
 </body>
 </html>
