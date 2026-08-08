@@ -11,7 +11,7 @@
   function txt(v){return String(v??'').trim();}
   function norm(v){return txt(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
   function digitos(v){return txt(v).replace(/\D/g,'');}
-  function tamanoLote(){return Math.max(1,Math.min(100,Number($('lote-tamano')?.value||50)));}
+  function tamanoLote(){return Math.max(1,Math.min(200,Number($('lote-tamano')?.value||200)));}
 
   async function proteger(){
     if(!supabase){$('admin-estado').textContent='Sin conexión';return false;}
