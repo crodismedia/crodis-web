@@ -42,7 +42,7 @@
   <main class="admin-main">
     <header class="admin-top"><h1>Completar fichas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
     <div class="admin-content">
-      <section class="admin-hero"><div><h2>Cola de trabajo por lotes</h2><p>Filtra las fichas y resuelve grupos de 25, 50 o 100. La revisión manual avanza ficha a ficha; el lote seguro solo aplica normalizaciones deterministas.</p></div></section>
+      <section class="admin-hero"><div><h2>Cola de trabajo por lotes</h2><p>Filtra las fichas y resuelve grupos de 25, 50, 100 o 200. La revisión manual avanza ficha a ficha; el lote seguro solo aplica normalizaciones deterministas.</p></div></section>
 
       <section class="admin-metrics">
         <article class="admin-card admin-metric"><span>Talleres</span><strong id="cola-total">—</strong><small>Registros analizados</small></article>
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="batch-bar">
-          <div class="admin-field"><label for="lote-tamano">Tamaño del lote</label><select id="lote-tamano"><option value="25">25 fichas</option><option value="50" selected>50 fichas</option><option value="100">100 fichas</option></select></div>
+          <div class="admin-field"><label for="lote-tamano">Tamaño del lote</label><select id="lote-tamano"><option value="25">25 fichas</option><option value="50">50 fichas</option><option value="100">100 fichas</option><option value="200" selected>200 fichas</option></select></div>
           <button id="btn-revisar-lote" class="admin-btn primary" type="button">Revisar lote</button>
           <button id="btn-lote-seguro" class="admin-btn" type="button">Aplicar lote seguro</button>
           <button id="btn-detener-lote" class="admin-btn" type="button" hidden>Detener</button>
@@ -74,6 +74,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-autocompletar.js?v=7"></script>
+<script src="../js/admin-autocompletar.js?v=8"></script>
 </body>
 </html>
