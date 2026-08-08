@@ -5,6 +5,7 @@
   const form=$('form-taller');
   const resultados=$('resultados-talleres');
   const botonEliminar=$('btn-eliminar-ficha');
+  const botonMaps=$('btn-google-maps');
   const campos=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia','descripcion'];
   const editables=[...campos,'servicios','horarios'];
   let originales={};
@@ -13,6 +14,15 @@
   function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));}
   function msg(t,ok=false){if(!$('estado-ficha'))return;$('estado-ficha').textContent=t;$('estado-ficha').style.color=ok?'#15803d':'#667085';}
   function urlWeb(v){const x=String(v||'').trim();return !x?'':/^https?:\/\//i.test(x)?x:`https://${x}`;}
+
+  function abrirGoogleMaps(){
+    if(!valor('taller-id'))return;
+    const ubicacion=[valor('codigo_postal'),valor('ciudad'),valor('provincia')].filter(Boolean).join(' ');
+    const consulta=[valor('nombre'),valor('direccion'),ubicacion,valor('telefono')].filter(Boolean).join(' · ');
+    if(!consulta){msg('Esta ficha no tiene datos suficientes para buscarla en Google Maps.');return;}
+    const url=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`;
+    window.open(url,'_blank','noopener,noreferrer');
+  }
 
   function retirarDelLote(id){
     try{
@@ -100,6 +110,7 @@
     originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));
     form.hidden=false;
     if(botonEliminar)botonEliminar.disabled=false;
+    if(botonMaps)botonMaps.disabled=false;
     resultados.innerHTML='';
     editables.forEach(id=>$(id)?.dispatchEvent(new Event('input',{bubbles:true})));
     msg(`Editando: ${t.nombre}`,true);
@@ -136,6 +147,7 @@
   $('buscar-taller')?.addEventListener('input',()=>{if(valor('buscar-taller').length<2)resultados.innerHTML='';});
   form?.addEventListener('submit',guardar);
   botonEliminar?.addEventListener('click',eliminarFicha);
+  botonMaps?.addEventListener('click',abrirGoogleMaps);
   $('boton-cerrar-sesion')?.addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('admin-login.html');});
 
   proteger().then(ok=>{
