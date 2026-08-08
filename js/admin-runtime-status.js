@@ -32,7 +32,13 @@
     panel.id='estado-plataforma';
     panel.className='tm-field full';
     panel.innerHTML='<label>Estado de la plataforma</label><div id="estado-plataforma-contenido" style="display:grid;gap:7px;padding:10px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc"><span class="tm-status">Comprobando conexión, sesión y módulos…</span></div><button id="btn-recomprobar-plataforma" type="button" class="tm-btn tm-btn-soft" style="justify-self:start">Comprobar de nuevo</button>';
-    form.insertBefore(panel,form.firstElementChild?.nextSibling||null);
+    const barraGuardado = form.querySelector('.tm-savebar');
+
+if(barraGuardado){
+  form.insertBefore(panel, barraGuardado);
+}else{
+  form.appendChild(panel);
+}
     $('btn-recomprobar-plataforma')?.addEventListener('click',comprobar);
     setTimeout(comprobar,50);
   }
