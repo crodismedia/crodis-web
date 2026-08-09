@@ -62,6 +62,19 @@
             .trim();
     }
 
+    function resolverServicio(selector, valor) {
+        const solicitado = terminoSeguro(valor);
+        if (!solicitado) return "";
+
+        const normalizado = normalizarTexto(solicitado);
+        const opcion = [...(selector?.options || [])].find(elemento =>
+            normalizarTexto(elemento.value) === normalizado
+            || normalizarTexto(elemento.textContent) === normalizado
+        );
+
+        return opcion?.value || solicitado;
+    }
+
     function codigoMunicipioPreferente(ubicacion) {
         return CODIGOS_CAPITALES.get(normalizarTexto(ubicacion)) || "";
     }
@@ -322,8 +335,9 @@
         }
 
         const servicioUrl = new URLSearchParams(window.location.search).get("servicio") || "";
-        if ([...selector.options].some(opcion => opcion.value === servicioUrl)) {
-            selector.value = servicioUrl;
+        const servicioResuelto = resolverServicio(selector, servicioUrl);
+        if ([...selector.options].some(opcion => opcion.value === servicioResuelto)) {
+            selector.value = servicioResuelto;
         }
     }
 
@@ -500,13 +514,14 @@
             await promesaServicios.catch(() => undefined);
         }
 
-        if (servicio && servicioUrl && [...servicio.options].some(opcion => opcion.value === servicioUrl)) {
-            servicio.value = servicioUrl;
+        const servicioResuelto = resolverServicio(servicio, servicioUrl);
+        if (servicio && servicioResuelto && [...servicio.options].some(opcion => opcion.value === servicioResuelto)) {
+            servicio.value = servicioResuelto;
         }
 
         cargarTalleres(
             poblacion?.value || poblacionUrl,
-            servicio?.value || servicioUrl,
+            servicio?.value || servicioResuelto,
             true
         );
     }
