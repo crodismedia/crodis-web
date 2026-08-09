@@ -60,17 +60,17 @@
 
   function provinciaCanonica(v){
     const p=norm(v);
-    if(p.includes('alicante')||p.includes('alacant'))return 'Alicante';
+    if(p.includes('alicante')||p.includes('alacant'))return 'Alicante/Alacant';
     if(p.includes('castellon')||p.includes('castello'))return 'Castellón/Castelló';
-    if(p.includes('valencia'))return 'Valencia';
+    if(p.includes('valencia'))return 'Valencia/València';
     return txt(v);
   }
 
   function provinciaPorCp(cp){
     const p=digitos(cp).slice(0,2);
-    if(p==='03')return 'Alicante';
+    if(p==='03')return 'Alicante/Alacant';
     if(p==='12')return 'Castellón/Castelló';
-    if(p==='46')return 'Valencia';
+    if(p==='46')return 'Valencia/València';
     return '';
   }
 
