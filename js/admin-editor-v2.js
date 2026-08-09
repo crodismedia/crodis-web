@@ -1,5 +1,6 @@
 (function(){
   'use strict';
+
   const $=id=>document.getElementById(id);
   const supabase=window.supabaseClient;
   const form=$('form-taller');
@@ -106,7 +107,11 @@
     $('taller-id').value=t.id;
     campos.forEach(c=>$(c).value=t[c]??'');
     $('servicios').value=Array.isArray(t.servicios)?t.servicios.join('\n'):(t.servicios??'');
-    $('horarios').value=typeof t.horarios==='string'?t.horarios:JSON.stringify(t.horarios??{},null,2);
+    $('horarios').value=t.horarios==null
+      ?''
+      :typeof t.horarios==='string'
+        ?t.horarios
+        :JSON.stringify(t.horarios,null,2);
     originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));
     form.hidden=false;
     if(botonEliminar)botonEliminar.disabled=false;
@@ -116,29 +121,85 @@
     msg(`Editando: ${t.nombre}`,true);
   }
 
-  function serviciosPayload(){return valor('servicios').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);}
-  function horariosPayload(){const txt=valor('horarios');if(!txt)return {};try{return JSON.parse(txt);}catch{return {texto:txt};}}
+  function serviciosPayload(){
+    return valor('servicios').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
+  }
+
+  function horariosPayload(){
+    const texto=valor('horarios');
+    if(!texto)return null;
+
+    let horarios;
+    try{
+      horarios=JSON.parse(texto);
+    }catch{
+      throw new Error('El horario no contiene un JSON válido. Revisa los siete días antes de guardar.');
+    }
+
+    if(horarios==null)return null;
+
+    const herramienta=window.TallerMapHorarios;
+    if(herramienta?.normalizar)horarios=herramienta.normalizar(horarios);
+    if(herramienta?.validar){
+      const resultado=herramienta.validar(horarios);
+      if(!resultado.valido)throw new Error(resultado.mensaje||'El horario semanal no es válido.');
+    }
+
+    return horarios;
+  }
+
+  function mensajeErrorGuardar(error){
+    const detalle=String(error?.message||error||'').toLowerCase();
+    if(detalle.includes('horarios_no_validos')||(error?.code==='23514'&&detalle.includes('horario'))){
+      return 'Los horarios no son válidos. Completa los siete días, marca los días cerrados y revisa que cada cierre sea posterior a su apertura.';
+    }
+    return error?.message||'Error desconocido al guardar la ficha.';
+  }
 
   async function guardar(e){
     e.preventDefault();
     const id=valor('taller-id');
     if(!id)return;
+
     const payload={};
     campos.forEach(c=>payload[c]=valor(c));
     payload.web=urlWeb(payload.web);
     payload.servicios=serviciosPayload();
-    payload.horarios=horariosPayload();
+
+    try{
+      payload.horarios=horariosPayload();
+    }catch(error){
+      msg(error.message);
+      $('horarios-estructurados')?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+
+    const botonGuardar=form?.querySelector('button[type="submit"]');
+    if(botonGuardar)botonGuardar.disabled=true;
     msg('Guardando cambios…');
-    const {error}=await supabase.from('talleres').update(payload).eq('id',id);
-    if(error){msg(`No se pudo guardar: ${error.message}`);return;}
-    originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));
-    msg('Ficha guardada correctamente en Supabase.',true);
-    if(new URLSearchParams(location.search).get('cola')==='1'){
-      const bar=form.querySelector('.tm-savebar');
-      if(bar&&!document.getElementById('btn-volver-cola')){
-        const volver=document.createElement('a');
-        volver.id='btn-volver-cola';volver.className='tm-btn tm-btn-soft';volver.href='admin-autocompletar.html';volver.textContent='Volver a pendientes';bar.prepend(volver);
+
+    try{
+      const {error}=await supabase.from('talleres').update(payload).eq('id',id);
+      if(error)throw error;
+
+      originales=Object.fromEntries(editables.map(campo=>[campo,valor(campo)]));
+      msg('Ficha guardada correctamente en Supabase.',true);
+
+      if(new URLSearchParams(location.search).get('cola')==='1'){
+        const bar=form.querySelector('.tm-savebar');
+        if(bar&&!document.getElementById('btn-volver-cola')){
+          const volver=document.createElement('a');
+          volver.id='btn-volver-cola';
+          volver.className='tm-btn tm-btn-soft';
+          volver.href='admin-autocompletar.html';
+          volver.textContent='Volver a pendientes';
+          bar.prepend(volver);
+        }
       }
+    }catch(error){
+      msg(`No se pudo guardar: ${mensajeErrorGuardar(error)}`);
+    }finally{
+      if(botonGuardar)botonGuardar.disabled=false;
     }
   }
 
