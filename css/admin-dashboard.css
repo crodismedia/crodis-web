@@ -29,6 +29,8 @@ button,input,select,textarea{font:inherit}
 .admin-btn:hover{border-color:#b9c9be}
 .admin-btn.primary{background:var(--green);border-color:var(--green);color:#fff}
 .admin-btn.primary:hover{background:var(--green2)}
+.admin-btn.danger{color:#b42318;border-color:#f0c9c5;background:#fff8f7}
+.admin-btn:disabled{opacity:.55;cursor:not-allowed}
 .admin-content{padding:28px;max-width:1500px;margin:0 auto}
 .admin-hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}
 .admin-hero h2{font-size:1.7rem;line-height:1.15;margin:0 0 7px}
@@ -65,6 +67,10 @@ button,input,select,textarea{font:inherit}
 .admin-chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.74rem;font-weight:800;background:#eef2ef;color:#536158}
 .admin-chip.ok{background:#e8f7ed;color:#16713a}
 .admin-chip.soft{background:#f1f4f2;color:#66736b}
+.admin-chip.warn{background:#fff4e5;color:#9a4d04}
+.admin-chip.danger{background:#fff0ee;color:#b42318}
+.admin-row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.admin-table td.admin-description{min-width:240px;max-width:360px;white-space:normal}
 .admin-toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
 .admin-field{display:grid;gap:6px;min-width:180px}
 .admin-field.grow{flex:1;min-width:240px}
