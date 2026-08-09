@@ -110,7 +110,6 @@
             }
         }
         hideBanner();
-        renderPreferencesButton();
     }
 
     function createBanner() {
@@ -181,22 +180,8 @@
         }
     }
 
-    function renderPreferencesButton() {
-        if (document.querySelector('[data-cookie-preferences-button]')) {
-            return;
-        }
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'cookie-preferences-button';
-        button.dataset.cookiePreferencesButton = 'true';
-        button.textContent = 'Configurar cookies';
-        button.addEventListener('click', openPreferences);
-        document.body.appendChild(button);
-    }
-
     function init() {
         const choice = readChoice();
-        renderPreferencesButton();
 
         document.addEventListener('click', function (event) {
             const trigger = event.target.closest('[data-cookie-preferences]');
