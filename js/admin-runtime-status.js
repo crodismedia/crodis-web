@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id);
   const supabase=window.supabaseClient;
   const MODULOS=[
-    ['Editor','admin-shell.js'],
+    ['Editor','admin-editor-v2.js'],
     ['Galería','admin-gallery.js'],
     ['Servicios y horarios','admin-structured-fields.js'],
     ['Protección de cambios','admin-change-guard.js'],
@@ -17,9 +17,9 @@
   ];
 
   function cargarGuardado(){
-    if([...document.scripts].some(s=>(s.src||'').endsWith('admin-save-guard.js')))return;
+    if([...document.scripts].some(s=>(s.src||'').split('?')[0].endsWith('/js/admin-save-guard.js')))return;
     const script=document.createElement('script');
-    script.src='../js/admin-save-guard.js';
+    script.src='../js/admin-save-guard.js?v=2';
     script.async=false;
     document.body.appendChild(script);
   }
@@ -74,7 +74,7 @@ if(barraGuardado){
     }
 
     MODULOS.forEach(([nombre,archivo])=>{
-      const cargado=[...document.scripts].some(script=>(script.src||'').endsWith('/js/'+archivo)||script.src?.endsWith(archivo));
+      const cargado=[...document.scripts].some(script=>{const ruta=(script.src||'').split('?')[0];return ruta.endsWith('/js/'+archivo)||ruta.endsWith(archivo);});
       resultados.push(fila(cargado,nombre,cargado?'':'(módulo no cargado)'));
     });
 
