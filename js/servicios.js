@@ -1,3 +1,22 @@
+(function cargarConsentimiento() {
+    if (window.__tallerMapConsentBootstrap || window.TallerMapCookies) return;
+    window.__tallerMapConsentBootstrap = true;
+
+    if (!document.querySelector('link[href$="cookie-consent.css"]')) {
+        const style = document.createElement("link");
+        style.rel = "stylesheet";
+        style.href = "/css/cookie-consent.css";
+        document.head.appendChild(style);
+    }
+
+    if (!document.querySelector('script[src$="cookie-consent.js"]')) {
+        const script = document.createElement("script");
+        script.src = "/js/cookie-consent.js";
+        script.async = false;
+        document.head.appendChild(script);
+    }
+}());
+
 (function () {
     "use strict";
 
