@@ -10,7 +10,7 @@ function escapeHTML(value) {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
+        .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#39;");
 }
 
@@ -103,6 +103,65 @@ function injectWorkshopLinks(html, workshopHTML) {
     return html.replace(pattern, `$1${workshopHTML}$3`);
 }
 
+function injectMobileMenu(html) {
+    const styles = `
+<style id="tallermap-menu-movil-estilos">
+.menu-movil-boton,.menu-movil-panel{display:none}
+@media(max-width:1050px){
+.cabecera-contenido{position:relative}
+.menu-movil-boton{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;width:46px;height:46px;margin-left:auto;padding:0;color:#071a33;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 8px 20px rgba(20,36,64,.08);cursor:pointer}
+.menu-movil-boton span,.menu-movil-boton:before,.menu-movil-boton:after{display:block;width:22px;height:2px;content:"";background:currentColor;border-radius:4px;transition:transform .2s ease,opacity .2s ease}
+.menu-movil-boton[aria-expanded="true"] span{opacity:0}
+.menu-movil-boton[aria-expanded="true"]:before{transform:translateY(7px) rotate(45deg)}
+.menu-movil-boton[aria-expanded="true"]:after{transform:translateY(-7px) rotate(-45deg)}
+.menu-movil-panel{position:absolute;top:100%;right:0;left:0;z-index:120;padding:10px 20px 18px;background:rgba(255,255,255,.99);border-bottom:1px solid #dfe6ef;box-shadow:0 18px 30px rgba(20,36,64,.12)}
+.menu-movil-panel.abierto{display:grid;gap:4px}
+.menu-movil-panel a{display:block;padding:13px 14px;color:#071a33;font-weight:800;border-radius:10px}
+.menu-movil-panel a:hover,.menu-movil-panel a:focus-visible{background:#eaf2ff;outline:none}
+.menu-movil-panel .menu-movil-registro{margin-top:5px;color:#fff;text-align:center;background:linear-gradient(135deg,#1457d9,#0b43ad)}
+}
+@media(max-width:750px){.cabecera-contenido{min-height:68px;gap:12px}.acciones-cabecera{display:none}.marca-texto strong{font-size:20px}}
+</style>`;
+
+    const script = `
+<script id="tallermap-menu-movil-script">
+(function(){
+'use strict';
+var header=document.querySelector('.cabecera-contenido');
+var desktopMenu=document.querySelector('.menu');
+if(!header||!desktopMenu||document.querySelector('.menu-movil-boton'))return;
+var button=document.createElement('button');
+button.type='button';
+button.className='menu-movil-boton';
+button.setAttribute('aria-label','Abrir menú de navegación');
+button.setAttribute('aria-expanded','false');
+button.setAttribute('aria-controls','menu-movil-panel');
+button.innerHTML='<span aria-hidden="true"></span>';
+var panel=document.createElement('nav');
+panel.id='menu-movil-panel';
+panel.className='menu-movil-panel';
+panel.setAttribute('aria-label','Navegación móvil');
+Array.from(desktopMenu.querySelectorAll('a')).forEach(function(link){panel.appendChild(link.cloneNode(true));});
+var register=document.createElement('a');
+register.href='/pages/registro.html';
+register.className='menu-movil-registro';
+register.textContent='Registrar taller';
+panel.appendChild(register);
+var actions=header.querySelector('.acciones-cabecera');
+header.insertBefore(button,actions||null);
+header.appendChild(panel);
+function closeMenu(){button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menú de navegación');panel.classList.remove('abierto');}
+button.addEventListener('click',function(){var open=button.getAttribute('aria-expanded')==='true';if(open){closeMenu();}else{button.setAttribute('aria-expanded','true');button.setAttribute('aria-label','Cerrar menú de navegación');panel.classList.add('abierto');}});
+panel.addEventListener('click',function(event){if(event.target.closest('a'))closeMenu();});
+document.addEventListener('click',function(event){if(!panel.classList.contains('abierto'))return;if(!panel.contains(event.target)&&!button.contains(event.target))closeMenu();});
+document.addEventListener('keydown',function(event){if(event.key==='Escape')closeMenu();});
+window.addEventListener('resize',function(){if(window.innerWidth>1050)closeMenu();});
+}());
+</script>`;
+
+    return html.replace("</head>", `${styles}\n</head>`).replace("</body>", `${script}\n</body>`);
+}
+
 export default async function handler(_request, response) {
     let html;
 
@@ -122,6 +181,8 @@ export default async function handler(_request, response) {
         console.error("No se pudieron renderizar talleres iniciales:", error);
         response.setHeader("X-TallerMap-Initial-Workshop-Links", "0");
     }
+
+    html = injectMobileMenu(html);
 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=3600");
