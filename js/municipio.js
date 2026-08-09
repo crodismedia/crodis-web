@@ -4,6 +4,14 @@
     const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
     const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
     const PAGE_SIZE = 30;
+    const BASE_TITLE = document.title;
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    const robotsMeta = document.querySelector('meta[name="robots"]');
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    const BASE_DESCRIPTION = descriptionMeta?.content || "";
+    const BASE_CANONICAL = new URL(
+        canonicalLink?.href || `${window.location.origin}${window.location.pathname}`
+    );
 
     if (!window.supabase?.createClient) {
         console.error("No se ha cargado la biblioteca de Supabase.");
@@ -219,6 +227,32 @@
         return `${url.pathname}${url.search}`;
     }
 
+    function updateHeadSEO(pageNumber, totalPages, hasResults = true) {
+        const validPage = hasResults && pageNumber >= 1 && pageNumber <= totalPages;
+        const indexable = validPage && !selectedService;
+        const canonicalURL = new URL(BASE_CANONICAL.href);
+
+        if (indexable && pageNumber > 1) {
+            canonicalURL.searchParams.set("pagina", String(pageNumber));
+        }
+
+        if (robotsMeta) {
+            robotsMeta.content = indexable
+                ? "index,follow,max-image-preview:large"
+                : "noindex,follow,max-image-preview:large";
+        }
+        if (canonicalLink) canonicalLink.href = canonicalURL.href;
+
+        document.title = indexable && pageNumber > 1
+            ? `Página ${pageNumber} · ${BASE_TITLE}`
+            : BASE_TITLE;
+        if (descriptionMeta) {
+            descriptionMeta.content = indexable && pageNumber > 1
+                ? `Página ${pageNumber}. ${BASE_DESCRIPTION}`
+                : BASE_DESCRIPTION;
+        }
+    }
+
     function navigateToPage(pageNumber, replace = false) {
         const url = pageURL(pageNumber);
         window.history[replace ? "replaceState" : "pushState"]({}, "", url);
@@ -320,6 +354,7 @@
                     </div>
                 `;
                 setStatus("0 talleres publicados");
+                updateHeadSEO(requestedPage(), 0, false);
                 setPagination(false);
                 return;
             }
@@ -335,6 +370,10 @@
             const totalReported = Number(data[0]?.total_resultados);
             if (Number.isFinite(totalReported)) totalWorkshops = totalReported;
             else totalWorkshops = Math.max(totalWorkshops, offset + data.length);
+            updateHeadSEO(
+                Math.floor(offset / PAGE_SIZE) + 1,
+                Math.max(1, Math.ceil(totalWorkshops / PAGE_SIZE))
+            );
             setStatus(`${totalWorkshops} ${totalWorkshops === 1 ? "taller publicado" : "talleres publicados"}`);
             setPagination(false);
 
@@ -368,11 +407,13 @@
 
         selectedService = new URLSearchParams(window.location.search).get("servicio") || "";
         if (service && selectedService) service.value = selectedService;
+        updateHeadSEO(requestedPage(), Number.MAX_SAFE_INTEGER);
 
         form?.addEventListener("submit", (event) => {
             event.preventDefault();
             selectedService = service?.value || "";
             navigateToPage(1);
+            updateHeadSEO(1, Number.MAX_SAFE_INTEGER);
             loadWorkshops(true);
             document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth" });
         });
@@ -394,6 +435,7 @@
         window.addEventListener("popstate", () => {
             selectedService = new URLSearchParams(window.location.search).get("servicio") || "";
             if (service) service.value = selectedService;
+            updateHeadSEO(requestedPage(), Number.MAX_SAFE_INTEGER);
             loadWorkshops(true, true);
         });
         loadWorkshops(true, true);
