@@ -14,6 +14,7 @@ declare
     v_dias constant text[] := array[
         'lunes','martes','miercoles','jueves','viernes','sabado','domingo'
     ];
+    v_numero_claves integer;
     v_dia text;
     v_horario jsonb;
     v_turnos jsonb;
@@ -29,7 +30,11 @@ begin
         return false;
     end if;
 
-    if jsonb_object_length(p_horarios) <> 7
+    select count(*)
+    into v_numero_claves
+    from jsonb_object_keys(p_horarios);
+
+    if v_numero_claves <> 7
        or not (p_horarios ?& v_dias) then
         return false;
     end if;
@@ -76,11 +81,11 @@ begin
             v_apertura := btrim(coalesce(v_turno ->> 'apertura', ''));
             v_cierre := btrim(coalesce(v_turno ->> 'cierre', ''));
 
-            if v_apertura !~ '^(?:[01][0-9]|2[0-3]):[0-5][0-9]$' then
+            if v_apertura !~ '^([01][0-9]|2[0-3]):[0-5][0-9]$' then
                 return false;
             end if;
 
-            if v_cierre !~ '^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9]|24:00)$' then
+            if v_cierre !~ '^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$' then
                 return false;
             end if;
 
@@ -110,8 +115,8 @@ begin
 end;
 $$;
 
-revoke all on function public.horario_semanal_es_valido(jsonb)
-    from public, anon, authenticated;
+grant execute on function public.horario_semanal_es_valido(jsonb)
+    to anon, authenticated;
 
 create or replace function public.admin_actualizar_taller_editor(
     p_taller_id uuid,
@@ -226,7 +231,7 @@ notify pgrst, 'reload schema';
 
 commit;
 
--- PRUEBAS OPCIONALES DESPUÉS DE EJECUTAR:
+-- PRUEBA OPCIONAL DESPUÉS DE EJECUTAR:
 -- select public.horario_semanal_es_valido(
 --   '{
 --      "lunes":{"cerrado":false,"turnos":[{"apertura":"09:00","cierre":"13:30"},{"apertura":"15:30","cierre":"19:00"}]},
