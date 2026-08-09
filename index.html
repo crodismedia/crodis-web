@@ -26,8 +26,8 @@
     <meta name="twitter:title" content="TallerMap">
     <meta name="twitter:description" content="Encuentra talleres mecánicos cerca de ti.">
     <meta name="twitter:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
-    <link rel="stylesheet" href="css/estilo.css">
-    <link rel="stylesheet" href="css/cookie-consent.css">
+    <link rel="stylesheet" href="css/estilo.css?v=20260809-5">
+    <link rel="stylesheet" href="css/cookie-consent.css?v=20260809-5">
     <style>
         .hero-texto,.buscador,.campo-busqueda,.poblacion-controles{position:relative;z-index:20}
         .buscador{pointer-events:auto!important;isolation:isolate}
@@ -37,6 +37,32 @@
         .hero::before,.hero-visual{pointer-events:none}
         .hero-visual a,.hero-visual button{pointer-events:auto}
         #servicios,#provincias,#talleres,#como-funciona,.pie{content-visibility:auto;contain-intrinsic-size:1px 800px}
+        .cookie-preferences-button{display:none!important}
+        .menu-movil-control,.menu-movil-label,.menu-movil-panel{display:none}
+        @media(max-width:1050px){
+            .cabecera-contenido{position:relative}
+            .menu-movil-control{position:absolute;opacity:0;pointer-events:none}
+            .menu-movil-label{display:grid;width:48px;height:48px;margin-left:auto;place-items:center;flex:0 0 auto;color:#071a33;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 8px 20px rgba(20,36,64,.08);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:1002}
+            .menu-movil-icono,.menu-movil-icono:before,.menu-movil-icono:after{display:block;width:23px;height:3px;background:#071a33;border-radius:5px;content:""}
+            .menu-movil-icono{position:relative}
+            .menu-movil-icono:before{position:absolute;top:-7px;left:0}
+            .menu-movil-icono:after{position:absolute;top:7px;left:0}
+            .menu-movil-panel{position:fixed;top:68px;right:0;left:0;z-index:1001;gap:4px;padding:12px 18px 20px;background:#fff;border-top:1px solid #dfe6ef;border-bottom:1px solid #dfe6ef;box-shadow:0 18px 30px rgba(20,36,64,.15)}
+            .menu-movil-control:checked~.menu-movil-panel{display:grid}
+            .menu-movil-control:checked+.menu-movil-label .menu-movil-icono{background:transparent}
+            .menu-movil-control:checked+.menu-movil-label .menu-movil-icono:before{top:0;transform:rotate(45deg)}
+            .menu-movil-control:checked+.menu-movil-label .menu-movil-icono:after{top:0;transform:rotate(-45deg)}
+            .menu-movil-panel a{display:block;padding:14px 15px;color:#071a33;font-weight:800;border-radius:10px}
+            .menu-movil-panel a:active,.menu-movil-panel a:focus-visible{background:#eaf2ff;outline:none}
+            .menu-movil-panel .menu-movil-registro{margin-top:6px;color:#fff;text-align:center;background:linear-gradient(135deg,#1457d9,#0b43ad)}
+        }
+        @media(max-width:750px){
+            .cabecera-contenido{min-height:68px!important;flex-direction:row!important;align-items:center!important;gap:10px!important}
+            .acciones-cabecera{display:none!important}
+            .marca{min-width:0}
+            .marca-texto strong{font-size:20px}
+            .marca-texto small{font-size:10px}
+        }
     </style>
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"WebSite","name":"TallerMap","url":"https://www.tallermap.es/","inLanguage":"es-ES","description":"Directorio para encontrar talleres mecánicos por población, código postal y servicio.","potentialAction":{"@type":"SearchAction","target":"https://www.tallermap.es/?poblacion={search_term_string}","query-input":"required name=search_term_string"}}
@@ -44,7 +70,7 @@
 </head>
 <body>
 <div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de talleres de automoción</span><a href="pages/registro.html">¿Tienes un taller? Publica tu negocio</a></div></div>
-<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="#servicios">Servicios</a><a href="#provincias">Provincias</a><a href="#talleres">Talleres</a><a href="#como-funciona">Cómo funciona</a></nav><div class="acciones-cabecera"><a href="#talleres" class="contador-altas-cabecera" aria-label="Ver talleres publicados"><strong id="contador-altas-cabecera" aria-live="polite">Directorio</strong><span>de talleres</span></a><a href="pages/registro.html" class="boton boton-pequeno">Registrar taller</a></div></div></header>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="#servicios">Servicios</a><a href="#provincias">Provincias</a><a href="#talleres">Talleres</a><a href="#como-funciona">Cómo funciona</a></nav><input class="menu-movil-control" type="checkbox" id="menu-movil-control" aria-hidden="true"><label class="menu-movil-label" for="menu-movil-control" aria-label="Abrir o cerrar menú de navegación"><span class="menu-movil-icono" aria-hidden="true"></span></label><nav class="menu-movil-panel" aria-label="Navegación móvil"><a href="/">Inicio</a><a href="#servicios">Servicios</a><a href="#provincias">Provincias</a><a href="#talleres">Talleres</a><a href="#como-funciona">Cómo funciona</a><a class="menu-movil-registro" href="/pages/registro.html">Registrar taller</a></nav><div class="acciones-cabecera"><a href="#talleres" class="contador-altas-cabecera" aria-label="Ver talleres publicados"><strong id="contador-altas-cabecera" aria-live="polite">Directorio</strong><span>de talleres</span></a><a href="pages/registro.html" class="boton boton-pequeno">Registrar taller</a></div></div></header>
 <main>
 <section class="hero"><div class="contenedor hero-contenido"><div class="hero-texto"><span class="etiqueta">Más fácil, más rápido y cerca de ti</span><h1>Encuentra talleres mecánicos <span>cerca de ti</span></h1><p class="hero-descripcion">Busca talleres mecánicos por población, servicio o código postal. Consulta sus datos, horarios, especialidades y formas de contacto.</p><form class="buscador" id="formulario-buscador-publico" role="search" autocomplete="off"><div class="campo-busqueda"><span class="campo-icono">⌖</span><div><label for="poblacion">Población o código postal</label><div class="poblacion-controles"><input id="poblacion" name="poblacion" type="search" autocomplete="off" inputmode="search" tabindex="0" aria-label="Población o código postal" placeholder="Ej. Valencia, Silla o 46460"></div><small>Busca por población o código postal.</small></div></div><div class="campo-busqueda"><span class="campo-icono">⚙</span><div><label for="servicio">Servicio</label><select id="servicio" name="servicio" tabindex="0"><option value="">Todos los servicios</option><option value="mecanica-general">Mecánica general</option><option value="chapa-pintura">Chapa y pintura</option><option value="neumaticos">Neumáticos</option><option value="diagnosis-electronica">Diagnosis electrónica</option><option value="aire-acondicionado">Aire acondicionado</option><option value="hibridos-electricos">Híbridos y eléctricos</option></select></div></div><button type="submit" class="boton boton-buscar" id="boton-buscar">Buscar talleres</button><a href="pages/registro.html" class="boton boton-claro" style="margin-left:10px;">Registrar taller</a></form><div class="busquedas-populares"><strong>Búsquedas populares:</strong><a href="#talleres" data-servicio="cambio-aceite-filtros">Cambio de aceite</a><a href="#talleres" data-servicio="neumaticos">Neumáticos</a><a href="#talleres" data-servicio="chapa-pintura">Chapa y pintura</a><a href="#talleres" data-servicio="pre-itv">Pre-ITV</a></div></div><div class="hero-visual"><div class="mapa-ficticio"><div class="mapa-cabecera"><div><strong>Talleres cercanos</strong><span>Resultados en tu zona</span></div><span class="mapa-estado">Búsqueda personalizada</span></div><div class="mapa-zona"><span class="carretera carretera-1"></span><span class="carretera carretera-2"></span><span class="carretera carretera-3"></span><span class="marcador marcador-1">1</span><span class="marcador marcador-2">2</span><span class="marcador marcador-3">3</span><span class="marcador marcador-4">4</span><div class="tarjeta-flotante"><div class="taller-logo">TM</div><div><strong>Talleres publicados</strong><span>Busca por población o código postal</span></div></div></div></div><div class="sello-confianza"><span>✓</span><div><strong>Información revisable</strong><small>Las fichas pueden corregirse, reclamarse o retirarse</small></div></div></div></div></section>
 <section class="estadisticas" aria-label="Información de TallerMap"><div class="contenedor estadisticas-grid"><article><strong id="estadistica-talleres">Actualizado</strong><span>Directorio activo</span></article><article><strong id="estadistica-provincias">España</strong><span>Búsqueda por ubicación</span></article><article><strong id="estadistica-servicios">50+</strong><span>Servicios de automoción</span></article><article><strong>24 h</strong><span>Acceso al directorio</span></article></div></section>
@@ -57,6 +83,6 @@
 <script>
 (function(){const input=document.getElementById('poblacion');const select=document.getElementById('servicio');const boton=document.getElementById('boton-buscar');[input,select,boton].forEach(function(el){if(!el)return;el.disabled=false;el.removeAttribute('disabled');el.removeAttribute('readonly');});if(input){input.addEventListener('pointerdown',function(){input.focus();});}})();
 </script>
-<script defer src="js/cookie-consent.js"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script defer src="js/servicios.js"></script><script defer src="js/supabase.js?v=20260809-2"></script><script defer src="js/busqueda-url.js?v=20260809-2"></script>
+<script defer src="js/cookie-consent.js?v=20260809-5"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script defer src="js/servicios.js?v=20260809-5"></script><script defer src="js/supabase.js?v=20260809-5"></script><script defer src="js/busqueda-url.js?v=20260809-5"></script>
 </body>
 </html>
