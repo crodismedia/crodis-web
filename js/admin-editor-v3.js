@@ -9,13 +9,71 @@
   const botonMaps=$('btn-google-maps');
   const campos=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia','descripcion'];
   const editables=[...campos,'servicios','horarios'];
+  const PREFIJO_BORRADOR='tm_editor_borrador_v1:';
   let originales={};
+  let cargandoFicha=false;
+  let temporizadorBorrador=null;
 
   function valor(id){return String($(id)?.value||'').trim();}
   function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));}
   function msg(t,ok=false){if(!$('estado-ficha'))return;$('estado-ficha').textContent=t;$('estado-ficha').style.color=ok?'#15803d':'#667085';}
   function urlWeb(v){const x=String(v||'').trim();return !x?'':/^https?:\/\//i.test(x)?x:`https://${x}`;}
   function opcional(v){const x=String(v??'').trim();return x||null;}
+  function claveBorrador(id){return `${PREFIJO_BORRADOR}${id}`;}
+
+  function datosEditor(){
+    return Object.fromEntries(editables.map(id=>[id,$(id)?.value??'']));
+  }
+
+  function leerBorrador(id){
+    if(!id)return null;
+    try{
+      const texto=localStorage.getItem(claveBorrador(id));
+      if(!texto)return null;
+      const borrador=JSON.parse(texto);
+      if(!borrador||borrador.tallerId!==id||!borrador.datos||typeof borrador.datos!=='object')return null;
+      return borrador;
+    }catch(error){
+      console.warn('No se pudo leer el borrador local:',error);
+      return null;
+    }
+  }
+
+  function guardarBorradorAhora(){
+    if(cargandoFicha)return;
+    const id=valor('taller-id');
+    if(!id)return;
+    try{
+      localStorage.setItem(claveBorrador(id),JSON.stringify({
+        version:1,
+        tallerId:id,
+        guardadoEn:new Date().toISOString(),
+        datos:datosEditor()
+      }));
+    }catch(error){
+      console.warn('No se pudo guardar el borrador local:',error);
+    }
+  }
+
+  function programarBorrador(){
+    if(cargandoFicha||!valor('taller-id'))return;
+    window.clearTimeout(temporizadorBorrador);
+    temporizadorBorrador=window.setTimeout(guardarBorradorAhora,180);
+  }
+
+  function borrarBorrador(id){
+    if(!id)return;
+    try{localStorage.removeItem(claveBorrador(id));}catch(error){console.warn('No se pudo borrar el borrador local:',error);}
+  }
+
+  function aplicarBorrador(id){
+    const borrador=leerBorrador(id);
+    if(!borrador)return false;
+    editables.forEach(campo=>{
+      if(Object.prototype.hasOwnProperty.call(borrador.datos,campo)&&$(campo))$(campo).value=borrador.datos[campo]??'';
+    });
+    return true;
+  }
 
   function abrirGoogleMaps(){
     if(!valor('taller-id'))return;
@@ -73,6 +131,7 @@
       return;
     }
 
+    borrarBorrador(id);
     retirarDelLote(id);
     document.dispatchEvent(new CustomEvent('tallermap:ficha-eliminada',{detail:{id,nombre}}));
     msg(`Ficha “${nombre}” eliminada correctamente. Volviendo a Pendientes…`,true);
@@ -105,6 +164,9 @@
   }
 
   function cargar(t){
+    if(!t?.id)return;
+    guardarBorradorAhora();
+    cargandoFicha=true;
     $('taller-id').value=t.id;
     campos.forEach(c=>$(c).value=t[c]??'');
     $('servicios').value=Array.isArray(t.servicios)?t.servicios.join('\n'):(t.servicios??'');
@@ -113,13 +175,17 @@
       :typeof t.horarios==='string'
         ?t.horarios
         :JSON.stringify(t.horarios,null,2);
+
+    const restaurado=aplicarBorrador(t.id);
     originales=Object.fromEntries(editables.map(id=>[id,valor(id)]));
     form.hidden=false;
     if(botonEliminar)botonEliminar.disabled=false;
     if(botonMaps)botonMaps.disabled=false;
     resultados.innerHTML='';
     editables.forEach(id=>$(id)?.dispatchEvent(new Event('input',{bubbles:true})));
-    msg(`Editando: ${t.nombre}`,true);
+    editables.forEach(id=>$(id)?.dispatchEvent(new Event('change',{bubbles:true})));
+    cargandoFicha=false;
+    msg(restaurado?`Borrador recuperado automáticamente para ${t.nombre}.`:`Editando: ${t.nombre}`,true);
   }
 
   function serviciosPayload(){
@@ -160,7 +226,9 @@
     if(detalle.includes('could not find the function')||detalle.includes('admin_actualizar_taller_editor')){
       return 'Falta instalar la función del editor en Supabase. Ejecuta completo supabase/2026-08-09_editor_horarios_estables.sql.';
     }
-    return error?.message||'Error desconocido al guardar la ficha.';
+    const codigo=error?.code?` [${error.code}]`:'';
+    const extra=[error?.details,error?.hint].filter(Boolean).join(' · ');
+    return `${error?.message||'Error desconocido al guardar la ficha.'}${codigo}${extra?` · ${extra}`:''}`;
   }
 
   function parametrosGuardar(id,horarios){
@@ -184,8 +252,10 @@
     const id=valor('taller-id');
     if(!id)return;
 
+    guardarBorradorAhora();
+
     if(valor('nombre').length<2){
-      msg('El nombre del taller debe tener al menos 2 caracteres.');
+      msg('El nombre del taller debe tener al menos 2 caracteres. El borrador queda conservado.');
       $('nombre')?.focus();
       return;
     }
@@ -194,7 +264,7 @@
     try{
       horarios=horariosPayload();
     }catch(error){
-      msg(error.message);
+      msg(`${error.message} El borrador queda conservado.`);
       $('horarios-estructurados')?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
@@ -208,9 +278,10 @@
       if(error)throw error;
       if(!data)throw new Error('Supabase no confirmó la actualización del taller.');
 
+      borrarBorrador(id);
       originales=Object.fromEntries(editables.map(campo=>[campo,valor(campo)]));
       document.dispatchEvent(new CustomEvent('tallermap:ficha-guardada',{detail:{id}}));
-      msg('Ficha guardada correctamente en Supabase.',true);
+      msg('Ficha guardada correctamente en Supabase. Borrador local eliminado.',true);
 
       if(new URLSearchParams(location.search).get('cola')==='1'){
         const bar=form.querySelector('.tm-savebar');
@@ -225,7 +296,8 @@
       }
     }catch(error){
       console.error('Error guardando ficha desde el editor:',error);
-      msg(`No se pudo guardar: ${mensajeErrorGuardar(error)}`);
+      guardarBorradorAhora();
+      msg(`No se pudo guardar: ${mensajeErrorGuardar(error)} · Tus datos siguen guardados como borrador local.`);
     }finally{
       if(botonGuardar)botonGuardar.disabled=false;
     }
@@ -235,9 +307,12 @@
   $('buscar-taller')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscar();}});
   $('buscar-taller')?.addEventListener('input',()=>{if(valor('buscar-taller').length<2)resultados.innerHTML='';});
   form?.addEventListener('submit',guardar);
+  form?.addEventListener('input',programarBorrador);
+  form?.addEventListener('change',programarBorrador);
   botonEliminar?.addEventListener('click',eliminarFicha);
   botonMaps?.addEventListener('click',abrirGoogleMaps);
-  $('boton-cerrar-sesion')?.addEventListener('click',async()=>{await supabase.auth.signOut();location.replace('admin-login.html');});
+  $('boton-cerrar-sesion')?.addEventListener('click',async()=>{guardarBorradorAhora();await supabase.auth.signOut();location.replace('admin-login.html');});
+  window.addEventListener('beforeunload',guardarBorradorAhora);
 
   proteger().then(ok=>{
     if(!ok)return;
