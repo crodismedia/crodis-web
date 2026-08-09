@@ -73,10 +73,6 @@
     ) || null;
   }
 
-  function botonGuardar() {
-    return $("form-taller")?.querySelector('button[type="submit"]') || null;
-  }
-
   function camposTerritoriales() {
     return ["codigo_postal", "ciudad", "provincia"]
       .map((id) => $(id)?.closest(".tm-field"))
@@ -105,8 +101,6 @@
 
   function establecerAprobado(valorAprobado) {
     aprobado = Boolean(valorAprobado);
-    const boton = botonGuardar();
-    if (boton) boton.disabled = !aprobado;
     $("form-taller")?.toggleAttribute("data-territorio-aprobado", aprobado);
   }
 
@@ -141,13 +135,13 @@
 
     const cp = valor("codigo_postal");
     if (!/^\d{5}$/.test(cp)) {
-      pintar("error", "El código postal debe contener exactamente 5 dígitos.");
+      pintar("error", "El código postal debe contener exactamente 5 dígitos. Puedes guardar la ficha y corregirlo después.");
       return false;
     }
 
     const provincia = provinciaEsperada();
     if (!provincia) {
-      pintar("error", "El código postal no corresponde a una provincia española válida.");
+      pintar("error", "El código postal no corresponde a una provincia española válida. Puedes guardar la ficha y corregirlo después.");
       return false;
     }
 
@@ -160,13 +154,13 @@
 
     const disponibles = municipiosProvincia();
     if (!disponibles.length) {
-      pintar("error", `El catálogo de TallerMap no tiene municipios activos para ${provincia}.`);
+      pintar("error", `El catálogo de TallerMap no tiene municipios activos para ${provincia}. El guardado no queda bloqueado.`);
       return false;
     }
 
     const municipio = buscarMunicipio();
     if (!municipio) {
-      pintar("error", `Selecciona un municipio válido de ${provincia} en la lista de TallerMap.`);
+      pintar("error", `No se reconoce el municipio en el catálogo de ${provincia}. El guardado no queda bloqueado.`);
       return false;
     }
 
@@ -193,7 +187,7 @@
 
   async function cargarCatalogo() {
     if (!supabase?.from) {
-      pintar("error", "No se pudo abrir el catálogo territorial de TallerMap.");
+      pintar("error", "No se pudo abrir el catálogo territorial de TallerMap. El guardado sigue disponible.");
       return;
     }
 
@@ -205,7 +199,7 @@
 
     if (error) {
       console.error("No se pudo cargar el catálogo territorial:", error);
-      pintar("error", `No se pudo comprobar el catálogo: ${error.message}`);
+      pintar("error", `No se pudo comprobar el catálogo: ${error.message}. El guardado sigue disponible.`);
       return;
     }
 
@@ -246,12 +240,8 @@
     });
 
     document.addEventListener("submit", (evento) => {
-      if (evento.target !== form || aprobado) return;
-      evento.preventDefault();
-      evento.stopImmediatePropagation();
+      if (evento.target !== form) return;
       validarTerritorio();
-      const foco = !/^\d{5}$/.test(valor("codigo_postal")) ? $("codigo_postal") : $("ciudad");
-      foco?.focus();
     }, true);
 
     document.addEventListener("click", (evento) => {
