@@ -25,6 +25,7 @@ El buscador utiliza la población como criterio principal. Opcionalmente, el vis
 - `supabase/admin_control_total.sql`: activa el control administrativo completo, el historial de cambios y el resumen exclusivo de talleres por provincia y población.
 - `supabase/2026-07-26_formularios_sin_datos_propietario.sql`: elimina propietario, CIF y correo de las nuevas altas y deja la edición en manos de TallerMap.
 - `supabase/2026-07-29_endurecimiento_critico.sql`: cierra la tabla privada al público y versiona las funciones públicas de búsqueda, proximidad y coordenadas.
+- `supabase/2026-08-09_editor_horarios_estables.sql`: unifica el formato de horarios y añade el guardado administrativo seguro del editor de fichas.
 
 ## Configuración de Supabase
 
@@ -38,6 +39,7 @@ En una instalación nueva, abre **Supabase > SQL Editor** y ejecuta completos, e
 6. `supabase/admin_control_total.sql`
 7. `supabase/2026-07-26_formularios_sin_datos_propietario.sql`
 8. `supabase/2026-07-29_endurecimiento_critico.sql`
+9. `supabase/2026-08-09_editor_horarios_estables.sql`
 
 Después crea el usuario administrador en **Authentication > Users** y añade su UUID a `public.administradores` con la instrucción indicada al final del SQL principal.
 
@@ -46,6 +48,8 @@ Los archivos `formulario_seguro.sql`, `edicion_propietario_taller.sql` y los rel
 El panel incluye un buscador administrativo de candidatos basado en OpenStreetMap. Despliega `supabase/functions/buscar-talleres-internet/index.ts` como Edge Function con el nombre exacto `buscar-talleres-internet`. Los resultados externos nunca se publican automáticamente: el administrador debe pasarlos al editor y comprobarlos.
 
 Las altas públicas no solicitan propietario, CIF ni correo y se crean como fichas activas no verificadas. Una cuenta incluida en `public.administradores` puede completarlas, verificarlas o retirarlas. El acceso administrativo utiliza Supabase Authentication.
+
+El editor de fichas utiliza `admin_actualizar_taller_editor(...)` para guardar únicamente los campos visibles sin sobrescribir fotografías, estado, verificación u otros datos que no se estén editando. El formato canónico de `horarios` es un objeto JSON con los siete días y, por cada día, `{ "cerrado": boolean, "turnos": [{ "apertura": "HH:MM", "cierre": "HH:MM" }] }`.
 
 ## Despliegue
 
