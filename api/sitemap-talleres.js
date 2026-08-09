@@ -24,18 +24,17 @@ function safeSlug(value) {
 
 async function fetchWorkshopPage(offset) {
     const endpoint = `${SUPABASE_URL}/rest/v1/rpc/listar_talleres_sitemap`;
-    const end = offset + PAGE_SIZE - 1;
     const result = await fetch(endpoint, {
         method: "POST",
         headers: {
             apikey: SUPABASE_KEY,
             Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "count=exact",
-            Range: `${offset}-${end}`,
-            "Range-Unit": "items"
+            "Content-Type": "application/json"
         },
-        body: "{}"
+        body: JSON.stringify({
+            p_limite: PAGE_SIZE,
+            p_desde: offset
+        })
     });
 
     if (!result.ok) {
@@ -44,9 +43,7 @@ async function fetchWorkshopPage(offset) {
     }
 
     const page = await result.json();
-    const contentRange = result.headers.get("content-range") || "";
-    const totalMatch = contentRange.match(/\/(\d+)$/);
-    const total = totalMatch ? Number(totalMatch[1]) : null;
+    const total = Number(page?.[0]?.total_resultados);
 
     return {
         page: Array.isArray(page) ? page : [],
