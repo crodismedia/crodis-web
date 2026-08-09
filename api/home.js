@@ -4,13 +4,14 @@ import path from "node:path";
 const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
 const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
 const INITIAL_WORKSHOPS = 24;
+const COOKIE_SCRIPT_VERSION = "20260809-4";
 
 function escapeHTML(value) {
     return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
+        .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#39;");
 }
 
@@ -92,31 +93,27 @@ function renderInitialWorkshopLinks(workshops) {
 
 function injectWorkshopLinks(html, workshopHTML) {
     const pattern = /(<div\s+class="talleres-grid"\s+id="lista-talleres"[^>]*>)([\s\S]*?)(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i;
-
-    if (!pattern.test(html)) {
-        throw new Error("No se encontró el contenedor #lista-talleres en index.html");
-    }
-
+    if (!pattern.test(html)) throw new Error("No se encontró el contenedor #lista-talleres en index.html");
     return html.replace(pattern, `$1${workshopHTML}$3`);
 }
 
 function injectMobileMenu(html) {
     const styles = `
 <style id="tallermap-menu-movil-estilos">
-.menu-movil-nativo{display:none}
+.menu-movil-control,.menu-movil-label,.menu-movil-panel{display:none}
 @media(max-width:1050px){
 .cabecera-contenido{position:relative}
-.menu-movil-nativo{display:block;position:relative;flex:0 0 auto;margin-left:auto}
-.menu-movil-nativo>summary{display:grid;width:48px;height:48px;padding:0;place-items:center;color:#071a33;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 8px 20px rgba(20,36,64,.08);cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.menu-movil-nativo>summary::-webkit-details-marker{display:none}
-.menu-movil-icono,.menu-movil-icono:before,.menu-movil-icono:after{display:block;width:23px;height:3px;background:#071a33;border-radius:5px;content:"";transition:transform .2s ease,opacity .2s ease}
+.menu-movil-control{position:absolute;opacity:0;pointer-events:none}
+.menu-movil-label{display:grid;width:48px;height:48px;margin-left:auto;place-items:center;flex:0 0 auto;color:#071a33;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 8px 20px rgba(20,36,64,.08);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:1002}
+.menu-movil-icono,.menu-movil-icono:before,.menu-movil-icono:after{display:block;width:23px;height:3px;background:#071a33;border-radius:5px;content:""}
 .menu-movil-icono{position:relative}
 .menu-movil-icono:before{position:absolute;top:-7px;left:0}
 .menu-movil-icono:after{position:absolute;top:7px;left:0}
-.menu-movil-nativo[open] .menu-movil-icono{background:transparent}
-.menu-movil-nativo[open] .menu-movil-icono:before{top:0;transform:rotate(45deg)}
-.menu-movil-nativo[open] .menu-movil-icono:after{top:0;transform:rotate(-45deg)}
-.menu-movil-panel{position:fixed;top:var(--menu-mobile-top,68px);right:0;left:0;z-index:1000;display:grid;gap:4px;padding:12px 18px 20px;background:#fff;border-top:1px solid #dfe6ef;border-bottom:1px solid #dfe6ef;box-shadow:0 18px 30px rgba(20,36,64,.15)}
+.menu-movil-panel{position:fixed;top:68px;right:0;left:0;z-index:1001;gap:4px;padding:12px 18px 20px;background:#fff;border-top:1px solid #dfe6ef;border-bottom:1px solid #dfe6ef;box-shadow:0 18px 30px rgba(20,36,64,.15)}
+.menu-movil-control:checked~.menu-movil-panel{display:grid}
+.menu-movil-control:checked+.menu-movil-label .menu-movil-icono{background:transparent}
+.menu-movil-control:checked+.menu-movil-label .menu-movil-icono:before{top:0;transform:rotate(45deg)}
+.menu-movil-control:checked+.menu-movil-label .menu-movil-icono:after{top:0;transform:rotate(-45deg)}
 .menu-movil-panel a{display:block;padding:14px 15px;color:#071a33;font-weight:800;border-radius:10px}
 .menu-movil-panel a:active,.menu-movil-panel a:focus-visible{background:#eaf2ff;outline:none}
 .menu-movil-panel .menu-movil-registro{margin-top:6px;color:#fff;text-align:center;background:linear-gradient(135deg,#1457d9,#0b43ad)}
@@ -127,32 +124,31 @@ function injectMobileMenu(html) {
 .marca{min-width:0}
 .marca-texto strong{font-size:20px}
 .marca-texto small{font-size:10px}
-.menu-movil-nativo{margin-left:auto}
-.menu-movil-panel{top:68px}
 }
 </style>`;
 
     const menu = `
-<details class="menu-movil-nativo">
-    <summary aria-label="Abrir menú de navegación"><span class="menu-movil-icono" aria-hidden="true"></span></summary>
-    <nav class="menu-movil-panel" aria-label="Navegación móvil">
-        <a href="/">Inicio</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#provincias">Provincias</a>
-        <a href="#talleres">Talleres</a>
-        <a href="#como-funciona">Cómo funciona</a>
-        <a class="menu-movil-registro" href="/pages/registro.html">Registrar taller</a>
-    </nav>
-</details>`;
+<input class="menu-movil-control" type="checkbox" id="menu-movil-control" aria-hidden="true">
+<label class="menu-movil-label" for="menu-movil-control" aria-label="Abrir o cerrar menú de navegación"><span class="menu-movil-icono" aria-hidden="true"></span></label>
+<nav class="menu-movil-panel" aria-label="Navegación móvil">
+    <a href="/">Inicio</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#provincias">Provincias</a>
+    <a href="#talleres">Talleres</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a class="menu-movil-registro" href="/pages/registro.html">Registrar taller</a>
+</nav>`;
 
     const headerPattern = /(<nav class="menu">[\s\S]*?<\/nav>)(<div class="acciones-cabecera">)/i;
-    if (!headerPattern.test(html)) {
-        throw new Error("No se encontró la cabecera principal para insertar el menú móvil");
-    }
+    if (!headerPattern.test(html)) throw new Error("No se encontró la cabecera principal para insertar el menú móvil");
 
     return html
         .replace("</head>", `${styles}\n</head>`)
         .replace(headerPattern, `$1${menu}$2`);
+}
+
+function bustCookieScriptCache(html) {
+    return html.replace(/js\/cookie-consent\.js(?:\?[^\"']*)?/g, `js/cookie-consent.js?v=${COOKIE_SCRIPT_VERSION}`);
 }
 
 export default async function handler(_request, response) {
@@ -181,7 +177,9 @@ export default async function handler(_request, response) {
         console.error("No se pudo insertar el menú móvil:", error);
     }
 
+    html = bustCookieScriptCache(html);
+
     response.setHeader("Content-Type", "text/html; charset=utf-8");
-    response.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    response.setHeader("Cache-Control", "no-store, max-age=0");
     response.status(200).send(html);
 }
