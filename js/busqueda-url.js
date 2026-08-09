@@ -17,6 +17,18 @@
             .trim();
     }
 
+    function resolverServicio(selector, valor) {
+        const normalizado = normalizarTexto(valor);
+        if (!selector || !normalizado) return "";
+
+        const opcion = [...selector.options].find(elemento =>
+            normalizarTexto(elemento.value) === normalizado
+            || normalizarTexto(elemento.textContent) === normalizado
+        );
+
+        return opcion?.value || "";
+    }
+
     function provinciaMunicipio(codigoMunicipal) {
         const codigo = String(codigoMunicipal || "")
             .padStart(5, "0");
@@ -487,14 +499,13 @@
          */
         if (campoServicio && servicio) {
             const aplicarServicio = () => {
-                const existe =
-                    [...campoServicio.options].some(
-                        opcion =>
-                            opcion.value === servicio
-                    );
+                const servicioResuelto = resolverServicio(
+                    campoServicio,
+                    servicio
+                );
 
-                if (existe) {
-                    campoServicio.value = servicio;
+                if (servicioResuelto) {
+                    campoServicio.value = servicioResuelto;
                     return true;
                 }
 
