@@ -9,7 +9,21 @@
   function valor(id){return $(id)?.value.trim()||'';}
   function normalizarUrl(v){const x=String(v||'').trim();return !x?'':/^https?:\/\//i.test(x)?x:`https://${x}`;}
   function servicios(){return valor('servicios').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);}
-  function horarios(){const x=valor('horarios');if(!x)return {};try{return JSON.parse(x);}catch{return {texto:x};}}
+  function horarios(){
+    const x=valor('horarios');
+    if(!x)return null;
+    try{
+      const dato=JSON.parse(x);
+      if(!dato||typeof dato!=='object'||Array.isArray(dato)||!Object.keys(dato).length)return null;
+      if(dato['miércoles']&&!dato.miercoles)dato.miercoles=dato['miércoles'];
+      if(dato['sábado']&&!dato.sabado)dato.sabado=dato['sábado'];
+      delete dato['miércoles'];
+      delete dato['sábado'];
+      return dato;
+    }catch{
+      return null;
+    }
+  }
   function estado(texto,tipo='info'){
     const nodo=$('estado-ficha');if(!nodo)return;
     nodo.textContent=texto;
@@ -47,11 +61,36 @@
     payload.horarios=horarios();
 
     try{
-      const {data,error}=await supabase.from('talleres').update(payload).eq('id',id).select('id,nombre').single();
+      const {data:actual,error:errorLectura}=await supabase
+        .from('talleres')
+        .select('fotos,verificado,activo')
+        .eq('id',id)
+        .single();
+      if(errorLectura)throw errorLectura;
+
+      const {data:idGuardado,error}=await supabase.rpc('admin_guardar_taller_opcional',{
+        p_taller_id:id,
+        p_nombre:payload.nombre,
+        p_propietario:null,
+        p_cif:null,
+        p_email:null,
+        p_telefono:payload.telefono||null,
+        p_web:payload.web||null,
+        p_direccion:payload.direccion||null,
+        p_codigo_postal:payload.codigo_postal||null,
+        p_ciudad:payload.ciudad||null,
+        p_provincia:payload.provincia||null,
+        p_horarios:payload.horarios,
+        p_servicios:payload.servicios,
+        p_fotos:Array.isArray(actual?.fotos)?actual.fotos:[],
+        p_descripcion:payload.descripcion||null,
+        p_verificado:Boolean(actual?.verificado),
+        p_activo:actual?.activo!==false
+      });
       if(error)throw error;
-      if(!data?.id)throw new Error('Supabase no confirmó la ficha actualizada.');
-      estado(`Ficha “${data.nombre||nombre}” guardada correctamente en Supabase.`, 'ok');
-      document.dispatchEvent(new CustomEvent('tallermap:ficha-guardada',{detail:{id:data.id,nombre:data.nombre||nombre}}));
+      if(!idGuardado)throw new Error('Supabase no confirmó la ficha actualizada.');
+      estado(`Ficha “${nombre}” guardada correctamente en Supabase.`, 'ok');
+      document.dispatchEvent(new CustomEvent('tallermap:ficha-guardada',{detail:{id:idGuardado,nombre}}));
       document.querySelectorAll('.tm-field-dirty').forEach(n=>{n.classList.remove('tm-field-dirty');n.classList.add('tm-field-ok');});
     }catch(error){
       console.error('Error al guardar ficha',error);
