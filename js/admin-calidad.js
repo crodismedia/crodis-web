@@ -14,9 +14,9 @@
   function soloDigitos(v){return String(v||"").replace(/\D/g,"");}
   function provinciaCanonica(v){
     const p=normalizar(v);
-    if(p==="alicante"||p==="alacant")return "Alicante";
+    if(p==="alicante"||p==="alacant"||p==="alicante/alacant"||p==="alacant/alicante")return "Alicante/Alacant";
     if(p==="castellon"||p==="castello"||p==="castellon/castello"||p==="castello/castellon")return "Castellón/Castelló";
-    if(p==="valencia"||p==="valencia/valencia")return "Valencia";
+    if(p==="valencia"||p==="valencia/valencia")return "Valencia/València";
     return null;
   }
   function webValida(v){
