@@ -221,7 +221,7 @@
 
     function cambiarEstadoBoton(enviando, texto = "Enviando...") {
         botonEnviar.disabled = enviando;
-        botonEnviar.textContent = enviando ? texto : "Enviar alta gratuita";
+        botonEnviar.textContent = enviando ? texto : "Enviar solicitud gratuita";
     }
 
     function mostrarEstadoCampo(elemento, texto, tipo = "") {
@@ -670,14 +670,14 @@
             acepta_condiciones_fotos_at: subidas.length ? new Date().toISOString() : null,
             version_condiciones_fotos: subidas.length ? "1.0" : null,
             descripcion: valor("descripcion"),
-            estado: "aprobada",
+            estado: "pendiente",
             localidad_verificada: true,
             acepta_privacidad: document.getElementById("acepta_privacidad").checked,
             acepta_privacidad_at: new Date().toISOString(),
-            version_privacidad: "1.0",
+            version_privacidad: "1.2",
             acepta_responsabilidad: document.getElementById("acepta_responsabilidad").checked,
             acepta_terminos_at: new Date().toISOString(),
-            version_terminos: "1.0"
+            version_terminos: "1.1"
         };
 
         if (!validar(datos)) return;
@@ -713,12 +713,12 @@
             limpiarVistaPrevia();
             if (fotosFallidas.length) {
                 mostrarMensaje(
-                    "El alta se ha guardado, pero algunas fotografías no pudieron subirse. La ficha continuará sin esas imágenes.",
+                    "La solicitud se ha guardado, pero algunas fotografías no pudieron subirse. La revisaremos con las imágenes disponibles.",
                     "aviso"
                 );
             } else {
                 mostrarMensaje(
-                    "Alta enviada y publicada automáticamente. El taller ya aparece en TallerMap como ficha no verificada.",
+                    "Solicitud recibida. Revisaremos los datos antes de publicar la ficha del taller.",
                     "exito"
                 );
             }
