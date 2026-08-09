@@ -15,7 +15,7 @@
   function provinciaCanonica(v){
     const p=normalizar(v);
     if(p==="alicante"||p==="alacant")return "Alicante";
-    if(p==="castellon"||p==="castello"||p==="castellon/castello"||p==="castello/castellon")return "Castellón";
+    if(p==="castellon"||p==="castello"||p==="castellon/castello"||p==="castello/castellon")return "Castellón/Castelló";
     if(p==="valencia"||p==="valencia/valencia")return "Valencia";
     return null;
   }
