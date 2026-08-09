@@ -22,6 +22,10 @@
 
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/api/home"
+    },
+    {
       "source": "/talleres/:slug",
       "destination": "/pages/taller.html"
     },
