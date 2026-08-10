@@ -100,6 +100,7 @@ function injectWorkshopLinks(html, workshopHTML) {
 function injectMobileMenu(html) {
     const styles = `
 <style id="tallermap-menu-movil-estilos">
+#lista-talleres .valoracion,#lista-talleres .abierto{display:none!important}
 .menu-movil-control,.menu-movil-label,.menu-movil-panel{display:none}
 @media(max-width:1050px){
 .cabecera-contenido{position:relative}
