@@ -8,7 +8,8 @@ import {
     safePhone,
     reviewStatusLabel,
     serviceLabel,
-    supabaseRpc
+    supabaseRpc,
+    workshopPhotoSource
 } from "../lib/server-utils.js";
 
 const SITE_URL = "https://www.tallermap.es";
@@ -47,6 +48,23 @@ function workshopAddress(workshop) {
         .join(", ");
 }
 
+function postalAddress(workshop) {
+    const streetAddress = cleanText(workshop?.direccion || "", 120);
+    const postalCode = cleanText(workshop?.codigo_postal || "", 12);
+    const addressLocality = cleanText(workshop?.ciudad || "", 80);
+    const addressRegion = cleanText(workshop?.provincia || "", 80);
+    if (!streetAddress && !postalCode && !addressLocality && !addressRegion) return undefined;
+
+    return {
+        "@type": "PostalAddress",
+        ...(streetAddress ? { streetAddress } : {}),
+        ...(postalCode ? { postalCode } : {}),
+        ...(addressLocality ? { addressLocality } : {}),
+        ...(addressRegion ? { addressRegion } : {}),
+        addressCountry: "ES"
+    };
+}
+
 function renderServices(workshop) {
     const services = Array.isArray(workshop?.servicios)
         ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 12)
@@ -76,6 +94,39 @@ function renderSchedule(schedule) {
     return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
 }
 
+function openingHoursSpecifications(schedule) {
+    if (!schedule || typeof schedule !== "object") return undefined;
+    const dayNames = {
+        lunes: "Monday",
+        martes: "Tuesday",
+        miercoles: "Wednesday",
+        jueves: "Thursday",
+        viernes: "Friday",
+        sabado: "Saturday",
+        domingo: "Sunday"
+    };
+    const result = [];
+
+    Object.entries(dayNames).forEach(([key, dayOfWeek]) => {
+        const value = schedule[key];
+        if (!value || value.cerrado) return;
+        const slots = Array.isArray(value.turnos) ? value.turnos : [];
+        slots.forEach((slot) => {
+            const opens = String(slot?.apertura || "").trim();
+            const closes = String(slot?.cierre || "").trim();
+            if (!/^\d{2}:\d{2}$/.test(opens) || !/^\d{2}:\d{2}$/.test(closes)) return;
+            result.push({
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek,
+                opens,
+                closes
+            });
+        });
+    });
+
+    return result.length ? result : undefined;
+}
+
 function formatDate(value) {
     if (!value) return "";
     const date = new Date(value);
@@ -95,76 +146,40 @@ function provinceURL(province) {
 
 function municipalityURL(workshop) {
     const city = String(workshop?.ciudad || "").trim();
-    const municipalCode = String(workshop?.codigo_municipal || "")
-        .replace(/\D/g, "")
-        .slice(0, 5);
-
-    if (city && municipalCode) {
-        return `/municipios/${slugify(city)}-${municipalCode}.html`;
-    }
+    const municipalCode = String(workshop?.codigo_municipal || "").replace(/\D/g, "").slice(0, 5);
+    if (city && municipalCode) return `/municipios/${slugify(city)}-${municipalCode}.html`;
 
     const params = new URLSearchParams();
-
-    if (city) {
-        params.set("poblacion", city);
-    }
-
+    if (city) params.set("poblacion", city);
     return `/${params.toString() ? `?${params.toString()}` : ""}#talleres`;
 }
 
-async function fetchWorkshop(slug) {
-    const rows = await supabaseRpc("obtener_taller_publico", {
-        p_id: null,
-        p_slug: slug
-    });
+function primaryImage(workshop) {
+    const source = workshopPhotoSource(workshop);
+    return source.url || DEFAULT_IMAGE;
+}
 
-    if (!rows.length) {
-        return null;
-    }
+async function fetchWorkshop(slug) {
+    const rows = await supabaseRpc("obtener_taller_publico", { p_id: null, p_slug: slug });
+    if (!rows.length) return null;
 
     const workshop = rows[0];
-
     try {
         const contextRows = await supabaseRpc("obtener_contexto_taller", {
             p_id: workshop?.id || null,
             p_slug: slug
         });
-
         const context = contextRows.length ? contextRows[0] : null;
-
-        if (!context) {
-            return workshop;
-        }
-
+        if (!context) return workshop;
         return {
             ...workshop,
-
-            ciudad:
-                context.municipio ||
-                workshop.ciudad ||
-                "",
-
-            codigo_municipal:
-                context.codigo_municipal ||
-                workshop.codigo_municipal ||
-                "",
-
-            provincia:
-                workshop.provincia ||
-                context.provincia ||
-                "",
-
-            provincia_slug:
-                context.provincia_slug ||
-                workshop.provincia_slug ||
-                ""
+            ciudad: context.municipio || workshop.ciudad || "",
+            codigo_municipal: context.codigo_municipal || workshop.codigo_municipal || "",
+            provincia: workshop.provincia || context.provincia || "",
+            provincia_slug: context.provincia_slug || workshop.provincia_slug || ""
         };
     } catch (error) {
-        console.warn(
-            "No se pudo obtener el contexto municipal de la ficha:",
-            error
-        );
-
+        console.warn("No se pudo obtener el contexto municipal de la ficha:", error);
         return workshop;
     }
 }
@@ -181,19 +196,18 @@ function injectCoreContent(html, workshop, slug) {
     const province = cleanText(workshop?.provincia || "", 80);
     const updated = formatDate(workshop?.updated_at);
     const verified = Boolean(workshop?.verificado);
+    const image = primaryImage(workshop);
 
     const actions = [];
     if (phone) actions.push(`<a class="boton accion-principal" href="tel:${escapeHTML(phone)}">Llamar</a>`);
     if (web) actions.push(`<a class="boton boton-claro" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-    if (address) {
-        actions.push(`<a class="boton boton-claro" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);
-    }
+    if (address) actions.push(`<a class="boton boton-claro" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);
 
     const dataRows = [];
     if (phone) dataRows.push(`<p><strong>Teléfono:</strong> <a href="tel:${escapeHTML(phone)}">${escapeHTML(formatPhoneDisplay(phone))}</a></p>`);
     if (web) dataRows.push(`<p><strong>Web:</strong> <a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Visitar sitio web</a></p>`);
-    const schedule = renderSchedule(workshop?.horarios);
-    if (schedule) dataRows.push(schedule);
+    const scheduleHTML = renderSchedule(workshop?.horarios);
+    if (scheduleHTML) dataRows.push(scheduleHTML);
 
     const crumbs = [
         '<a href="/">Inicio</a>',
@@ -226,14 +240,12 @@ function injectCoreContent(html, workshop, slug) {
         html = html
             .replace(/<section id="contexto-local" class="ficha-contexto" hidden>/i, '<section id="contexto-local" class="ficha-contexto">')
             .replace(/<h2 id="contexto-titulo">[\s\S]*?<\/h2>/i, `<h2 id="contexto-titulo">${escapeHTML(city ? `Talleres en ${city}` : `Talleres en ${province}`)}</h2>`)
-            .replace(/<p id="contexto-texto">[\s\S]*?<\/p>/i, `<p id="contexto-texto">Consulta otros talleres publicados en esta zona.</p>`)
+            .replace(/<p id="contexto-texto">[\s\S]*?<\/p>/i, '<p id="contexto-texto">Consulta otros talleres publicados en esta zona.</p>')
             .replace(/<div id="contexto-enlaces" class="ficha-contexto-enlaces">[\s\S]*?<\/div>/i, `<div id="contexto-enlaces" class="ficha-contexto-enlaces">${localLinks}</div>`);
     }
 
-    const social = `\n    <meta property="og:type" content="website">\n    <meta property="og:site_name" content="TallerMap">\n    <meta property="og:title" content="${escapeHTML(title)}">\n    <meta property="og:description" content="${escapeHTML(description)}">\n    <meta property="og:url" content="${escapeHTML(canonical)}">\n    <meta property="og:image" content="${escapeHTML(DEFAULT_IMAGE)}">\n    <meta property="og:locale" content="es_ES">\n    <meta name="twitter:card" content="summary_large_image">\n    <meta name="twitter:title" content="${escapeHTML(title)}">\n    <meta name="twitter:description" content="${escapeHTML(description)}">\n    <meta name="twitter:image" content="${escapeHTML(DEFAULT_IMAGE)}">`;
-    if (!/property="og:title"/i.test(html)) {
-        html = html.replace(/(<link\s+rel="canonical"[^>]*>)/i, `$1${social}`);
-    }
+    const social = `\n    <meta property="og:type" content="website">\n    <meta property="og:site_name" content="TallerMap">\n    <meta property="og:title" content="${escapeHTML(title)}">\n    <meta property="og:description" content="${escapeHTML(description)}">\n    <meta property="og:url" content="${escapeHTML(canonical)}">\n    <meta property="og:image" content="${escapeHTML(image)}">\n    <meta property="og:locale" content="es_ES">\n    <meta name="twitter:card" content="summary_large_image">\n    <meta name="twitter:title" content="${escapeHTML(title)}">\n    <meta name="twitter:description" content="${escapeHTML(description)}">\n    <meta name="twitter:image" content="${escapeHTML(image)}">`;
+    if (!/property="og:title"/i.test(html)) html = html.replace(/(<link\s+rel="canonical"[^>]*>)/i, `$1${social}`);
 
     const structuredData = {
         "@context": "https://schema.org",
@@ -241,66 +253,58 @@ function injectCoreContent(html, workshop, slug) {
         name,
         url: canonical,
         description,
-        address: address || undefined,
+        image,
+        address: postalAddress(workshop),
         telephone: phone || undefined,
-        sameAs: web || undefined
+        sameAs: web || undefined,
+        openingHoursSpecification: openingHoursSpecifications(workshop?.horarios),
+        areaServed: city ? { "@type": "City", name: city } : undefined
     };
-    const breadcrumbItems = [];
+    Object.keys(structuredData).forEach((key) => structuredData[key] === undefined && delete structuredData[key]);
 
-breadcrumbItems.push({
-    "@type": "ListItem",
-    position: 1,
-    name: "Inicio",
-    item: `${SITE_URL}/`
-});
-
-let breadcrumbPosition = 2;
-
-if (province) {
-    breadcrumbItems.push({
+    const breadcrumbItems = [{
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: `${SITE_URL}/`
+    }];
+    let breadcrumbPosition = 2;
+    if (province) breadcrumbItems.push({
         "@type": "ListItem",
         position: breadcrumbPosition++,
         name: province,
         item: `${SITE_URL}${provinceURL(province)}`
     });
-}
-
-if (city) {
-    breadcrumbItems.push({
+    if (city) breadcrumbItems.push({
         "@type": "ListItem",
         position: breadcrumbPosition++,
         name: city,
         item: `${SITE_URL}${municipalityURL(workshop)}`
     });
-}
+    breadcrumbItems.push({
+        "@type": "ListItem",
+        position: breadcrumbPosition,
+        name,
+        item: canonical
+    });
 
-breadcrumbItems.push({
-    "@type": "ListItem",
-    position: breadcrumbPosition,
-    name,
-    item: canonical
-});
+    const breadcrumbStructuredData = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbItems
+    };
 
-const breadcrumbStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: breadcrumbItems
-};
-
-html = html.replace(
-    /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i,
-    `<script type="application/ld+json" id="datos-estructurados-migas">${JSON.stringify(breadcrumbStructuredData).replace(/</g, "\\u003c")}</script>`
-);
-    Object.keys(structuredData).forEach((key) => structuredData[key] === undefined && delete structuredData[key]);
+    html = html.replace(
+        /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i,
+        `<script type="application/ld+json" id="datos-estructurados-migas">${JSON.stringify(breadcrumbStructuredData).replace(/</g, "\\u003c")}</script>`
+    );
     html = html.replace(
         /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i,
         `<script type="application/ld+json" id="datos-estructurados-taller">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>`
     );
 
     const legacyRewrite = /<script>\s*\(function\(\)\s*\{[\s\S]*?window\.__TALLERMAP_URL_LIMPIA__[\s\S]*?<\/script>\s*/i;
-    html = html.replace(legacyRewrite, "");
-
-    return html;
+    return html.replace(legacyRewrite, "");
 }
 
 export default async function handler(request, response) {
