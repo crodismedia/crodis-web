@@ -18,6 +18,12 @@
     { "source": "/talleres/:slug", "destination": "/api/taller?slug=:slug" },
     { "source": "/provincias/:provincia.html", "destination": "/api/provincia?provincia=:provincia" },
     { "source": "/municipios/:archivo.html", "destination": "/api/municipio?archivo=:archivo.html" },
+    { "source": "/servicios/mecanica-general.html", "destination": "/api/servicio?servicio=mecanica-general" },
+    { "source": "/servicios/neumaticos.html", "destination": "/api/servicio?servicio=neumaticos" },
+    { "source": "/servicios/chapa-pintura.html", "destination": "/api/servicio?servicio=chapa-pintura" },
+    { "source": "/servicios/diagnosis-electronica.html", "destination": "/api/servicio?servicio=diagnosis-electronica" },
+    { "source": "/servicios/aire-acondicionado.html", "destination": "/api/servicio?servicio=aire-acondicionado" },
+    { "source": "/servicios/hibridos-electricos.html", "destination": "/api/servicio?servicio=hibridos-electricos" },
     { "source": "/robots.txt", "destination": "/api/robots" },
     { "source": "/sitemap-talleres.xml", "destination": "/api/sitemap-talleres" },
     { "source": "/sitemap-municipios.xml", "destination": "/api/sitemap-municipios" }
