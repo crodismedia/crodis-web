@@ -1064,6 +1064,17 @@ select {
     border-radius: 100px;
 }
 
+.verificado.verificado-en-contenido {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.taller-informacion .verificado-en-contenido + h3 {
+    margin-top: 4px;
+}
+
 .favorito {
     position: absolute;
     top: 15px;

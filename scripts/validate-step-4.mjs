@@ -78,7 +78,11 @@ const serviceResponse = createResponse();
 await serviceHandler({ query: { servicio: "mecanica-general", pagina: "1" } }, serviceResponse);
 requireCondition(serviceResponse.statusCode === 200, "La página de servicio debe renderizar correctamente.");
 requireCondition(serviceResponse.body.includes("✓ Información revisada") && serviceResponse.body.includes("Suspensión y amortiguadores"), "La página de servicio debe mostrar etiquetas públicas legibles.");
+requireCondition(serviceResponse.body.includes('class="verificado verificado-en-contenido"'), "La insignia de servicio debe permanecer dentro del flujo de la tarjeta.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La paginación de servicio no debe crear enlaces deshabilitados.");
+
+const styles = read("css/estilo.css");
+requireCondition(/\.verificado\.verificado-en-contenido\s*\{[\s\S]*?position:\s*static/i.test(styles), "La insignia de servicio no debe superponerse al nombre al pasar el ratón.");
 
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
