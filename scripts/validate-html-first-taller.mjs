@@ -20,5 +20,9 @@ requireCondition(renderer.includes('buscar_talleres_relacionados'), "Los tallere
 requireCondition(renderer.includes('datos-estructurados-taller'), "Los datos estructurados deben resolverse en servidor.");
 requireCondition(renderer.includes('stripContentRuntime'), "El render debe retirar el runtime que reconstruía el contenido en cliente.");
 requireCondition(template.includes('id="robots-taller"'), "La plantilla debe mantener un marcador robots reemplazable por SSR.");
+requireCondition(template.includes('data-tallermap-valoraciones="true"'), "Las valoraciones deben conservarse como función cliente no SEO.");
+requireCondition(template.includes('data-tallermap-reclamacion-link="true"'), "La reclamación de ficha debe conservarse.");
+requireCondition(template.includes('data-tallermap-imagenes-auto="true"'), "La experiencia de imágenes automáticas debe conservarse.");
+requireCondition(!renderer.includes('taller-urls-core.js'), "El runtime SEO antiguo no debe cargarse desde el render HTML-first.");
 
-console.log("OK: arquitectura HTML-first de fichas validada estáticamente.");
+console.log("OK: arquitectura HTML-first de fichas y funciones cliente no SEO validadas estáticamente.");
