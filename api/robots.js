@@ -8,6 +8,6 @@ export default function handler(_request, response) {
         "Sitemap: https://www.tallermap.es/sitemap-index.xml",
         "Host: www.tallermap.es",
         "",
-        "# Índice principal actualizado 2026-08-04"
+        "# Índice principal actualizado 2026-08-10"
     ].join("\n"));
 }
