@@ -22,7 +22,11 @@ El servidor obtiene los datos públicos desde Supabase y genera antes de respond
 - enlaces a municipio y provincia
 - talleres relacionados
 
-El HTML enviado al navegador elimina los runtimes `js/taller.js` y `js/taller-urls.js` y la carga cliente de Supabase usada por esos runtimes. De esta forma ningún JavaScript posterior puede cambiar title, canonical, robots o reconstruir la ficha después de que el servidor la haya generado.
+El HTML enviado a `/talleres/:slug` elimina `js/taller.js`, `js/taller-urls.js` y con ello el runtime antiguo que reconstruía contenido y SEO. Ningún JavaScript posterior debe cambiar title, canonical, robots, descripción, nombre, dirección, servicios u horarios.
+
+Se mantiene JavaScript únicamente para funciones auxiliares e interactivas que no definen la identidad SEO de la ficha: valoraciones, reclamación, imágenes auxiliares y consentimiento. Estas funciones pueden usar el SDK público de Supabase sin reconstruir la ficha.
+
+`api/taller.js` se elimina para que exista un único motor SSR de ficha pública.
 
 ## Criterio de revisión
 
@@ -32,6 +36,8 @@ La rama no debe fusionarse a `main` hasta comprobar en preview:
 2. una ficha con datos incompletos;
 3. una ficha de otro municipio;
 4. respuesta 404 para slug inexistente;
-5. HTML fuente sin dependencia del runtime de contenido;
+5. HTML fuente sin dependencia del runtime antiguo de contenido/SEO;
 6. `Cómo llegar` presente en el HTML fuente;
-7. canonical y robots correctos en el HTML fuente.
+7. canonical y robots correctos en el HTML fuente;
+8. valoraciones y reclamación siguen funcionando sin `taller-urls-core.js`;
+9. fotografías públicas y privadas no sufren regresiones.
