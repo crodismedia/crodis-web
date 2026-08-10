@@ -18,7 +18,11 @@ const SERVICE_SLUGS = new Set([
   'pre-itv',
   'reparacion-motor',
   'caja-cambios',
-  'sistema-refrigeracion'
+  'sistema-refrigeracion',
+  'escape-catalizador',
+  'cadena-distribucion',
+  'alternador-motor-arranque',
+  'lunas-cristales'
 ]);
 
 export default function middleware(request) {
