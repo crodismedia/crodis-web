@@ -31,4 +31,4 @@ jobs:
           deno-version: v2.x
 
       - name: Check active Edge Function
-        run: deno check supabase/functions/buscar-talleres-internet/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/buscar-talleres-internet/index.ts
