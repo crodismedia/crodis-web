@@ -1,6 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, renderWorkshopMedia, slugify, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import {
+    escapeHTML,
+    formatPhoneDisplay,
+    renderWorkshopMedia,
+    reviewStatusLabel,
+    safePhone,
+    safeWeb,
+    serviceLabel,
+    slugify,
+    supabaseRpc,
+    workshopSlug
+} from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
 const PROVINCIAS = { alicante: "Alicante", castellon: "Castellón", valencia: "Valencia" };
@@ -20,10 +31,24 @@ function renderMunicipios(rows) {
 function renderTalleres(rows) {
     if (!rows.length) return '<p class="mensaje-talleres">Todavía no hay talleres publicados en esta provincia.</p>';
     return rows.map((row) => {
-        const nombre = row.nombre || row.nombre_taller || "Taller sin nombre";
-        const ubicacion = [row.direccion, row.ciudad, row.provincia].filter(Boolean).join(", ");
+        const rawName = row.nombre || row.nombre_taller || "Taller sin nombre";
+        const nombre = escapeHTML(rawName);
+        const ubicacion = [row.direccion, row.codigo_postal, row.ciudad, row.provincia]
+            .filter(Boolean).map(escapeHTML).join(", ");
         const slug = workshopSlug(row);
-        return `<article class="taller-card taller-card-inicial">${renderWorkshopMedia(row, nombre)}<div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(nombre)}</a></h3><p class="ubicacion">⌖ ${escapeHTML(ubicacion || "Ubicación no indicada")}</p><div class="taller-pie"><span class="taller-contactos"><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a></span></div></div></article>`;
+        const phone = safePhone(row.telefono);
+        const phoneDisplay = formatPhoneDisplay(row.telefono);
+        const web = safeWeb(row.web);
+        const services = Array.isArray(row.servicios) ? row.servicios.slice(0, 4) : [];
+        const serviceHTML = services.length
+            ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
+            : "<span>Taller mecánico</span>";
+        const contacts = [];
+        if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        if (slug) contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
+
+        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
     }).join("");
 }
 
