@@ -59,6 +59,15 @@ async function fetchSearchResults(location, service, page) {
     });
 }
 
+function mapsURL(workshop, name) {
+    const query = [name, workshop.direccion, workshop.codigo_postal, workshop.ciudad || workshop.poblacion || workshop.municipio, workshop.provincia, "España"]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+        .join(", ");
+    return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : "";
+}
+
 function renderWorkshopLinks(workshops, detailed = false) {
     const unique = Array.from(
         new Map(
@@ -85,14 +94,15 @@ function renderWorkshopLinks(workshops, detailed = false) {
         const phone = safePhone(workshop.telefono);
         const phoneDisplay = formatPhoneDisplay(workshop.telefono);
         const web = safeWeb(workshop.web);
+        const map = mapsURL(workshop, name);
         const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
         const serviceHTML = services.length
             ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
             : "<span>Taller mecánico</span>";
         const contacts = [];
         if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${escapeHTML(name)}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${escapeHTML(name)}">Cómo llegar</a>`);
         if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-        contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
         return `
             <article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">
