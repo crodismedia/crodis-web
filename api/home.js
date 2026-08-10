@@ -2,7 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import {
     escapeHTML,
+    formatPhoneDisplay,
     renderWorkshopMedia,
+    reviewStatusLabel,
+    safePhone,
+    safeWeb,
+    serviceLabel,
     slugify,
     workshopSlug,
     supabaseRpc
@@ -77,16 +82,28 @@ function renderWorkshopLinks(workshops, detailed = false) {
         const location = detailed
             ? [address, postalCode, city, province].filter(Boolean).join(", ")
             : [city, province].filter(Boolean).join(", ");
+        const phone = safePhone(workshop.telefono);
+        const phoneDisplay = formatPhoneDisplay(workshop.telefono);
+        const web = safeWeb(workshop.web);
+        const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
+        const serviceHTML = services.length
+            ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
+            : "<span>Taller mecánico</span>";
+        const contacts = [];
+        if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${escapeHTML(name)}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
         return `
             <article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">
                 ${renderWorkshopMedia(workshop, name)}
                 <div class="taller-informacion">
+                    <span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop.verificado)))}</span>
                     <h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(name)}</a></h3>
                     ${location ? `<p class="ubicacion">⌖ ${escapeHTML(location)}</p>` : ""}
-                    <p class="taller-descripcion">Consulta la ficha del taller, sus servicios y datos de contacto.</p>
+                    <div class="especialidades">${serviceHTML}</div>
                     <div class="taller-pie">
-                        <span class="taller-contactos"><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a></span>
+                        <span class="taller-contactos">${contacts.join("")}</span>
                     </div>
                 </div>
             </article>`;
