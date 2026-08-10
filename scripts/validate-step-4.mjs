@@ -89,6 +89,12 @@ requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La
 const imageRuntime = read("js/imagenes-automaticas.js");
 requireCondition(imageRuntime.includes("Imagen no disponible") && imageRuntime.includes('from("fotos-talleres").createSignedUrls'), "El runtime debe diferenciar placeholders y fotografías autorizadas.");
 
+const supabaseRuntime = read("js/supabase.js");
+requireCondition(
+    supabaseRuntime.indexOf("window.supabaseClient = supabaseClient;") < supabaseRuntime.indexOf("if (!window.TallerMapTallerUI)"),
+    "El Centro de control debe inicializar Supabase sin depender de la interfaz pública."
+);
+
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
 requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general") && municipalityResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página municipal debe traducir servicios y preparar fotos autorizadas.");

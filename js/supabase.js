@@ -16,14 +16,16 @@
         console.error("No se ha cargado la biblioteca de Supabase.");
         return;
     }
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = supabaseClient;
+
     if (!window.TallerMapTallerUI) {
-        console.error("No se ha cargado TallerMapTallerUI.");
+        // El área administrativa solo necesita el cliente de Supabase.
         return;
     }
 
     const ui = window.TallerMapTallerUI;
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    window.supabaseClient = supabaseClient;
 
     let siguienteIndice = 0;
     let poblacionActual = "";
