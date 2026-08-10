@@ -14,7 +14,11 @@ const SERVICE_SLUGS = new Set([
   'suspension-amortiguadores',
   'alineacion-direccion',
   'electricidad-automovil',
-  'correa-distribucion'
+  'correa-distribucion',
+  'pre-itv',
+  'reparacion-motor',
+  'caja-cambios',
+  'sistema-refrigeracion'
 ]);
 
 export default function middleware(request) {
