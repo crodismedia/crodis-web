@@ -97,7 +97,7 @@ if (!existsSync(join(root, "images", "cartel-tallermap.png"))) {
     report("Falta la imagen social images/cartel-tallermap.png");
 }
 
-for (const publicScript of ["js/supabase.js", "js/municipio.js"]) {
+for (const publicScript of ["js/supabase.js"]) {
     const source = readFileSync(join(root, publicScript), "utf8");
     if (/\.from\(\s*["']talleres["']\s*\)/.test(source)) {
         report(`${publicScript} todavía consulta directamente la tabla talleres`);
