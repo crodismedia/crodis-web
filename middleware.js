@@ -10,7 +10,11 @@ const SERVICE_SLUGS = new Set([
   'frenos',
   'embrague',
   'cambio-aceite-filtros',
-  'baterias'
+  'baterias',
+  'suspension-amortiguadores',
+  'alineacion-direccion',
+  'electricidad-automovil',
+  'correa-distribucion'
 ]);
 
 export default function middleware(request) {
