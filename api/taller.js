@@ -44,9 +44,49 @@ function workshopAddress(workshop) {
         .join(", ");
 }
 
+const SERVICE_LABELS = {
+    "mecanica-general": "Mecánica general",
+    "cambio-aceite-filtros": "Cambio de aceite y filtros",
+    "chapa-pintura": "Chapa y pintura",
+    "neumaticos": "Neumáticos",
+    "diagnosis-electronica": "Diagnosis electrónica",
+    "aire-acondicionado": "Aire acondicionado",
+    "hibridos-electricos": "Híbridos y eléctricos",
+    "baterias": "Baterías",
+    "lunas-cristales": "Lunas y cristales",
+    "tapiceria": "Tapicería",
+    "electricidad": "Electricidad",
+    "frenos": "Frenos",
+    "embrague": "Embrague",
+    "suspension": "Suspensión",
+    "direccion": "Dirección",
+    "escape": "Escape",
+    "pre-itv": "Pre-ITV",
+    "itv": "ITV",
+    "motor": "Motor",
+    "caja-cambios": "Caja de cambios",
+    "climatizacion": "Climatización",
+    "alineacion": "Alineación",
+    "equilibrado": "Equilibrado"
+};
+
 function serviceLabel(service) {
-    if (typeof service === "string") return service;
-    return service?.nombre || service?.slug || "";
+    const raw = typeof service === "string"
+        ? service
+        : (service?.nombre || service?.slug || "");
+
+    const value = String(raw || "").trim();
+
+    if (!value) return "";
+
+    if (SERVICE_LABELS[value]) {
+        return SERVICE_LABELS[value];
+    }
+
+    return value
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .replace(/^./, letra => letra.toUpperCase());
 }
 
 function renderServices(workshop) {
@@ -96,17 +136,79 @@ function provinceURL(province) {
 }
 
 function municipalityURL(workshop) {
-    if (workshop?.codigo_municipal && workshop?.ciudad) {
-        return `/municipios/${slugify(workshop.ciudad)}-${escapeHTML(workshop.codigo_municipal)}.html`;
+    const city = String(workshop?.ciudad || "").trim();
+    const municipalCode = String(workshop?.codigo_municipal || "")
+        .replace(/\D/g, "")
+        .slice(0, 5);
+
+    if (city && municipalCode) {
+        return `/municipios/${slugify(city)}-${municipalCode}.html`;
     }
+
     const params = new URLSearchParams();
-    if (workshop?.ciudad) params.set("poblacion", workshop.ciudad);
+
+    if (city) {
+        params.set("poblacion", city);
+    }
+
     return `/${params.toString() ? `?${params.toString()}` : ""}#talleres`;
 }
 
 async function fetchWorkshop(slug) {
-    const rows = await supabaseRpc("obtener_taller_publico", { p_id: null, p_slug: slug });
-    return rows.length ? rows[0] : null;
+    const rows = await supabaseRpc("obtener_taller_publico", {
+        p_id: null,
+        p_slug: slug
+    });
+
+    if (!rows.length) {
+        return null;
+    }
+
+    const workshop = rows[0];
+
+    try {
+        const contextRows = await supabaseRpc("obtener_contexto_taller", {
+            p_id: workshop?.id || null,
+            p_slug: slug
+        });
+
+        const context = contextRows.length ? contextRows[0] : null;
+
+        if (!context) {
+            return workshop;
+        }
+
+        return {
+            ...workshop,
+
+            ciudad:
+                context.municipio ||
+                workshop.ciudad ||
+                "",
+
+            codigo_municipal:
+                context.codigo_municipal ||
+                workshop.codigo_municipal ||
+                "",
+
+            provincia:
+                workshop.provincia ||
+                context.provincia ||
+                "",
+
+            provincia_slug:
+                context.provincia_slug ||
+                workshop.provincia_slug ||
+                ""
+        };
+    } catch (error) {
+        console.warn(
+            "No se pudo obtener el contexto municipal de la ficha:",
+            error
+        );
+
+        return workshop;
+    }
 }
 
 function injectCoreContent(html, workshop, slug) {
@@ -185,6 +287,52 @@ function injectCoreContent(html, workshop, slug) {
         telephone: phone || undefined,
         sameAs: web || undefined
     };
+    const breadcrumbItems = [];
+
+breadcrumbItems.push({
+    "@type": "ListItem",
+    position: 1,
+    name: "Inicio",
+    item: `${SITE_URL}/`
+});
+
+let breadcrumbPosition = 2;
+
+if (province) {
+    breadcrumbItems.push({
+        "@type": "ListItem",
+        position: breadcrumbPosition++,
+        name: province,
+        item: `${SITE_URL}${provinceURL(province)}`
+    });
+}
+
+if (city) {
+    breadcrumbItems.push({
+        "@type": "ListItem",
+        position: breadcrumbPosition++,
+        name: city,
+        item: `${SITE_URL}${municipalityURL(workshop)}`
+    });
+}
+
+breadcrumbItems.push({
+    "@type": "ListItem",
+    position: breadcrumbPosition,
+    name,
+    item: canonical
+});
+
+const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems
+};
+
+html = html.replace(
+    /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i,
+    `<script type="application/ld+json" id="datos-estructurados-migas">${JSON.stringify(breadcrumbStructuredData).replace(/</g, "\\u003c")}</script>`
+);
     Object.keys(structuredData).forEach((key) => structuredData[key] === undefined && delete structuredData[key]);
     html = html.replace(
         /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i,
