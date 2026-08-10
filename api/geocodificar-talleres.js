@@ -31,7 +31,6 @@ async function rpcPrivada(name, body) {
             method: "POST",
             headers: {
                 apikey: serviceRoleKey,
-                Authorization: `Bearer ${serviceRoleKey}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(body)
@@ -67,9 +66,11 @@ function autorizada(request) {
         );
     }
 
-    return typeof received === "string" &&
+    return (
+        typeof received === "string" &&
         received.length > 0 &&
-        received === expected;
+        received === expected
+    );
 }
 
 async function consultarNominatim(direccion) {
