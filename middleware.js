@@ -6,7 +6,11 @@ const SERVICE_SLUGS = new Set([
   'chapa-pintura',
   'diagnosis-electronica',
   'aire-acondicionado',
-  'hibridos-electricos'
+  'hibridos-electricos',
+  'frenos',
+  'embrague',
+  'cambio-aceite-filtros',
+  'baterias'
 ]);
 
 export default function middleware(request) {
