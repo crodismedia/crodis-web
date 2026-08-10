@@ -14,6 +14,9 @@
     const estadoLocalidad = document.getElementById("estado-localidad");
     const listaLocalidades = document.getElementById("localidades-codigo-postal");
     const campoWeb = document.getElementById("web");
+    const pasosFormulario = Array.from(formulario?.querySelectorAll("[data-paso]") || []);
+    const indicadoresPaso = Array.from(formulario?.querySelectorAll("[data-indicador-paso]") || []);
+    const resumenAlta = document.getElementById("resumen-alta");
     const DIAS_SEMANA = [
         ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
         ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
@@ -24,6 +27,7 @@
     const MAXIMO_BYTES_FOTO = 5 * 1024 * 1024;
     let urlsVistaPrevia = [];
     let temporizadorCodigoPostal = null;
+    let pasoActual = 1;
     const localidadesPorCodigo = new Map();
 
     if (!formulario || !botonEnviar || !mensajeFormulario) {
@@ -217,6 +221,131 @@
 
     function enfocar(idCampo) {
         document.getElementById(idCampo)?.focus();
+    }
+
+    function mostrarPaso(numero, enfocarTitulo = true) {
+        pasoActual = Math.min(3, Math.max(1, Number(numero) || 1));
+        formulario.dataset.pasoActual = String(pasoActual);
+
+        pasosFormulario.forEach((paso) => {
+            paso.hidden = Number(paso.dataset.paso) !== pasoActual;
+        });
+
+        indicadoresPaso.forEach((indicador) => {
+            const numeroIndicador = Number(indicador.dataset.indicadorPaso);
+            indicador.classList.toggle("completado", numeroIndicador < pasoActual);
+            indicador.classList.toggle("activo", numeroIndicador === pasoActual);
+            if (numeroIndicador === pasoActual) indicador.setAttribute("aria-current", "step");
+            else indicador.removeAttribute("aria-current");
+        });
+
+        ocultarMensaje();
+        if (enfocarTitulo) {
+            const titulo = formulario.querySelector(`[data-paso="${pasoActual}"] h2`);
+            if (titulo) {
+                titulo.tabIndex = -1;
+                titulo.focus({ preventScroll: true });
+                formulario.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    }
+
+    function validarCamposNativos(numeroPaso) {
+        const paso = formulario.querySelector(`[data-paso="${numeroPaso}"]`);
+        const invalido = Array.from(
+            paso?.querySelectorAll("input, select, textarea") || []
+        ).find((campo) => !campo.disabled && !campo.checkValidity());
+
+        if (!invalido) return true;
+        invalido.reportValidity();
+        invalido.focus();
+        return false;
+    }
+
+    async function validarPaso(numeroPaso) {
+        ocultarMensaje();
+
+        if (numeroPaso === 1) {
+            if (campoWeb) campoWeb.value = normalizarWeb(campoWeb.value);
+            if (!validarCamposNativos(1)) return false;
+
+            const codigoPostal = valor("codigo_postal");
+            const provinciaEsperada = window.TallerMapProvincias?.provinciaPorCodigoPostal(codigoPostal);
+            if (!provinciaEsperada || provinciaEsperada.nombre !== valor("provincia")) {
+                mostrarMensaje(
+                    provinciaEsperada
+                        ? `El código postal ${codigoPostal} pertenece a ${provinciaEsperada.nombre}. Selecciona esa provincia.`
+                        : "El código postal no pertenece a una provincia española válida.",
+                    "error"
+                );
+                campoProvincia?.focus();
+                return false;
+            }
+
+            return validarLocalidadCodigoPostal(codigoPostal, valor("ciudad"));
+        }
+
+        if (numeroPaso === 2) {
+            if (!validarCamposNativos(2)) return false;
+            if (!serviciosSeleccionados().length) {
+                mostrarMensaje("Selecciona al menos un servicio ofrecido por el taller.", "error");
+                document.getElementById("lista-servicios-registro")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+                return false;
+            }
+            if (!validarHorarios(horariosSeleccionados())) return false;
+            return validarFotos(fotosSeleccionadas());
+        }
+
+        return validarCamposNativos(3);
+    }
+
+    function agregarDatoResumen(lista, etiqueta, contenido) {
+        const grupo = document.createElement("div");
+        const termino = document.createElement("dt");
+        const dato = document.createElement("dd");
+        termino.textContent = etiqueta;
+        dato.textContent = contenido || "No indicado";
+        grupo.append(termino, dato);
+        lista.appendChild(grupo);
+    }
+
+    function actualizarResumen() {
+        if (!resumenAlta) return;
+        const horarios = horariosSeleccionados();
+        const diasAbiertos = Object.values(horarios).filter((horario) => !horario.cerrado).length;
+        const servicios = serviciosSeleccionados();
+        const fotos = fotosSeleccionadas();
+        const lista = document.createElement("dl");
+
+        agregarDatoResumen(lista, "Taller", valor("nombre_taller"));
+        agregarDatoResumen(lista, "Teléfono", valor("telefono"));
+        agregarDatoResumen(
+            lista,
+            "Ubicación",
+            [valor("direccion"), valor("codigo_postal"), valor("ciudad"), valor("provincia")]
+                .filter(Boolean)
+                .join(", ")
+        );
+        agregarDatoResumen(
+            lista,
+            "Servicios",
+            `${servicios.length} ${servicios.length === 1 ? "seleccionado" : "seleccionados"}`
+        );
+        agregarDatoResumen(
+            lista,
+            "Horario",
+            `${diasAbiertos} ${diasAbiertos === 1 ? "día abierto" : "días abiertos"} por semana`
+        );
+        agregarDatoResumen(
+            lista,
+            "Fotografías",
+            fotos.length ? `${fotos.length} adjuntas` : "Sin fotografías"
+        );
+
+        resumenAlta.replaceChildren(lista);
     }
 
     function cambiarEstadoBoton(enviando, texto = "Enviando...") {
@@ -615,6 +744,24 @@
     document.getElementById("copiar-horario-laborables")?.addEventListener("click", copiarLunesALaborables);
     document.getElementById("cerrar-fin-semana")?.addEventListener("click", cerrarFinDeSemana);
 
+    formulario.querySelectorAll("[data-siguiente-paso]").forEach((boton) => {
+        boton.addEventListener("click", async () => {
+            boton.disabled = true;
+            try {
+                if (!await validarPaso(pasoActual)) return;
+                const destino = Number(boton.dataset.siguientePaso);
+                if (destino === 3) actualizarResumen();
+                mostrarPaso(destino);
+            } finally {
+                boton.disabled = false;
+            }
+        });
+    });
+
+    formulario.querySelectorAll("[data-anterior-paso]").forEach((boton) => {
+        boton.addEventListener("click", () => mostrarPaso(Number(boton.dataset.anteriorPaso)));
+    });
+
     campoFotos?.addEventListener("change", () => {
         ocultarMensaje();
         const archivos = fotosSeleccionadas();
@@ -647,8 +794,20 @@
 
         if (campoWeb) campoWeb.value = normalizarWeb(campoWeb.value);
 
+        if (pasoActual < 3) {
+            if (!await validarPaso(pasoActual)) return;
+            const destino = pasoActual + 1;
+            if (destino === 3) actualizarResumen();
+            mostrarPaso(destino);
+            return;
+        }
+
         if (!formulario.checkValidity()) {
-            formulario.reportValidity();
+            const campoInvalido = formulario.querySelector(":invalid");
+            const pasoInvalido = Number(campoInvalido?.closest("[data-paso]")?.dataset.paso || 3);
+            mostrarPaso(pasoInvalido, false);
+            campoInvalido?.reportValidity();
+            campoInvalido?.focus();
             return;
         }
 
@@ -705,6 +864,7 @@
             }
 
             formulario.reset();
+            mostrarPaso(1, false);
             listaHorarios?.querySelectorAll("[data-dia]").forEach(actualizarFilaHorario);
             if (campoCondicionesFotos) {
                 campoCondicionesFotos.disabled = true;
@@ -729,5 +889,7 @@
             cambiarEstadoBoton(false);
         }
     });
+
+    mostrarPaso(1, false);
 
 }());

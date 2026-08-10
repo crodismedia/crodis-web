@@ -28,6 +28,7 @@ function requestedPage(value) {
 
 function titleFromSlug(slug) {
     return String(slug || "")
+        .replace(/-[0-9a-f]{8}$/i, "")
         .split("-")
         .filter(Boolean)
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

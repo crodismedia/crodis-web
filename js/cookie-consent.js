@@ -1,6 +1,11 @@
 (function () {
     'use strict';
 
+    if (window.__tallerMapCookieConsentLoaded) {
+        return;
+    }
+    window.__tallerMapCookieConsentLoaded = true;
+
     const STORAGE_KEY = 'tallermap_cookie_consent_v1';
     const POLICY_VERSION = '1.0';
     const ANALYTICS_ID = 'G-PHB5F28R3L';
@@ -163,10 +168,7 @@
     }
 
     function resolvePolicyUrl() {
-        const path = window.location.pathname;
-        return path.indexOf('/pages/') !== -1 || path.indexOf('/municipios/') !== -1 || path.indexOf('/provincias/') !== -1 || path.indexOf('/servicios/') !== -1
-            ? '../pages/cookies.html'
-            : 'pages/cookies.html';
+        return '/pages/cookies.html';
     }
 
     function openPreferences() {

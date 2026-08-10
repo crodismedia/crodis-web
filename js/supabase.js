@@ -105,6 +105,20 @@
         window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
     }
 
+    function mostrarResultadosCuandoListos(comportamiento = "smooth") {
+        return new Promise(resolve => {
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    document.getElementById("talleres")?.scrollIntoView({
+                        behavior: comportamiento,
+                        block: "start"
+                    });
+                    resolve();
+                });
+            });
+        });
+    }
+
     async function adjuntarFotosFirmadas(talleres) {
         const rutas = [...new Set(
             talleres.map(taller => Array.isArray(taller.fotos) ? (taller.fotos[0] || "") : "").filter(Boolean)
@@ -260,10 +274,10 @@
         const poblacion = document.getElementById("poblacion");
         const servicio = document.getElementById("servicio");
         document.getElementById("boton-cargar-mas")?.addEventListener("click", () => cargarTalleres(poblacionActual, servicioActual, false));
-        formulario?.addEventListener("submit", evento => {
+        formulario?.addEventListener("submit", async evento => {
             evento.preventDefault();
-            cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
-            document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            await cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
+            await mostrarResultadosCuandoListos("smooth");
         });
         document.querySelectorAll("[data-servicio]").forEach(enlace => enlace.addEventListener("click", evento => {
             evento.preventDefault();
@@ -284,7 +298,12 @@
         if (servicioUrl && promesaServicios) await promesaServicios.catch(() => undefined);
         const servicioResuelto = resolverServicio(servicio, servicioUrl);
         if (servicio && servicioResuelto && [...servicio.options].some(opcion => opcion.value === servicioResuelto)) servicio.value = servicioResuelto;
-        cargarTalleres(poblacion?.value || poblacionUrl, servicio?.value || servicioResuelto, true);
+        await cargarTalleres(
+            poblacion?.value || poblacionUrl,
+            servicio?.value || servicioResuelto,
+            true
+        );
+        await mostrarResultadosCuandoListos("auto");
     }
 
     function iniciar() {
