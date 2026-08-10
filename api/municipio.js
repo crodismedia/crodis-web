@@ -149,6 +149,19 @@ function pageURL(fileName, page, service) {
     return `/municipios/${fileName}${query ? `?${query}` : ""}`;
 }
 
+function selectService(html, service) {
+    if (!service) return html;
+    const pattern = new RegExp(`(<option\\s+value="${service.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}")([^>]*>)`, "i");
+    return html.replace(pattern, "$1 selected$2");
+}
+
+function stripMunicipalityRuntime(html) {
+    return html
+        .replace(/\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
+        .replace(/\s*<script\s+src="\.\.\/js\/servicios\.js"><\/script>/i, "")
+        .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
+}
+
 function injectPagination(html, fileName, page, total, service) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const previousDisabled = page <= 1;
@@ -244,6 +257,7 @@ export default async function handler(request, response) {
                 /(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i,
                 `$1<p class="mensaje-talleres">Esta página de resultados no existe.</p>$2`
             );
+            html = stripMunicipalityRuntime(html);
             response.setHeader("Content-Type", "text/html; charset=utf-8");
             response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
             response.status(404).send(html);
@@ -264,6 +278,8 @@ export default async function handler(request, response) {
         );
         html = injectPagination(html, fileName, page, total, service);
         html = injectHeadSEO(html, fileName, page, total, service);
+        html = selectService(html, service);
+        html = stripMunicipalityRuntime(html);
 
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.setHeader("Cache-Control", service ? "no-store" : "public, s-maxage=300, stale-while-revalidate=1800");
