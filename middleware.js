@@ -22,7 +22,11 @@ const SERVICE_SLUGS = new Set([
   'escape-catalizador',
   'cadena-distribucion',
   'alternador-motor-arranque',
-  'lunas-cristales'
+  'lunas-cristales',
+  'carroceria',
+  'equilibrado-ruedas',
+  'centralitas-electronica',
+  'calefaccion-climatizacion'
 ]);
 
 export default function middleware(request) {
