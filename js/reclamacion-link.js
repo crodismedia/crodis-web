@@ -4,9 +4,9 @@
   if(!enlace)return;
   const params=new URLSearchParams(window.location.search);
   let slug=String(params.get('slug')||'').trim();
-  let id=String(params.get('id')||'').trim();
-  if(!slug&&window.__TALLERMAP_URL_LIMPIA__){
-    slug=String(window.__TALLERMAP_URL_LIMPIA__).replace(/^\/talleres\//,'').split('/')[0].trim();
+  const id=String(params.get('id')||'').trim();
+  if(!slug&&window.location.pathname.startsWith('/talleres/')){
+    slug=decodeURIComponent(window.location.pathname.slice('/talleres/'.length).split('/')[0]||'').trim();
   }
   const destino=new URL('/pages/reclamar-taller.html',window.location.origin);
   if(id)destino.searchParams.set('taller',id);

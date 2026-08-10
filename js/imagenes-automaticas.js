@@ -112,7 +112,8 @@
   }
 
   async function cargarFotosAutorizadas() {
-    const contenedores = [...document.querySelectorAll(".taller-imagen[data-foto-ruta]")]
+    const selector = ".taller-imagen[data-foto-ruta], .ficha-publica-foto[data-foto-ruta]";
+    const contenedores = [...document.querySelectorAll(selector)]
       .filter((contenedor) => !hayImagenReal(contenedor) && contenedor.dataset.fotoIntentada !== "1");
     if (!contenedores.length) return;
     contenedores.forEach((contenedor) => { contenedor.dataset.fotoIntentada = "1"; });
@@ -128,8 +129,12 @@
       contenedores.forEach((contenedor) => {
         const url = porRuta.get(contenedor.dataset.fotoRuta);
         if (!url) return;
-        const nombre = texto(contenedor.closest(".taller-card")?.querySelector("h3")?.textContent) || "taller";
+        const esFicha = contenedor.classList.contains("ficha-publica-foto");
+        const nombre = esFicha
+          ? (texto(document.getElementById("taller-nombre")?.textContent) || "taller")
+          : (texto(contenedor.closest(".taller-card")?.querySelector("h3")?.textContent) || "taller");
         const imagen = document.createElement("img");
+        if (esFicha) imagen.id = "taller-foto-imagen";
         imagen.src = url;
         imagen.alt = `Fotografía de ${nombre}`;
         imagen.loading = "lazy";
