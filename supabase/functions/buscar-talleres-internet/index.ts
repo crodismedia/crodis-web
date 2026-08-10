@@ -1,11 +1,26 @@
 import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 
+type Limites = {
+    sur: number;
+    norte: number;
+    oeste: number;
+    este: number;
+};
+
+type LugarNominatim = {
+    boundingbox?: unknown[];
+    lat?: string | number;
+    lon?: string | number;
+    display_name?: unknown;
+    address?: Record<string, unknown>;
+};
+
 const ORIGENES_PERMITIDOS = new Set([
     "https://tallermap.es",
     "https://www.tallermap.es"
 ]);
 
-function cabecerasCors(origen) {
+function cabecerasCors(origen: string | null): HeadersInit {
     return {
         "Access-Control-Allow-Origin":
             origen && ORIGENES_PERMITIDOS.has(origen)
@@ -19,25 +34,25 @@ function cabecerasCors(origen) {
     };
 }
 
-function respuesta(cuerpo, estado, cabeceras) {
+function respuesta(cuerpo: unknown, estado: number, cabeceras: HeadersInit): Response {
     return new Response(JSON.stringify(cuerpo), {
         status: estado,
         headers: cabeceras
     });
 }
 
-function texto(valor, maximo = 255) {
+function texto(valor: unknown, maximo = 255): string {
     return String(valor || "").trim().slice(0, maximo);
 }
 
-function primerValor(datos, claves) {
+function primerValor(datos: Record<string, unknown> | null | undefined, claves: string[]): string {
     for (const clave of claves) {
         if (datos && datos[clave]) return texto(datos[clave]);
     }
     return "";
 }
 
-function coordenadasValidas(latitud, longitud) {
+function coordenadasValidas(latitud: number, longitud: number): boolean {
     return Number.isFinite(latitud)
         && Number.isFinite(longitud)
         && latitud >= -90
@@ -46,7 +61,7 @@ function coordenadasValidas(latitud, longitud) {
         && longitud <= 180;
 }
 
-function limitesDe(lugar) {
+function limitesDe(lugar: LugarNominatim | null | undefined): Limites | null {
     if (!lugar || !Array.isArray(lugar.boundingbox) || lugar.boundingbox.length !== 4) {
         return null;
     }
@@ -60,14 +75,23 @@ function limitesDe(lugar) {
     return { sur, norte, oeste, este };
 }
 
-function selectorGeografico(limites, radioMetros, latitud, longitud) {
+function selectorGeografico(
+    limites: Limites | null,
+    radioMetros: number,
+    latitud: number,
+    longitud: number
+): string {
     if (limites) {
         return `(${limites.sur},${limites.oeste},${limites.norte},${limites.este})`;
     }
     return `(around:${radioMetros},${latitud},${longitud})`;
 }
 
-async function fetchConTiempoLimite(recurso, opciones, milisegundos) {
+async function fetchConTiempoLimite(
+    recurso: RequestInfo | URL,
+    opciones: RequestInit,
+    milisegundos: number
+): Promise<Response> {
     const controlador = new AbortController();
     const limite = setTimeout(() => controlador.abort(), milisegundos);
 
@@ -81,7 +105,7 @@ async function fetchConTiempoLimite(recurso, opciones, milisegundos) {
     }
 }
 
-async function localizarPoblacion(url, agente) {
+async function localizarPoblacion(url: URL, agente: string): Promise<LugarNominatim[]> {
     let ultimoError = "sin respuesta";
 
     for (let intento = 1; intento <= 2; intento += 1) {
@@ -98,13 +122,13 @@ async function localizarPoblacion(url, agente) {
             );
 
             if (resultado.ok) {
-                const datos = await resultado.json();
-                return Array.isArray(datos) ? datos : [];
+                const datos: unknown = await resultado.json();
+                return Array.isArray(datos) ? datos as LugarNominatim[] : [];
             }
 
             ultimoError = `HTTP ${resultado.status}`;
-        } catch (error) {
-            ultimoError = error && error.message ? error.message : "error de red";
+        } catch (error: unknown) {
+            ultimoError = error instanceof Error ? error.message : "error de red";
         }
 
         console.warn(`Nominatim intento ${intento}: ${ultimoError}`);
@@ -113,7 +137,7 @@ async function localizarPoblacion(url, agente) {
     throw new Error(ultimoError);
 }
 
-Deno.serve(async (peticion) => {
+Deno.serve(async (peticion: Request) => {
     const origen = peticion.headers.get("Origin");
     const cabeceras = cabecerasCors(origen);
 
@@ -154,15 +178,18 @@ Deno.serve(async (peticion) => {
         return respuesta({ error: "No autorizado" }, 403, cabeceras);
     }
 
-    let cuerpo;
+    let cuerpo: Record<string, unknown>;
     try {
-        cuerpo = await peticion.json();
+        const recibido: unknown = await peticion.json();
+        cuerpo = recibido && typeof recibido === "object" && !Array.isArray(recibido)
+            ? recibido as Record<string, unknown>
+            : {};
     } catch {
         return respuesta({ error: "Solicitud no válida" }, 400, cabeceras);
     }
 
-    const ubicacion = texto(cuerpo && cuerpo.ubicacion, 120);
-    const radioSolicitado = Number(cuerpo && cuerpo.radio_km);
+    const ubicacion = texto(cuerpo.ubicacion, 120);
+    const radioSolicitado = Number(cuerpo.radio_km);
     const radioKm = Math.min(
         25,
         Math.max(1, Number.isFinite(radioSolicitado) ? radioSolicitado : 10)
@@ -180,10 +207,10 @@ Deno.serve(async (peticion) => {
     geocodificacionUrl.searchParams.set("countrycodes", "es");
     geocodificacionUrl.searchParams.set("limit", "1");
 
-    let lugares;
+    let lugares: LugarNominatim[];
     try {
         lugares = await localizarPoblacion(geocodificacionUrl, agente);
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("No se pudo localizar la población:", error);
         return respuesta({
             error: "No se pudo localizar la población",
@@ -191,7 +218,7 @@ Deno.serve(async (peticion) => {
         }, 502, cabeceras);
     }
 
-    if (!Array.isArray(lugares) || lugares.length === 0) {
+    if (lugares.length === 0) {
         return respuesta({ error: "No se encontró esa ubicación en España" }, 404, cabeceras);
     }
 
