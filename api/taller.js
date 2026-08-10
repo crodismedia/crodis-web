@@ -1,33 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+    escapeHTML,
+    slugify,
+    safeWeb,
+    safePhone,
+    supabaseRpc
+} from "../lib/server-utils.js";
 
-const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
-const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
 const SITE_URL = "https://www.tallermap.es";
 const DEFAULT_IMAGE = `${SITE_URL}/images/cartel-tallermap.png`;
 
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
-function safeSlug(value) {
-    return String(value || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-}
-
 function cleanText(value, maxLength = 160) {
-    const text = String(value || "")
-        .replace(/\s+/g, " ")
-        .trim();
+    const text = String(value || "").replace(/\s+/g, " ").trim();
     return text.length > maxLength
         ? `${text.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
         : text;
@@ -52,48 +37,139 @@ function descriptionFor(workshop) {
     return cleanText(`Consulta teléfono, dirección, horarios y servicios de ${name}${location ? ` en ${location}` : ""} en TallerMap.`, 155);
 }
 
-async function fetchWorkshop(slug) {
-    const endpoint = `${SUPABASE_URL}/rest/v1/rpc/obtener_taller_publico`;
-    const result = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ p_id: null, p_slug: slug })
-    });
-
-    if (!result.ok) {
-        const message = await result.text().catch(() => "");
-        throw new Error(`Supabase respondió ${result.status}: ${message.slice(0, 300)}`);
-    }
-
-    const rows = await result.json();
-    return Array.isArray(rows) && rows.length ? rows[0] : null;
+function workshopAddress(workshop) {
+    return [workshop?.direccion, workshop?.codigo_postal, workshop?.ciudad, workshop?.provincia]
+        .filter(Boolean)
+        .map((value) => cleanText(value, 100))
+        .join(", ");
 }
 
-function injectSEO(html, workshop, slug) {
+function serviceLabel(service) {
+    if (typeof service === "string") return service;
+    return service?.nombre || service?.slug || "";
+}
+
+function renderServices(workshop) {
+    const services = Array.isArray(workshop?.servicios)
+        ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 12)
+        : [];
+    if (!services.length) return '<span>Taller mecánico</span>';
+    return services.map((service) => `<span>${escapeHTML(service)}</span>`).join("");
+}
+
+function renderSchedule(schedule) {
+    if (!schedule || typeof schedule !== "object") return "";
+    const days = [
+        ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
+        ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
+        ["domingo", "Domingo"]
+    ];
+    const rows = days.map(([key, label]) => {
+        const value = schedule[key];
+        if (!value) return "";
+        const text = value.cerrado
+            ? "Cerrado"
+            : (Array.isArray(value.turnos) ? value.turnos : [])
+                .map((slot) => `${slot.apertura || ""}–${slot.cierre || ""}`)
+                .filter((slot) => slot !== "–")
+                .join(" y ");
+        return text ? `<div><dt>${label}</dt><dd>${escapeHTML(text)}</dd></div>` : "";
+    }).filter(Boolean).join("");
+    return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
+}
+
+function formatDate(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return cleanText(value, 40);
+    return new Intl.DateTimeFormat("es-ES", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(date);
+}
+
+function provinceURL(province) {
+    const slug = slugify(province);
+    return slug ? `/provincias/${slug}.html` : "/provincias/";
+}
+
+function municipalityURL(workshop) {
+    if (workshop?.codigo_municipal && workshop?.ciudad) {
+        return `/municipios/${slugify(workshop.ciudad)}-${escapeHTML(workshop.codigo_municipal)}.html`;
+    }
+    const params = new URLSearchParams();
+    if (workshop?.ciudad) params.set("poblacion", workshop.ciudad);
+    return `/${params.toString() ? `?${params.toString()}` : ""}#talleres`;
+}
+
+async function fetchWorkshop(slug) {
+    const rows = await supabaseRpc("obtener_taller_publico", { p_id: null, p_slug: slug });
+    return rows.length ? rows[0] : null;
+}
+
+function injectCoreContent(html, workshop, slug) {
     const canonical = `${SITE_URL}/talleres/${encodeURIComponent(slug)}`;
     const title = titleFor(workshop);
     const description = descriptionFor(workshop);
     const name = cleanText(workshop?.nombre || "Ficha de taller", 100);
-    const address = [workshop?.direccion, workshop?.codigo_postal, workshop?.ciudad, workshop?.provincia]
-        .filter(Boolean)
-        .map((value) => cleanText(value, 80))
-        .join(", ");
+    const address = workshopAddress(workshop);
+    const phone = safePhone(workshop?.telefono);
+    const web = safeWeb(workshop?.web);
+    const city = cleanText(workshop?.ciudad || "", 80);
+    const province = cleanText(workshop?.provincia || "", 80);
+    const updated = formatDate(workshop?.updated_at);
+    const verified = Boolean(workshop?.verificado);
+
+    const actions = [];
+    if (phone) actions.push(`<a class="boton accion-principal" href="tel:${escapeHTML(phone)}">Llamar</a>`);
+    if (web) actions.push(`<a class="boton boton-claro" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+    if (address) {
+        actions.push(`<a class="boton boton-claro" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);
+    }
+
+    const dataRows = [];
+    if (phone) dataRows.push(`<p><strong>Teléfono:</strong> <a href="tel:${escapeHTML(phone)}">${escapeHTML(phone)}</a></p>`);
+    if (web) dataRows.push(`<p><strong>Web:</strong> <a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Visitar sitio web</a></p>`);
+    const schedule = renderSchedule(workshop?.horarios);
+    if (schedule) dataRows.push(schedule);
+
+    const crumbs = [
+        '<a href="/">Inicio</a>',
+        province ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(provinceURL(province))}">${escapeHTML(province)}</a>` : "",
+        city ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(municipalityURL(workshop))}">${escapeHTML(city)}</a>` : "",
+        `<span class="ficha-migas-separador" aria-hidden="true">›</span><span>${escapeHTML(name)}</span>`
+    ].filter(Boolean).join("");
 
     html = html
         .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHTML(title)}</title>`)
         .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?\s*>/i, `<meta name="description" content="${escapeHTML(description)}">`)
         .replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" id="canonical-taller" href="${escapeHTML(canonical)}">`)
         .replace(/<h1\s+id="taller-nombre">[\s\S]*?<\/h1>/i, `<h1 id="taller-nombre">${escapeHTML(name)}</h1>`)
-        .replace(/<p\s+id="taller-direccion"\s+class="ficha-publica-direccion">[\s\S]*?<\/p>/i, `<p id="taller-direccion" class="ficha-publica-direccion">${escapeHTML(address)}</p>`)
+        .replace(/<p\s+id="taller-direccion"\s+class="ficha-publica-direccion">[\s\S]*?<\/p>/i, `<p id="taller-direccion" class="ficha-publica-direccion">${escapeHTML(address || "Ubicación no indicada")}</p>`)
+        .replace(/<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">[\s\S]*?<\/nav>/i, `<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">${crumbs}</nav>`)
+        .replace(/<span id="taller-verificacion" class="ficha-insignia">[\s\S]*?<\/span>/i, `<span id="taller-verificacion" class="ficha-insignia${verified ? " verificada" : ""}">${verified ? "✓ Taller verificado" : "Datos públicos pendientes de verificar"}</span>`)
+        .replace(/<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/i, `<span id="taller-actualizacion" class="ficha-fecha">${updated ? `Última actualización: ${escapeHTML(updated)}` : ""}</span>`)
+        .replace(/<div id="taller-acciones" class="ficha-publica-acciones">[\s\S]*?<\/div>/i, `<div id="taller-acciones" class="ficha-publica-acciones">${actions.join("")}</div>`)
+        .replace(/<p id="taller-descripcion">[\s\S]*?<\/p>/i, `<p id="taller-descripcion">${escapeHTML(description)}</p>`)
+        .replace(/<div id="taller-servicios" class="especialidades">[\s\S]*?<\/div>/i, `<div id="taller-servicios" class="especialidades">${renderServices(workshop)}</div>`)
+        .replace(/<div id="taller-datos" class="ficha-publica-datos">[\s\S]*?<\/div>/i, `<div id="taller-datos" class="ficha-publica-datos">${dataRows.join("")}</div>`)
         .replace(/\.\.\/index\.html#talleres/g, "/#talleres")
         .replace(/\.\.\/index\.html/g, "/");
 
-    const social = `\n    <meta property="og:type" content="website">\n    <meta property="og:site_name" content="TallerMap">\n    <meta property="og:title" content="${escapeHTML(title)}">\n    <meta property="og:description" content="${escapeHTML(description)}">\n    <meta property="og:url" content="${escapeHTML(canonical)}">\n    <meta property="og:image" content="${escapeHTML(DEFAULT_IMAGE)}">\n    <meta property="og:locale" content="es_ES">\n    <meta name="twitter:card" content="summary_large_image">\n    <meta name="twitter:title" content="${escapeHTML(title)}">\n    <meta name="twitter:description" content="${escapeHTML(description)}">\n    <meta name="twitter:image" content="${escapeHTML(DEFAULT_IMAGE)}">`;
+    if (city || province) {
+        const localLinks = [
+            city ? `<a class="boton" href="${escapeHTML(municipalityURL(workshop))}">Ver talleres en ${escapeHTML(city)}</a>` : "",
+            province ? `<a class="boton boton-claro" href="${escapeHTML(provinceURL(province))}">Ver talleres en ${escapeHTML(province)}</a>` : ""
+        ].filter(Boolean).join("");
+        html = html
+            .replace(/<section id="contexto-local" class="ficha-contexto" hidden>/i, '<section id="contexto-local" class="ficha-contexto">')
+            .replace(/<h2 id="contexto-titulo">[\s\S]*?<\/h2>/i, `<h2 id="contexto-titulo">${escapeHTML(city ? `Talleres en ${city}` : `Talleres en ${province}`)}</h2>`)
+            .replace(/<p id="contexto-texto">[\s\S]*?<\/p>/i, `<p id="contexto-texto">Consulta otros talleres publicados en esta zona.</p>`)
+            .replace(/<div id="contexto-enlaces" class="ficha-contexto-enlaces">[\s\S]*?<\/div>/i, `<div id="contexto-enlaces" class="ficha-contexto-enlaces">${localLinks}</div>`);
+    }
 
+    const social = `\n    <meta property="og:type" content="website">\n    <meta property="og:site_name" content="TallerMap">\n    <meta property="og:title" content="${escapeHTML(title)}">\n    <meta property="og:description" content="${escapeHTML(description)}">\n    <meta property="og:url" content="${escapeHTML(canonical)}">\n    <meta property="og:image" content="${escapeHTML(DEFAULT_IMAGE)}">\n    <meta property="og:locale" content="es_ES">\n    <meta name="twitter:card" content="summary_large_image">\n    <meta name="twitter:title" content="${escapeHTML(title)}">\n    <meta name="twitter:description" content="${escapeHTML(description)}">\n    <meta name="twitter:image" content="${escapeHTML(DEFAULT_IMAGE)}">`;
     if (!/property="og:title"/i.test(html)) {
         html = html.replace(/(<link\s+rel="canonical"[^>]*>)/i, `$1${social}`);
     }
@@ -105,14 +181,17 @@ function injectSEO(html, workshop, slug) {
         url: canonical,
         description,
         address: address || undefined,
-        telephone: workshop?.telefono || undefined
+        telephone: phone || undefined,
+        sameAs: web || undefined
     };
     Object.keys(structuredData).forEach((key) => structuredData[key] === undefined && delete structuredData[key]);
-
     html = html.replace(
         /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i,
         `<script type="application/ld+json" id="datos-estructurados-taller">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>`
     );
+
+    const legacyRewrite = /<script>\s*\(function\(\)\s*\{[\s\S]*?window\.__TALLERMAP_URL_LIMPIA__[\s\S]*?<\/script>\s*/i;
+    html = html.replace(legacyRewrite, "");
 
     return html;
 }
@@ -128,7 +207,7 @@ export default async function handler(request, response) {
     }
 
     const rawSlug = Array.isArray(request.query?.slug) ? request.query.slug[0] : request.query?.slug;
-    const slug = safeSlug(rawSlug);
+    const slug = slugify(rawSlug);
     if (!slug) {
         response.status(404).send("Ficha no encontrada.");
         return;
@@ -140,11 +219,13 @@ export default async function handler(request, response) {
             response.status(404).send("Ficha no encontrada.");
             return;
         }
-        html = injectSEO(html, workshop, slug);
+        html = injectCoreContent(html, workshop, slug);
         response.setHeader("X-TallerMap-SEO-SSR", "1");
+        response.setHeader("X-TallerMap-Ficha-SSR", "1");
     } catch (error) {
-        console.error("No se pudo preparar SEO SSR de la ficha:", error);
+        console.error("No se pudo preparar la ficha SSR:", error);
         response.setHeader("X-TallerMap-SEO-SSR", "0");
+        response.setHeader("X-TallerMap-Ficha-SSR", "0");
     }
 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
