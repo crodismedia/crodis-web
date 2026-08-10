@@ -5,6 +5,8 @@ import {
     slugify,
     safeWeb,
     safePhone,
+    reviewStatusLabel,
+    serviceLabel,
     supabaseRpc
 } from "../lib/server-utils.js";
 
@@ -42,51 +44,6 @@ function workshopAddress(workshop) {
         .filter(Boolean)
         .map((value) => cleanText(value, 100))
         .join(", ");
-}
-
-const SERVICE_LABELS = {
-    "mecanica-general": "Mecánica general",
-    "cambio-aceite-filtros": "Cambio de aceite y filtros",
-    "chapa-pintura": "Chapa y pintura",
-    "neumaticos": "Neumáticos",
-    "diagnosis-electronica": "Diagnosis electrónica",
-    "aire-acondicionado": "Aire acondicionado",
-    "hibridos-electricos": "Híbridos y eléctricos",
-    "baterias": "Baterías",
-    "lunas-cristales": "Lunas y cristales",
-    "tapiceria": "Tapicería",
-    "electricidad": "Electricidad",
-    "frenos": "Frenos",
-    "embrague": "Embrague",
-    "suspension": "Suspensión",
-    "direccion": "Dirección",
-    "escape": "Escape",
-    "pre-itv": "Pre-ITV",
-    "itv": "ITV",
-    "motor": "Motor",
-    "caja-cambios": "Caja de cambios",
-    "climatizacion": "Climatización",
-    "alineacion": "Alineación",
-    "equilibrado": "Equilibrado"
-};
-
-function serviceLabel(service) {
-    const raw = typeof service === "string"
-        ? service
-        : (service?.nombre || service?.slug || "");
-
-    const value = String(raw || "").trim();
-
-    if (!value) return "";
-
-    if (SERVICE_LABELS[value]) {
-        return SERVICE_LABELS[value];
-    }
-
-    return value
-        .replace(/[-_]+/g, " ")
-        .replace(/\s+/g, " ")
-        .replace(/^./, letra => letra.toUpperCase());
 }
 
 function renderServices(workshop) {
@@ -251,7 +208,7 @@ function injectCoreContent(html, workshop, slug) {
         .replace(/<h1\s+id="taller-nombre">[\s\S]*?<\/h1>/i, `<h1 id="taller-nombre">${escapeHTML(name)}</h1>`)
         .replace(/<p\s+id="taller-direccion"\s+class="ficha-publica-direccion">[\s\S]*?<\/p>/i, `<p id="taller-direccion" class="ficha-publica-direccion">${escapeHTML(address || "Ubicación no indicada")}</p>`)
         .replace(/<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">[\s\S]*?<\/nav>/i, `<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">${crumbs}</nav>`)
-        .replace(/<span id="taller-verificacion" class="ficha-insignia">[\s\S]*?<\/span>/i, `<span id="taller-verificacion" class="ficha-insignia${verified ? " verificada" : ""}">${verified ? "✓ Taller verificado" : "Datos públicos pendientes de verificar"}</span>`)
+        .replace(/<span id="taller-verificacion" class="ficha-insignia">[\s\S]*?<\/span>/i, `<span id="taller-verificacion" class="ficha-insignia${verified ? " verificada" : ""}">${reviewStatusLabel(verified)}</span>`)
         .replace(/<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/i, `<span id="taller-actualizacion" class="ficha-fecha">${updated ? `Última actualización: ${escapeHTML(updated)}` : ""}</span>`)
         .replace(/<div id="taller-acciones" class="ficha-publica-acciones">[\s\S]*?<\/div>/i, `<div id="taller-acciones" class="ficha-publica-acciones">${actions.join("")}</div>`)
         .replace(/<p id="taller-descripcion">[\s\S]*?<\/p>/i, `<p id="taller-descripcion">${escapeHTML(description)}</p>`)

@@ -33,11 +33,17 @@ function pageURL(slug, page) {
 
 function injectPagination(html, slug, page, total) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const previous = page <= 1
+        ? '<span class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
+        : `<a class="boton boton-claro" href="${escapeHTML(pageURL(slug, page - 1))}">← Anterior</a>`;
+    const next = page >= totalPages
+        ? '<span class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
+        : `<a class="boton" href="${escapeHTML(pageURL(slug, page + 1))}">Siguiente →</a>`;
     const pagination = total > PAGE_SIZE ? `
         <div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor municipio-paginacion">
-            <a class="boton boton-claro${page <= 1 ? " deshabilitado" : ""}" aria-disabled="${page <= 1}" href="${escapeHTML(pageURL(slug, Math.max(1, page - 1)))}">← Anterior</a>
+            ${previous}
             <span aria-live="polite">Página ${page} de ${totalPages}</span>
-            <a class="boton${page >= totalPages ? " deshabilitado" : ""}" aria-disabled="${page >= totalPages}" href="${escapeHTML(pageURL(slug, Math.min(totalPages, page + 1)))}">Siguiente →</a>
+            ${next}
         </div>` : '<div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor" hidden></div>';
 
     return html.replace(
@@ -84,6 +90,7 @@ export default async function handler(request, response) {
     try { html = fs.readFileSync(path.join(process.cwd(), "provincias", `${slug}.html`), "utf8"); }
     catch (error) { console.error(error); response.status(500).send("No se pudo renderizar la provincia"); return; }
 
+    let cacheControl = "public, s-maxage=300, stale-while-revalidate=1800";
     try {
         const pagina = Math.max(1, Number.parseInt(String(request.query?.pagina || "1"), 10) || 1);
         const desde = (pagina - 1) * PAGE_SIZE;
@@ -109,9 +116,10 @@ export default async function handler(request, response) {
     } catch (error) {
         console.error("SSR provincia falló:", error);
         response.setHeader("X-TallerMap-Province-SSR", "0");
+        cacheControl = "no-store";
     }
 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
-    response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+    response.setHeader("Cache-Control", cacheControl);
     response.status(200).send(html);
 }

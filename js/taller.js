@@ -53,6 +53,14 @@
             .replace(/^-+|-+$/g, "");
     }
 
+    function etiquetaServicio(servicio) {
+        const raw = typeof servicio === "string"
+            ? servicio
+            : (servicio?.nombre || servicio?.slug || servicio?.servicio || "");
+        return window.TallerMapServicios?.etiquetas?.[raw]
+            || String(raw).replace(/[-_]+/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("es"));
+    }
+
     function urlSegura(valor) {
         if (!valor) return "";
         try {
@@ -305,7 +313,7 @@
 
         const insignia = document.getElementById("taller-verificacion");
         if (insignia) {
-            insignia.textContent = taller.verificado ? "✓ Taller verificado" : "Datos públicos pendientes de verificar";
+            insignia.textContent = taller.verificado ? "✓ Información revisada" : "Información publicada";
             insignia.classList.toggle("verificada", Boolean(taller.verificado));
         }
 
@@ -331,7 +339,7 @@
             serviciosContenedor.replaceChildren();
             servicios.forEach((servicio) => {
                 const etiqueta = document.createElement("span");
-                etiqueta.textContent = servicio;
+                etiqueta.textContent = etiquetaServicio(servicio);
                 serviciosContenedor.appendChild(etiqueta);
             });
         }

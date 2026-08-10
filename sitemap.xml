@@ -2,12 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://www.tallermap.es/</loc>
-        <lastmod>2026-08-09</lastmod>
+        <lastmod>2026-08-10</lastmod>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://www.tallermap.es/pages/registro.html</loc>
-        <lastmod>2026-08-04</lastmod>
+        <lastmod>2026-08-10</lastmod>
         <priority>0.8</priority>
     </url>
     <url>
@@ -17,17 +17,17 @@
     </url>
     <url>
         <loc>https://www.tallermap.es/pages/privacidad.html</loc>
-        <lastmod>2026-08-09</lastmod>
+        <lastmod>2026-08-10</lastmod>
         <priority>0.5</priority>
     </url>
     <url>
         <loc>https://www.tallermap.es/pages/cookies.html</loc>
-        <lastmod>2026-08-09</lastmod>
+        <lastmod>2026-08-10</lastmod>
         <priority>0.5</priority>
     </url>
     <url>
         <loc>https://www.tallermap.es/municipios/</loc>
-        <lastmod>2026-08-09</lastmod>
+        <lastmod>2026-08-10</lastmod>
         <priority>0.8</priority>
     </url>
 </urlset>

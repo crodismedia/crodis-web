@@ -24,6 +24,8 @@
     }
 
     function etiquetaDesdeSlug(slug) {
+        const etiquetaConfigurada = window.TallerMapServicios?.etiquetas?.[String(slug || "")];
+        if (etiquetaConfigurada) return etiquetaConfigurada;
         return String(slug || "")
             .replace(/-/g, " ")
             .replace(/\b\p{L}/gu, letra => letra.toUpperCase());
@@ -102,7 +104,7 @@
             <article class="taller-card" data-taller-slug="${escaparHTML(slug)}">
                 <div class="taller-imagen taller-imagen-1">
                     ${foto ? `<img src="${escaparHTML(foto)}" alt="Fotografía de ${nombre}" loading="lazy" decoding="async">` : ""}
-                    <span class="verificado">${taller?.verificado ? "✓ Verificado" : "Publicado"}</span>
+                    <span class="verificado">${taller?.verificado ? "✓ Información revisada" : "Información publicada"}</span>
                 </div>
                 <div class="taller-informacion">
                     <h3>${nombre}</h3>

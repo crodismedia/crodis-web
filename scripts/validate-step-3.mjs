@@ -24,22 +24,23 @@ requireCondition(
 
 globalThis.fetch = async (_url, options) => {
     const request = JSON.parse(options.body);
-    const isSearch = Object.hasOwn(request, "p_ubicacion");
+    const isInitial = request.p_ubicacion === "" && request.p_servicio === "";
     return {
         ok: true,
         async json() {
-            return isSearch
+            return isInitial
                 ? [{
+                    slug: "taller-aguila-silla-ab12cd34",
+                    nombre: "Taller Águila",
+                    ciudad: "Silla",
+                    provincia: "Valencia"
+                }]
+                : [{
                     slug: "taller-prueba-silla-ab12cd34",
                     nombre: "Taller Prueba",
                     ciudad: "Silla",
                     provincia: "Valencia",
                     total_resultados: 41
-                }]
-                : [{
-                    slug: "taller-sin-nombre-ab12cd34",
-                    ciudad: "Silla",
-                    provincia: "Valencia"
                 }];
         }
     };
@@ -59,8 +60,8 @@ function createResponse() {
 const initialResponse = createResponse();
 await handler({ query: {} }, initialResponse);
 requireCondition(
-    initialResponse.statusCode === 200 && initialResponse.body.includes("Taller Sin Nombre"),
-    "El SSR inicial debe renderizar nombres limpios derivados del slug."
+    initialResponse.statusCode === 200 && initialResponse.body.includes("Taller Águila"),
+    "El SSR inicial debe renderizar el nombre completo devuelto por Supabase."
 );
 requireCondition(
     initialResponse.body.includes("js/taller-ui.js?v="),

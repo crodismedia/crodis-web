@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, safePhone, safeWeb, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import { escapeHTML, reviewStatusLabel, safePhone, safeWeb, serviceLabel, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
 
@@ -50,14 +50,14 @@ function renderWorkshop(workshop, index) {
     const description = escapeHTML(workshop.descripcion || "Consulta la ficha del taller para conocer sus servicios y datos de contacto.");
     const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
     const serviceHTML = services.length
-        ? services.map((service) => `<span>${escapeHTML(typeof service === "string" ? service : (service?.nombre || service?.slug || ""))}</span>`).join("")
+        ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
         : "<span>Taller mecánico</span>";
     const contacts = [];
     if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
     if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
     if (slug) contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
-    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-imagen taller-imagen-1"><span class="verificado">${workshop.verificado ? "✓ Verificado" : "Publicado"}</span></div><div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-imagen taller-imagen-1"><span class="verificado">${reviewStatusLabel(Boolean(workshop.verificado))}</span></div><div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
 function pageURL(fileName, page, service) {
@@ -85,7 +85,13 @@ function injectPagination(html, fileName, page, total, service) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const previousDisabled = page <= 1;
     const nextDisabled = page >= totalPages;
-    const pagination = total > PAGE_SIZE ? `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor municipio-paginacion"><a id="boton-pagina-anterior" class="boton boton-claro${previousDisabled ? " deshabilitado" : ""}" aria-disabled="${previousDisabled}" href="${escapeHTML(pageURL(fileName, Math.max(1, page - 1), service))}">← Anterior</a><span id="estado-paginacion" aria-live="polite">Página ${page} de ${totalPages}</span><a id="boton-pagina-siguiente" class="boton${nextDisabled ? " deshabilitado" : ""}" aria-disabled="${nextDisabled}" href="${escapeHTML(pageURL(fileName, Math.min(totalPages, page + 1), service))}">Siguiente →</a></div>` : `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden></div>`;
+    const previous = previousDisabled
+        ? '<span id="boton-pagina-anterior" class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
+        : `<a id="boton-pagina-anterior" class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`;
+    const next = nextDisabled
+        ? '<span id="boton-pagina-siguiente" class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
+        : `<a id="boton-pagina-siguiente" class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`;
+    const pagination = total > PAGE_SIZE ? `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor municipio-paginacion">${previous}<span id="estado-paginacion" aria-live="polite">Página ${page} de ${totalPages}</span>${next}</div>` : `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden></div>`;
     return html.replace(/<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>[\s\S]*?<\/div>/i, pagination);
 }
 

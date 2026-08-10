@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs"
+    "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs && node scripts/validate-step-4.mjs"
   },
   "dependencies": {
     "@vercel/functions": "latest"

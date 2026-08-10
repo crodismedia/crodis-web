@@ -96,6 +96,14 @@
         return slug ? `/talleres/${encodeURIComponent(slug)}` : "";
     }
 
+    function etiquetaServicio(servicio) {
+        const raw = typeof servicio === "string"
+            ? servicio
+            : (servicio?.nombre || servicio?.slug || servicio?.servicio || "");
+        return window.TallerMapServicios?.etiquetas?.[raw]
+            || String(raw).replace(/[-_]+/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("es"));
+    }
+
     async function adjuntarFotosFirmadas(talleres) {
         const rutas = [...new Set(talleres
             .map((taller) => Array.isArray(taller.fotos) ? taller.fotos[0] : "")
@@ -117,7 +125,7 @@
     function imagenHtml(taller, nombre) {
         const imagen = urlSegura(taller.imagen_url) || urlSegura(taller.fotoFirmada)
             || (Array.isArray(taller.fotos) ? taller.fotos.map(urlSegura).find(Boolean) : "");
-        const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
+        const distintivo = taller.verificado ? "✓ Información revisada" : "Información publicada";
         return `<div class="taller-imagen ${imagen ? "taller-imagen-real" : "taller-imagen-1"}"${imagen ? ' style="position:relative;width:100%;height:190px;overflow:hidden;background:#e5e7eb"' : ""}>
             ${imagen ? `<img src="${escapar(imagen)}" alt="Imagen de ${nombre}" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover">` : ""}
             <span class="verificado">${distintivo}</span>
@@ -136,7 +144,7 @@
             <div class="taller-informacion">
                 <h3>${nombre}</h3>
                 <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
-                <div class="especialidades">${servicios.map((servicio) => `<span>${escapar(servicio)}</span>`).join("")}</div>
+                <div class="especialidades">${servicios.map((servicio) => `<span>${escapar(etiquetaServicio(servicio))}</span>`).join("")}</div>
                 <div class="taller-pie">
                     <span class="abierto">● Disponible</span>
                     <span class="taller-contactos">
@@ -169,12 +177,16 @@
         const siguienteDeshabilitado = ocupado || actual >= paginas;
         contenedorCargarMas.hidden = totalTalleres <= TAMANO_PAGINA;
         contenedorCargarMas.classList.add("municipio-paginacion");
+        const anterior = anteriorDeshabilitado
+            ? '<span id="pagina-anterior-provincia" class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
+            : `<a id="pagina-anterior-provincia" class="boton boton-claro" href="${escapar(urlPagina(actual - 1))}">← Anterior</a>`;
+        const siguiente = siguienteDeshabilitado
+            ? '<span id="pagina-siguiente-provincia" class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
+            : `<a id="pagina-siguiente-provincia" class="boton" href="${escapar(urlPagina(actual + 1))}">Siguiente →</a>`;
         contenedorCargarMas.innerHTML = `
-            <a id="pagina-anterior-provincia" class="boton boton-claro${anteriorDeshabilitado ? " deshabilitado" : ""}"
-               aria-disabled="${anteriorDeshabilitado}" href="${escapar(urlPagina(Math.max(1, actual - 1)))}">← Anterior</a>
+            ${anterior}
             <span aria-live="polite">Página ${actual} de ${paginas}</span>
-            <a id="pagina-siguiente-provincia" class="boton${siguienteDeshabilitado ? " deshabilitado" : ""}"
-               aria-disabled="${siguienteDeshabilitado}" href="${escapar(urlPagina(Math.min(paginas, actual + 1)))}">Siguiente →</a>`;
+            ${siguiente}`;
         contenedorCargarMas.querySelectorAll("a").forEach((enlace) => enlace.addEventListener("click", (evento) => {
             evento.preventDefault();
             if (enlace.getAttribute("aria-disabled") === "true") return;

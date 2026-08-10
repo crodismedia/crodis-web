@@ -36,9 +36,11 @@ function titleFromSlug(slug) {
 }
 
 async function fetchInitialWorkshops() {
-    return supabaseRpc("listar_talleres_sitemap", {
-        p_limite: INITIAL_WORKSHOPS,
-        p_desde: 0
+    return supabaseRpc("buscar_talleres_profesional", {
+        p_ubicacion: "",
+        p_servicio: "",
+        p_desde: 0,
+        p_limite: INITIAL_WORKSHOPS
     });
 }
 
