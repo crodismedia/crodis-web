@@ -168,17 +168,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-<script>
-(function () {
-    "use strict";
-    const prefijo = "/talleres/";
-    if (!window.location.pathname.startsWith(prefijo)) return;
-    const slug = window.location.pathname.slice(prefijo.length).split("/")[0];
-    if (!slug) return;
-    window.__TALLERMAP_URL_LIMPIA__ = `${prefijo}${slug}`;
-    window.history.replaceState({}, "", `/pages/taller.html?slug=${encodeURIComponent(slug)}`);
-}());
-</script>
 <script src="../js/taller.js"></script>
 <script src="../js/taller-urls.js"></script>
     <script defer src="../js/cookie-consent.js"></script>

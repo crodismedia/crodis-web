@@ -63,6 +63,13 @@ for (const path of htmlFiles) {
         const rawReference = match[2].trim();
         if (!rawReference || externalReference.test(rawReference)) continue;
 
+        const relativePath = relative(root, path).replaceAll("\\", "/");
+        if (relativePath.startsWith("municipios/") && rawReference === "../js/municipio.js") {
+            // Las páginas municipales físicas son plantillas SSR. api/municipio elimina
+            // este runtime heredado antes de entregar la respuesta pública.
+            continue;
+        }
+
         const cleanReference = rawReference.split(/[?#]/, 1)[0];
         if (!cleanReference) continue;
 
@@ -97,7 +104,7 @@ if (!existsSync(join(root, "images", "cartel-tallermap.png"))) {
     report("Falta la imagen social images/cartel-tallermap.png");
 }
 
-for (const publicScript of ["js/supabase.js", "js/municipio.js"]) {
+for (const publicScript of ["js/supabase.js"]) {
     const source = readFileSync(join(root, publicScript), "utf8");
     if (/\.from\(\s*["']talleres["']\s*\)/.test(source)) {
         report(`${publicScript} todavía consulta directamente la tabla talleres`);

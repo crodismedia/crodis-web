@@ -90,7 +90,8 @@ function formatDate(value) {
 }
 
 function provinceURL(province) {
-    const slug = slugify(province);
+    const primaryName = String(province || "").split("/")[0].trim();
+    const slug = slugify(primaryName);
     return slug ? `/provincias/${slug}.html` : "/provincias/";
 }
 
