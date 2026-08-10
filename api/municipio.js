@@ -39,6 +39,15 @@ function renderSchedule(schedule) {
     return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
 }
 
+function mapsURL(workshop, rawName) {
+    const location = [rawName, workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia, "España"]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+        .join(", ");
+    return location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}` : "";
+}
+
 function renderWorkshop(workshop, index) {
     const rawName = workshop.nombre || workshop.nombre_taller || "Taller sin nombre";
     const name = escapeHTML(rawName);
@@ -47,6 +56,7 @@ function renderWorkshop(workshop, index) {
         .filter(Boolean).map(escapeHTML).join(", ");
     const phone = safePhone(workshop.telefono);
     const web = safeWeb(workshop.web);
+    const map = mapsURL(workshop, rawName);
     const description = escapeHTML(workshop.descripcion || "Consulta la ficha del taller para conocer sus servicios y datos de contacto.");
     const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
     const serviceHTML = services.length
@@ -54,8 +64,8 @@ function renderWorkshop(workshop, index) {
         : "<span>Taller mecánico</span>";
     const contacts = [];
     if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
+    if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${name}">Cómo llegar</a>`);
     if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-    if (slug) contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
     return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
@@ -116,6 +126,10 @@ function injectHeadSEO(html, fileName, page, total, service) {
     return result;
 }
 
+function noindexOnFailure(html) {
+    return html.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
+}
+
 export default async function handler(request, response) {
     const fileName = safeFileName(request.query?.archivo);
     const page = requestedPage(request.query?.pagina);
@@ -160,8 +174,10 @@ export default async function handler(request, response) {
         response.status(200).send(html);
     } catch (error) {
         console.error("No se pudo renderizar el municipio desde Supabase:", error);
+        html = stripMunicipalityRuntime(noindexOnFailure(html));
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.setHeader("Cache-Control", "no-store");
-        response.status(200).send(html);
+        response.setHeader("Retry-After", "60");
+        response.status(503).send(html);
     }
 }
