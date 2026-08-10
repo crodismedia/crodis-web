@@ -17,9 +17,7 @@ const DEFAULT_IMAGE = `${SITE_URL}/images/cartel-tallermap.png`;
 
 function cleanText(value, maxLength = 160) {
     const text = String(value || "").replace(/\s+/g, " ").trim();
-    return text.length > maxLength
-        ? `${text.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
-        : text;
+    return text.length > maxLength ? `${text.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…` : text;
 }
 
 function titleFor(workshop) {
@@ -66,29 +64,21 @@ function postalAddress(workshop) {
 }
 
 function renderServices(workshop) {
-    const services = Array.isArray(workshop?.servicios)
-        ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 16)
-        : [];
+    const services = Array.isArray(workshop?.servicios) ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 16) : [];
     if (!services.length) return '<span>Taller mecánico</span>';
     return services.map((service) => `<span>${escapeHTML(service)}</span>`).join("");
 }
 
 function renderSchedule(schedule) {
     if (!schedule || typeof schedule !== "object") return "";
-    const days = [
-        ["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"],
-        ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"],
-        ["domingo", "Domingo"]
-    ];
+    const days = [["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"], ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"], ["domingo", "Domingo"]];
     const rows = days.map(([key, label]) => {
         const value = schedule[key];
         if (!value) return "";
-        const text = value.cerrado
-            ? "Cerrado"
-            : (Array.isArray(value.turnos) ? value.turnos : [])
-                .map((slot) => `${slot?.apertura || ""}–${slot?.cierre || ""}`)
-                .filter((slot) => slot !== "–")
-                .join(" y ");
+        const text = value.cerrado ? "Cerrado" : (Array.isArray(value.turnos) ? value.turnos : [])
+            .map((slot) => `${slot?.apertura || ""}–${slot?.cierre || ""}`)
+            .filter((slot) => slot !== "–")
+            .join(" y ");
         return text ? `<div><dt>${label}</dt><dd>${escapeHTML(text)}</dd></div>` : "";
     }).filter(Boolean).join("");
     return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
@@ -96,10 +86,7 @@ function renderSchedule(schedule) {
 
 function openingHoursSpecifications(schedule) {
     if (!schedule || typeof schedule !== "object") return undefined;
-    const dayNames = {
-        lunes: "Monday", martes: "Tuesday", miercoles: "Wednesday",
-        jueves: "Thursday", viernes: "Friday", sabado: "Saturday", domingo: "Sunday"
-    };
+    const dayNames = { lunes: "Monday", martes: "Tuesday", miercoles: "Wednesday", jueves: "Thursday", viernes: "Friday", sabado: "Saturday", domingo: "Sunday" };
     const result = [];
     for (const [key, dayOfWeek] of Object.entries(dayNames)) {
         const value = schedule[key];
@@ -153,10 +140,7 @@ async function fetchWorkshop(slug) {
     if (!rows.length) return null;
     const workshop = rows[0];
     try {
-        const contextRows = await supabaseRpc("obtener_contexto_taller", {
-            p_id: workshop?.id || null,
-            p_slug: slug
-        });
+        const contextRows = await supabaseRpc("obtener_contexto_taller", { p_id: workshop?.id || null, p_slug: slug });
         const context = contextRows[0];
         if (!context) return workshop;
         return {
@@ -174,11 +158,7 @@ async function fetchWorkshop(slug) {
 
 async function fetchRelated(workshop, slug) {
     try {
-        return await supabaseRpc("buscar_talleres_relacionados", {
-            p_id: workshop?.id || null,
-            p_slug: workshop?.slug || slug,
-            p_limite: 6
-        });
+        return await supabaseRpc("buscar_talleres_relacionados", { p_id: workshop?.id || null, p_slug: workshop?.slug || slug, p_limite: 6 });
     } catch (error) {
         console.warn("No se pudieron obtener talleres relacionados:", error);
         return [];
@@ -189,7 +169,7 @@ function renderRelated(rows, workshop) {
     const cards = rows.filter((row) => row?.slug).slice(0, 6).map((row) => {
         const name = cleanText(row?.nombre || "Taller", 100);
         const address = [row?.direccion, row?.codigo_postal, row?.ciudad].filter(Boolean).join(", ");
-        return `<a class="taller-relacionado" href="/talleres/${encodeURIComponent(row.slug)}"><strong>${escapeHTML(name)}</strong><small>${escapeHTML(address)}</small></a>`;
+        return `<a class="taller-relacionado" href="/talleres/${encodeURIComponent(slugify(row.slug))}"><strong>${escapeHTML(name)}</strong><small>${escapeHTML(address)}</small></a>`;
     }).join("");
     const title = workshop?.ciudad ? `Otros talleres en ${workshop.ciudad}` : "Otros talleres que pueden interesarte";
     const state = cards ? "" : '<p id="relacionados-estado" class="ficha-relacionados-vacio">Todavía no hay otros talleres relacionados disponibles.</p>';
@@ -198,8 +178,13 @@ function renderRelated(rows, workshop) {
 
 function renderPhoto(workshop, name) {
     const source = workshopPhotoSource(workshop);
-    if (!source.url) return '<div id="taller-foto" class="ficha-publica-foto" hidden></div>';
-    return `<div id="taller-foto" class="ficha-publica-foto"><img id="taller-foto-imagen" src="${escapeHTML(source.url)}" alt="Fotografía de ${escapeHTML(name)}" loading="lazy" decoding="async"></div>`;
+    if (source.url) {
+        return `<div id="taller-foto" class="ficha-publica-foto"><img id="taller-foto-imagen" src="${escapeHTML(source.url)}" alt="Fotografía de ${escapeHTML(name)}" loading="lazy" decoding="async"></div>`;
+    }
+    if (source.path) {
+        return `<div id="taller-foto" class="ficha-publica-foto" data-foto-ruta="${escapeHTML(source.path)}"></div>`;
+    }
+    return '<div id="taller-foto" class="ficha-publica-foto" hidden></div>';
 }
 
 function stripContentRuntime(html) {
@@ -209,8 +194,8 @@ function stripContentRuntime(html) {
         .replace(/\s*<script\s+src="\.\.\/js\/taller-urls\.js[^\"]*"><\/script>/i, "");
 }
 
-function inject(html, workshop, slug, relatedRows) {
-    const canonical = `${SITE_URL}/talleres/${encodeURIComponent(slug)}`;
+function inject(html, workshop, canonicalSlug, relatedRows) {
+    const canonical = `${SITE_URL}/talleres/${encodeURIComponent(canonicalSlug)}`;
     const title = titleFor(workshop);
     const description = descriptionFor(workshop);
     const name = cleanText(workshop?.nombre || "Ficha de taller", 100);
@@ -309,22 +294,16 @@ function inject(html, workshop, slug, relatedRows) {
     if (city) breadcrumbItems.push({ "@type": "ListItem", position: position++, name: city, item: `${SITE_URL}${municipalityURL(workshop)}` });
     breadcrumbItems.push({ "@type": "ListItem", position, name, item: canonical });
 
-    html = html.replace(
-        /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i,
-        `<script type="application/ld+json" id="datos-estructurados-taller">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>`
-    );
-    html = html.replace(
-        /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i,
-        `<script type="application/ld+json" id="datos-estructurados-migas">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: breadcrumbItems }).replace(/</g, "\\u003c")}</script>`
-    );
+    html = html.replace(/<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i, `<script type="application/ld+json" id="datos-estructurados-taller">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>`);
+    html = html.replace(/<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i, `<script type="application/ld+json" id="datos-estructurados-migas">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: breadcrumbItems }).replace(/</g, "\\u003c")}</script>`);
 
     return stripContentRuntime(html);
 }
 
 export default async function handler(request, response) {
     const rawSlug = Array.isArray(request.query?.slug) ? request.query.slug[0] : request.query?.slug;
-    const slug = slugify(rawSlug);
-    if (!slug) {
+    const requestedSlug = slugify(rawSlug);
+    if (!requestedSlug) {
         response.status(404).send("Ficha no encontrada.");
         return;
     }
@@ -339,17 +318,27 @@ export default async function handler(request, response) {
     }
 
     try {
-        const workshop = await fetchWorkshop(slug);
+        const workshop = await fetchWorkshop(requestedSlug);
         if (!workshop) {
             response.status(404).send("Ficha no encontrada.");
             return;
         }
-        const related = await fetchRelated(workshop, slug);
-        const html = inject(template, workshop, slug, related);
+
+        const canonicalSlug = slugify(workshop?.slug || requestedSlug) || requestedSlug;
+        if (canonicalSlug !== requestedSlug) {
+            response.setHeader("Location", `/talleres/${encodeURIComponent(canonicalSlug)}`);
+            response.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+            response.status(308).send("Redirigiendo a la ficha canónica.");
+            return;
+        }
+
+        const related = await fetchRelated(workshop, canonicalSlug);
+        const html = inject(template, workshop, canonicalSlug, related);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=3600");
         response.setHeader("X-TallerMap-HTML-First", "1");
         response.setHeader("X-TallerMap-Ficha-SSR", "2");
+        response.setHeader("X-TallerMap-Canonical-Slug", canonicalSlug);
         response.status(200).send(html);
     } catch (error) {
         console.error("No se pudo renderizar la ficha HTML-first:", error);
