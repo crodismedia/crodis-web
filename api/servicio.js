@@ -3,7 +3,7 @@ import path from "node:path";
 import { escapeHTML, formatPhoneDisplay, renderWorkshopMedia, reviewStatusLabel, safePhone, safeWeb, serviceLabel, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
-const ALLOWED = new Set(["mecanica-general","neumaticos","chapa-pintura","diagnosis-electronica","aire-acondicionado","hibridos-electricos","frenos","embrague","cambio-aceite-filtros","baterias","suspension-amortiguadores","alineacion-direccion","electricidad-automovil","correa-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","cadena-distribucion","alternador-motor-arranque","lunas-cristales"]);
+const ALLOWED = new Set(["mecanica-general","neumaticos","chapa-pintura","diagnosis-electronica","aire-acondicionado","hibridos-electricos","frenos","embrague","cambio-aceite-filtros","baterias","suspension-amortiguadores","alineacion-direccion","electricidad-automovil","correa-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","cadena-distribucion","alternador-motor-arranque","lunas-cristales","carroceria","equilibrado-ruedas","centralitas-electronica","calefaccion-climatizacion"]);
 
 function safeSlug(value){const slug=String(value||"").trim().toLowerCase();return ALLOWED.has(slug)?slug:"";}
 function requestedPage(value){const page=Number(value);return Number.isInteger(page)&&page>0?page:1;}
