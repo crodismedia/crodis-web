@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { reviewStatusLabel, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
+import { formatPhoneDisplay, reviewStatusLabel, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
 import municipalityHandler from "../api/municipio.js";
 import provinceHandler from "../api/provincia.js";
 import serviceHandler from "../api/servicio.js";
@@ -23,6 +23,8 @@ requireCondition(serviceLabel("mecanica-general") === "Mecánica general", "Debe
 requireCondition(serviceLabel("suspension-amortiguadores") === "Suspensión y amortiguadores", "Debe conservar acentos en los servicios.");
 requireCondition(reviewStatusLabel(true) === "✓ Información revisada", "La etiqueta revisada debe ser clara y prudente.");
 requireCondition(reviewStatusLabel(false) === "Información publicada", "La etiqueta no revisada no debe insinuar verificación.");
+requireCondition(formatPhoneDisplay("963782395") === "963 782 395", "Los teléfonos españoles deben mostrarse en grupos legibles.");
+requireCondition(formatPhoneDisplay("+34963782395") === "+34 963 782 395", "Los teléfonos con prefijo deben conservar el prefijo y ser legibles.");
 requireCondition(workshopPhotoSource({ fotos: ["solicitudes/demo/fachada.webp"] }).path === "solicitudes/demo/fachada.webp", "Debe aceptar rutas de fotografías subidas.");
 requireCondition(workshopPhotoSource({ fotos: ["https://cdn.example.com/fachada.webp"] }).url === "https://cdn.example.com/fachada.webp", "Debe aceptar fotografías autorizadas con URL segura.");
 requireCondition(!workshopPhotoSource({ imagen_url: "https://example.com/foto.jpg" }).url, "No debe usar imágenes externas sin autorización registrada.");
@@ -34,6 +36,15 @@ for (const file of publicFiles) {
 
 const homeApi = read("api/home.js");
 requireCondition(/buscar_talleres_profesional/.test(homeApi) && /p_ubicacion:\s*""/.test(homeApi), "La portada debe solicitar registros completos.");
+requireCondition(homeApi.includes('FRONTEND_VERSION = "20260810-3"'), "La portada debe solicitar la versión corregida de las tarjetas.");
+
+const cardRuntime = read("js/taller-ui.js");
+requireCondition(/<div class="taller-imagen[\s\S]*?<\/div>\s*<div class="taller-informacion">\s*<span class="verificado verificado-en-contenido">/.test(cardRuntime), "Las tarjetas dinámicas deben colocar la insignia fuera de la imagen.");
+requireCondition(cardRuntime.includes('toLocaleLowerCase("es")'), "Las tarjetas dinámicas deben normalizar correctamente las mayúsculas acentuadas.");
+
+const workshopTemplate = read("pages/taller.html");
+requireCondition(!/<img[^>]+id="taller-foto-imagen"[^>]+src=""/i.test(workshopTemplate), "La ficha no debe solicitar una imagen con URL vacía.");
+requireCondition(workshopTemplate.includes('taller.js?v=20260810-3'), "La ficha debe solicitar la versión corregida de su runtime.");
 
 for (const file of ["api/municipio.js", "api/servicio.js", "api/provincia.js"]) {
     const source = read(file);

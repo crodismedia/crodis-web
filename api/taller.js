@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
     escapeHTML,
+    formatPhoneDisplay,
     slugify,
     safeWeb,
     safePhone,
@@ -189,7 +190,7 @@ function injectCoreContent(html, workshop, slug) {
     }
 
     const dataRows = [];
-    if (phone) dataRows.push(`<p><strong>Teléfono:</strong> <a href="tel:${escapeHTML(phone)}">${escapeHTML(phone)}</a></p>`);
+    if (phone) dataRows.push(`<p><strong>Teléfono:</strong> <a href="tel:${escapeHTML(phone)}">${escapeHTML(formatPhoneDisplay(phone))}</a></p>`);
     if (web) dataRows.push(`<p><strong>Web:</strong> <a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Visitar sitio web</a></p>`);
     const schedule = renderSchedule(workshop?.horarios);
     if (schedule) dataRows.push(schedule);

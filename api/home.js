@@ -11,7 +11,7 @@ import {
 const INITIAL_WORKSHOPS = 24;
 const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
-const FRONTEND_VERSION = "20260810-2";
+const FRONTEND_VERSION = "20260810-3";
 const MAX_TERM = 80;
 
 function safeTerm(value) {

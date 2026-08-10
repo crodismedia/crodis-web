@@ -57,8 +57,18 @@
         const raw = typeof servicio === "string"
             ? servicio
             : (servicio?.nombre || servicio?.slug || servicio?.servicio || "");
-        return window.TallerMapServicios?.etiquetas?.[raw]
-            || String(raw).replace(/[-_]+/g, " ").replace(/^./, (letra) => letra.toLocaleUpperCase("es"));
+        const configurada = window.TallerMapServicios?.etiquetas?.[raw];
+        if (configurada) return configurada;
+        const texto = String(raw).replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().toLocaleLowerCase("es");
+        return texto ? texto[0].toLocaleUpperCase("es") + texto.slice(1) : "";
+    }
+
+    function telefonoLegible(valor) {
+        const limpio = String(valor || "").replace(/[^\d+]/g, "");
+        const coincidencia = limpio.match(/^(\+34)?(\d{3})(\d{3})(\d{3})$/);
+        return coincidencia
+            ? `${coincidencia[1] ? "+34 " : ""}${coincidencia[2]} ${coincidencia[3]} ${coincidencia[4]}`
+            : limpio;
     }
 
     function urlSegura(valor) {
@@ -318,8 +328,13 @@
         }
 
         const contenedorFoto = document.getElementById("taller-foto");
-        const imagen = document.getElementById("taller-foto-imagen");
-        if (contenedorFoto && imagen && foto) {
+        let imagen = document.getElementById("taller-foto-imagen");
+        if (contenedorFoto && foto) {
+            if (!imagen) {
+                imagen = document.createElement("img");
+                imagen.id = "taller-foto-imagen";
+                contenedorFoto.appendChild(imagen);
+            }
             imagen.src = foto;
             imagen.alt = `Imagen de ${nombre}`;
             contenedorFoto.hidden = false;
@@ -347,7 +362,7 @@
         const datos = document.getElementById("taller-datos");
         if (datos) {
             datos.replaceChildren();
-            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> <a href="tel:${escaparHTML(telefono)}">${escaparHTML(telefono)}</a></p>`);
+            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> <a href="tel:${escaparHTML(telefono)}">${escaparHTML(telefonoLegible(telefono))}</a></p>`);
             if (taller.direccion) datos.insertAdjacentHTML("beforeend", `<p><strong>Dirección:</strong> ${escaparHTML(taller.direccion)}</p>`);
             if (taller.codigo_postal) datos.insertAdjacentHTML("beforeend", `<p><strong>Código postal:</strong> ${escaparHTML(taller.codigo_postal)}</p>`);
             if (taller.ciudad) datos.insertAdjacentHTML("beforeend", `<p><strong>Municipio:</strong> ${escaparHTML(taller.ciudad)}</p>`);

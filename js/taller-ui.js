@@ -26,9 +26,13 @@
     function etiquetaDesdeSlug(slug) {
         const etiquetaConfigurada = window.TallerMapServicios?.etiquetas?.[String(slug || "")];
         if (etiquetaConfigurada) return etiquetaConfigurada;
-        return String(slug || "")
+        const texto = String(slug || "")
             .replace(/-/g, " ")
-            .replace(/\b\p{L}/gu, letra => letra.toUpperCase());
+            .replace(/_/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLocaleLowerCase("es");
+        return texto ? texto[0].toLocaleUpperCase("es") + texto.slice(1) : "";
     }
 
     function slugTaller(taller) {
@@ -99,14 +103,15 @@
         const etiquetasServicios = (servicios.length ? servicios : ["taller-mecanico"])
             .map(servicio => `<span>${escaparHTML(etiquetaDesdeSlug(servicio))}</span>`)
             .join("");
+        const estadoPublicacion = taller?.verificado ? "✓ Información revisada" : "Información publicada";
 
         return `
             <article class="taller-card" data-taller-slug="${escaparHTML(slug)}">
                 <div class="taller-imagen taller-imagen-1">
                     ${foto ? `<img src="${escaparHTML(foto)}" alt="Fotografía de ${nombre}" loading="lazy" decoding="async">` : ""}
-                    <span class="verificado">${taller?.verificado ? "✓ Información revisada" : "Información publicada"}</span>
                 </div>
                 <div class="taller-informacion">
+                    <span class="verificado verificado-en-contenido">${estadoPublicacion}</span>
                     <h3>${nombre}</h3>
                     <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
                     <p class="taller-descripcion">${descripcion}</p>
