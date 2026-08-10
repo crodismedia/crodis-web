@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, reviewStatusLabel, safePhone, safeWeb, serviceLabel, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import { escapeHTML, renderWorkshopMedia, reviewStatusLabel, safePhone, safeWeb, serviceLabel, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
 
@@ -57,7 +57,7 @@ function renderWorkshop(workshop, index) {
     if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
     if (slug) contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
-    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-imagen taller-imagen-1"><span class="verificado">${reviewStatusLabel(Boolean(workshop.verificado))}</span></div><div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName, reviewStatusLabel(Boolean(workshop.verificado)))}<div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
 function pageURL(fileName, page, service) {
@@ -75,10 +75,13 @@ function selectService(html, service) {
 }
 
 function stripMunicipalityRuntime(html) {
-    return html
+    const result = html
         .replace(/\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
         .replace(/\s*<script\s+src="\.\.\/js\/servicios\.js"><\/script>/i, "")
         .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
+    return /imagenes-automaticas\.js/i.test(result)
+        ? result
+        : result.replace("</body>", '<script defer src="../js/imagenes-automaticas.js?v=20260810-2"></script>\n</body>');
 }
 
 function injectPagination(html, fileName, page, total, service) {

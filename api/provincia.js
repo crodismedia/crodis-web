@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, slugify, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import { escapeHTML, renderWorkshopMedia, slugify, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
 const PROVINCIAS = { alicante: "Alicante", castellon: "Castellón", valencia: "Valencia" };
@@ -23,7 +23,7 @@ function renderTalleres(rows) {
         const nombre = row.nombre || row.nombre_taller || "Taller sin nombre";
         const ubicacion = [row.direccion, row.ciudad, row.provincia].filter(Boolean).join(", ");
         const slug = workshopSlug(row);
-        return `<article class="taller-card taller-card-inicial"><div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(nombre)}</a></h3><p class="ubicacion">⌖ ${escapeHTML(ubicacion || "Ubicación no indicada")}</p><div class="taller-pie"><span class="taller-contactos"><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a></span></div></div></article>`;
+        return `<article class="taller-card taller-card-inicial">${renderWorkshopMedia(row, nombre)}<div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(nombre)}</a></h3><p class="ubicacion">⌖ ${escapeHTML(ubicacion || "Ubicación no indicada")}</p><div class="taller-pie"><span class="taller-contactos"><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a></span></div></div></article>`;
     }).join("");
 }
 

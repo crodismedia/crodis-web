@@ -4,6 +4,11 @@
   if (window.__TALLERMAP_IMAGENES_AUTOMATICAS__) return;
   window.__TALLERMAP_IMAGENES_AUTOMATICAS__ = true;
 
+  const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
+  let sdkPromise = null;
+  let client = null;
+
   function texto(valor) {
     return String(valor || "").replace(/\s+/g, " ").trim();
   }
@@ -29,7 +34,7 @@
     const portada = document.createElement("div");
     portada.className = `tm-auto-portada${grande ? " tm-auto-portada-grande" : ""}`;
     portada.setAttribute("role", "img");
-    portada.setAttribute("aria-label", `Portada automática de ${nombre}`);
+    portada.setAttribute("aria-label", `Imagen genérica de TallerMap para ${nombre}; fotografía no disponible`);
 
     const marca = document.createElement("div");
     marca.className = "tm-auto-marca";
@@ -44,7 +49,7 @@
     contenido.className = "tm-auto-contenido";
     const tipo = document.createElement("span");
     tipo.className = "tm-auto-tipo";
-    tipo.textContent = "Taller mecánico";
+    tipo.textContent = "Imagen no disponible";
     const titulo = document.createElement("strong");
     titulo.textContent = nombre;
     const lugar = document.createElement("span");
@@ -53,7 +58,7 @@
     contenido.append(tipo, titulo, lugar);
 
     const pie = document.createElement("small");
-    pie.textContent = "Directorio profesional de talleres";
+    pie.textContent = "Portada genérica de TallerMap";
     portada.append(marca, contenido, pie);
     return portada;
   }
@@ -93,6 +98,50 @@
     asegurarFicha();
   }
 
+  function cargarSDK() {
+    if (window.supabase?.createClient) return Promise.resolve(window.supabase);
+    if (sdkPromise) return sdkPromise;
+    sdkPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0";
+      script.onload = () => window.supabase?.createClient ? resolve(window.supabase) : reject(new Error("Supabase no disponible"));
+      script.onerror = () => reject(new Error("No se pudo cargar Supabase"));
+      document.head.appendChild(script);
+    });
+    return sdkPromise;
+  }
+
+  async function cargarFotosAutorizadas() {
+    const contenedores = [...document.querySelectorAll(".taller-imagen[data-foto-ruta]")]
+      .filter((contenedor) => !hayImagenReal(contenedor) && contenedor.dataset.fotoIntentada !== "1");
+    if (!contenedores.length) return;
+    contenedores.forEach((contenedor) => { contenedor.dataset.fotoIntentada = "1"; });
+
+    try {
+      const sdk = await cargarSDK();
+      client ||= sdk.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const rutas = [...new Set(contenedores.map((contenedor) => contenedor.dataset.fotoRuta).filter(Boolean))];
+      const { data, error } = await client.storage.from("fotos-talleres").createSignedUrls(rutas, 3600);
+      if (error) throw error;
+      const porRuta = new Map((data || []).map((item) => [item.path, item.signedUrl || item.signedURL || ""]));
+
+      contenedores.forEach((contenedor) => {
+        const url = porRuta.get(contenedor.dataset.fotoRuta);
+        if (!url) return;
+        const nombre = texto(contenedor.closest(".taller-card")?.querySelector("h3")?.textContent) || "taller";
+        const imagen = document.createElement("img");
+        imagen.src = url;
+        imagen.alt = `Fotografía de ${nombre}`;
+        imagen.loading = "lazy";
+        imagen.decoding = "async";
+        contenedor.prepend(imagen);
+      });
+      revisar();
+    } catch (error) {
+      console.warn("No se pudieron cargar las fotografías autorizadas:", error);
+    }
+  }
+
   function instalarEstilos() {
     if (document.getElementById("tm-auto-portadas-estilos")) return;
     const style = document.createElement("style");
@@ -127,10 +176,14 @@
   function iniciar() {
     instalarEstilos();
     revisar();
+    void cargarFotosAutorizadas();
     let temporizador = 0;
     new MutationObserver(() => {
       window.clearTimeout(temporizador);
-      temporizador = window.setTimeout(revisar, 40);
+      temporizador = window.setTimeout(() => {
+        revisar();
+        void cargarFotosAutorizadas();
+      }, 40);
     }).observe(document.body, {
       childList: true,
       subtree: true,

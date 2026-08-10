@@ -20,7 +20,7 @@
     document.head.appendChild(link);
   }
 
-  cargar("/js/imagenes-automaticas.js", "data-tallermap-imagenes-auto");
+  cargar("/js/imagenes-automaticas.js?v=20260810-2", "data-tallermap-imagenes-auto");
   cargar("/js/taller-urls-core.js", "data-tallermap-urls-core");
 
   if (window.location.pathname === "/pages/taller.html" || window.location.pathname.startsWith("/talleres/")) {

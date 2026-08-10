@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { reviewStatusLabel, serviceLabel } from "../lib/server-utils.js";
+import { reviewStatusLabel, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
 import municipalityHandler from "../api/municipio.js";
 import provinceHandler from "../api/provincia.js";
 import serviceHandler from "../api/servicio.js";
@@ -23,6 +23,9 @@ requireCondition(serviceLabel("mecanica-general") === "Mecánica general", "Debe
 requireCondition(serviceLabel("suspension-amortiguadores") === "Suspensión y amortiguadores", "Debe conservar acentos en los servicios.");
 requireCondition(reviewStatusLabel(true) === "✓ Información revisada", "La etiqueta revisada debe ser clara y prudente.");
 requireCondition(reviewStatusLabel(false) === "Información publicada", "La etiqueta no revisada no debe insinuar verificación.");
+requireCondition(workshopPhotoSource({ fotos: ["solicitudes/demo/fachada.webp"] }).path === "solicitudes/demo/fachada.webp", "Debe aceptar rutas de fotografías subidas.");
+requireCondition(workshopPhotoSource({ fotos: ["https://cdn.example.com/fachada.webp"] }).url === "https://cdn.example.com/fachada.webp", "Debe aceptar fotografías autorizadas con URL segura.");
+requireCondition(!workshopPhotoSource({ imagen_url: "https://example.com/foto.jpg" }).url, "No debe usar imágenes externas sin autorización registrada.");
 
 for (const file of publicFiles) {
     const source = read(file);
@@ -60,6 +63,7 @@ const workshop = {
     provincia: "Alicante",
     codigo_postal: "03725",
     servicios: ["mecanica-general", "suspension-amortiguadores"],
+    fotos: ["solicitudes/demo/fachada.webp"],
     verificado: true,
     total_resultados: 60
 };
@@ -78,21 +82,21 @@ const serviceResponse = createResponse();
 await serviceHandler({ query: { servicio: "mecanica-general", pagina: "1" } }, serviceResponse);
 requireCondition(serviceResponse.statusCode === 200, "La página de servicio debe renderizar correctamente.");
 requireCondition(serviceResponse.body.includes("✓ Información revisada") && serviceResponse.body.includes("Suspensión y amortiguadores"), "La página de servicio debe mostrar etiquetas públicas legibles.");
-requireCondition(serviceResponse.body.includes('class="verificado verificado-en-contenido"'), "La insignia de servicio debe permanecer dentro del flujo de la tarjeta.");
+requireCondition(serviceResponse.body.includes('class="taller-imagen taller-imagen-1"') && serviceResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página de servicio debe preparar la foto autorizada o su placeholder.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La paginación de servicio no debe crear enlaces deshabilitados.");
 
-const styles = read("css/estilo.css");
-requireCondition(/\.verificado\.verificado-en-contenido\s*\{[\s\S]*?position:\s*static/i.test(styles), "La insignia de servicio no debe superponerse al nombre al pasar el ratón.");
+const imageRuntime = read("js/imagenes-automaticas.js");
+requireCondition(imageRuntime.includes("Imagen no disponible") && imageRuntime.includes('from("fotos-talleres").createSignedUrls'), "El runtime debe diferenciar placeholders y fotografías autorizadas.");
 
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
-requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general"), "La página municipal debe traducir sus servicios.");
+requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general") && municipalityResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página municipal debe traducir servicios y preparar fotos autorizadas.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(municipalityResponse.body), "La paginación municipal no debe crear enlaces deshabilitados.");
 
 const provinceResponse = createResponse();
 await provinceHandler({ query: { provincia: "alicante", pagina: "1" } }, provinceResponse);
 requireCondition(provinceResponse.headers["X-TallerMap-Province-SSR"] === "1", "La página provincial debe completar el SSR.");
-requireCondition(provinceResponse.body.includes("Teulada") && !/<a[^>]+aria-disabled="true"/i.test(provinceResponse.body), "La página provincial debe incluir municipios y paginación accesible.");
+requireCondition(provinceResponse.body.includes("Teulada") && provinceResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"') && !/<a[^>]+aria-disabled="true"/i.test(provinceResponse.body), "La página provincial debe incluir municipios, fotos autorizadas y paginación accesible.");
 
 globalThis.fetch = async () => { throw new Error("fallo simulado"); };
 const failedProvinceResponse = createResponse();

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
     escapeHTML,
+    renderWorkshopMedia,
     slugify,
     workshopSlug,
     supabaseRpc
@@ -79,6 +80,7 @@ function renderWorkshopLinks(workshops, detailed = false) {
 
         return `
             <article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">
+                ${renderWorkshopMedia(workshop, name)}
                 <div class="taller-informacion">
                     <h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(name)}</a></h3>
                     ${location ? `<p class="ubicacion">⌖ ${escapeHTML(location)}</p>` : ""}
