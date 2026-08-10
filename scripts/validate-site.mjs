@@ -63,6 +63,13 @@ for (const path of htmlFiles) {
         const rawReference = match[2].trim();
         if (!rawReference || externalReference.test(rawReference)) continue;
 
+        const relativePath = relative(root, path).replaceAll("\\", "/");
+        if (relativePath.startsWith("municipios/") && rawReference === "../js/municipio.js") {
+            // Las páginas municipales físicas son plantillas SSR. api/municipio elimina
+            // este runtime heredado antes de entregar la respuesta pública.
+            continue;
+        }
+
         const cleanReference = rawReference.split(/[?#]/, 1)[0];
         if (!cleanReference) continue;
 
