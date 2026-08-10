@@ -57,7 +57,7 @@ function renderWorkshop(workshop, index) {
     if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
     if (slug) contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`);
 
-    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName, reviewStatusLabel(Boolean(workshop.verificado)))}<div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+    return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
 function pageURL(fileName, page, service) {

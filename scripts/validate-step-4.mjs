@@ -82,6 +82,7 @@ const serviceResponse = createResponse();
 await serviceHandler({ query: { servicio: "mecanica-general", pagina: "1" } }, serviceResponse);
 requireCondition(serviceResponse.statusCode === 200, "La página de servicio debe renderizar correctamente.");
 requireCondition(serviceResponse.body.includes("✓ Información revisada") && serviceResponse.body.includes("Suspensión y amortiguadores"), "La página de servicio debe mostrar etiquetas públicas legibles.");
+requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div><div class="taller-informacion"><span class="verificado verificado-en-contenido">✓ Información revisada<\/span><h3>/s.test(serviceResponse.body), "La insignia de servicio debe aparecer en el contenido y no superponerse a la imagen.");
 requireCondition(serviceResponse.body.includes('class="taller-imagen taller-imagen-1"') && serviceResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página de servicio debe preparar la foto autorizada o su placeholder.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La paginación de servicio no debe crear enlaces deshabilitados.");
 
@@ -91,6 +92,7 @@ requireCondition(imageRuntime.includes("Imagen no disponible") && imageRuntime.i
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
 requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general") && municipalityResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página municipal debe traducir servicios y preparar fotos autorizadas.");
+requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div><div class="taller-informacion"><span class="verificado verificado-en-contenido">✓ Información revisada<\/span><h3>/s.test(municipalityResponse.body), "La insignia municipal debe aparecer en el contenido y no superponerse a la imagen.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(municipalityResponse.body), "La paginación municipal no debe crear enlaces deshabilitados.");
 
 const provinceResponse = createResponse();
