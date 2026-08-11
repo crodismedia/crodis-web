@@ -55,7 +55,7 @@ function renderTalleres(rows) {
             : "<span>Taller mecánico</span>";
         const contacts = [];
         if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
-        if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
+        if (map) contacts.push(`<a class="boton boton-pequeno accion-mapa enlace-google-maps" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
         if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
 
         return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
