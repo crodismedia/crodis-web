@@ -3,6 +3,11 @@
 
   const DIAS=[['lunes','Lunes'],['martes','Martes'],['miercoles','Miércoles'],['jueves','Jueves'],['viernes','Viernes'],['sabado','Sábado'],['domingo','Domingo']];
   const LEGACY={miercoles:'miércoles',sabado:'sábado'};
+  const OPCIONES_HORA='<option value="">—</option>'+Array.from({length:96},(_,indice)=>{
+    const minutos=indice*15;
+    const valor=`${String(Math.floor(minutos/60)).padStart(2,'0')}:${String(minutos%60).padStart(2,'0')}`;
+    return `<option value="${valor}">${valor}</option>`;
+  }).join('');
   const panel=document.getElementById('v4-horarios-editor');
   const campo=document.getElementById('v4-horarios');
   if(!panel||!campo)return;
@@ -13,6 +18,13 @@
   const fila=dia=>panel.querySelector(`[data-hours-row="${dia}"]`);
   const cerrado=dia=>panel.querySelector(`[data-hours-closed="${dia}"]`);
   const control=(dia,tipo)=>panel.querySelector(`[data-hours-day="${dia}"][data-hours-kind="${tipo}"]`);
+
+  function establecerHora(dia,tipo,valor){
+    const selector=control(dia,tipo);
+    const guardado=hora(valor);
+    if(guardado&&![...selector.options].some(opcion=>opcion.value===guardado))selector.add(new Option(guardado,guardado));
+    selector.value=guardado;
+  }
 
   function turnos(valor){
     if(!esObjeto(valor))return [];
@@ -61,7 +73,7 @@
       <div class="v4-actions"><button id="v4-horario-laborables" class="v4-btn v4-soft" type="button">Copiar lunes a viernes</button><button id="v4-horario-fin-semana" class="v4-btn v4-soft" type="button">Cerrar fin de semana</button></div>
     </div>
     <div class="v4-hours-head"><span></span><strong>Abre mañana</strong><strong>Cierra mañana</strong><strong>Abre tarde</strong><strong>Cierra tarde</strong><strong>Cerrado</strong></div>
-    ${DIAS.map(([dia,etiqueta])=>`<div class="v4-hours-row" data-hours-row="${dia}"><strong>${etiqueta}</strong><input type="time" step="900" data-hours-day="${dia}" data-hours-kind="m1" aria-label="${etiqueta} apertura mañana"><input type="time" step="900" data-hours-day="${dia}" data-hours-kind="m2" aria-label="${etiqueta} cierre mañana"><input type="time" step="900" data-hours-day="${dia}" data-hours-kind="t1" aria-label="${etiqueta} apertura tarde"><input type="time" step="900" data-hours-day="${dia}" data-hours-kind="t2" aria-label="${etiqueta} cierre tarde"><label><input type="checkbox" data-hours-closed="${dia}"> Sí</label></div>`).join('')}
+    ${DIAS.map(([dia,etiqueta])=>`<div class="v4-hours-row" data-hours-row="${dia}"><strong>${etiqueta}</strong><select data-hours-day="${dia}" data-hours-kind="m1" aria-label="${etiqueta} apertura mañana">${OPCIONES_HORA}</select><select data-hours-day="${dia}" data-hours-kind="m2" aria-label="${etiqueta} cierre mañana">${OPCIONES_HORA}</select><select data-hours-day="${dia}" data-hours-kind="t1" aria-label="${etiqueta} apertura tarde">${OPCIONES_HORA}</select><select data-hours-day="${dia}" data-hours-kind="t2" aria-label="${etiqueta} cierre tarde">${OPCIONES_HORA}</select><label><input type="checkbox" data-hours-closed="${dia}"> Sí</label></div>`).join('')}
     <p id="v4-horarios-mensaje" class="v4-hours-message" role="status"></p>`;
 
   const sinConfirmar=document.getElementById('v4-horario-sin-confirmar');
@@ -100,10 +112,10 @@
     DIAS.forEach(([dia])=>{
       const actual=datos[dia]||{cerrado:true,turnos:[]};
       cerrado(dia).checked=actual.cerrado===true;
-      control(dia,'m1').value=actual.turnos?.[0]?.apertura||'';
-      control(dia,'m2').value=actual.turnos?.[0]?.cierre||'';
-      control(dia,'t1').value=actual.turnos?.[1]?.apertura||'';
-      control(dia,'t2').value=actual.turnos?.[1]?.cierre||'';
+      establecerHora(dia,'m1',actual.turnos?.[0]?.apertura);
+      establecerHora(dia,'m2',actual.turnos?.[0]?.cierre);
+      establecerHora(dia,'t1',actual.turnos?.[1]?.apertura);
+      establecerHora(dia,'t2',actual.turnos?.[1]?.cierre);
       bloquearDia(dia);
     });
     sincronizar();
