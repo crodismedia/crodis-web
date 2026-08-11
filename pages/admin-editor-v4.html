@@ -16,7 +16,7 @@
     .v4-actions{display:flex;gap:8px;flex-wrap:wrap}.v4-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer;text-decoration:none}.v4-primary{background:#1457d9;color:#fff}.v4-green{background:#15803d;color:#fff}.v4-soft{background:#eef2f7;color:#17202a}.v4-danger{background:#dc2626;color:#fff}.v4-btn:disabled{opacity:.5;cursor:not-allowed}
     .v4-status{margin-top:10px;color:var(--v4-muted);font-size:.86rem}.v4-status.ok{color:var(--v4-green)}.v4-status.error{color:var(--v4-red)}
     .v4-list{display:grid;gap:8px;max-height:52vh;overflow:auto}.v4-item{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:start;padding:10px;border:1px solid var(--v4-b);border-radius:12px;background:white}.v4-item.active{border-color:#60a5fa;background:#eff6ff}.v4-item small{display:block;color:var(--v4-muted);margin-top:3px}.v4-score{font-weight:900;color:#1457d9}
-    .v4-valid{background:#f0fdf4!important;border-color:#86efac!important}.v4-invalid{background:#fef2f2!important;border-color:#fca5a5!important}.v4-services{display:grid;gap:12px}.v4-service-group{border:1px solid var(--v4-b);border-radius:12px;padding:10px}.v4-service-group h3{margin:0 0 8px;font-size:.9rem}.v4-service-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px}.v4-service{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #e3e8ef;border-radius:9px;background:#fff;font-size:.84rem}.v4-icon{width:22px;text-align:center;font-size:16px}.v4-savebar{position:sticky;bottom:0;z-index:10;display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:16px;padding:12px;background:rgba(255,255,255,.97);border-top:1px solid var(--v4-b)}
+    .v4-valid{background:#f0fdf4!important;border-color:#86efac!important}.v4-invalid{background:#fef2f2!important;border-color:#fca5a5!important}.v4-services{display:grid;gap:12px}.v4-service-group{border:1px solid var(--v4-b);border-radius:12px;padding:10px}.v4-service-group h3{margin:0 0 8px;font-size:.9rem}.v4-service-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px}.v4-service{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #e3e8ef;border-radius:9px;background:#fff;font-size:.84rem}.v4-savebar{position:sticky;bottom:0;z-index:10;display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:16px;padding:12px;background:rgba(255,255,255,.97);border-top:1px solid var(--v4-b)}
     .v4-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.v4-kpi{padding:10px;border:1px solid var(--v4-b);border-radius:10px;background:#fafbfc}.v4-kpi strong{display:block;font-size:1.25rem}.v4-kpi span{font-size:.75rem;color:var(--v4-muted)}
     @media(max-width:980px){.v4-wrap{grid-template-columns:1fr}.v4-grid{grid-template-columns:1fr}.v4-summary{grid-template-columns:1fr 1fr}.v4-top{align-items:flex-start;flex-direction:column}}
   </style>
@@ -37,7 +37,7 @@
     <div id="v4-territorio-estado" class="v4-status">Selecciona provincia y municipio.</div>
     <hr style="border:0;border-top:1px solid var(--v4-b);margin:16px 0">
     <div class="v4-summary"><div class="v4-kpi"><strong id="v4-total">0</strong><span>Total</span></div><div class="v4-kpi"><strong id="v4-incompletos">0</strong><span>Incompletos</span></div><div class="v4-kpi"><strong id="v4-seleccionados">0</strong><span>Seleccionados</span></div><div class="v4-kpi"><strong id="v4-guardados">0</strong><span>Guardados</span></div></div>
-    <div class="v4-actions" style="margin:12px 0"><button id="v4-seleccionar-todos" class="v4-btn v4-soft" type="button">Seleccionar todos</button><button id="v4-limpiar-seleccion" class="v4-btn v4-soft" type="button">Limpiar</button></div>
+    <div class="v4-actions" style="margin:12px 0"><button id="v4-seleccionar-todos" class="v4-btn v4-soft" type="button">Seleccionar todos</button><button id="v4-limpiar-seleccion" class="v4-btn v4-soft" type="button">Limpiar</button><button id="v4-borrar-seleccion" class="v4-btn v4-danger" type="button" disabled>Borrar seleccionadas</button></div>
     <div id="v4-lista" class="v4-list"></div>
     <div class="v4-actions" style="margin-top:12px"><button id="v4-exportar-csv" class="v4-btn v4-soft" type="button">Exportar CSV</button><button id="v4-exportar-xlsx" class="v4-btn v4-soft" type="button">Exportar Excel</button><button id="v4-guardar-lote" class="v4-btn v4-green" type="button">Iniciar lote seleccionado</button></div>
   </aside>
@@ -76,6 +76,6 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-editor-v4-horarios.js?v=3"></script>
-<script src="../js/admin-editor-v4.js?v=4"></script>
+<script src="../js/admin-editor-v4.js?v=5"></script>
 </body>
 </html>
