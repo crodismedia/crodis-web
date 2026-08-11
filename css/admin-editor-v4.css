@@ -1,0 +1,178 @@
+/* TallerMap Admin Editor V4 — responsive para tablet y móvil */
+
+@media (max-width: 1180px) {
+  .v4-wrap {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .v4-service-grid {
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .v4-wrap {
+    width: min(100% - 20px, 900px);
+    grid-template-columns: 1fr;
+    margin-top: 10px;
+  }
+
+  .v4-top {
+    position: static;
+  }
+
+  .v4-list {
+    max-height: 42vh;
+  }
+
+  .v4-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v4-savebar {
+    position: sticky;
+    bottom: 0;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .v4-top {
+    padding: 10px 12px;
+  }
+
+  .v4-top nav {
+    width: 100%;
+  }
+
+  .v4-top nav .v4-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  .v4-wrap {
+    width: 100%;
+    margin: 0 auto 80px;
+    gap: 10px;
+  }
+
+  .v4-card {
+    border-radius: 0;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .v4-pad {
+    padding: 12px;
+  }
+
+  .v4-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .v4-full {
+    grid-column: 1;
+  }
+
+  .v4-field input,
+  .v4-field select,
+  .v4-field textarea {
+    min-height: 46px;
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .v4-field textarea {
+    min-height: 130px;
+  }
+
+  .v4-desc {
+    min-height: 240px !important;
+  }
+
+  .v4-actions {
+    width: 100%;
+  }
+
+  .v4-actions .v4-btn {
+    flex: 1 1 145px;
+    min-height: 46px;
+  }
+
+  .v4-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .v4-kpi {
+    min-width: 0;
+  }
+
+  .v4-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .v4-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .v4-item .v4-score {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .v4-service-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .v4-service {
+    min-height: 46px;
+    padding: 10px;
+  }
+
+  .v4-savebar {
+    position: sticky;
+    bottom: 0;
+    margin-right: -12px;
+    margin-left: -12px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, .10);
+  }
+
+  .v4-savebar > .v4-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v4-savebar .v4-btn {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 460px) {
+  .v4-top nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #v4-logout {
+    grid-column: 1 / -1;
+  }
+
+  .v4-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v4-savebar > .v4-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .v4-actions .v4-btn {
+    flex-basis: 100%;
+  }
+}
