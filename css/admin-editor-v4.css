@@ -176,3 +176,5 @@
     flex-basis: 100%;
   }
 }
+body[data-auth-state="checking"] > :not(#v4-auth-check){display:none!important}
+body[data-auth-state="ready"] #v4-auth-check{display:none!important}
