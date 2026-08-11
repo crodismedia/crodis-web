@@ -24,6 +24,7 @@ const checks = [
   ['JS exporta XLSX', js.includes('XLSX.writeFile')],
   ['JS valida horario visual', js.includes('TallerMapHorariosV4') && hours.includes('Horario semanal válido.')],
   ['Horario usa selectores estables', hours.includes('OPCIONES_HORA') && hours.includes('<select') && !hours.includes('type="time"')],
+  ['Horario nuevo abre sin casillas marcadas', hours.includes('sinConfirmar.checked=false') && hours.includes('{cerrado:false,turnos:[]}')],
   ['Horario cubre siete días y dos turnos', hours.includes("['domingo','Domingo']") && hours.includes("data-hours-kind=\"t2\"")],
   ['JS no usa URL legacy', !js.includes('/pages/taller.html?id=')],
   ['SQL valida administrador', sql.includes('public.es_administrador()')],
