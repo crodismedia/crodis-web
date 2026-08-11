@@ -4,7 +4,9 @@ alter table public.talleres
   add column if not exists cerrado_temporalmente boolean not null default false,
   add column if not exists motivo_cierre_temporal text,
   add column if not exists fecha_reapertura_prevista date,
-  add column if not exists tipo_negocio text not null default 'taller';
+  add column if not exists tipo_negocio text not null default 'taller',
+  add column if not exists servicio_oficial boolean not null default false,
+  add column if not exists marcas_servicio_oficial text;
 
 alter table public.talleres
   drop constraint if exists talleres_tipo_negocio_valido;
@@ -23,6 +25,13 @@ alter table public.talleres
     or (motivo_cierre_temporal is null and fecha_reapertura_prevista is null)
   );
 
+alter table public.talleres
+  drop constraint if exists talleres_servicio_oficial_coherente;
+
+alter table public.talleres
+  add constraint talleres_servicio_oficial_coherente
+  check (servicio_oficial = true or marcas_servicio_oficial is null);
+
 create or replace function public.admin_actualizar_taller_editor_v4(
   p_taller_id uuid,
   p_nombre text,
@@ -38,7 +47,9 @@ create or replace function public.admin_actualizar_taller_editor_v4(
   p_cerrado_temporalmente boolean,
   p_motivo_cierre_temporal text,
   p_fecha_reapertura_prevista date,
-  p_tipo_negocio text
+  p_tipo_negocio text,
+  p_servicio_oficial boolean,
+  p_marcas_servicio_oficial text
 )
 returns boolean
 language plpgsql
@@ -81,7 +92,9 @@ begin
     cerrado_temporalmente = coalesce(p_cerrado_temporalmente,false),
     motivo_cierre_temporal = case when coalesce(p_cerrado_temporalmente,false) then nullif(trim(coalesce(p_motivo_cierre_temporal,'')),'') else null end,
     fecha_reapertura_prevista = case when coalesce(p_cerrado_temporalmente,false) then p_fecha_reapertura_prevista else null end,
-    tipo_negocio = coalesce(nullif(trim(coalesce(p_tipo_negocio,'')),''),'taller')
+    tipo_negocio = coalesce(nullif(trim(coalesce(p_tipo_negocio,'')),''),'taller'),
+    servicio_oficial = coalesce(p_servicio_oficial,false),
+    marcas_servicio_oficial = case when coalesce(p_servicio_oficial,false) then nullif(trim(coalesce(p_marcas_servicio_oficial,'')),'') else null end
   where id = p_taller_id;
 
   if not found then
@@ -92,7 +105,7 @@ begin
 end;
 $$;
 
-revoke all on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text) from public;
-grant execute on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text) to authenticated;
+revoke all on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text,boolean,text) from public;
+grant execute on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text,boolean,text) to authenticated;
 
 commit;
