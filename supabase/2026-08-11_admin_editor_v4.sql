@@ -8,29 +8,35 @@ alter table public.talleres
   add column if not exists servicio_oficial boolean not null default false,
   add column if not exists marcas_servicio_oficial text;
 
-alter table public.talleres
-  drop constraint if exists talleres_tipo_negocio_valido;
-
-alter table public.talleres
-  add constraint talleres_tipo_negocio_valido
+alter table public.talleres drop constraint if exists talleres_tipo_negocio_valido;
+alter table public.talleres add constraint talleres_tipo_negocio_valido
   check (tipo_negocio in ('taller','concesionario','concesionario-oficial','compraventa'));
 
-alter table public.talleres
-  drop constraint if exists talleres_cierre_temporal_coherente;
+alter table public.talleres drop constraint if exists talleres_cierre_temporal_coherente;
+alter table public.talleres add constraint talleres_cierre_temporal_coherente
+  check (cerrado_temporalmente = true or (motivo_cierre_temporal is null and fecha_reapertura_prevista is null));
 
-alter table public.talleres
-  add constraint talleres_cierre_temporal_coherente
-  check (
-    cerrado_temporalmente = true
-    or (motivo_cierre_temporal is null and fecha_reapertura_prevista is null)
-  );
-
-alter table public.talleres
-  drop constraint if exists talleres_servicio_oficial_coherente;
-
-alter table public.talleres
-  add constraint talleres_servicio_oficial_coherente
+alter table public.talleres drop constraint if exists talleres_servicio_oficial_coherente;
+alter table public.talleres add constraint talleres_servicio_oficial_coherente
   check (servicio_oficial = true or marcas_servicio_oficial is null);
+
+create or replace function public.admin_obtener_taller_editor_v4(p_taller_id uuid)
+returns setof public.talleres
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if not public.es_administrador() then
+    raise exception 'No autorizado' using errcode = '42501';
+  end if;
+  return query select t.* from public.talleres t where t.id = p_taller_id limit 1;
+end;
+$$;
+
+revoke all on function public.admin_obtener_taller_editor_v4(uuid) from public;
+grant execute on function public.admin_obtener_taller_editor_v4(uuid) to authenticated;
 
 create or replace function public.admin_actualizar_taller_editor_v4(
   p_taller_id uuid,
@@ -54,8 +60,11 @@ create or replace function public.admin_actualizar_taller_editor_v4(
 returns boolean
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
+declare
+  v_codigo_provincia text;
+  v_municipio public.municipios%rowtype;
 begin
   if not public.es_administrador() then
     raise exception 'No autorizado' using errcode = '42501';
@@ -69,12 +78,38 @@ begin
     raise exception 'nombre_no_valido' using errcode = '23514';
   end if;
 
-  if p_codigo_postal is not null and p_codigo_postal !~ '^\d{5}$' then
+  if coalesce(trim(p_codigo_postal),'') !~ '^\d{5}$' then
     raise exception 'codigo_postal_no_valido' using errcode = '23514';
+  end if;
+
+  v_codigo_provincia := left(trim(p_codigo_postal), 2);
+
+  select m.* into v_municipio
+  from public.municipios m
+  where m.activo = true
+    and left(m.codigo_municipal,2) = v_codigo_provincia
+    and exists (
+      select 1
+      from unnest(string_to_array(m.nombre,'/')) alias(nombre)
+      where public.directorio_normalizar(alias.nombre) = public.directorio_normalizar(p_ciudad)
+    )
+  order by m.codigo_municipal
+  limit 1;
+
+  if not found then
+    raise exception 'municipio_codigo_postal_no_coinciden' using errcode = '23514';
+  end if;
+
+  if public.directorio_codigo_provincia(p_provincia) is distinct from v_codigo_provincia then
+    raise exception 'provincia_codigo_postal_no_coinciden' using errcode = '23514';
   end if;
 
   if coalesce(p_tipo_negocio,'taller') not in ('taller','concesionario','concesionario-oficial','compraventa') then
     raise exception 'tipo_negocio_no_valido' using errcode = '23514';
+  end if;
+
+  if p_horarios is not null and jsonb_typeof(p_horarios) <> 'object' then
+    raise exception 'horarios_no_validos' using errcode = '23514';
   end if;
 
   update public.talleres
@@ -83,9 +118,9 @@ begin
     telefono = nullif(trim(coalesce(p_telefono,'')),''),
     web = nullif(trim(coalesce(p_web,'')),''),
     direccion = nullif(trim(coalesce(p_direccion,'')),''),
-    codigo_postal = nullif(trim(coalesce(p_codigo_postal,'')),''),
-    ciudad = nullif(trim(coalesce(p_ciudad,'')),''),
-    provincia = nullif(trim(coalesce(p_provincia,'')),''),
+    codigo_postal = trim(p_codigo_postal),
+    ciudad = v_municipio.nombre,
+    provincia = trim(p_provincia),
     descripcion = nullif(p_descripcion,''),
     servicios = coalesce(p_servicios,'{}'::text[]),
     horarios = p_horarios,
