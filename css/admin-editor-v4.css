@@ -36,6 +36,34 @@
   }
 }
 
+/* Los checkbox de servicios deben conservar tamaño de control, no heredar
+   el width/min-height de los inputs normales del formulario. */
+.v4-service {
+  justify-content: flex-start;
+  min-height: 46px;
+  padding: 9px 11px;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.v4-service input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 0 0 20px;
+}
+
+.v4-service span {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+  line-height: 1.25;
+}
+
 @media (max-width: 760px) {
   body {
     -webkit-text-size-adjust: 100%;
@@ -125,13 +153,30 @@
     justify-self: start;
   }
 
+  .v4-services {
+    gap: 10px;
+  }
+
+  .v4-service-group {
+    padding: 10px;
+  }
+
   .v4-service-grid {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .v4-service {
     min-height: 46px;
-    padding: 10px;
+    padding: 9px 10px;
+  }
+
+  .v4-service input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    padding: 0 !important;
   }
 
   .v4-savebar {
@@ -146,11 +191,13 @@
   .v4-savebar > .v4-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
   .v4-savebar .v4-btn {
     width: 100%;
     min-height: 48px;
+    padding: 10px 8px;
   }
 }
 
@@ -168,12 +215,13 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  /* Mantener dos botones por fila también en móvil estrecho. */
   .v4-savebar > .v4-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .v4-actions .v4-btn {
-    flex-basis: 100%;
+    flex-basis: auto;
   }
 }
 body[data-auth-state="checking"] > :not(#v4-auth-check){display:none!important}
