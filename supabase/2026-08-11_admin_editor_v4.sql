@@ -61,7 +61,7 @@ begin
   return query select t.* from public.talleres t where t.id=p_taller_id limit 1;
 end;
 $$;
-revoke all on function public.admin_obtener_taller_editor_v4(uuid) from public;
+revoke all on function public.admin_obtener_taller_editor_v4(uuid) from public, anon, authenticated;
 grant execute on function public.admin_obtener_taller_editor_v4(uuid) to authenticated;
 
 create or replace function public.admin_actualizar_taller_editor_v4(
@@ -119,7 +119,7 @@ begin
 end;
 $$;
 
-revoke all on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text,boolean,text) from public;
+revoke all on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text,boolean,text) from public, anon, authenticated;
 grant execute on function public.admin_actualizar_taller_editor_v4(uuid,text,text,text,text,text,text,text,text,text[],jsonb,boolean,text,date,text,boolean,text) to authenticated;
 
 commit;
