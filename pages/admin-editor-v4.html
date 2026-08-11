@@ -62,7 +62,7 @@
         <div class="v4-field"><label>Servicio oficial</label><select id="v4-servicio-oficial"><option value="false">No</option><option value="true">Sí</option></select></div>
         <div class="v4-field"><label>Marca(s) del servicio oficial</label><input id="v4-marcas-servicio-oficial" placeholder="Ej.: Bosch Car Service, Peugeot, Citroën"></div>
         <div class="v4-field v4-full"><label>Servicios</label><div id="v4-servicios" class="v4-services"></div></div>
-        <div class="v4-field v4-full"><label>Horarios (JSON actual)</label><textarea id="v4-horarios"></textarea></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><div id="v4-horarios-editor"></div><textarea id="v4-horarios" hidden></textarea></div>
         <div class="v4-field v4-full"><label>Descripción libre</label><textarea id="v4-descripcion" class="v4-desc" placeholder="Texto libre sin límite artificial en el editor"></textarea></div>
       </div>
       <datalist id="v4-municipios-lista"></datalist>
@@ -75,6 +75,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-editor-v4.js?v=3"></script>
+<script src="../js/admin-editor-v4-horarios.js?v=1"></script>
+<script src="../js/admin-editor-v4.js?v=4"></script>
 </body>
 </html>
