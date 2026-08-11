@@ -1,0 +1,230 @@
+/* TallerMap Admin Editor V4 — responsive para tablet y móvil */
+
+@media (max-width: 1180px) {
+  .v4-wrap {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .v4-service-grid {
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .v4-wrap {
+    width: min(100% - 20px, 900px);
+    grid-template-columns: 1fr;
+    margin-top: 10px;
+  }
+
+  .v4-top {
+    position: static;
+  }
+
+  .v4-list {
+    max-height: 42vh;
+  }
+
+  .v4-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v4-savebar {
+    position: sticky;
+    bottom: 0;
+    flex-wrap: wrap;
+  }
+}
+
+/* Los checkbox de servicios deben conservar tamaño de control, no heredar
+   el width/min-height de los inputs normales del formulario. */
+.v4-service {
+  justify-content: flex-start;
+  min-height: 46px;
+  padding: 9px 11px;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.v4-service input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 0 0 20px;
+}
+
+.v4-service span {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+  line-height: 1.25;
+}
+
+@media (max-width: 760px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .v4-top {
+    padding: 10px 12px;
+  }
+
+  .v4-top nav {
+    width: 100%;
+  }
+
+  .v4-top nav .v4-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  .v4-wrap {
+    width: 100%;
+    margin: 0 auto 80px;
+    gap: 10px;
+  }
+
+  .v4-card {
+    border-radius: 0;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .v4-pad {
+    padding: 12px;
+  }
+
+  .v4-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .v4-full {
+    grid-column: 1;
+  }
+
+  .v4-field input,
+  .v4-field select,
+  .v4-field textarea {
+    min-height: 46px;
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .v4-field textarea {
+    min-height: 130px;
+  }
+
+  .v4-desc {
+    min-height: 240px !important;
+  }
+
+  .v4-actions {
+    width: 100%;
+  }
+
+  .v4-actions .v4-btn {
+    flex: 1 1 145px;
+    min-height: 46px;
+  }
+
+  .v4-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .v4-kpi {
+    min-width: 0;
+  }
+
+  .v4-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .v4-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .v4-item .v4-score {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .v4-services {
+    gap: 10px;
+  }
+
+  .v4-service-group {
+    padding: 10px;
+  }
+
+  .v4-service-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .v4-service {
+    min-height: 46px;
+    padding: 9px 10px;
+  }
+
+  .v4-service input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    padding: 0 !important;
+  }
+
+  .v4-savebar {
+    position: sticky;
+    bottom: 0;
+    margin-right: -12px;
+    margin-left: -12px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, .10);
+  }
+
+  .v4-savebar > .v4-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .v4-savebar .v4-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 8px;
+  }
+}
+
+@media (max-width: 460px) {
+  .v4-top nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #v4-logout {
+    grid-column: 1 / -1;
+  }
+
+  .v4-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Mantener dos botones por fila también en móvil estrecho. */
+  .v4-savebar > .v4-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v4-actions .v4-btn {
+    flex-basis: auto;
+  }
+}
+body[data-auth-state="checking"] > :not(#v4-auth-check){display:none!important}
+body[data-auth-state="ready"] #v4-auth-check{display:none!important}
+.v4-hours{display:grid;gap:10px}.v4-hours-tools{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid var(--v4-b);border-radius:12px;background:#fafbfc}.v4-hours-tools label{display:flex;gap:7px;align-items:center}.v4-hours-tools input{width:auto}.v4-hours-head,.v4-hours-row{display:grid;grid-template-columns:110px repeat(4,minmax(105px,1fr)) 82px;gap:7px;align-items:center}.v4-hours-head{padding:0 8px;color:var(--v4-muted);font-size:.76rem}.v4-hours-row{padding:8px;border:1px solid var(--v4-b);border-radius:11px;background:#fff}.v4-hours-row select{width:100%;min-height:42px;padding:7px;border:1px solid #cfd7df;border-radius:9px;background:#fff;font:inherit;font-variant-numeric:tabular-nums}.v4-hours-row label{display:flex;gap:5px;align-items:center;justify-content:center}.v4-hours-row label input{width:auto}.v4-hours-row.is-closed{opacity:.68;background:#f8fafc}.v4-hours-row.is-invalid{border-color:#fca5a5;background:#fff7f7}.v4-hours-message{margin:0;padding:9px 11px;border-radius:9px;background:#f0fdf4;color:#15803d;font-size:.86rem}.v4-hours-message.error{background:#fef2f2;color:#b42318}
+@media(max-width:760px){.v4-hours-head{display:none}.v4-hours-row{grid-template-columns:90px 1fr 1fr}.v4-hours-row strong{grid-row:1/3}.v4-hours-row label{grid-column:2/-1;justify-content:flex-start}}
