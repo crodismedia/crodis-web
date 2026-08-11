@@ -14,10 +14,10 @@
 
   const esObjeto=v=>Boolean(v)&&typeof v==='object'&&!Array.isArray(v);
   const hora=v=>String(v||'').trim();
-  const horarioVacio=()=>Object.fromEntries(DIAS.map(([dia])=>[dia,{cerrado:true,turnos:[]}]));
   const fila=dia=>panel.querySelector(`[data-hours-row="${dia}"]`);
   const cerrado=dia=>panel.querySelector(`[data-hours-closed="${dia}"]`);
   const control=(dia,tipo)=>panel.querySelector(`[data-hours-day="${dia}"][data-hours-kind="${tipo}"]`);
+  let horarioInicialVacio=false;
 
   function establecerHora(dia,tipo,valor){
     const selector=control(dia,tipo);
@@ -87,6 +87,8 @@
 
   function leer(){
     if(sinConfirmar.checked)return null;
+    const sinMarcasNiHoras=DIAS.every(([dia])=>!cerrado(dia).checked&&['m1','m2','t1','t2'].every(tipo=>!control(dia,tipo).value));
+    if(horarioInicialVacio&&sinMarcasNiHoras)return null;
     return Object.fromEntries(DIAS.map(([dia])=>{
       if(cerrado(dia).checked)return [dia,{cerrado:true,turnos:[]}];
       const primero={apertura:control(dia,'m1').value,cierre:control(dia,'m2').value};
@@ -107,8 +109,9 @@
 
   function cargar(valor){
     const normalizado=normalizar(valor);
-    const datos=normalizado||horarioVacio();
-    sinConfirmar.checked=normalizado==null;
+    horarioInicialVacio=normalizado==null;
+    const datos=normalizado||Object.fromEntries(DIAS.map(([dia])=>[dia,{cerrado:false,turnos:[]}]));
+    sinConfirmar.checked=false;
     DIAS.forEach(([dia])=>{
       const actual=datos[dia]||{cerrado:true,turnos:[]};
       cerrado(dia).checked=actual.cerrado===true;
@@ -122,6 +125,7 @@
   }
 
   panel.addEventListener('change',evento=>{
+    horarioInicialVacio=false;
     const check=evento.target.closest('[data-hours-closed]');
     if(check&&check.checked){['m1','m2','t1','t2'].forEach(tipo=>{control(check.dataset.hoursClosed,tipo).value='';});}
     if(evento.target===sinConfirmar&&!sinConfirmar.checked&&DIAS.every(([dia])=>cerrado(dia).checked)){
