@@ -16,7 +16,7 @@ import {
 const INITIAL_WORKSHOPS = 24;
 const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
-const FRONTEND_VERSION = "20260810-3";
+const FRONTEND_VERSION = "20260812-1";
 const MAX_TERM = 80;
 
 function safeTerm(value) {
@@ -25,6 +25,20 @@ function safeTerm(value) {
         .replace(/\s+/g, " ")
         .trim()
         .slice(0, MAX_TERM);
+}
+
+function safeLocation(value) {
+    const term = safeTerm(value);
+    if (!term || /^\d{5}$/.test(term)) return term;
+
+    const parts = term
+        .split("/")
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    return parts.length > 1
+        ? parts[parts.length - 1].slice(0, MAX_TERM)
+        : term;
 }
 
 function requestedPage(value) {
@@ -240,7 +254,7 @@ export default async function handler(request, response) {
         return;
     }
 
-    const location = safeTerm(request.query?.poblacion);
+    const location = safeLocation(request.query?.poblacion);
     const service = slugify(safeTerm(request.query?.servicio)).slice(0, MAX_TERM);
     const page = requestedPage(request.query?.pagina);
     const hasSearch = Boolean(location || service);
