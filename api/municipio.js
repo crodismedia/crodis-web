@@ -41,10 +41,7 @@ function renderSchedule(schedule) {
 
 function mapsURL(workshop, rawName) {
     const location = [rawName, workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia, "España"]
-        .filter(Boolean)
-        .map((value) => String(value).trim())
-        .filter(Boolean)
-        .join(", ");
+        .filter(Boolean).map((value) => String(value).trim()).filter(Boolean).join(", ");
     return location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}` : "";
 }
 
@@ -52,21 +49,17 @@ function renderWorkshop(workshop, index) {
     const rawName = workshop.nombre || workshop.nombre_taller || "Taller sin nombre";
     const name = escapeHTML(rawName);
     const slug = workshopSlug(workshop);
-    const address = [workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia]
-        .filter(Boolean).map(escapeHTML).join(", ");
+    const address = [workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia].filter(Boolean).map(escapeHTML).join(", ");
     const phone = safePhone(workshop.telefono);
     const web = safeWeb(workshop.web);
     const map = mapsURL(workshop, rawName);
     const description = escapeHTML(workshop.descripcion || "Consulta la ficha del taller para conocer sus servicios y datos de contacto.");
     const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
-    const serviceHTML = services.length
-        ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
-        : "<span>Taller mecánico</span>";
+    const serviceHTML = services.length ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("") : "<span>Taller mecánico</span>";
     const contacts = [];
     if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
     if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${name}">Cómo llegar</a>`);
     if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-
     return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
@@ -89,21 +82,13 @@ function stripMunicipalityRuntime(html) {
         .replace(/\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
         .replace(/\s*<script\s+src="\.\.\/js\/servicios\.js"><\/script>/i, "")
         .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
-    return /imagenes-automaticas\.js/i.test(result)
-        ? result
-        : result.replace("</body>", '<script defer src="../js/imagenes-automaticas.js?v=20260810-2"></script>\n</body>');
+    return /imagenes-automaticas\.js/i.test(result) ? result : result.replace("</body>", '<script defer src="../js/imagenes-automaticas.js?v=20260810-2"></script>\n</body>');
 }
 
 function injectPagination(html, fileName, page, total, service) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const previousDisabled = page <= 1;
-    const nextDisabled = page >= totalPages;
-    const previous = previousDisabled
-        ? '<span id="boton-pagina-anterior" class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
-        : `<a id="boton-pagina-anterior" class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`;
-    const next = nextDisabled
-        ? '<span id="boton-pagina-siguiente" class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
-        : `<a id="boton-pagina-siguiente" class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`;
+    const previous = page <= 1 ? '<span id="boton-pagina-anterior" class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>' : `<a id="boton-pagina-anterior" class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`;
+    const next = page >= totalPages ? '<span id="boton-pagina-siguiente" class="boton deshabilitado" aria-disabled="true">Siguiente →</span>' : `<a id="boton-pagina-siguiente" class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`;
     const pagination = total > PAGE_SIZE ? `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor municipio-paginacion">${previous}<span id="estado-paginacion" aria-live="polite">Página ${page} de ${totalPages}</span>${next}</div>` : `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden></div>`;
     return html.replace(/<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>[\s\S]*?<\/div>/i, pagination);
 }
@@ -135,16 +120,13 @@ export default async function handler(request, response) {
     const page = requestedPage(request.query?.pagina);
     const service = safeService(request.query?.servicio);
     if (!fileName) { response.status(404).send("Municipio no encontrado."); return; }
-
     const filePath = path.join(process.cwd(), "municipios", fileName);
     let html;
     try { html = fs.readFileSync(filePath, "utf8"); }
     catch (_error) { response.status(404).send("Municipio no encontrado."); return; }
-
     let municipality;
     try { municipality = readMunicipalityData(html); }
     catch (error) { console.error("No se pudo leer la plantilla municipal:", error); response.status(500).send("No se pudo renderizar el municipio."); return; }
-
     try {
         const from = (page - 1) * PAGE_SIZE;
         const workshops = await supabaseRpc("buscar_talleres_municipio", { p_codigo_municipal: municipality.code, p_servicio: service, p_desde: from, p_limite: PAGE_SIZE });
@@ -155,10 +137,9 @@ export default async function handler(request, response) {
             html = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1<p class="mensaje-talleres">Esta página de resultados no existe.</p>$2`);
             html = stripMunicipalityRuntime(html);
             response.setHeader("Content-Type", "text/html; charset=utf-8");
-            response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+            response.setHeader("Cache-Control", "no-store, max-age=0");
             response.status(404).send(html); return;
         }
-
         const workshopHTML = workshops.length ? workshops.map(renderWorkshop).join("") : `<div class="municipio-sin-talleres"><h3>Todavía no hay talleres publicados en ${escapeHTML(municipality.name)}</h3><p>Un taller de esta población puede solicitar gratuitamente su alta en TallerMap.</p><a class="boton" href="../pages/registro.html">Registrar un taller</a></div>`;
         html = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1${workshopHTML}$2`);
         html = html.replace(/<span class="orden-talleres mapa-estado"[^>]*>[\s\S]*?<\/span>/i, `<span class="orden-talleres mapa-estado" aria-live="polite">${total} ${total === 1 ? "taller publicado" : "talleres publicados"}</span>`);
@@ -166,9 +147,8 @@ export default async function handler(request, response) {
         html = injectHeadSEO(html, fileName, page, total, service);
         html = selectService(html, service);
         html = stripMunicipalityRuntime(html);
-
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", service ? "no-store" : "public, s-maxage=300, stale-while-revalidate=1800");
+        response.setHeader("Cache-Control", "no-store, max-age=0");
         response.setHeader("X-TallerMap-Municipio", municipality.code);
         response.setHeader("X-TallerMap-Municipio-Talleres", String(total));
         response.status(200).send(html);
@@ -176,7 +156,7 @@ export default async function handler(request, response) {
         console.error("No se pudo renderizar el municipio desde Supabase:", error);
         html = stripMunicipalityRuntime(noindexOnFailure(html));
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Cache-Control", "no-store, max-age=0");
         response.setHeader("Retry-After", "60");
         response.status(503).send(html);
     }
