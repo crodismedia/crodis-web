@@ -43,6 +43,20 @@
             .slice(0, LIMITE_TERMINO);
     }
 
+    function ubicacionSegura(valor) {
+        const termino = terminoSeguro(valor);
+        if (!termino || /^\d{5}$/.test(termino)) return termino;
+
+        const partes = termino
+            .split("/")
+            .map(parte => parte.trim())
+            .filter(Boolean);
+
+        return partes.length > 1
+            ? partes[partes.length - 1].slice(0, LIMITE_TERMINO)
+            : termino;
+    }
+
     function normalizarTexto(valor) {
         return String(valor || "")
             .normalize("NFD")
@@ -214,9 +228,11 @@
             versionBusqueda += 1;
             siguienteIndice = 0;
             totalResultadosActual = 0;
-            poblacionActual = terminoSeguro(poblacion);
+            poblacionActual = ubicacionSegura(poblacion);
             servicioActual = terminoSeguro(servicio);
             codigoMunicipioActual = codigoMunicipioPreferente(poblacionActual);
+            const campoPoblacion = document.getElementById("poblacion");
+            if (campoPoblacion && poblacionActual) campoPoblacion.value = poblacionActual;
             mostrarEstado("Buscando talleres...");
             actualizarNumeroResultados(0);
             actualizarBoton(false);
@@ -293,7 +309,7 @@
         const poblacion = document.getElementById("poblacion");
         const servicio = document.getElementById("servicio");
         const parametros = new URLSearchParams(window.location.search);
-        const poblacionUrl = terminoSeguro(parametros.get("poblacion") || "");
+        const poblacionUrl = ubicacionSegura(parametros.get("poblacion") || "");
         const servicioUrl = terminoSeguro(parametros.get("servicio") || "");
         if (!poblacionUrl && !servicioUrl) return;
         if (poblacion && poblacionUrl) poblacion.value = poblacionUrl;
