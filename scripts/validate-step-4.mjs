@@ -25,6 +25,8 @@ requireCondition(reviewStatusLabel(true) === "✓ Información revisada", "La et
 requireCondition(reviewStatusLabel(false) === "Información publicada", "La etiqueta no revisada no debe insinuar verificación.");
 requireCondition(formatPhoneDisplay("963782395") === "963 782 395", "Los teléfonos españoles deben mostrarse en grupos legibles.");
 requireCondition(formatPhoneDisplay("+34963782395") === "+34 963 782 395", "Los teléfonos con prefijo deben conservar el prefijo y ser legibles.");
+requireCondition(formatPhoneDisplay("0034963782395") === "+34 963 782 395", "El prefijo 0034 debe normalizarse como +34.");
+requireCondition(formatPhoneDisplay("34963782395") === "+34 963 782 395", "El prefijo 34 sin signo debe normalizarse como +34.");
 requireCondition(workshopPhotoSource({ fotos: ["solicitudes/demo/fachada.webp"] }).path === "solicitudes/demo/fachada.webp", "Debe aceptar rutas de fotografías subidas.");
 requireCondition(workshopPhotoSource({ fotos: ["https://cdn.example.com/fachada.webp"] }).url === "https://cdn.example.com/fachada.webp", "Debe aceptar fotografías autorizadas con URL segura.");
 requireCondition(!workshopPhotoSource({ imagen_url: "https://example.com/foto.jpg" }).url, "No debe usar imágenes externas sin autorización registrada.");
@@ -44,7 +46,7 @@ requireCondition(cardRuntime.includes('toLocaleLowerCase("es")'), "Las tarjetas 
 
 const workshopTemplate = read("pages/taller.html");
 requireCondition(!/<img[^>]+id="taller-foto-imagen"[^>]+src=""/i.test(workshopTemplate), "La ficha no debe solicitar una imagen con URL vacía.");
-requireCondition(workshopTemplate.includes('taller.js?v=20260810-3'), "La ficha debe solicitar la versión corregida de su runtime.");
+requireCondition(workshopTemplate.includes('taller.js?v=20260810-4'), "La ficha debe solicitar la versión corregida de su runtime.");
 
 for (const file of ["api/municipio.js", "api/servicio.js", "api/provincia.js"]) {
     const source = read(file);
