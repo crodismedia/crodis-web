@@ -126,8 +126,15 @@ export default async function handler(request, response) {
     if (!provincia) { response.status(404).send("Provincia no encontrada"); return; }
 
     let html;
-    try { html = fs.readFileSync(path.join(process.cwd(), "provincias", `${slug}.html`), "utf8"); }
-    catch (error) { console.error(error); response.status(500).send("No se pudo renderizar la provincia"); return; }
+    try {
+        const internalTemplate = path.join(process.cwd(), "templates", "provincias", `${slug}.html`);
+        const publicTemplate = path.join(process.cwd(), "provincias", `${slug}.html`);
+        html = fs.readFileSync(fs.existsSync(internalTemplate) ? internalTemplate : publicTemplate, "utf8");
+    } catch (error) {
+        console.error(error);
+        response.status(500).send("No se pudo renderizar la provincia");
+        return;
+    }
 
     try {
         const pagina = Math.max(1, Number.parseInt(String(request.query?.pagina || "1"), 10) || 1);
