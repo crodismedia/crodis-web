@@ -4,7 +4,7 @@ import { dirname, extname, join, relative, resolve } from "node:path";
 import process from "node:process";
 
 const root = resolve(import.meta.dirname, "..");
-const ignoredDirectories = new Set([".git", "node_modules"]);
+const ignoredDirectories = new Set([".git", "node_modules", "templates"]);
 const errors = [];
 
 function filesIn(directory) {
@@ -25,10 +25,29 @@ const files = filesIn(root);
 const javascriptFiles = files.filter((path) => extname(path) === ".js");
 const htmlFiles = files.filter((path) => extname(path) === ".html");
 
+let vercelConfig = null;
 try {
-    JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
+    vercelConfig = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
 } catch (error) {
     report(`vercel.json no es JSON válido: ${error.message}`);
+}
+
+function rewritePattern(source) {
+    const escaped = String(source || "")
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\\:([A-Za-z0-9_]+)\\\*/g, ".*")
+        .replace(/\\:([A-Za-z0-9_]+)/g, "[^/]+");
+    return new RegExp(`^${escaped}$`);
+}
+
+const rewriteMatchers = (vercelConfig?.rewrites || [])
+    .map((rewrite) => rewrite?.source)
+    .filter(Boolean)
+    .map(rewritePattern);
+
+function isRewrittenPublicPath(referencePath) {
+    const normalized = `/${String(referencePath || "").replace(/^\/+/, "")}`;
+    return rewriteMatchers.some((pattern) => pattern.test(normalized));
 }
 
 for (const path of javascriptFiles) {
@@ -87,7 +106,10 @@ for (const path of htmlFiles) {
         if (decodedReference.endsWith("/")) target = join(target, "index.html");
 
         if (!existsSync(target)) {
-            report(`Referencia local rota en ${relative(root, path)}: ${rawReference}`);
+            const publicTarget = relative(root, target).replaceAll("\\", "/");
+            if (!isRewrittenPublicPath(publicTarget)) {
+                report(`Referencia local rota en ${relative(root, path)}: ${rawReference}`);
+            }
         }
     }
 
