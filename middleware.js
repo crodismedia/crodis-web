@@ -47,14 +47,6 @@ export default function middleware(request) {
     return rewrite(target);
   }
 
-  const municipalityMatch = pathname.match(/^\/municipios\/([^/]+\.html)$/i);
-  if (municipalityMatch) {
-    const target = new URL('/api/municipio', request.url);
-    target.search = incoming.search;
-    target.searchParams.set('archivo', municipalityMatch[1]);
-    return rewrite(target);
-  }
-
   const serviceMatch = pathname.match(/^\/servicios\/([a-z0-9-]+)\.html$/i);
   if (serviceMatch && SERVICE_SLUGS.has(serviceMatch[1].toLowerCase())) {
     const target = new URL('/api/servicio', request.url);
@@ -68,7 +60,6 @@ export const config = {
   matcher: [
     '/',
     '/provincias/:path*.html',
-    '/municipios/:path*.html',
     '/servicios/:path*.html'
   ]
 };
