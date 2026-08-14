@@ -34,9 +34,9 @@ try {
 
 function rewritePattern(source) {
     const escaped = String(source || "")
-        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-        .replace(/\\:([A-Za-z0-9_]+)\\\*/g, ".*")
-        .replace(/\\:([A-Za-z0-9_]+)/g, "[^/]+");
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/:([A-Za-z0-9_]+)\*/g, ".*")
+        .replace(/:([A-Za-z0-9_]+)/g, "[^/]+");
     return new RegExp(`^${escaped}$`);
 }
 
