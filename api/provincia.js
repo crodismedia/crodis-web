@@ -113,10 +113,36 @@ function noindexOnFailure(html) {
     return html.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
 }
 
+function replaceElementInnerHTML(html, id, innerHTML) {
+    const openPattern = new RegExp(`<([a-z0-9]+)\\b([^>]*\\bid=["']${id}["'][^>]*)>`, "i");
+    const match = openPattern.exec(html);
+    if (!match) throw new Error(`No se encontró #${id} en la plantilla provincial`);
+
+    const tag = match[1].toLowerCase();
+    const contentStart = match.index + match[0].length;
+    const tokenPattern = new RegExp(`<\\/?${tag}\\b[^>]*>`, "gi");
+    tokenPattern.lastIndex = contentStart;
+
+    let depth = 1;
+    let token;
+    while ((token = tokenPattern.exec(html))) {
+        const closing = /^<\//.test(token[0]);
+        depth += closing ? -1 : 1;
+        if (depth === 0) {
+            return html.slice(0, contentStart) + innerHTML + html.slice(token.index);
+        }
+    }
+
+    throw new Error(`No se pudo cerrar #${id} en la plantilla provincial`);
+}
+
 function inject(html, municipiosHTML, talleresHTML, total) {
-    html = html.replace(/(<ul id="lista-municipios-provincia"[^>]*>)[\s\S]*?(<\/ul>)/i, `$1${municipiosHTML}$2`);
-    html = html.replace(/(<div id="lista-talleres-provincia"[^>]*>)[\s\S]*?(<\/div>\s*<div id="contenedor-cargar-mas-provincia")/i, `$1${talleresHTML}$2`);
-    html = html.replace(/(<span id="estado-provincia"[^>]*>)[\s\S]*?(<\/span>)/i, `$1${total} ${total === 1 ? "taller" : "talleres"}$2`);
+    html = replaceElementInnerHTML(html, "lista-municipios-provincia", municipiosHTML);
+    html = replaceElementInnerHTML(html, "lista-talleres-provincia", talleresHTML);
+    html = html.replace(
+        /(<span id="estado-provincia"[^>]*>)[\s\S]*?(<\/span>)/i,
+        (_match, open, close) => `${open}${total} ${total === 1 ? "taller" : "talleres"}${close}`
+    );
     return html;
 }
 
@@ -145,8 +171,18 @@ export default async function handler(request, response) {
         ]);
         const total = Number(talleres[0]?.total_resultados) || talleres.length;
         const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        const municipiosHTML = renderMunicipios(municipios);
+        const talleresHTML = renderTalleres(talleres);
 
-        html = inject(html, renderMunicipios(municipios), renderTalleres(talleres), total);
+        html = inject(html, municipiosHTML, talleresHTML, total);
+
+        if (talleres.length) {
+            const firstSlug = workshopSlug(talleres[0]);
+            if (!firstSlug || !html.includes(`data-taller-slug="${escapeHTML(firstSlug)}"`)) {
+                throw new Error("La inyección SSR no dejó talleres en el HTML final");
+            }
+        }
+
         html = injectPagination(html, slug, pagina, total);
         html = injectSEO(html, slug, pagina, total);
         html = stripProvinceRuntime(html);
