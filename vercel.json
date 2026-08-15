@@ -11,6 +11,11 @@
       "source": "/index.html",
       "destination": "https://www.tallermap.es/",
       "permanent": true
+    },
+    {
+      "source": "/municipios/index.html",
+      "destination": "/municipios/",
+      "permanent": true
     }
   ],
   "rewrites": [
