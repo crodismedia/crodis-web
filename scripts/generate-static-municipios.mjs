@@ -131,6 +131,11 @@ function stripRuntime(html) {
     .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
 }
 
+function ensureMunicipioUI(html) {
+  if (html.includes('../js/municipio-ui.js')) return html;
+  return html.replace(/<\/body>/i, '    <script src="../js/municipio-ui.js" defer></script>\n</body>');
+}
+
 function inject(html, municipality, workshops) {
   const workshopHTML = workshops.length
     ? workshops.map(renderWorkshop).join("")
@@ -140,6 +145,7 @@ function inject(html, municipality, workshops) {
   out = out.replace(/<span class="orden-talleres mapa-estado"[^>]*>[\s\S]*?<\/span>/i, `<span class="orden-talleres mapa-estado" aria-live="polite">${workshops.length} ${workshops.length === 1 ? "taller publicado" : "talleres publicados"}</span>`);
   out = out.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="index,follow,max-image-preview:large">');
   out = stripRuntime(out);
+  out = ensureMunicipioUI(out);
   return out;
 }
 
