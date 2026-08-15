@@ -39,6 +39,16 @@
         #servicios,#provincias,#talleres,#como-funciona,.pie{content-visibility:auto;contain-intrinsic-size:1px 800px}
         .cookie-preferences-button{display:none!important}
         .menu-movil-control,.menu-movil-label,.menu-movil-panel{display:none}
+
+        /* Buscador principal: distribución estable en escritorio, tablet y móvil. */
+        #formulario-buscador-publico{grid-template-columns:minmax(240px,1.2fr) minmax(210px,.9fr) auto!important;align-items:stretch;gap:12px!important;padding:12px!important}
+        #formulario-buscador-publico>.campo-busqueda{min-width:0!important;padding:10px 14px!important}
+        #formulario-buscador-publico #servicio{min-width:0;width:100%;min-height:38px;padding:8px 34px 8px 10px!important;color:#162033!important;background:#fff!important;border:1px solid #cfd8e3!important;border-radius:8px!important;text-overflow:ellipsis}
+        #formulario-buscador-publico #boton-buscar{align-self:stretch;min-height:54px;padding:14px 24px!important;font-size:1rem;white-space:nowrap}
+        #formulario-buscador-publico>a[href*="registro"]{grid-column:1/-1;justify-self:start;margin:0!important;padding:10px 14px!important;min-height:40px;box-shadow:none!important;font-size:.9rem}
+        #formulario-buscador-publico #usar-mi-ubicacion{width:auto!important;margin:8px 0 0!important;padding:8px 10px!important;min-height:38px;box-shadow:none!important;font-size:.86rem}
+        #formulario-buscador-publico #estado-ubicacion{display:block;margin-top:6px;font-size:.78rem;line-height:1.35}
+
         @media(max-width:1050px){
             .cabecera-contenido{position:relative}
             .menu-movil-control{position:absolute;opacity:0;pointer-events:none}
@@ -55,6 +65,9 @@
             .menu-movil-panel a{display:block;padding:14px 15px;color:#071a33;font-weight:800;border-radius:10px}
             .menu-movil-panel a:active,.menu-movil-panel a:focus-visible{background:#eaf2ff;outline:none}
             .menu-movil-panel .menu-movil-registro{margin-top:6px;color:#fff;text-align:center;background:linear-gradient(135deg,#1457d9,#0b43ad)}
+            #formulario-buscador-publico{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+            #formulario-buscador-publico #boton-buscar{grid-column:1/-1;width:100%;min-height:50px}
+            #formulario-buscador-publico>a[href*="registro"]{grid-column:1/-1}
         }
         @media(max-width:750px){
             .cabecera-contenido{min-height:68px!important;flex-direction:row!important;align-items:center!important;gap:10px!important}
@@ -62,6 +75,17 @@
             .marca{min-width:0}
             .marca-texto strong{font-size:20px}
             .marca-texto small{font-size:10px}
+            #formulario-buscador-publico{grid-template-columns:1fr!important;padding:10px!important;gap:10px!important}
+            #formulario-buscador-publico>.campo-busqueda,#formulario-buscador-publico #boton-buscar,#formulario-buscador-publico>a[href*="registro"]{grid-column:1!important;width:100%;justify-self:stretch}
+            #formulario-buscador-publico>.campo-busqueda{border-right:0!important;border-bottom:1px solid #dfe6ef;padding:10px 8px 14px!important}
+            #formulario-buscador-publico #usar-mi-ubicacion{width:100%!important;justify-content:center}
+            #formulario-buscador-publico #boton-buscar{min-height:52px}
+            #formulario-buscador-publico>a[href*="registro"]{justify-content:center}
+        }
+        @media(max-width:420px){
+            #formulario-buscador-publico .campo-icono{display:none}
+            #formulario-buscador-publico>.campo-busqueda{padding-left:4px!important;padding-right:4px!important}
+            #formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio{font-size:16px!important}
         }
     </style>
     <script type="application/ld+json">
