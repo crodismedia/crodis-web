@@ -2,7 +2,7 @@
     "use strict";
 
     const CENTRO_COMUNITAT = [39.4699, -0.3763];
-    const MAX_PINES = 10;
+    const MAX_PINES = 25;
     const CACHE_KEY = "tallermap_geocode_v1";
     let mapa = null;
     let capaPines = null;
@@ -92,12 +92,15 @@
     }
 
     function leerTarjetas() {
-        return [...document.querySelectorAll("#lista-talleres .taller-card")].slice(0, MAX_PINES).map(card => {
-            const nombre = card.querySelector("h3")?.textContent?.trim() || "Taller";
-            const ubicacion = (card.querySelector(".ubicacion")?.textContent || "").replace(/^\s*⌖\s*/, "").trim();
-            const ficha = card.querySelector(".enlace-ficha-taller")?.getAttribute("href") || "";
-            return { nombre, ubicacion, ficha };
-        }).filter(item => item.ubicacion && !/no indicada/i.test(item.ubicacion));
+        return [...document.querySelectorAll("#lista-talleres .taller-card")]
+            .slice(0, MAX_PINES)
+            .map(card => {
+                const nombre = card.querySelector("h3")?.textContent?.trim() || "Taller";
+                const ubicacion = (card.querySelector(".ubicacion")?.textContent || "").replace(/^\s*⌖\s*/, "").trim();
+                const ficha = card.querySelector(".enlace-ficha-taller")?.getAttribute("href") || "";
+                return { nombre, ubicacion, ficha };
+            })
+            .filter(item => item.ubicacion && !/no indicada/i.test(item.ubicacion));
     }
 
     async function geocodificar(texto) {
@@ -141,24 +144,31 @@
             return;
         }
 
-        ponerMensaje(`Localizando hasta ${talleres.length} talleres en el mapa…`);
+        ponerMensaje(`Localizando 0 de ${talleres.length} talleres en el mapa…`);
         const limites = [];
         let encontrados = 0;
+        let procesados = 0;
 
         for (const taller of talleres) {
             if (miVersion !== versionRender) return;
             try {
                 const coords = await geocodificar(taller.ubicacion);
-                if (!coords || miVersion !== versionRender) continue;
-                const marcador = window.L.marker(coords).bindPopup(popupTaller(taller));
-                marcador.addTo(capaPines);
-                limites.push(coords);
-                encontrados += 1;
-                ponerMensaje(`${encontrados} ${encontrados === 1 ? "taller localizado" : "talleres localizados"} en el mapa.`);
+                if (coords && miVersion === versionRender) {
+                    const marcador = window.L.marker(coords).bindPopup(popupTaller(taller));
+                    marcador.addTo(capaPines);
+                    limites.push(coords);
+                    encontrados += 1;
+                }
             } catch (_) {
                 /* continuar con el siguiente taller */
             }
-            await new Promise(resolve => setTimeout(resolve, 1050));
+
+            procesados += 1;
+            ponerMensaje(`${encontrados} de ${talleres.length} talleres localizados · ${procesados} revisados.`);
+
+            if (procesados < talleres.length) {
+                await new Promise(resolve => setTimeout(resolve, 1050));
+            }
         }
 
         if (miVersion !== versionRender) return;
@@ -166,18 +176,30 @@
         if (limites.length > 1) mapa.fitBounds(limites, { padding: [28, 28], maxZoom: 15 });
         else if (limites.length === 1) mapa.setView(limites[0], 15);
         if (!encontrados) ponerMensaje("No se pudieron situar con precisión los talleres de esta búsqueda.");
+        else ponerMensaje(`${encontrados} de ${talleres.length} talleres visibles localizados en el mapa.`);
     }
 
     function observarResultados() {
         const lista = document.getElementById("lista-talleres");
         if (!lista) return;
         let temporizador = null;
-        const observador = new MutationObserver(() => {
+        let firmaAnterior = "";
+
+        const firmaTarjetas = () => [...lista.querySelectorAll(":scope > .taller-card")]
+            .map(card => card.dataset.tallerSlug || card.querySelector("h3")?.textContent || "")
+            .join("|");
+
+        const programarActualizacion = () => {
+            const firmaNueva = firmaTarjetas();
+            if (firmaNueva === firmaAnterior) return;
+            firmaAnterior = firmaNueva;
             clearTimeout(temporizador);
             temporizador = setTimeout(actualizarPines, 180);
-        });
-        observador.observe(lista, { childList: true, subtree: true });
-        if (lista.querySelector(".taller-card")) void actualizarPines();
+        };
+
+        const observador = new MutationObserver(programarActualizacion);
+        observador.observe(lista, { childList: true, subtree: false });
+        programarActualizacion();
     }
 
     function observarUbicacion() {
