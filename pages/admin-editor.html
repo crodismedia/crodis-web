@@ -13,7 +13,8 @@
     .tm-editor{max-width:1180px;margin:0 auto;padding:18px}.tm-card{background:#fff;border:1px solid var(--b);border-radius:16px;overflow:hidden}.tm-head{padding:16px;border-bottom:1px solid var(--b)}.tm-head h1{margin:0 0 5px;font-size:1.25rem}.tm-head p{margin:0;color:var(--muted)}.tm-body{padding:16px}
     .tm-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px}input,textarea,select{width:100%;border:1px solid #cfd5dc;border-radius:10px;padding:10px 11px;background:#fff;font:inherit}textarea{resize:vertical;min-height:92px}.tm-results{display:grid;gap:8px;margin-bottom:16px}.tm-result{padding:11px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff;text-align:left}.tm-result:hover,.tm-result.active{border-color:#22c55e;background:#f0fdf4}.tm-result strong,.tm-result span{display:block}.tm-result span{color:var(--muted);font-size:.85rem;margin-top:3px}
     .tm-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tm-field{display:grid;gap:5px;padding:8px;border:1px solid transparent;border-radius:12px}.tm-field.full{grid-column:1/-1}.tm-field label{font-size:.82rem;font-weight:700;color:#475467}.tm-field-empty{background:#fff7ed;border-color:#fed7aa}.tm-field-dirty{background:#eff6ff;border-color:#93c5fd}.tm-field-ok{background:#f0fdf4;border-color:#bbf7d0}.tm-territorio-aprobado{background:#f0fdf4;border-color:#86efac}.tm-territorio-error{background:#fef2f2;border-color:#fca5a5}.tm-savebar{position:sticky;bottom:0;display:flex;gap:8px;justify-content:flex-end;padding:12px;background:rgba(255,255,255,.97);border-top:1px solid var(--b);z-index:5}.tm-status{font-size:.85rem;color:var(--muted);margin-top:10px}
-    @media(max-width:760px){.tm-editor{padding:10px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-top{align-items:flex-start;flex-direction:column}}
+    .tm-horario-cabecera{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.tm-horario-cabecera .tm-btn{padding:7px 10px;font-size:.82rem;border:1px solid #cfd5dc}.tm-horario-publicado{margin-top:8px;padding:14px;border:1px solid #bbf7d0;border-radius:12px;background:#f0fdf4}.tm-horario-publicado-cabecera{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.tm-horario-publicado-lista{display:grid;gap:6px}.tm-horario-publicado-fila{display:grid;grid-template-columns:minmax(90px,140px) 1fr;gap:12px;padding:7px 0;border-bottom:1px solid #dcfce7}.tm-horario-publicado-fila:last-child{border-bottom:0}.tm-horario-publicado-fila span{color:#475467}.tm-horario-publicado-fila strong{color:#166534}
+    @media(max-width:760px){.tm-editor{padding:10px}.tm-form{grid-template-columns:1fr}.tm-search{grid-template-columns:1fr}.tm-top{align-items:flex-start;flex-direction:column}.tm-horario-publicado-fila{grid-template-columns:100px 1fr}}
   </style>
 </head>
 <body class="tm-admin">
@@ -42,7 +43,11 @@
         <div class="tm-field"><label>Población</label><input id="ciudad"></div>
         <div class="tm-field full"><label>Provincia</label><input id="provincia"></div>
         <div class="tm-field full"><label>Servicios</label><textarea id="servicios"></textarea></div>
-        <div class="tm-field full"><label>Horarios</label><textarea id="horarios"></textarea></div>
+        <div class="tm-field full">
+          <div class="tm-horario-cabecera"><label for="horarios">Horarios</label><button id="btn-horario-publicado" type="button" class="tm-btn tm-btn-soft">Ver horario publicado</button></div>
+          <textarea id="horarios"></textarea>
+          <div id="horario-publicado-panel" class="tm-horario-publicado" hidden></div>
+        </div>
         <div class="tm-field full"><label>Descripción</label><textarea id="descripcion"></textarea></div>
         <div class="tm-savebar full"><button id="btn-eliminar-ficha" type="button" class="tm-btn tm-btn-danger" style="margin-right:auto" disabled>Eliminar ficha</button><button id="btn-google-maps" type="button" class="tm-btn tm-btn-soft" disabled>Consultar en Google Maps</button><button type="submit" class="tm-btn tm-btn-primary">Guardar en Supabase</button></div>
       </form>
@@ -59,5 +64,6 @@
 <script src="../js/admin-batch-nav.js?v=3"></script>
 <script src="../js/admin-territorial-validation.js?v=2"></script>
 <script src="../js/admin-change-guard.js?v=3"></script>
+<script src="../js/admin-horario-publicado.js?v=1"></script>
 </body>
 </html>
