@@ -156,6 +156,30 @@
         return "No se pudo detectar tu ubicación. Puedes escribir la población manualmente.";
     }
 
+    function asegurarRadioBusqueda() {
+        const campoServicio = document.getElementById("servicio");
+        const bloqueServicio = campoServicio?.closest(".campo-busqueda")?.querySelector("div");
+        if (!campoServicio || !bloqueServicio) return;
+
+        let radio = document.getElementById("radio-busqueda");
+        if (!radio) {
+            radio = document.createElement("select");
+            radio.id = "radio-busqueda";
+            radio.name = "radio";
+            radio.setAttribute("aria-label", "Radio de búsqueda");
+            radio.innerHTML = [
+                '<option value="1">1 km</option>',
+                '<option value="3">3 km</option>',
+                '<option value="5" selected>5 km</option>',
+                '<option value="10">10 km</option>'
+            ].join("");
+            campoServicio.insertAdjacentElement("afterend", radio);
+        }
+
+        const radioUrl = new URLSearchParams(window.location.search).get("radio");
+        if (["1", "3", "5", "10"].includes(radioUrl)) radio.value = radioUrl;
+    }
+
     function aplicarDisenoBuscador() {
         const formulario = document.getElementById("formulario-buscador-publico");
         if (!formulario) return;
@@ -202,6 +226,18 @@
                 #formulario-buscador-publico > a[href*="registro"]:focus-visible {
                     background:#066d35!important;
                     border-color:#066d35!important;
+                }
+                #formulario-buscador-publico #radio-busqueda {
+                    display:block!important;
+                    width:100%!important;
+                    min-height:38px!important;
+                    margin-top:12px!important;
+                    padding:8px 34px 8px 10px!important;
+                    color:#162033!important;
+                    background:#fff!important;
+                    border:1px solid #cfd8e3!important;
+                    border-radius:8px!important;
+                    font:inherit!important;
                 }
             `;
             document.head.appendChild(estilos);
@@ -295,9 +331,11 @@
 
     function iniciar() {
         restaurarCamposDesdeUrl();
+        asegurarRadioBusqueda();
         aplicarDisenoBuscador();
         iniciarAutocompletado();
         iniciarBusquedaPorUbicacion();
+        asegurarRadioBusqueda();
         aplicarDisenoBuscador();
     }
 
