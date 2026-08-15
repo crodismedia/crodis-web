@@ -39,22 +39,27 @@
     }
 
     async function cargarLeaflet() {
-        await cargarRecurso("https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css", "css");
-        if (!window.L) await cargarRecurso("https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js", "js");
+        await cargarRecurso("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "css");
+        if (!window.L) await cargarRecurso("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "js");
     }
 
     function prepararContenedor() {
-        const visual = document.querySelector(".hero-visual .mapa-ficticio");
-        const zona = visual?.querySelector(".mapa-zona");
-        if (!visual || !zona) return null;
+        const visual = document.querySelector(".hero-visual");
+        const bloqueMapa = visual?.querySelector(".mapa-ficticio");
+        const cabecera = bloqueMapa?.querySelector(".mapa-cabecera");
+        const zona = bloqueMapa?.querySelector(".mapa-zona");
+        const sello = visual?.querySelector(".sello-confianza");
+        if (!visual || !bloqueMapa || !cabecera || !zona) return null;
 
-        visual.classList.add("mapa-real-activo");
+        bloqueMapa.classList.add("mapa-real-activo");
+        if (sello) cabecera.insertAdjacentElement("afterend", sello);
         zona.innerHTML = '<div id="mapa-talleres-real" role="application" aria-label="Mapa de talleres encontrados"></div><div id="mapa-talleres-mensaje" aria-live="polite">Busca una población o usa tu ubicación para ver talleres en el mapa.</div>';
 
         const estilos = document.createElement("style");
         estilos.id = "estilos-mapa-talleres";
         estilos.textContent = `
             .hero-visual{pointer-events:auto!important}
+            .mapa-real-activo>.sello-confianza{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:auto!important;max-width:none!important;margin:0 14px 12px!important;box-sizing:border-box!important;z-index:2!important}
             .mapa-real-activo .mapa-zona{position:relative!important;min-height:430px!important;overflow:hidden!important;background:#eef3f7!important}
             #mapa-talleres-real{position:absolute;inset:0;z-index:1;min-height:430px}
             #mapa-talleres-mensaje{position:absolute;left:14px;right:14px;bottom:14px;z-index:500;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.94);box-shadow:0 8px 24px rgba(15,23,42,.14);font-size:.82rem;color:#334155;pointer-events:none}
@@ -63,7 +68,13 @@
             .mapa-popup-nombre{font-weight:800;color:#0f172a;margin-bottom:4px}
             .mapa-popup-direccion{font-size:.82rem;color:#475569;line-height:1.35;margin-bottom:8px}
             .mapa-popup-enlace{display:inline-flex;padding:7px 10px;border-radius:8px;background:#1457d9;color:#fff!important;font-weight:700;text-decoration:none}
-            @media(max-width:750px){.mapa-real-activo .mapa-zona,#mapa-talleres-real{min-height:340px!important}}
+            @media(max-width:750px){
+                .hero-contenido{grid-template-columns:1fr!important}
+                .hero-visual{grid-column:1!important;width:100%!important;margin-top:24px!important}
+                .mapa-ficticio{transform:none!important;width:100%!important}
+                .mapa-real-activo>.sello-confianza{margin:0 10px 10px!important}
+                .mapa-real-activo .mapa-zona,#mapa-talleres-real{min-height:340px!important}
+            }
         `;
         if (!document.getElementById(estilos.id)) document.head.appendChild(estilos);
         return zona;
