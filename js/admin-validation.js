@@ -4,8 +4,6 @@
   const $=(id)=>document.getElementById(id);
   const CAMPOS=['nombre','telefono','web','direccion','codigo_postal','ciudad','provincia'];
   let temporizador=null;
-  let cacheTalleres=null;
-  let cacheEn=0;
 
   function normalizarTelefono(v){
     let n=String(v||'').replace(/\D/g,'');
@@ -31,18 +29,18 @@
     const form=$('form-taller');if(!form||$('validacion-ficha'))return;
     const box=document.createElement('section');
     box.id='validacion-ficha';box.className='tm-field full';
-    box.innerHTML='<label>Validación de la ficha y duplicados</label><div id="resultado-validacion" style="display:grid;gap:7px;padding:10px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc"><span class="tm-status">Selecciona un taller para validar sus datos.</span></div><button id="btn-validar-ficha" type="button" class="tm-btn tm-btn-soft" style="justify-self:start">Comprobar ahora</button>';
+    box.innerHTML='<label>Validación de la ficha y duplicados</label><div id="resultado-validacion" style="display:grid;gap:7px;padding:10px;border:1px solid #dfe3e8;border-radius:12px;background:#f8fafc"><span class="tm-status">Selecciona un taller para validar sus datos.</span></div><button id="btn-validar-ficha" type="button" class="tm-btn tm-btn-soft" style="justify-self:start">Consultar base de datos</button>';
     const savebar=form.querySelector('.tm-savebar');form.insertBefore(box,savebar||null);
-    $('btn-validar-ficha').addEventListener('click',()=>validarTodo(true));
+    $('btn-validar-ficha').addEventListener('click',validarTodo);
     CAMPOS.forEach(id=>$(id)?.addEventListener('input',programar));
-    document.addEventListener('click',e=>{if(e.target.closest('.tm-result'))setTimeout(()=>validarTodo(false),120);});
+    document.addEventListener('click',e=>{if(e.target.closest('.tm-result'))setTimeout(validarTodo,120);});
     form.addEventListener('submit',async e=>{
-      const r=await validarTodo(true);
+      const r=await validarTodo();
       if(r.bloqueantes.length){e.preventDefault();e.stopImmediatePropagation();alert('No se puede guardar todavía:\n\n- '+r.bloqueantes.join('\n- '));}
     },true);
   }
 
-  function programar(){clearTimeout(temporizador);temporizador=setTimeout(()=>validarTodo(false),550);}
+  function programar(){clearTimeout(temporizador);temporizador=setTimeout(validarTodo,550);}
 
   function validarLocal(){
     const errores=[],avisos=[],ok=[];
@@ -61,29 +59,74 @@
     return {errores,avisos,ok,tel};
   }
 
-  async function cargarIndice(force=false){
-    if(!supabase)return [];
-    if(!force&&cacheTalleres&&Date.now()-cacheEn<120000)return cacheTalleres;
-    const filas=[];const paso=1000;
-    for(let desde=0;;desde+=paso){
-      const {data,error}=await supabase.from('talleres').select('id,nombre,telefono,ciudad,direccion,codigo_postal,provincia,activo').range(desde,desde+paso-1);
-      if(error)throw error;
-      filas.push(...(data||[]));
-      if(!data||data.length<paso)break;
-      if(desde>10000)break;
-    }
-    cacheTalleres=filas;cacheEn=Date.now();return filas;
+  function variantesTelefono(tel){
+    if(!/^\d{9}$/.test(tel))return [];
+    const a=tel.slice(0,3),b=tel.slice(3,6),c=tel.slice(6,9);
+    const a2=tel.slice(0,2),b3=tel.slice(2,5),c2=tel.slice(5,7),d2=tel.slice(7,9);
+    return [...new Set([
+      tel,`${a} ${b} ${c}`,`${a}-${b}-${c}`,
+      `+34${tel}`,`+34 ${tel}`,`+34 ${a} ${b} ${c}`,
+      `0034${tel}`,`0034 ${a} ${b} ${c}`,
+      `${a2} ${b3} ${c2} ${d2}`
+    ])];
   }
 
-  async function buscarDuplicados(tel,force=false){
+  async function consultaTelefonos(id,tel){
+    if(!tel)return [];
+    const variantes=variantesTelefono(tel);
+    if(!variantes.length)return [];
+    const filtro=variantes.map(v=>`telefono.eq.${v.replace(/,/g,' ')}`).join(',');
+    const {data,error}=await supabase.from('talleres')
+      .select('id,nombre,telefono,ciudad,direccion,codigo_postal,provincia,activo')
+      .neq('id',id)
+      .or(filtro)
+      .limit(50);
+    if(error)throw error;
+    return data||[];
+  }
+
+  async function consultaZona(id,nombre,ciudad,cp){
+    const filtros=[];
+    const seguroNombre=String(nombre||'').replace(/[,%().]/g,' ').replace(/\s+/g,' ').trim().slice(0,80);
+    const primera=seguroNombre.split(' ').find(x=>x.length>=3)||'';
+    if(ciudad)filtros.push(`ciudad.ilike.%${String(ciudad).replace(/[,%().]/g,' ')}%`);
+    if(cp)filtros.push(`codigo_postal.eq.${String(cp).replace(/,/g,' ')}`);
+    if(primera)filtros.push(`nombre.ilike.%${primera}%`);
+    if(!filtros.length)return [];
+    const {data,error}=await supabase.from('talleres')
+      .select('id,nombre,telefono,ciudad,direccion,codigo_postal,provincia,activo')
+      .neq('id',id)
+      .or(filtros.join(','))
+      .limit(250);
+    if(error)throw error;
+    return data||[];
+  }
+
+  async function buscarDuplicados(tel){
     const id=valor('taller-id');
     if(!supabase||!id)return {bloqueantes:[],avisos:[]};
-    const nombre=valor('nombre'),ciudad=normalizarTexto(valor('ciudad')),cp=valor('codigo_postal'),direccion=normalizarTexto(valor('direccion'));
-    let talleres=[];
-    try{talleres=await cargarIndice(force);}catch(error){console.error('No se pudo cargar el índice de duplicados:',error);return {bloqueantes:[],avisos:['No se pudo completar la comprobación global de duplicados.']};}
+    const nombre=valor('nombre');
+    const ciudadRaw=valor('ciudad');
+    const ciudad=normalizarTexto(ciudadRaw);
+    const cp=valor('codigo_postal');
+    const direccion=normalizarTexto(valor('direccion'));
     const fuertes=[],posibles=[];
-    for(const t of talleres){
-      if(String(t.id)===id)continue;
+
+    let porTelefono=[],porZona=[];
+    try{
+      [porTelefono,porZona]=await Promise.all([
+        consultaTelefonos(id,tel),
+        consultaZona(id,nombre,ciudadRaw,cp)
+      ]);
+    }catch(error){
+      console.error('No se pudo consultar Supabase para duplicados:',error);
+      return {bloqueantes:[],avisos:['No se pudo consultar la base de datos para comprobar duplicados.']};
+    }
+
+    const vistos=new Map();
+    [...porTelefono,...porZona].forEach(t=>vistos.set(String(t.id),t));
+
+    for(const t of vistos.values()){
       const tTel=normalizarTelefono(t.telefono),tCiudad=normalizarTexto(t.ciudad),tCp=String(t.codigo_postal||'').trim(),tDir=normalizarTexto(t.direccion);
       const mismaZona=(ciudad&&tCiudad===ciudad)||(cp&&tCp===cp);
       const sim=similitudNombre(nombre,t.nombre);
@@ -102,15 +145,15 @@
     box.innerHTML=items.map(x=>`<div style="color:${x.c};font-size:.88rem"><strong>${x.i}</strong> ${escapar(x.t)}</div>`).join('')||'<span class="tm-status">Sin datos para validar.</span>';
   }
 
-  async function validarTodo(force=false){
+  async function validarTodo(){
     if(!$('taller-id')?.value)return {bloqueantes:[]};
+    const box=$('resultado-validacion');
+    if(box)box.innerHTML='<span class="tm-status">Consultando directamente la base de datos de Supabase…</span>';
     const local=validarLocal();
-    const duplicados=await buscarDuplicados(local.tel,force);
+    const duplicados=await buscarDuplicados(local.tel);
     pintar(local,duplicados);
     return {bloqueantes:[...local.errores,...duplicados.bloqueantes],avisos:[...local.avisos,...duplicados.avisos]};
   }
 
-  document.addEventListener('tallermap:ficha-guardada',()=>{cacheTalleres=null;cacheEn=0;});
-  document.addEventListener('tallermap:ficha-eliminada',()=>{cacheTalleres=null;cacheEn=0;});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',construir);else construir();
 }());
