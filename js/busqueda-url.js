@@ -312,6 +312,16 @@
         );
     }
 
+    function quitarIconoServicio() {
+        const campoServicio = document.getElementById("servicio");
+        const contenedorServicio = campoServicio?.closest(".campo-busqueda");
+        const iconoServicio = contenedorServicio?.querySelector(".campo-icono");
+
+        if (iconoServicio) {
+            iconoServicio.remove();
+        }
+    }
+
     function iniciarBusquedaPorUbicacion() {
         const controles = document.querySelector(
             ".poblacion-controles"
@@ -345,9 +355,7 @@
             boton.className =
                 "boton boton-claro boton-pequeno";
 
-            boton.innerHTML =
-                '<span aria-hidden="true">⌖</span> ' +
-                "Usar mi ubicación";
+            boton.textContent = "Usar mi ubicación";
 
             boton.style.marginTop = "8px";
 
@@ -452,10 +460,7 @@
                     );
                 } finally {
                     boton.disabled = false;
-
-                    boton.innerHTML =
-                        '<span aria-hidden="true">⌖</span> ' +
-                        "Usar mi ubicación";
+                    boton.textContent = "Usar mi ubicación";
                 }
             }
         );
@@ -534,6 +539,7 @@
 
     function iniciar() {
         restaurarCamposDesdeUrl();
+        quitarIconoServicio();
         iniciarAutocompletado();
         iniciarBusquedaPorUbicacion();
     }
