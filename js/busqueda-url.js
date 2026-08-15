@@ -30,17 +30,13 @@
     }
 
     function provinciaMunicipio(codigoMunicipal) {
-        const codigo = String(codigoMunicipal || "")
-            .padStart(5, "0");
-
-        return PROVINCIAS_POR_PREFIJO[codigo.slice(0, 2)]
-            || "Provincia no indicada";
+        const codigo = String(codigoMunicipal || "").padStart(5, "0");
+        return PROVINCIAS_POR_PREFIJO[codigo.slice(0, 2)] || "Provincia no indicada";
     }
 
     function prioridadCoincidencia(municipio, termino) {
         const nombre = normalizarTexto(municipio.nombre);
         const codigo = String(municipio.codigo_municipal || "");
-
         if (nombre === termino || codigo === termino) return 0;
         if (nombre.startsWith(termino) || codigo.startsWith(termino)) return 1;
         return 2;
@@ -105,7 +101,6 @@
             window.clearTimeout(temporizador);
             temporizador = window.setTimeout(rellenarSugerencias, 120);
         });
-
         campoPoblacion.addEventListener("focus", rellenarSugerencias);
     }
 
@@ -115,12 +110,10 @@
                 reject(new Error("contexto-no-seguro"));
                 return;
             }
-
             if (!navigator.geolocation) {
                 reject(new Error("geolocation-no-disponible"));
                 return;
             }
-
             navigator.geolocation.getCurrentPosition(resolve, reject, {
                 enableHighAccuracy: false,
                 timeout: 15000,
@@ -139,59 +132,86 @@
             "accept-language": "es"
         });
 
-        const respuesta = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?${parametros.toString()}`,
-            {
-                method: "GET",
-                headers: { Accept: "application/json" },
-                referrerPolicy: "strict-origin-when-cross-origin"
-            }
-        );
+        const respuesta = await fetch(`https://nominatim.openstreetmap.org/reverse?${parametros.toString()}`, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            referrerPolicy: "strict-origin-when-cross-origin"
+        });
 
         if (!respuesta.ok) throw new Error("geocodificacion-no-disponible");
-
         const datos = await respuesta.json();
         const direccion = datos?.address || {};
-
         return String(
-            direccion.city
-            || direccion.town
-            || direccion.village
-            || direccion.municipality
-            || direccion.county
-            || ""
+            direccion.city || direccion.town || direccion.village
+            || direccion.municipality || direccion.county || ""
         ).trim();
     }
 
     function mensajeErrorUbicacion(error) {
-        if (error?.code === 1) {
-            return "El permiso de ubicación está bloqueado. Actívalo en el navegador y vuelve a intentarlo.";
-        }
-        if (error?.code === 2) {
-            return "El dispositivo no ha podido determinar tu ubicación. Comprueba que la ubicación esté activada.";
-        }
-        if (error?.code === 3) {
-            return "La ubicación ha tardado demasiado. Vuelve a intentarlo.";
-        }
-        if (error?.message === "contexto-no-seguro") {
-            return "La ubicación solo funciona desde la versión HTTPS de TallerMap.";
-        }
-        if (error?.message === "geocodificacion-no-disponible") {
-            return "Se obtuvo tu posición, pero no se pudo identificar la población. Escríbela manualmente.";
-        }
+        if (error?.code === 1) return "El permiso de ubicación está bloqueado. Actívalo en el navegador y vuelve a intentarlo.";
+        if (error?.code === 2) return "El dispositivo no ha podido determinar tu ubicación. Comprueba que la ubicación esté activada.";
+        if (error?.code === 3) return "La ubicación ha tardado demasiado. Vuelve a intentarlo.";
+        if (error?.message === "contexto-no-seguro") return "La ubicación solo funciona desde la versión HTTPS de TallerMap.";
+        if (error?.message === "geocodificacion-no-disponible") return "Se obtuvo tu posición, pero no se pudo identificar la población. Escríbela manualmente.";
         return "No se pudo detectar tu ubicación. Puedes escribir la población manualmente.";
     }
 
-    function quitarIconosBuscador() {
+    function aplicarDisenoBuscador() {
         const formulario = document.getElementById("formulario-buscador-publico");
-        formulario?.querySelectorAll(".campo-icono").forEach(icono => icono.remove());
+        if (!formulario) return;
+
+        formulario.querySelectorAll(".campo-icono").forEach(icono => icono.remove());
+
+        const campoPoblacion = document.getElementById("poblacion");
+        const bloquePoblacion = campoPoblacion?.closest(".campo-busqueda");
+        bloquePoblacion?.querySelectorAll("small").forEach(texto => texto.remove());
+
+        formulario.querySelectorAll("label").forEach(label => {
+            if (normalizarTexto(label.textContent) === "radio de busqueda") label.remove();
+        });
+
+        let estilos = document.getElementById("estilos-buscador-tallermap");
+        if (!estilos) {
+            estilos = document.createElement("style");
+            estilos.id = "estilos-buscador-tallermap";
+            estilos.textContent = `
+                #formulario-buscador-publico #usar-mi-ubicacion {
+                    background:#F59E0B!important;
+                    border-color:#F59E0B!important;
+                    color:#fff!important;
+                    border-radius:12px!important;
+                    font-weight:800!important;
+                    box-shadow:0 6px 14px rgba(245,158,11,.22)!important;
+                }
+                #formulario-buscador-publico #usar-mi-ubicacion:hover,
+                #formulario-buscador-publico #usar-mi-ubicacion:focus-visible {
+                    background:#D97706!important;
+                    border-color:#D97706!important;
+                }
+                #formulario-buscador-publico #boton-buscar,
+                #formulario-buscador-publico > a[href*="registro"] {
+                    background:#07883f!important;
+                    border-color:#07883f!important;
+                    color:#fff!important;
+                    border-radius:12px!important;
+                    font-weight:800!important;
+                }
+                #formulario-buscador-publico #boton-buscar:hover,
+                #formulario-buscador-publico #boton-buscar:focus-visible,
+                #formulario-buscador-publico > a[href*="registro"]:hover,
+                #formulario-buscador-publico > a[href*="registro"]:focus-visible {
+                    background:#066d35!important;
+                    border-color:#066d35!important;
+                }
+            `;
+            document.head.appendChild(estilos);
+        }
     }
 
     function iniciarBusquedaPorUbicacion() {
         const controles = document.querySelector(".poblacion-controles");
         const campoPoblacion = document.getElementById("poblacion");
         const formulario = document.getElementById("formulario-buscador-publico");
-
         if (!controles || !campoPoblacion || !formulario) return;
 
         let boton = document.getElementById("usar-mi-ubicacion");
@@ -223,10 +243,7 @@
                 const posicion = await obtenerPosicionActual();
                 const latitud = Number(posicion.coords.latitude);
                 const longitud = Number(posicion.coords.longitude);
-
-                if (!Number.isFinite(latitud) || !Number.isFinite(longitud)) {
-                    throw new Error("coordenadas-no-validas");
-                }
+                if (!Number.isFinite(latitud) || !Number.isFinite(longitud)) throw new Error("coordenadas-no-validas");
 
                 estado.textContent = "Identificando tu población…";
                 const poblacion = await obtenerPoblacionDesdeCoordenadas(latitud, longitud);
@@ -254,9 +271,7 @@
         const campoPoblacion = document.getElementById("poblacion");
         const campoServicio = document.getElementById("servicio");
 
-        if (campoPoblacion && poblacion && !campoPoblacion.value) {
-            campoPoblacion.value = poblacion;
-        }
+        if (campoPoblacion && poblacion && !campoPoblacion.value) campoPoblacion.value = poblacion;
 
         if (campoServicio && servicio) {
             const aplicarServicio = () => {
@@ -272,9 +287,7 @@
                 let intentos = 0;
                 const intervalo = window.setInterval(() => {
                     intentos += 1;
-                    if (aplicarServicio() || intentos >= 30) {
-                        window.clearInterval(intervalo);
-                    }
+                    if (aplicarServicio() || intentos >= 30) window.clearInterval(intervalo);
                 }, 100);
             }
         }
@@ -282,9 +295,10 @@
 
     function iniciar() {
         restaurarCamposDesdeUrl();
-        quitarIconosBuscador();
+        aplicarDisenoBuscador();
         iniciarAutocompletado();
         iniciarBusquedaPorUbicacion();
+        aplicarDisenoBuscador();
     }
 
     if (document.readyState === "loading") {
