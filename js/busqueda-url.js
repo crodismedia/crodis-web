@@ -7,6 +7,15 @@
         .toLowerCase()
         .trim();
 
+    function cargarMapaReal() {
+        if (document.querySelector('script[data-tallermap-mapa="1"]')) return;
+        const script = document.createElement("script");
+        script.src = "/js/mapa-talleres.js?v=20260815-1";
+        script.defer = true;
+        script.dataset.tallermapMapa = "1";
+        document.head.appendChild(script);
+    }
+
     function prepararBuscador() {
         const formulario = document.getElementById("formulario-buscador-publico");
         const poblacion = document.getElementById("poblacion");
@@ -258,9 +267,14 @@
         }
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", prepararBuscador, { once: true });
-    } else {
+    function iniciarBuscadorYMapa() {
         prepararBuscador();
+        cargarMapaReal();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", iniciarBuscadorYMapa, { once: true });
+    } else {
+        iniciarBuscadorYMapa();
     }
 }());
