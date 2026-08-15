@@ -58,13 +58,15 @@
   }
 
   function renderTaller(t){return `<strong>${esc(t.nombre||"Sin nombre")}</strong><small>${esc(t.ciudad||"—")} · ${esc(t.provincia||"—")} · ${esc(t.codigo_postal||"—")}</small><small>${esc(t.telefono||"Sin teléfono")} · ID ${esc(String(t.id).slice(0,12))}</small>`;}
-  function botonFusion(c,conservar){
-    const keep=conservar==="a"?c.a:c.b,drop=conservar==="a"?c.b:c.a;
-    return `<button type="button" class="merge-btn" data-keep="${esc(keep.id)}" data-drop="${esc(drop.id)}" data-keep-name="${esc(keep.nombre||"Taller")}" data-drop-name="${esc(drop.nombre||"Taller")}">Conservar ${conservar.toUpperCase()} · fusionar ${conservar==="a"?"B":"A"}</button>`;
+  function opcionesFusion(c){
+    return `<div class="merge-options" hidden>
+      <button type="button" class="merge-btn" data-keep="${esc(c.a.id)}" data-drop="${esc(c.b.id)}" data-keep-name="${esc(c.a.nombre||"Taller A")}" data-drop-name="${esc(c.b.nombre||"Taller B")}">Conservar ID A</button>
+      <button type="button" class="merge-btn" data-keep="${esc(c.b.id)}" data-drop="${esc(c.a.id)}" data-keep-name="${esc(c.b.nombre||"Taller B")}" data-drop-name="${esc(c.a.nombre||"Taller A")}">Conservar ID B</button>
+    </div>`;
   }
   function render(){
     const inicio=pagina*PAGE_SIZE,fin=inicio+PAGE_SIZE,filas=visibles.slice(inicio,fin);
-    $("tabla-duplicados").innerHTML=filas.length?filas.map(c=>`<tr><td><span class="chip ${c.confianza}">${c.confianza[0].toUpperCase()+c.confianza.slice(1)}</span></td><td>${renderTaller(c.a)}</td><td>${renderTaller(c.b)}</td><td><div class="signals">${c.senales.map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div></td><td><div class="actions"><a href="/talleres/${encodeURIComponent(slug(c.a))}" target="_blank" rel="noopener">Ficha A</a><a href="/talleres/${encodeURIComponent(slug(c.b))}" target="_blank" rel="noopener">Ficha B</a>${botonFusion(c,"a")}${botonFusion(c,"b")}</div></td></tr>`).join(""):'<tr><td colspan="5" style="padding:28px;text-align:center;color:#66736b">No hay candidatos con estos filtros.</td></tr>';
+    $("tabla-duplicados").innerHTML=filas.length?filas.map(c=>`<tr><td><span class="chip ${c.confianza}">${c.confianza[0].toUpperCase()+c.confianza.slice(1)}</span></td><td>${renderTaller(c.a)}</td><td>${renderTaller(c.b)}</td><td><div class="signals">${c.senales.map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div></td><td><div class="actions"><a href="/talleres/${encodeURIComponent(slug(c.a))}" target="_blank" rel="noopener">Ficha A</a><a href="/talleres/${encodeURIComponent(slug(c.b))}" target="_blank" rel="noopener">Ficha B</a><button type="button" class="merge-toggle">Fusionar</button>${opcionesFusion(c)}</div></td></tr>`).join(""):'<tr><td colspan="5" style="padding:28px;text-align:center;color:#66736b">No hay candidatos con estos filtros.</td></tr>';
     $("dup-info").textContent=`${visibles.length.toLocaleString("es-ES")} candidatos · página ${pagina+1} de ${Math.max(1,Math.ceil(visibles.length/PAGE_SIZE))}`;
     $("dup-anterior").disabled=pagina<=0;$("dup-siguiente").disabled=fin>=visibles.length;
   }
@@ -76,16 +78,16 @@
 
   async function fusionar(keep,drop,keepName,dropName){
     if(fusionando||!keep||!drop||keep===drop)return;
-    const texto=`Se conservará “${keepName}” y se fusionarán en esa ficha los datos y relaciones de “${dropName}”. La ficha duplicada se eliminará.\n\nEscribe FUSIONAR para confirmar.`;
+    const texto=`Se conservará el ID de “${keepName}” y se fusionarán en esa ficha los datos y relaciones de “${dropName}”. El segundo nombre y el ID absorbido quedarán registrados en la ficha principal.\n\nEscribe FUSIONAR para confirmar.`;
     if(String(window.prompt(texto)||"").trim().toUpperCase()!=="FUSIONAR")return;
-    fusionando=true;document.querySelectorAll(".merge-btn").forEach(b=>b.disabled=true);estado(`Fusionando ${dropName} en ${keepName}…`);
+    fusionando=true;document.querySelectorAll(".merge-btn,.merge-toggle").forEach(b=>b.disabled=true);estado(`Fusionando ${dropName} en ${keepName}…`);
     try{
-      const {data,error}=await supabase.rpc("admin_fusionar_talleres",{p_conservar:keep,p_eliminar:drop});
+      const {error}=await supabase.rpc("admin_fusionar_talleres",{p_conservar:keep,p_eliminar:drop});
       if(error)throw error;
       estado(`Fusión completada: se conserva ${keepName}`,"ok");
       await recalcular();
     }catch(error){console.error("Error fusionando talleres:",error);estado(`No se pudo fusionar: ${error.message}`,"error");alert(`No se pudo completar la fusión.\n\n${error.message}`);}
-    finally{fusionando=false;document.querySelectorAll(".merge-btn").forEach(b=>b.disabled=false);}
+    finally{fusionando=false;document.querySelectorAll(".merge-btn,.merge-toggle").forEach(b=>b.disabled=false);}
   }
 
   async function recalcular(){
@@ -94,7 +96,13 @@
   }
 
   function enlazar(){
-    $("btn-recalcular").addEventListener("click",recalcular);$("btn-filtrar").addEventListener("click",()=>filtrar(true));$("dup-busqueda").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();filtrar(true);}});$("dup-confianza").addEventListener("change",()=>filtrar(true));$("dup-anterior").addEventListener("click",()=>{if(pagina>0){pagina--;render();}});$("dup-siguiente").addEventListener("click",()=>{if((pagina+1)*PAGE_SIZE<visibles.length){pagina++;render();}});$("tabla-duplicados").addEventListener("click",e=>{const b=e.target.closest(".merge-btn");if(b)fusionar(b.dataset.keep,b.dataset.drop,b.dataset.keepName,b.dataset.dropName);});$("btn-cerrar-sesion").addEventListener("click",async()=>{await supabase.auth.signOut();location.replace("admin-login.html");});
+    $("btn-recalcular").addEventListener("click",recalcular);$("btn-filtrar").addEventListener("click",()=>filtrar(true));$("dup-busqueda").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();filtrar(true);}});$("dup-confianza").addEventListener("change",()=>filtrar(true));$("dup-anterior").addEventListener("click",()=>{if(pagina>0){pagina--;render();}});$("dup-siguiente").addEventListener("click",()=>{if((pagina+1)*PAGE_SIZE<visibles.length){pagina++;render();}});
+    $("tabla-duplicados").addEventListener("click",e=>{
+      const toggle=e.target.closest(".merge-toggle");
+      if(toggle){const box=toggle.parentElement?.querySelector(".merge-options");if(box){box.hidden=!box.hidden;toggle.textContent=box.hidden?"Fusionar":"Cancelar fusión";}return;}
+      const b=e.target.closest(".merge-btn");if(b)fusionar(b.dataset.keep,b.dataset.drop,b.dataset.keepName,b.dataset.dropName);
+    });
+    $("btn-cerrar-sesion").addEventListener("click",async()=>{await supabase.auth.signOut();location.replace("admin-login.html");});
   }
   async function iniciar(){enlazar();if(await proteger())await recalcular();}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",iniciar,{once:true});else iniciar();
