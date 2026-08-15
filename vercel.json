@@ -16,6 +16,11 @@
       "source": "/municipios/index.html",
       "destination": "/municipios/",
       "permanent": true
+    },
+    {
+      "source": "/provincias/index.html",
+      "destination": "/provincias/",
+      "permanent": true
     }
   ],
   "rewrites": [
