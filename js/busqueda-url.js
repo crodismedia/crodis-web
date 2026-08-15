@@ -10,7 +10,7 @@
     function cargarMapaReal() {
         if (document.querySelector('script[data-tallermap-mapa="1"]')) return;
         const script = document.createElement("script");
-        script.src = "/js/mapa-talleres.js?v=20260815-1";
+        script.src = "/js/mapa-talleres.js?v=20260815-2";
         script.defer = true;
         script.dataset.tallermapMapa = "1";
         document.head.appendChild(script);
@@ -59,24 +59,48 @@
             ubicacion.textContent = "Usar mi ubicación";
         }
 
+        let estadoUbicacion = document.getElementById("estado-ubicacion");
+        if (!estadoUbicacion) {
+            estadoUbicacion = document.createElement("small");
+            estadoUbicacion.id = "estado-ubicacion";
+            estadoUbicacion.setAttribute("aria-live", "polite");
+        }
+
         /* Orden definitivo de cada columna. */
         contenidoPoblacion?.appendChild(ubicacion);
+        contenidoPoblacion?.appendChild(estadoUbicacion);
         contenidoPoblacion?.appendChild(registro);
         contenidoServicio?.appendChild(radio);
         contenidoServicio?.appendChild(buscar);
 
+        const restaurarBotonUbicacion = () => {
+            ubicacion.disabled = false;
+            ubicacion.textContent = "Usar mi ubicación";
+        };
+
         ubicacion.onclick = () => {
-            if (!navigator.geolocation) return;
+            if (!navigator.geolocation) {
+                estadoUbicacion.textContent = "Este navegador no permite obtener la ubicación.";
+                return;
+            }
+
             ubicacion.disabled = true;
             ubicacion.textContent = "Localizando…";
+            estadoUbicacion.textContent = "Buscando una ubicación precisa…";
 
             navigator.geolocation.getCurrentPosition(async posicion => {
                 try {
+                    const precision = Number(posicion.coords.accuracy);
+                    if (Number.isFinite(precision) && precision > 3000) {
+                        estadoUbicacion.textContent = `La ubicación del dispositivo es demasiado imprecisa (±${Math.round(precision / 1000)} km). Escribe tu población para evitar resultados incorrectos.`;
+                        return;
+                    }
+
                     const parametros = new URLSearchParams({
                         format: "jsonv2",
                         lat: String(posicion.coords.latitude),
                         lon: String(posicion.coords.longitude),
-                        zoom: "10",
+                        zoom: "18",
                         addressdetails: "1",
                         "accept-language": "es"
                     });
@@ -85,25 +109,37 @@
                         `https://nominatim.openstreetmap.org/reverse?${parametros}`,
                         { headers: { Accept: "application/json" } }
                     );
+                    if (!respuesta.ok) throw new Error("No se pudo resolver la ubicación");
+
                     const datos = await respuesta.json();
                     const direccion = datos.address || {};
-                    const localidad = direccion.city || direccion.town || direccion.village
-                        || direccion.municipality || direccion.county || "";
+                    const localidad = direccion.town || direccion.village || direccion.city
+                        || direccion.municipality || direccion.city_district || "";
+                    const codigoPostal = String(direccion.postcode || "").match(/^\d{5}$/)?.[0] || "";
+                    const terminoBusqueda = localidad || codigoPostal;
 
-                    if (localidad) {
-                        poblacion.value = localidad;
+                    if (terminoBusqueda) {
+                        poblacion.value = terminoBusqueda;
+                        estadoUbicacion.textContent = localidad
+                            ? `Ubicación detectada: ${localidad}${codigoPostal ? ` (${codigoPostal})` : ""}.`
+                            : `Ubicación detectada: ${codigoPostal}.`;
                         formulario.requestSubmit();
+                    } else {
+                        estadoUbicacion.textContent = "No se pudo identificar la población con suficiente precisión. Escríbela manualmente.";
                     }
                 } catch (_) {
-                    /* Mantener búsqueda manual disponible. */
+                    estadoUbicacion.textContent = "No se pudo identificar tu ubicación. Puedes escribir la población manualmente.";
                 } finally {
-                    ubicacion.disabled = false;
-                    ubicacion.textContent = "Usar mi ubicación";
+                    restaurarBotonUbicacion();
                 }
             }, () => {
-                ubicacion.disabled = false;
-                ubicacion.textContent = "Usar mi ubicación";
-            }, { timeout: 15000, maximumAge: 300000 });
+                estadoUbicacion.textContent = "No se pudo obtener una ubicación precisa. Revisa el permiso de ubicación o escribe la población.";
+                restaurarBotonUbicacion();
+            }, {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0
+            });
         };
 
         const params = new URLSearchParams(location.search);
@@ -209,6 +245,15 @@
                     white-space:normal!important;
                     text-align:center!important;
                 }
+                #formulario-buscador-publico #estado-ubicacion{
+                    display:block!important;
+                    min-height:0!important;
+                    margin:7px 0 0!important;
+                    color:#64748b!important;
+                    font-size:.74rem!important;
+                    line-height:1.35!important;
+                }
+                #formulario-buscador-publico #estado-ubicacion:empty{display:none!important}
                 #formulario-buscador-publico #usar-mi-ubicacion{
                     background:#F59E0B!important;
                     border:1px solid #F59E0B!important;
