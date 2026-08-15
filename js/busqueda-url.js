@@ -29,8 +29,9 @@
         const bloqueServicio = servicio.closest(".campo-busqueda");
         const contenidoPoblacion = bloquePoblacion?.querySelector(":scope > div");
         const contenidoServicio = bloqueServicio?.querySelector(":scope > div");
+        if (!bloquePoblacion || !bloqueServicio || !contenidoPoblacion || !contenidoServicio) return;
 
-        bloquePoblacion?.querySelectorAll("small").forEach(el => el.remove());
+        bloquePoblacion.querySelectorAll("small").forEach(el => el.remove());
 
         let radio = document.getElementById("radio-busqueda");
         if (!radio) {
@@ -65,11 +66,22 @@
             estadoUbicacion.setAttribute("aria-live", "polite");
         }
 
-        /* Orden definitivo: izquierda población + ubicación + buscar; derecha servicio + radio. */
-        contenidoPoblacion?.appendChild(ubicacion);
-        contenidoPoblacion?.appendChild(estadoUbicacion);
-        contenidoPoblacion?.appendChild(buscar);
-        contenidoServicio?.appendChild(radio);
+        contenidoPoblacion.appendChild(ubicacion);
+        contenidoPoblacion.appendChild(estadoUbicacion);
+        contenidoServicio.appendChild(radio);
+
+        /* Escritorio: buscar bajo ubicación. Tablet/móvil: buscar al final del formulario. */
+        const mediaCompacta = window.matchMedia("(max-width: 1050px)");
+        const colocarBotonBuscar = () => {
+            if (mediaCompacta.matches) {
+                formulario.appendChild(buscar);
+            } else {
+                contenidoPoblacion.appendChild(buscar);
+            }
+        };
+        colocarBotonBuscar();
+        if (mediaCompacta.addEventListener) mediaCompacta.addEventListener("change", colocarBotonBuscar);
+        else if (mediaCompacta.addListener) mediaCompacta.addListener(colocarBotonBuscar);
 
         const restaurarBotonUbicacion = () => {
             ubicacion.disabled = false;
@@ -220,9 +232,7 @@
                     position:static!important;
                     transform:none!important;
                 }
-                #formulario-buscador-publico #radio-busqueda{
-                    margin:12px 0 0!important;
-                }
+                #formulario-buscador-publico #radio-busqueda{margin:12px 0 0!important}
                 #formulario-buscador-publico #usar-mi-ubicacion,
                 #formulario-buscador-publico #boton-buscar{
                     display:flex!important;
@@ -273,11 +283,13 @@
                     background:#066D35!important;
                     border-color:#066D35!important;
                 }
-                @media(max-width:750px){
+
+                /* Tablet: una sola columna, controles amplios y botón buscar al final. */
+                @media(max-width:1050px){
                     #formulario-buscador-publico{
                         grid-template-columns:1fr!important;
-                        gap:10px!important;
-                        padding:12px!important;
+                        gap:12px!important;
+                        padding:16px!important;
                     }
                     #formulario-buscador-publico>.campo-busqueda:nth-of-type(1),
                     #formulario-buscador-publico>.campo-busqueda:nth-of-type(2){
@@ -285,11 +297,35 @@
                         grid-row:auto!important;
                         border-right:0!important;
                         border-bottom:0!important;
-                        padding:6px!important;
+                        padding:8px!important;
+                    }
+                    #formulario-buscador-publico #boton-buscar{
+                        grid-column:1!important;
+                        width:100%!important;
+                        margin:0!important;
+                        min-height:52px!important;
+                    }
+                }
+
+                /* Móvil: compacto, sin desbordes y con tamaños táctiles cómodos. */
+                @media(max-width:600px){
+                    #formulario-buscador-publico{
+                        gap:8px!important;
+                        padding:10px!important;
+                    }
+                    #formulario-buscador-publico>.campo-busqueda:nth-of-type(1),
+                    #formulario-buscador-publico>.campo-busqueda:nth-of-type(2){
+                        padding:5px!important;
                     }
                     #formulario-buscador-publico #poblacion,
                     #formulario-buscador-publico #servicio,
                     #formulario-buscador-publico #radio-busqueda{
+                        min-height:46px!important;
+                        font-size:16px!important;
+                    }
+                    #formulario-buscador-publico #usar-mi-ubicacion,
+                    #formulario-buscador-publico #boton-buscar{
+                        min-height:50px!important;
                         font-size:16px!important;
                     }
                 }
