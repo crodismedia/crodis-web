@@ -16,6 +16,110 @@
         document.head.appendChild(script);
     }
 
+    function prepararAutocompletado(poblacion) {
+        const cliente = window.supabaseClient;
+        const contenedor = poblacion.closest(".poblacion-controles");
+        if (!cliente || !contenedor) return;
+
+        let lista = document.getElementById("sugerencias-poblacion");
+        if (!lista) {
+            lista = document.createElement("div");
+            lista.id = "sugerencias-poblacion";
+            lista.setAttribute("role", "listbox");
+            lista.setAttribute("aria-label", "Sugerencias de población");
+            contenedor.appendChild(lista);
+        }
+
+        let temporizador = 0;
+        let secuencia = 0;
+
+        const cerrar = () => {
+            lista.replaceChildren();
+            lista.hidden = true;
+            poblacion.setAttribute("aria-expanded", "false");
+        };
+
+        const mostrar = resultados => {
+            lista.replaceChildren();
+            if (!resultados.length) return cerrar();
+            resultados.forEach(item => {
+                const boton = document.createElement("button");
+                boton.type = "button";
+                boton.className = "sugerencia-poblacion";
+                boton.setAttribute("role", "option");
+                boton.dataset.codigoMunicipal = item.codigo_municipal || "";
+                boton.innerHTML = `<strong>${item.nombre || ""}</strong>${item.provincia ? `<span>${item.provincia}</span>` : ""}`;
+                boton.addEventListener("pointerdown", evento => evento.preventDefault());
+                boton.addEventListener("click", () => {
+                    poblacion.value = item.nombre || "";
+                    poblacion.dataset.codigoMunicipal = item.codigo_municipal || "";
+                    cerrar();
+                    poblacion.focus();
+                });
+                lista.appendChild(boton);
+            });
+            lista.hidden = false;
+            poblacion.setAttribute("aria-expanded", "true");
+        };
+
+        const buscar = async termino => {
+            const token = ++secuencia;
+            const limpio = termino.trim();
+            if (limpio.length < 2) return cerrar();
+
+            const patron = limpio.replace(/[%_,()]/g, " ").replace(/\s+/g, " ").trim();
+            if (!patron) return cerrar();
+
+            const { data, error } = await cliente
+                .from("municipios")
+                .select("nombre,provincia,codigo_municipal,nombre_busqueda")
+                .eq("activo", true)
+                .or(`nombre.ilike.${patron}%,nombre_busqueda.ilike.${patron}%`)
+                .order("nombre", { ascending: true })
+                .limit(8);
+
+            if (token !== secuencia) return;
+            if (error) {
+                console.warn("No se pudieron cargar sugerencias de municipios:", error);
+                cerrar();
+                return;
+            }
+
+            const vistos = new Set();
+            const resultados = (data || []).filter(item => {
+                const clave = `${normalizarTexto(item.nombre)}|${item.codigo_municipal || ""}`;
+                if (!item.nombre || vistos.has(clave)) return false;
+                vistos.add(clave);
+                return true;
+            });
+            mostrar(resultados);
+        };
+
+        poblacion.setAttribute("autocomplete", "off");
+        poblacion.setAttribute("aria-autocomplete", "list");
+        poblacion.setAttribute("aria-controls", "sugerencias-poblacion");
+        poblacion.setAttribute("aria-expanded", "false");
+
+        poblacion.addEventListener("input", () => {
+            poblacion.dataset.codigoMunicipal = "";
+            clearTimeout(temporizador);
+            temporizador = setTimeout(() => void buscar(poblacion.value), 140);
+        });
+        poblacion.addEventListener("focus", () => {
+            if (poblacion.value.trim().length >= 2) void buscar(poblacion.value);
+        });
+        poblacion.addEventListener("keydown", evento => {
+            if (evento.key === "Escape") cerrar();
+            if (evento.key === "ArrowDown" && !lista.hidden) {
+                evento.preventDefault();
+                lista.querySelector("button")?.focus();
+            }
+        });
+        document.addEventListener("pointerdown", evento => {
+            if (!contenedor.contains(evento.target)) cerrar();
+        });
+    }
+
     function prepararBuscador() {
         const formulario = document.getElementById("formulario-buscador-publico");
         const poblacion = document.getElementById("poblacion");
@@ -56,11 +160,8 @@
         }
 
         const radioUrl = new URLSearchParams(location.search).get("radio");
-        if (["1","2","3","4","5","6","7","8","9","10"].includes(radioUrl)) {
-            radio.value = radioUrl;
-        } else {
-            radio.value = "";
-        }
+        if (["1","2","3","4","5","6","7","8","9","10"].includes(radioUrl)) radio.value = radioUrl;
+        else radio.value = "";
 
         let ubicacion = document.getElementById("usar-mi-ubicacion");
         if (!ubicacion) {
@@ -78,11 +179,11 @@
             estadoUbicacion.setAttribute("aria-live", "polite");
         }
 
-        /* Escritorio: población + ubicación + buscar; servicio + radio. */
         contenidoPoblacion?.appendChild(ubicacion);
         contenidoPoblacion?.appendChild(estadoUbicacion);
         contenidoPoblacion?.appendChild(buscar);
         contenidoServicio?.appendChild(radio);
+        prepararAutocompletado(poblacion);
 
         const restaurarBotonUbicacion = () => {
             ubicacion.disabled = false;
@@ -94,11 +195,9 @@
                 estadoUbicacion.textContent = "Este navegador no permite obtener la ubicación.";
                 return;
             }
-
             ubicacion.disabled = true;
             ubicacion.textContent = "Localizando…";
             estadoUbicacion.textContent = "Buscando una ubicación precisa…";
-
             navigator.geolocation.getCurrentPosition(async posicion => {
                 try {
                     const precision = Number(posicion.coords.accuracy);
@@ -106,62 +205,34 @@
                         estadoUbicacion.textContent = `La ubicación del dispositivo es demasiado imprecisa (±${Math.round(precision / 1000)} km). Escribe tu población para evitar resultados incorrectos.`;
                         return;
                     }
-
-                    const parametros = new URLSearchParams({
-                        format: "jsonv2",
-                        lat: String(posicion.coords.latitude),
-                        lon: String(posicion.coords.longitude),
-                        zoom: "18",
-                        addressdetails: "1",
-                        "accept-language": "es"
-                    });
-
-                    const respuesta = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?${parametros}`,
-                        { headers: { Accept: "application/json" } }
-                    );
+                    const parametros = new URLSearchParams({format:"jsonv2",lat:String(posicion.coords.latitude),lon:String(posicion.coords.longitude),zoom:"18",addressdetails:"1","accept-language":"es"});
+                    const respuesta = await fetch(`https://nominatim.openstreetmap.org/reverse?${parametros}`, { headers: { Accept: "application/json" } });
                     if (!respuesta.ok) throw new Error("No se pudo resolver la ubicación");
-
                     const datos = await respuesta.json();
                     const direccion = datos.address || {};
-                    const localidad = direccion.town || direccion.village || direccion.city
-                        || direccion.municipality || direccion.city_district || "";
+                    const localidad = direccion.town || direccion.village || direccion.city || direccion.municipality || direccion.city_district || "";
                     const codigoPostal = String(direccion.postcode || "").match(/^\d{5}$/)?.[0] || "";
                     const terminoBusqueda = localidad || codigoPostal;
-
                     if (terminoBusqueda) {
                         poblacion.value = terminoBusqueda;
-                        estadoUbicacion.textContent = localidad
-                            ? `Ubicación detectada: ${localidad}${codigoPostal ? ` (${codigoPostal})` : ""}.`
-                            : `Ubicación detectada: ${codigoPostal}.`;
-                    } else {
-                        estadoUbicacion.textContent = "No se pudo identificar la población con suficiente precisión. Escríbela manualmente.";
-                    }
+                        poblacion.dataset.codigoMunicipal = "";
+                        estadoUbicacion.textContent = localidad ? `Ubicación detectada: ${localidad}${codigoPostal ? ` (${codigoPostal})` : ""}.` : `Ubicación detectada: ${codigoPostal}.`;
+                    } else estadoUbicacion.textContent = "No se pudo identificar la población con suficiente precisión. Escríbela manualmente.";
                 } catch (_) {
                     estadoUbicacion.textContent = "No se pudo identificar tu ubicación. Puedes escribir la población manualmente.";
-                } finally {
-                    restaurarBotonUbicacion();
-                }
+                } finally { restaurarBotonUbicacion(); }
             }, () => {
                 estadoUbicacion.textContent = "No se pudo obtener una ubicación precisa. Revisa el permiso de ubicación o escribe la población.";
                 restaurarBotonUbicacion();
-            }, {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0
-            });
+            }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
         };
 
         const params = new URLSearchParams(location.search);
         const poblacionUrl = params.get("poblacion");
         if (poblacionUrl && !poblacion.value) poblacion.value = poblacionUrl.slice(0, 80);
-
         const servicioUrl = normalizarTexto(params.get("servicio"));
         if (servicioUrl) {
-            const opcion = [...servicio.options].find(o =>
-                normalizarTexto(o.value) === servicioUrl
-                || normalizarTexto(o.textContent) === servicioUrl
-            );
+            const opcion = [...servicio.options].find(o => normalizarTexto(o.value) === servicioUrl || normalizarTexto(o.textContent) === servicioUrl);
             if (opcion) servicio.value = opcion.value;
         }
 
@@ -170,20 +241,21 @@
             estilos = document.createElement("style");
             estilos.id = "layout-buscador-final";
             estilos.textContent = `
-                #formulario-buscador-publico{
-                    display:grid!important;
-                    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-                    gap:0!important;
-                    align-items:stretch!important;
-                    padding:22px!important;
-                }
+                #formulario-buscador-publico{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:0!important;align-items:stretch!important;padding:22px!important}
                 #formulario-buscador-publico>.campo-busqueda{display:block!important;min-width:0!important;position:relative!important;inset:auto!important;transform:none!important;margin:0!important;box-sizing:border-box!important}
                 #formulario-buscador-publico>.campo-busqueda:nth-of-type(1){grid-column:1!important;grid-row:1!important;border-right:1px solid #dfe6ef!important;padding:8px 28px 8px 8px!important}
                 #formulario-buscador-publico>.campo-busqueda:nth-of-type(2){grid-column:2!important;grid-row:1!important;padding:8px 8px 8px 28px!important}
                 #formulario-buscador-publico>.campo-busqueda>div{display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important;position:static!important;transform:none!important}
                 #formulario-buscador-publico label{display:block!important;margin:0 0 8px!important;line-height:1.25!important}
-                #formulario-buscador-publico .poblacion-controles{display:block!important;width:100%!important;position:static!important}
+                #formulario-buscador-publico .poblacion-controles{display:block!important;width:100%!important;position:relative!important}
                 #formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio,#formulario-buscador-publico #radio-busqueda{display:block!important;width:100%!important;min-width:0!important;min-height:48px!important;box-sizing:border-box!important;border:1px solid #cfd8e3!important;border-radius:9px!important;background:#fff!important;color:#162033!important;padding:10px 12px!important;font:inherit!important;position:static!important;transform:none!important}
+                #sugerencias-poblacion{position:absolute!important;top:calc(100% + 6px)!important;left:0!important;right:0!important;z-index:2000!important;background:#fff!important;border:1px solid #dbe3ec!important;border-radius:10px!important;box-shadow:0 14px 30px rgba(15,23,42,.16)!important;overflow:hidden!important;max-height:320px!important;overflow-y:auto!important}
+                #sugerencias-poblacion[hidden]{display:none!important}
+                #sugerencias-poblacion .sugerencia-poblacion{display:flex!important;width:100%!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:11px 13px!important;margin:0!important;background:#fff!important;border:0!important;border-bottom:1px solid #eef2f6!important;color:#162033!important;text-align:left!important;font:inherit!important;cursor:pointer!important}
+                #sugerencias-poblacion .sugerencia-poblacion:last-child{border-bottom:0!important}
+                #sugerencias-poblacion .sugerencia-poblacion:hover,#sugerencias-poblacion .sugerencia-poblacion:focus{background:#f3f7ff!important;outline:none!important}
+                #sugerencias-poblacion .sugerencia-poblacion strong{font-weight:800!important}
+                #sugerencias-poblacion .sugerencia-poblacion span{font-size:.82rem!important;color:#64748b!important;text-align:right!important}
                 #formulario-buscador-publico #radio-busqueda{margin:12px 0 0!important}
                 #formulario-buscador-publico #usar-mi-ubicacion,#formulario-buscador-publico #boton-buscar{display:flex!important;position:static!important;inset:auto!important;transform:none!important;width:100%!important;max-width:none!important;min-height:48px!important;box-sizing:border-box!important;margin:12px 0 0!important;align-items:center!important;justify-content:center!important;padding:10px 16px!important;border-radius:10px!important;font-weight:800!important;white-space:normal!important;text-align:center!important}
                 #formulario-buscador-publico #estado-ubicacion{display:block!important;min-height:0!important;margin:7px 0 0!important;color:#64748b!important;font-size:.74rem!important;line-height:1.35!important}
@@ -200,6 +272,7 @@
                     #formulario-buscador-publico>.campo-busqueda:nth-of-type(1)>div>#usar-mi-ubicacion{order:4}
                     #formulario-buscador-publico>.campo-busqueda:nth-of-type(1)>div>#estado-ubicacion{order:5}
                     #formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio,#formulario-buscador-publico #radio-busqueda{font-size:16px!important}
+                    #sugerencias-poblacion{max-height:260px!important}
                 }
             `;
             document.head.appendChild(estilos);
@@ -211,9 +284,6 @@
         cargarMapaReal();
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", iniciarBuscadorYMapa, { once: true });
-    } else {
-        iniciarBuscadorYMapa();
-    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciarBuscadorYMapa, { once: true });
+    else iniciarBuscadorYMapa();
 }());
