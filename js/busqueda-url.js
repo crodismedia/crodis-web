@@ -21,8 +21,7 @@
         const poblacion = document.getElementById("poblacion");
         const servicio = document.getElementById("servicio");
         const buscar = document.getElementById("boton-buscar");
-        const registro = formulario?.querySelector(':scope > a[href*="registro"]');
-        if (!formulario || !poblacion || !servicio || !buscar || !registro) return;
+        if (!formulario || !poblacion || !servicio || !buscar) return;
 
         formulario.querySelectorAll(".campo-icono").forEach(el => el.remove());
 
@@ -66,12 +65,11 @@
             estadoUbicacion.setAttribute("aria-live", "polite");
         }
 
-        /* Orden definitivo de cada columna. */
+        /* Orden definitivo: izquierda población + ubicación + buscar; derecha servicio + radio. */
         contenidoPoblacion?.appendChild(ubicacion);
         contenidoPoblacion?.appendChild(estadoUbicacion);
-        contenidoPoblacion?.appendChild(registro);
+        contenidoPoblacion?.appendChild(buscar);
         contenidoServicio?.appendChild(radio);
-        contenidoServicio?.appendChild(buscar);
 
         const restaurarBotonUbicacion = () => {
             ubicacion.disabled = false;
@@ -226,7 +224,6 @@
                     margin:12px 0 0!important;
                 }
                 #formulario-buscador-publico #usar-mi-ubicacion,
-                #formulario-buscador-publico a[href*="registro"],
                 #formulario-buscador-publico #boton-buscar{
                     display:flex!important;
                     position:static!important;
@@ -264,17 +261,6 @@
                 #formulario-buscador-publico #usar-mi-ubicacion:focus-visible{
                     background:#D97706!important;
                     border-color:#D97706!important;
-                }
-                #formulario-buscador-publico a[href*="registro"]{
-                    background:#1457D9!important;
-                    border:1px solid #1457D9!important;
-                    color:#fff!important;
-                    box-shadow:none!important;
-                }
-                #formulario-buscador-publico a[href*="registro"]:hover,
-                #formulario-buscador-publico a[href*="registro"]:focus-visible{
-                    background:#0B43AD!important;
-                    border-color:#0B43AD!important;
                 }
                 #formulario-buscador-publico #boton-buscar{
                     background:#07883F!important;
