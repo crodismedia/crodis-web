@@ -3,6 +3,7 @@
   const supabase=window.supabaseClient;
   const $=(id)=>document.getElementById(id);
   const PAGE_SIZE=50;
+  const DB_PAGE_SIZE=1000;
   let candidatos=[];
   let visibles=[];
   let pagina=0;
@@ -26,7 +27,7 @@
 
   function agregarGrupo(mapa,clave,t){if(!clave)return;if(!mapa.has(clave))mapa.set(clave,[]);mapa.get(clave).push(t);}
   function paresDeGrupo(lista,senal,acum){
-    if(lista.length<2||lista.length>12)return;
+    if(lista.length<2)return;
     for(let i=0;i<lista.length;i++)for(let j=i+1;j<lista.length;j++){
       const a=lista[i],b=lista[j];
       const ids=[String(a.id),String(b.id)].sort();
@@ -55,6 +56,23 @@
       else if(s.includes("Mismo teléfono")||s.includes("Mismo nombre y población")){confianza="media";peso=2;}
       return {...x,senales:s,confianza,peso};
     }).sort((x,y)=>y.peso-x.peso||String(x.a.nombre||"").localeCompare(String(y.a.nombre||""),"es"));
+  }
+
+  async function cargarTodosLosTalleres(){
+    const talleres=[];
+    for(let desde=0;;desde+=DB_PAGE_SIZE){
+      estado(`Consultando base de datos… ${talleres.length.toLocaleString("es-ES")} talleres cargados`);
+      const {data,error}=await supabase
+        .from("talleres")
+        .select("id,nombre,telefono,ciudad,provincia,codigo_postal,slug")
+        .order("id",{ascending:true})
+        .range(desde,desde+DB_PAGE_SIZE-1);
+      if(error)throw error;
+      const bloque=Array.isArray(data)?data:[];
+      talleres.push(...bloque);
+      if(bloque.length<DB_PAGE_SIZE)break;
+    }
+    return talleres;
   }
 
   function renderTaller(t){
@@ -89,16 +107,26 @@
   }
 
   async function recalcular(){
-    estado("Analizando talleres…");
-    $("tabla-duplicados").innerHTML='<tr><td colspan="5">Analizando…</td></tr>';
-    const {data,error}=await supabase.from("talleres").select("id,nombre,telefono,ciudad,provincia,codigo_postal,slug").limit(5000);
-    if(error){estado(`Error: ${error.message}`,"error");return;}
-    candidatos=construirCandidatos(Array.isArray(data)?data:[]);
-    $("dup-total").textContent=candidatos.length.toLocaleString("es-ES");
-    $("dup-alta").textContent=candidatos.filter(c=>c.confianza==="alta").length.toLocaleString("es-ES");
-    $("dup-telefono").textContent=candidatos.filter(c=>c.senales.includes("Mismo teléfono")).length.toLocaleString("es-ES");
-    estado("Análisis completado","ok");
-    filtrar(true);
+    const boton=$("btn-recalcular");
+    if(boton)boton.disabled=true;
+    estado("Consultando todos los talleres de Supabase…");
+    $("tabla-duplicados").innerHTML='<tr><td colspan="5">Consultando todos los talleres de la base de datos…</td></tr>';
+    try{
+      const talleres=await cargarTodosLosTalleres();
+      estado(`Analizando ${talleres.length.toLocaleString("es-ES")} talleres…`);
+      candidatos=construirCandidatos(talleres);
+      $("dup-total").textContent=candidatos.length.toLocaleString("es-ES");
+      $("dup-alta").textContent=candidatos.filter(c=>c.confianza==="alta").length.toLocaleString("es-ES");
+      $("dup-telefono").textContent=candidatos.filter(c=>c.senales.includes("Mismo teléfono")).length.toLocaleString("es-ES");
+      estado(`Análisis completado · ${talleres.length.toLocaleString("es-ES")} talleres consultados`,"ok");
+      filtrar(true);
+    }catch(error){
+      console.error("Error consultando todos los talleres:",error);
+      estado(`Error: ${error.message}`,"error");
+      $("tabla-duplicados").innerHTML='<tr><td colspan="5">No se pudo completar la consulta de todos los talleres.</td></tr>';
+    }finally{
+      if(boton)boton.disabled=false;
+    }
   }
 
   function enlazar(){
