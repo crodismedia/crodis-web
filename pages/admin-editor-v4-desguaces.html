@@ -17,6 +17,8 @@
     .v4d-preview-row.ok{border-color:#86efac;background:#f0fdf4}.v4d-preview-row.error{border-color:#fca5a5;background:#fef2f2}.v4d-preview-row.duplicate{border-color:#fcd34d;background:#fffbeb}
     .v4d-preview-row strong{display:block}.v4d-preview-row small{display:block;color:#667085;margin-top:2px}
     .v4d-help{padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;margin:10px 0;font-size:.84rem;line-height:1.45}
+    .v4-turno select{width:100%;min-width:0;padding:9px 28px 9px 9px;border:1px solid #cfd7df;border-radius:9px;background:#fff;color:var(--v4-ink);font:inherit}
+    .v4-turno select:disabled{background:#f1f3f5;color:#98a2b3}
     @media(max-width:560px){.v4d-import-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
@@ -57,7 +59,7 @@
         <div class="v4-field"><label for="v4d-provincia">Provincia</label><select id="v4d-provincia" required><option value="">Seleccionar…</option><option>Alicante/Alacant</option><option>Castellón/Castelló</option><option>Valencia/València</option></select></div><div class="v4-field"><label for="v4d-slug">Slug</label><input id="v4d-slug" placeholder="Se genera automáticamente si queda vacío"></div>
         <div class="v4-field v4-full"><label for="v4d-maps-url">Google Maps URL</label><input id="v4d-maps-url" inputmode="url"></div>
         <div class="v4-field v4-full"><label for="v4d-servicios">Servicios</label><input id="v4d-servicios" placeholder="Recogida de vehículos, bajas, recambios usados…"><small>Separados por comas.</small></div>
-        <div class="v4-field v4-full"><label>Horario semanal</label><small>Escribe las horas directamente en formato HH:MM. Los campos son editables aunque el horario aún no esté confirmado.</small><div id="v4-horarios-editor"></div></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><small>Selecciona las horas en listas desplegables con intervalos de 5 minutos.</small><div id="v4-horarios-editor"></div></div>
         <div class="v4-field v4-full"><label for="v4d-descripcion">Descripción</label><textarea id="v4d-descripcion" rows="7"></textarea></div>
         <div class="v4-field"><label for="v4d-activo">Estado</label><select id="v4d-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div><div class="v4-field"><label for="v4d-verificado">Verificación</label><select id="v4d-verificado"><option value="false">No verificado</option><option value="true">Verificado</option></select></div>
       </div>
@@ -66,6 +68,6 @@
     </form>
   </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=3"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=4"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){var input=document.getElementById('v4d-csv');var check=document.getElementById('v4d-comprobar-csv');if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}});</script>
 </body></html>
