@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de vehículos | TallerMap</title>
+  <meta name="robots" content="noindex,follow">
+  <link rel="stylesheet" href="../css/estilo.css?v=20260816-1">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor cabecera-contenido">
+      <a href="/" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Coches</small></span></a>
+      <nav class="menu"><a href="/">Inicio</a><a href="/coches.html">Coches</a><a href="/coches/catalogo.html" aria-current="page">Catálogo</a></nav>
+    </div>
+  </header>
+  <main class="seccion">
+    <div class="contenedor">
+      <div class="titulo-seccion alineado-izquierda"><span>Vehículos disponibles</span><h1>Catálogo de vehículos</h1><p>Busca vehículos de ocasión y segunda mano publicados en TallerMap.</p></div>
+      <form class="buscador" role="search">
+        <div class="campo-busqueda"><div><label for="marca">Marca</label><input id="marca" name="marca" type="search" placeholder="Ej. SEAT"></div></div>
+        <div class="campo-busqueda"><div><label for="modelo">Modelo</label><input id="modelo" name="modelo" type="search" placeholder="Ej. León"></div></div>
+        <div class="campo-busqueda"><div><label for="ubicacion">Ubicación</label><input id="ubicacion" name="ubicacion" type="search" placeholder="Población o provincia"></div></div>
+        <button class="boton boton-buscar" type="submit">Buscar vehículos</button>
+      </form>
+      <section class="seccion"><div class="titulo-seccion alineado-izquierda"><h2>Vehículos publicados</h2></div><div id="catalogo-vehiculos" class="talleres-grid"></div></section>
+    </div>
+  </main>
+</body>
+</html>
