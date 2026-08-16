@@ -13,6 +13,35 @@
   function slugRuta(){const pref="/talleres/";if(location.pathname.startsWith(pref))return decodeURIComponent(location.pathname.slice(pref.length).split("/")[0]||"");return new URLSearchParams(location.search).get("slug")||"";}
   function uuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||""));}
 
+  function construirResumenPortada(){
+    let resumen=$("valoraciones-portada");
+    if(resumen)return resumen;
+    const direccion=$("taller-direccion");
+    const h1=$("taller-nombre");
+    const referencia=direccion||h1;
+    if(!referencia?.parentNode)return null;
+    resumen=document.createElement("a");
+    resumen.id="valoraciones-portada";
+    resumen.href="#valoraciones-seccion";
+    resumen.hidden=true;
+    resumen.setAttribute("aria-label","Ver reseñas de este taller");
+    resumen.style.cssText="display:none;align-items:center;gap:8px;flex-wrap:wrap;width:max-content;max-width:100%;margin:10px 0 4px;padding:8px 12px;border:1px solid #f1d7ad;border-radius:999px;background:#fffaf2;color:#253047;text-decoration:none;font-weight:700;box-sizing:border-box";
+    resumen.innerHTML='<span id="valoraciones-portada-estrellas" class="valoraciones-estrellas" aria-hidden="true"></span><strong id="valoraciones-portada-media" style="font-size:1rem"></strong><span id="valoraciones-portada-total" class="valoraciones-total"></span>';
+    referencia.insertAdjacentElement("afterend",resumen);
+    return resumen;
+  }
+
+  function actualizarResumenPortada(filas,media){
+    const resumen=construirResumenPortada();
+    if(!resumen)return;
+    if(!filas.length){resumen.hidden=true;resumen.style.display="none";return;}
+    $("valoraciones-portada-estrellas").textContent=estrellas(Math.round(media));
+    $("valoraciones-portada-media").textContent=media.toFixed(1).replace(".",",");
+    $("valoraciones-portada-total").textContent=`· ${filas.length} ${filas.length===1?"reseña":"reseñas"}`;
+    resumen.hidden=false;
+    resumen.style.display="inline-flex";
+  }
+
   function construirInterfaz(){
     if($("valoraciones-seccion"))return $("valoraciones-seccion");
     const main=document.querySelector("main.ficha-publica");
@@ -71,13 +100,14 @@
       .eq("taller_id",taller.id).eq("aprobada",true).eq("activa",true)
       .order("created_at",{ascending:false}).limit(50);
     const lista=$("valoraciones-lista");
-    if(error){lista.innerHTML='<p class="valoraciones-vacio">Las reseñas no están disponibles temporalmente.</p>';$("valoraciones-resumen").hidden=true;return;}
+    if(error){lista.innerHTML='<p class="valoraciones-vacio">Las reseñas no están disponibles temporalmente.</p>';$("valoraciones-resumen").hidden=true;actualizarResumenPortada([],0);return;}
     const filas=Array.isArray(data)?data:[];
     const media=filas.length?filas.reduce((s,r)=>s+(Number(r.puntuacion)||0),0)/filas.length:0;
     $("valoraciones-media").textContent=filas.length?media.toFixed(1).replace(".",","):"—";
     $("valoraciones-estrellas").textContent=filas.length?estrellas(Math.round(media)):"☆☆☆☆☆";
     $("valoraciones-total").textContent=`${filas.length} ${filas.length===1?"reseña":"reseñas"}`;
     $("valoraciones-resumen").hidden=false;
+    actualizarResumenPortada(filas,media);
     lista.innerHTML=filas.map(r=>`<article class="valoracion-card"><div class="valoracion-meta"><span class="valoracion-estrellas" aria-label="${Number(r.puntuacion)||0} de 5 estrellas">${estrellas(r.puntuacion)}</span><span>${esc(fecha(r.created_at))}</span></div>${r.titulo?`<h3>${esc(r.titulo)}</h3>`:""}<strong>${esc(r.nombre_cliente||"Cliente de TallerMap")}</strong><p>${esc(r.comentario||"")}</p></article>`).join("")||'<p class="valoraciones-vacio">Este taller todavía no tiene reseñas publicadas. Puedes ser la primera persona en valorarlo.</p>';
   }
 
