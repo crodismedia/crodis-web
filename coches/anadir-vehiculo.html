@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añadir vehículo | TallerMap</title>
+  <meta name="robots" content="noindex,follow">
+  <link rel="stylesheet" href="../css/estilo.css?v=20260816-1">
+  <style>
+    .form-wrap{max-width:900px;margin:auto}.bloque{margin:20px 0;padding:20px;border:1px solid #dfe6ef;border-radius:16px;background:#fff}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid label{display:grid;gap:6px;font-weight:800}.grid input,.grid select,.grid textarea{padding:11px;border:1px solid #cfd8e3;border-radius:9px}.fotos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.fotos label{display:grid;gap:6px;padding:12px;border:1px dashed #b9c5d4;border-radius:12px}.nota{padding:12px;background:#f3f7ff;border-radius:10px}@media(max-width:700px){.grid,.fotos{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="alta-establecimiento.html" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Gestión de vehículos</small></span></a></div></header>
+<main class="seccion"><div class="contenedor form-wrap">
+  <h1>Añadir o editar vehículo</h1>
+  <form method="post" action="/api/concesionarios/vehiculos" enctype="multipart/form-data">
+    <section class="bloque">
+      <h2>Datos estructurados</h2>
+      <div class="grid">
+        <label>Marca<input name="marca" required placeholder="BMW"></label>
+        <label>Modelo<input name="modelo" required placeholder="Serie 3"></label>
+        <label>Versión<input name="version" placeholder="318d 150 CV M Sport"></label>
+        <label>Precio<input name="precio" type="number" min="0" step="100" required></label>
+        <label>Año<input name="anio" type="number" min="1900" max="2100" required></label>
+        <label>Kilómetros<input name="kilometros" type="number" min="0" required></label>
+        <label>Combustible<select name="combustible" required><option value="">Selecciona</option><option>Gasolina</option><option>Diésel</option><option>Híbrido</option><option>Híbrido enchufable</option><option>Eléctrico</option></select></label>
+        <label>Cambio<select name="cambio" required><option value="">Selecciona</option><option>Manual</option><option>Automático</option></select></label>
+        <label>Potencia CV<input name="potencia_cv" type="number" min="0"></label>
+        <label>Estado<select name="estado" required><option value="disponible">Disponible</option><option value="reservado">Reservado</option><option value="vendido">Vendido</option></select></label>
+      </div>
+      <label>Descripción<textarea name="descripcion" rows="6"></textarea></label>
+    </section>
+
+    <section class="bloque" id="fotos">
+      <h2>Fotografías del vehículo</h2>
+      <p class="nota"><strong>Máximo 8 fotografías en total.</strong> Cuatro exteriores y cuatro interiores. Se optimizarán antes de guardarse.</p>
+      <div class="fotos">
+        <label>1. Frontal<input type="file" name="foto_frontal" accept="image/jpeg,image/png,image/webp"></label>
+        <label>2. Trasera<input type="file" name="foto_trasera" accept="image/jpeg,image/png,image/webp"></label>
+        <label>3. Lateral izquierdo<input type="file" name="foto_lateral_izq" accept="image/jpeg,image/png,image/webp"></label>
+        <label>4. Lateral derecho<input type="file" name="foto_lateral_der" accept="image/jpeg,image/png,image/webp"></label>
+        <label>5. Salpicadero<input type="file" name="foto_salpicadero" accept="image/jpeg,image/png,image/webp"></label>
+        <label>6. Asientos delanteros<input type="file" name="foto_delanteros" accept="image/jpeg,image/png,image/webp"></label>
+        <label>7. Asientos traseros<input type="file" name="foto_traseros" accept="image/jpeg,image/png,image/webp"></label>
+        <label>8. Maletero / interior adicional<input type="file" name="foto_interior_8" accept="image/jpeg,image/png,image/webp"></label>
+      </div>
+    </section>
+
+    <button class="boton" type="submit">Guardar vehículo</button>
+  </form>
+</div></main>
+</body>
+</html>
