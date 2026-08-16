@@ -4,10 +4,14 @@ export default function handler(_request, response) {
     response.status(200).send([
         "User-agent: *",
         "Allow: /",
+        "Disallow: /pages/admin.html",
+        "Disallow: /pages/admin-",
+        "Disallow: /api/",
+        "Disallow: /lib/",
         "",
         "Sitemap: https://www.tallermap.es/sitemap-index.xml",
         "Host: www.tallermap.es",
         "",
-        "# Índice principal actualizado 2026-08-10"
+        "# TallerMap robots actualizado 2026-08-17"
     ].join("\n"));
 }
