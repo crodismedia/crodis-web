@@ -311,7 +311,14 @@
     }
 
     .servicio-personalizado-menu {
-        max-height: 52vh;
+        max-height: 260px;
+    }
+
+    .servicio-personalizado-opcion {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 0.96rem;
+        line-height: 1.25;
     }
 }
 
@@ -331,5 +338,16 @@
 
     .municipio-buscador .boton-buscar {
         width: 100%;
+    }
+
+    .servicio-personalizado-menu {
+        max-height: 236px;
+        padding: 5px;
+    }
+
+    .servicio-personalizado-opcion {
+        min-height: 44px;
+        padding: 9px 11px;
+        font-size: 0.94rem;
     }
 }
