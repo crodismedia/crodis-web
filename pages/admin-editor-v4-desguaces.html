@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editor V4 · Desguaces | TallerMap</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=3">
+</head>
+<body data-auth-state="checking">
+<div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
+<header class="v4-top">
+  <div><strong>TallerMap · Editor V4</strong><small>Departamento Desguaces</small></div>
+  <nav>
+    <a class="v4-btn v4-soft" href="admin-editor-v4.html">Talleres</a>
+    <a class="v4-btn v4-primary" href="admin-editor-v4-desguaces.html" aria-current="page">Desguaces</a>
+    <a class="v4-btn v4-soft" href="admin.html">Panel</a>
+    <button id="v4d-logout" class="v4-btn v4-soft" type="button">Cerrar sesión</button>
+  </nav>
+</header>
+<main class="v4-wrap">
+  <aside class="v4-card v4-pad">
+    <h2>1. Desguaces</h2>
+    <div class="v4-actions"><button id="v4d-recargar" class="v4-btn v4-primary" type="button">Recargar</button><button id="v4d-nuevo" class="v4-btn v4-green" type="button">+ Nueva ficha</button></div>
+    <div class="v4-field"><label for="v4d-buscar">Buscar</label><input id="v4d-buscar" placeholder="Nombre, municipio o provincia"></div>
+    <div id="v4d-lista-estado" class="v4-status">Cargando desguaces…</div>
+    <div class="v4-kpis"><div><strong id="v4d-total">0</strong><span>Total</span></div><div><strong id="v4d-activos">0</strong><span>Activos</span></div><div><strong id="v4d-verificados">0</strong><span>Verificados</span></div></div>
+    <div id="v4d-lista" class="v4-list"></div>
+  </aside>
+
+  <section class="v4-card v4-pad">
+    <h2>2. Editar ficha de desguace</h2>
+    <p id="v4d-vacio" class="v4-status">Selecciona una ficha o pulsa “Nueva ficha”.</p>
+    <form id="v4d-form" hidden>
+      <input id="v4d-id" type="hidden">
+      <div class="v4-grid">
+        <div class="v4-field v4-full"><label for="v4d-nombre">Nombre</label><input id="v4d-nombre" required></div>
+        <div class="v4-field"><label for="v4d-telefono">Teléfono</label><input id="v4d-telefono"></div>
+        <div class="v4-field"><label for="v4d-web">Web</label><input id="v4d-web" inputmode="url"></div>
+        <div class="v4-field v4-full"><label for="v4d-direccion">Dirección</label><input id="v4d-direccion"></div>
+        <div class="v4-field"><label for="v4d-cp">Código postal</label><input id="v4d-cp" inputmode="numeric" maxlength="5"></div>
+        <div class="v4-field"><label for="v4d-municipio">Municipio</label><input id="v4d-municipio" required></div>
+        <div class="v4-field"><label for="v4d-provincia">Provincia</label><select id="v4d-provincia" required><option value="">Seleccionar…</option><option>Alicante/Alacant</option><option>Castellón/Castelló</option><option>Valencia/València</option></select></div>
+        <div class="v4-field"><label for="v4d-slug">Slug</label><input id="v4d-slug" placeholder="Se genera automáticamente si queda vacío"></div>
+        <div class="v4-field v4-full"><label for="v4d-maps-url">Google Maps URL</label><input id="v4d-maps-url" inputmode="url"></div>
+        <div class="v4-field v4-full"><label for="v4d-servicios">Servicios</label><input id="v4d-servicios" placeholder="Recogida de vehículos, bajas, recambios usados…"><small>Separados por comas.</small></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><div id="v4-horarios-editor"></div></div>
+        <div class="v4-field v4-full"><label for="v4d-descripcion">Descripción</label><textarea id="v4d-descripcion" rows="7"></textarea></div>
+        <div class="v4-field"><label for="v4d-activo">Estado</label><select id="v4d-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+        <div class="v4-field"><label for="v4d-verificado">Verificación</label><select id="v4d-verificado"><option value="false">No verificado</option><option value="true">Verificado</option></select></div>
+      </div>
+      <div id="v4d-estado" class="v4-status">Ficha preparada.</div>
+      <div class="v4-savebar">
+        <div class="v4-actions"><button id="v4d-maps" class="v4-btn v4-soft" type="button">Google Maps</button><button id="v4d-eliminar" class="v4-btn v4-danger" type="button">Eliminar ficha</button></div>
+        <div class="v4-actions"><button class="v4-btn v4-primary" type="submit">Guardar ficha</button></div>
+      </div>
+    </form>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-editor-v4-horarios.js?v=1"></script>
+<script src="../js/admin-editor-v4-desguaces.js?v=1"></script>
+</body>
+</html>
