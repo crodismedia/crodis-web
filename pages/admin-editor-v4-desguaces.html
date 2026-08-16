@@ -57,7 +57,7 @@
         <div class="v4-field"><label for="v4d-provincia">Provincia</label><select id="v4d-provincia" required><option value="">Seleccionar…</option><option>Alicante/Alacant</option><option>Castellón/Castelló</option><option>Valencia/València</option></select></div><div class="v4-field"><label for="v4d-slug">Slug</label><input id="v4d-slug" placeholder="Se genera automáticamente si queda vacío"></div>
         <div class="v4-field v4-full"><label for="v4d-maps-url">Google Maps URL</label><input id="v4d-maps-url" inputmode="url"></div>
         <div class="v4-field v4-full"><label for="v4d-servicios">Servicios</label><input id="v4d-servicios" placeholder="Recogida de vehículos, bajas, recambios usados…"><small>Separados por comas.</small></div>
-        <div class="v4-field v4-full"><label>Horario semanal</label><div id="v4-horarios-editor"></div></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><small>Escribe las horas directamente en formato HH:MM, por ejemplo 08:30 y 13:45.</small><div id="v4-horarios-editor"></div></div>
         <div class="v4-field v4-full"><label for="v4d-descripcion">Descripción</label><textarea id="v4d-descripcion" rows="7"></textarea></div>
         <div class="v4-field"><label for="v4d-activo">Estado</label><select id="v4d-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div><div class="v4-field"><label for="v4d-verificado">Verificación</label><select id="v4d-verificado"><option value="false">No verificado</option><option value="true">Verificado</option></select></div>
       </div>
@@ -66,6 +66,6 @@
     </form>
   </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-horarios.js?v=1"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=2"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){var input=document.getElementById('v4d-csv');var check=document.getElementById('v4d-comprobar-csv');if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}});</script>
 </body></html>
