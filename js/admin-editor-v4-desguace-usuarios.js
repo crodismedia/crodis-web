@@ -8,6 +8,13 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const text=v=>String(v??'').trim();
 function setStatus(msg,type=''){const e=$('v4du-estado');if(!e)return;e.textContent=msg;e.className='v4-status'+(type?` ${type}`:'');}
 function labelEstado(v){return ({pendiente:'Pendiente',aprobado:'Aprobado',rechazado:'Rechazado',bloqueado:'Bloqueado'})[v]||v;}
+async function requireAdmin(){
+  const {data:{session},error}=await sb.auth.getSession();
+  if(error||!session){location.replace('admin-login.html?next=admin-editor-v4-desguace-usuarios.html');return false;}
+  const check=await sb.rpc('es_administrador');
+  if(check.error||!check.data){await sb.auth.signOut();location.replace('admin-login.html');return false;}
+  document.body.dataset.authState='ready';return true;
+}
 function render(){
   const q=text($('v4du-buscar')?.value).toLowerCase();
   const filtro=$('v4du-filtro')?.value||'todos';
@@ -41,7 +48,9 @@ async function change(id,estado){
 }
 async function init(){
   const root=$('v4du-lista');if(!root)return;
+  if(!await requireAdmin())return;
   $('v4du-recargar')?.addEventListener('click',load);$('v4du-buscar')?.addEventListener('input',render);$('v4du-filtro')?.addEventListener('change',render);
+  $('v4du-logout')?.addEventListener('click',async()=>{await sb.auth.signOut();location.replace('admin-login.html');});
   root.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');const card=e.target.closest('[data-id]');if(btn&&card)change(card.dataset.id,btn.dataset.action);});
   await load();
 }
