@@ -6,7 +6,18 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Editor V4 · Desguaces | TallerMap</title>
   <link rel="stylesheet" href="../css/estilo.css">
-  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=3">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=4">
+  <style>
+    .v4d-import{margin-top:16px;padding-top:16px;border-top:1px solid var(--v4-border)}
+    .v4d-import-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+    .v4d-import-grid div{padding:10px;border:1px solid var(--v4-border);border-radius:10px;background:#fafbfc}
+    .v4d-import-grid strong{display:block;font-size:1.2rem}.v4d-import-grid span{font-size:.72rem;color:var(--v4-muted)}
+    .v4d-preview{max-height:300px;overflow:auto;display:grid;gap:6px;margin-top:10px}
+    .v4d-preview-row{padding:9px 10px;border:1px solid var(--v4-border);border-radius:9px;background:#fff;font-size:.82rem}
+    .v4d-preview-row.ok{border-color:#86efac;background:#f0fdf4}.v4d-preview-row.error{border-color:#fca5a5;background:#fef2f2}.v4d-preview-row.duplicate{border-color:#fcd34d;background:#fffbeb}
+    .v4d-preview-row strong{display:block}.v4d-preview-row small{display:block;color:#667085;margin-top:2px}
+    @media(max-width:560px){.v4d-import-grid{grid-template-columns:1fr 1fr}}
+  </style>
 </head>
 <body data-auth-state="checking">
 <div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
@@ -27,6 +38,25 @@
     <div id="v4d-lista-estado" class="v4-status">Cargando desguaces…</div>
     <div class="v4-kpis"><div><strong id="v4d-total">0</strong><span>Total</span></div><div><strong id="v4d-activos">0</strong><span>Activos</span></div><div><strong id="v4d-verificados">0</strong><span>Verificados</span></div></div>
     <div id="v4d-lista" class="v4-list"></div>
+
+    <section class="v4d-import" aria-labelledby="v4d-import-title">
+      <h2 id="v4d-import-title">Importar CSV por lote</h2>
+      <p class="v4-status">Primero se comprueba el archivo. <strong>Comprobar CSV no guarda nada en Supabase.</strong></p>
+      <div class="v4-field"><label for="v4d-csv">Archivo CSV</label><input id="v4d-csv" type="file" accept=".csv,text/csv"></div>
+      <div class="v4-actions">
+        <button id="v4d-comprobar-csv" class="v4-btn v4-primary" type="button">Comprobar CSV</button>
+        <button id="v4d-importar-csv" class="v4-btn v4-green" type="button" disabled>Importar válidos en Supabase</button>
+        <button id="v4d-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button>
+      </div>
+      <div id="v4d-csv-estado" class="v4-status">Selecciona un archivo para comprobarlo.</div>
+      <div class="v4d-import-grid">
+        <div><strong id="v4d-csv-total">0</strong><span>Filas</span></div>
+        <div><strong id="v4d-csv-validas">0</strong><span>Válidas</span></div>
+        <div><strong id="v4d-csv-duplicadas">0</strong><span>Duplicadas</span></div>
+        <div><strong id="v4d-csv-errores">0</strong><span>Con errores</span></div>
+      </div>
+      <div id="v4d-csv-preview" class="v4d-preview" aria-live="polite"></div>
+    </section>
   </aside>
 
   <section class="v4-card v4-pad">
@@ -61,6 +91,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-editor-v4-horarios.js?v=1"></script>
-<script src="../js/admin-editor-v4-desguaces.js?v=1"></script>
+<script src="../js/admin-editor-v4-desguaces.js?v=2"></script>
 </body>
 </html>
