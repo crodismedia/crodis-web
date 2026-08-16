@@ -32,7 +32,7 @@
   <aside class="v4-card v4-pad">
     <h2>1. Desguaces</h2>
     <div class="v4-actions"><button id="v4d-recargar" class="v4-btn v4-primary" type="button">Recargar</button><button id="v4d-nuevo" class="v4-btn v4-green" type="button">+ Nueva ficha</button></div>
-    <div class="v4-field"><label for="v4d-buscar">Buscar</label><input id="v4d-buscar" placeholder="Nombre, municipio o provincia"></div>
+    <div class="v4-field"><label for="v4d-buscar">Buscar</label><input id="v4d-buscar" placeholder="Nombre, municipio o provincia" autocomplete="off"></div>
     <div id="v4d-lista-estado" class="v4-status">Cargando desguaces…</div>
     <div class="v4-kpis"><div><strong id="v4d-total">0</strong><span>Total</span></div><div><strong id="v4d-activos">0</strong><span>Activos</span></div><div><strong id="v4d-verificados">0</strong><span>Verificados</span></div></div>
     <div id="v4d-lista" class="v4-list"></div>
@@ -49,7 +49,7 @@
   <section class="v4-card v4-pad">
     <h2>2. Editar ficha de desguace</h2>
     <p id="v4d-vacio" class="v4-status">Selecciona una ficha o pulsa “Nueva ficha”.</p>
-    <form id="v4d-form" hidden>
+    <form id="v4d-form" hidden autocomplete="off">
       <input id="v4d-id" type="hidden">
       <div class="v4-grid">
         <div class="v4-field v4-full"><label for="v4d-nombre">Nombre</label><input id="v4d-nombre" required></div>
@@ -69,5 +69,32 @@
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=4"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
-<script>document.addEventListener('DOMContentLoaded',function(){var input=document.getElementById('v4d-csv');var check=document.getElementById('v4d-comprobar-csv');if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}});</script>
+<script>
+(function(){
+  function vaciarVista(){
+    var buscar=document.getElementById('v4d-buscar');
+    var csv=document.getElementById('v4d-csv');
+    var form=document.getElementById('v4d-form');
+    var vacio=document.getElementById('v4d-vacio');
+    var preview=document.getElementById('v4d-csv-preview');
+    var importar=document.getElementById('v4d-importar-csv');
+    if(buscar)buscar.value='';
+    if(csv)csv.value='';
+    if(form){form.reset();form.hidden=true;}
+    if(vacio)vacio.hidden=false;
+    if(preview)preview.innerHTML='';
+    ['v4d-csv-total','v4d-csv-validas','v4d-csv-duplicadas','v4d-csv-errores'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0';});
+    if(importar)importar.disabled=true;
+    var estado=document.getElementById('v4d-csv-estado');
+    if(estado){estado.textContent='Selecciona un archivo CSV. La comprobación empezará automáticamente.';estado.className='v4-status';}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    vaciarVista();
+    var input=document.getElementById('v4d-csv');
+    var check=document.getElementById('v4d-comprobar-csv');
+    if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}
+  });
+  window.addEventListener('pageshow',function(){vaciarVista();});
+})();
+</script>
 </body></html>
