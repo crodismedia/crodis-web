@@ -4,11 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#111827">
+  <meta name="application-name" content="TallerMap Editor">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TM Editor">
   <title>Editor V4 | TallerMap</title>
+  <link rel="manifest" href="../admin-editor-v4.webmanifest">
   <link rel="icon" href="../favicon.ico" sizes="any">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../favicon.svg">
   <link rel="stylesheet" href="../css/estilo.css">
-  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=1">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=2">
 </head>
 <body data-auth-state="checking">
 <div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
@@ -20,6 +27,16 @@
     <button id="v4-logout" class="v4-btn v4-soft" type="button">Cerrar sesión</button>
   </nav>
 </header>
+<div id="v4-install-banner" class="v4-install-banner" hidden>
+  <div class="v4-install-copy">
+    <strong>📱 Instalar TallerMap Editor</strong>
+    <span>Añádelo a tu pantalla de inicio y abre directamente el Editor V4 con tu acceso habitual.</span>
+  </div>
+  <div class="v4-install-actions">
+    <button id="v4-install-button" class="v4-btn v4-primary" type="button">Instalar</button>
+    <button id="v4-install-close" class="v4-install-close" type="button" aria-label="Cerrar aviso">×</button>
+  </div>
+</div>
 <main class="v4-wrap">
   <aside class="v4-card v4-pad">
     <h2>1. Territorio y lote</h2>
@@ -67,5 +84,6 @@
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-editor-v4-horarios.js?v=1"></script>
 <script src="../js/admin-editor-v4.js?v=1"></script>
+<script src="../js/admin-editor-v4-install.js?v=1"></script>
 </body>
 </html>
