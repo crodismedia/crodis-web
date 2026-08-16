@@ -1,5 +1,7 @@
+/* eslint-disable no-undef */
 (function () {
     "use strict";
+    // IDs definidos en pages/registro.html
 
     const formulario = document.getElementById("formulario-registro");
     const botonEnviar = document.getElementById("boton-enviar");

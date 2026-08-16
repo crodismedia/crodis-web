@@ -94,7 +94,7 @@ function injectHeadSEO(html, fileName, page, total, service) {
     const validPage = total > 0 && page <= totalPages;
     const indexable = validPage && !service;
     let result = html;
-    if (!indexable) result = result.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
+    if (!indexable) result = result.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">'); else result = result.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="index,follow,max-image-preview:large">');
     if (indexable && page > 1) {
         result = result.replace(/<title>([^<]+)<\/title>/i, `<title>Página ${page} · $1</title>`)
             .replace(/<meta name="description" content="([^"]*)">/i, `<meta name="description" content="Página ${page}. $1">`)

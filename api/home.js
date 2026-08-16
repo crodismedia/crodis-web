@@ -155,7 +155,7 @@ function injectSearchState(html, total, location, service) {
 
     result = result.replace(
         /<meta name="robots" content="[^"]*">/i,
-        '<meta name="robots" content="noindex,follow,max-image-preview:large">'
+        '<meta name="robots" content="index,follow,max-image-preview:large">'
     );
 
     return result;

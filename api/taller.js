@@ -283,9 +283,15 @@ function injectCoreContent(html, workshop, slug) {
         name,
         url: canonical,
         description,
+        image: DEFAULT_IMAGE,
         address: address || undefined,
         telephone: phone || undefined,
-        sameAs: web || undefined
+        sameAs: web || undefined,
+        areaServed: workshop?.provincia || "España",
+        serviceType: Array.isArray(workshop?.servicios) && workshop.servicios.length > 0 
+            ? workshop.servicios.map(s => SERVICE_LABELS[s] || s).filter(Boolean).slice(0, 5)
+            : ["Reparación de vehículos", "Mantenimiento de automóviles"],
+        priceRange: "$$"
     };
     const breadcrumbItems = [];
 

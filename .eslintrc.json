@@ -1,0 +1,21 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-undef": "off"
+  },
+  "overrides": [
+    {
+      "files": ["js/registro.js", "js/admin.js"],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ]
+}
