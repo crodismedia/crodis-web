@@ -3,27 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de vehículos | TallerMap</title>
+  <title>Vehículos de ocasión y segunda mano | TallerMap</title>
+  <meta name="description" content="Explora vehículos de ocasión y segunda mano publicados por concesionarios en TallerMap.">
   <meta name="robots" content="noindex,follow">
   <link rel="stylesheet" href="../css/estilo.css?v=20260816-1">
+  <style>
+    .catalogo-wrap{max-width:860px;margin:auto}.nav-concesionarios{margin:18px 0}.nav-concesionarios summary{cursor:pointer;font-weight:800;padding:14px 16px;border:1px solid #dfe6ef;border-radius:12px;background:#fff}.nav-concesionarios[open] summary{border-radius:12px 12px 0 0}.nav-concesionarios nav{display:grid;border:1px solid #dfe6ef;border-top:0;border-radius:0 0 12px 12px;background:#fff}.nav-concesionarios a{padding:13px 16px;border-top:1px solid #edf1f6;text-decoration:none}.feed-vehiculos{display:grid;gap:28px}.vehiculo-feed{scroll-margin-top:90px;border:1px solid #dfe6ef;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 12px 28px rgba(20,36,64,.08)}.vehiculo-feed img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#eef2f6}.vehiculo-contenido{padding:18px}.vehiculo-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.vehiculo-top h2{margin:0}.precio{font-size:1.35rem;font-weight:900;white-space:nowrap}.datos{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.datos span{padding:7px 10px;border-radius:999px;background:#f1f5f9}.acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.estado{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:900;background:#eef2f6}.siguiente{display:block;margin:18px 0 0;text-align:center;font-weight:800}.menu-principal details{position:relative}.menu-principal summary{cursor:pointer;list-style:none}.menu-principal summary::-webkit-details-marker{display:none}@media(max-width:750px){.vehiculo-top{display:block}.precio{margin-top:8px}.catalogo-wrap{max-width:none}}
+  </style>
 </head>
 <body>
   <header class="cabecera">
     <div class="contenedor cabecera-contenido">
-      <a href="/" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Coches</small></span></a>
-      <nav class="menu"><a href="/">Inicio</a><a href="/coches.html">Coches</a><a href="/coches/catalogo.html" aria-current="page">Catálogo</a></nav>
+      <a href="/" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Concesionarios</small></span></a>
+      <nav class="menu menu-principal">
+        <a href="/">Inicio</a>
+        <details><summary>Concesionarios</summary><div><a href="/coches/concesionarios-oficiales.html">Concesionario oficial</a> · <a href="/coches/catalogo.html#ocasion">Vehículos de ocasión</a> · <a href="/coches/catalogo.html#segunda-mano">Segunda mano</a></div></details>
+      </nav>
     </div>
   </header>
   <main class="seccion">
-    <div class="contenedor">
-      <div class="titulo-seccion alineado-izquierda"><span>Vehículos disponibles</span><h1>Catálogo de vehículos</h1><p>Busca vehículos de ocasión y segunda mano publicados en TallerMap.</p></div>
-      <form class="buscador" role="search">
-        <div class="campo-busqueda"><div><label for="marca">Marca</label><input id="marca" name="marca" type="search" placeholder="Ej. SEAT"></div></div>
-        <div class="campo-busqueda"><div><label for="modelo">Modelo</label><input id="modelo" name="modelo" type="search" placeholder="Ej. León"></div></div>
-        <div class="campo-busqueda"><div><label for="ubicacion">Ubicación</label><input id="ubicacion" name="ubicacion" type="search" placeholder="Población o provincia"></div></div>
-        <button class="boton boton-buscar" type="submit">Buscar vehículos</button>
-      </form>
-      <section class="seccion"><div class="titulo-seccion alineado-izquierda"><h2>Vehículos publicados</h2></div><div id="catalogo-vehiculos" class="talleres-grid"></div></section>
+    <div class="contenedor catalogo-wrap">
+      <div class="titulo-seccion alineado-izquierda"><span>Concesionarios TallerMap</span><h1>Vehículos de ocasión y segunda mano</h1><p>Catálogo vertical en HTML. Elige un establecimiento y recorre sus vehículos uno debajo de otro.</p></div>
+
+      <details class="nav-concesionarios">
+        <summary>☰ Establecimientos</summary>
+        <nav aria-label="Establecimientos del catálogo">
+          <a href="#motor-torrent">Motor Torrent</a>
+          <a href="#autocenter-valencia">AutoCenter Valencia</a>
+          <a href="#premium-cars">Premium Cars</a>
+        </nav>
+      </details>
+
+      <section id="ocasion" class="feed-vehiculos" aria-label="Vehículos de ocasión">
+        <article class="vehiculo-feed" id="motor-torrent">
+          <img src="../images/cartel-tallermap.png" alt="BMW Serie 3 318d de Motor Torrent" width="1200" height="750" loading="eager">
+          <div class="vehiculo-contenido">
+            <div class="vehiculo-top"><div><span class="estado">Disponible</span><h2>BMW Serie 3 318d</h2><p>Motor Torrent · Torrent, Valencia</p></div><div class="precio">22.900 €</div></div>
+            <div class="datos"><span>2021</span><span>68.000 km</span><span>Diésel</span><span>Automático</span></div>
+            <div class="acciones"><a class="boton boton-pequeno" href="tel:+34960000000">Llamar</a><a class="boton boton-pequeno" href="https://www.google.com/maps/search/?api=1&query=Motor+Torrent+Torrent+Valencia">Cómo llegar</a><a class="boton boton-pequeno" href="vehiculo-ejemplo.html">Ver vehículo</a></div>
+            <a class="siguiente" href="#autocenter-valencia">Siguiente vehículo ↓</a>
+          </div>
+        </article>
+
+        <article class="vehiculo-feed" id="autocenter-valencia">
+          <img src="../images/cartel-tallermap.png" alt="SEAT León 1.5 TSI FR de AutoCenter Valencia" width="1200" height="750" loading="lazy">
+          <div class="vehiculo-contenido">
+            <div class="vehiculo-top"><div><span class="estado">Reservado</span><h2>SEAT León 1.5 TSI FR</h2><p>AutoCenter Valencia · Valencia</p></div><div class="precio">18.900 €</div></div>
+            <div class="datos"><span>2022</span><span>41.500 km</span><span>Gasolina</span><span>Manual</span></div>
+            <div class="acciones"><a class="boton boton-pequeno" href="tel:+34960000001">Llamar</a><a class="boton boton-pequeno" href="https://www.google.com/maps/search/?api=1&query=AutoCenter+Valencia">Cómo llegar</a><a class="boton boton-pequeno" href="vehiculo-ejemplo.html">Ver vehículo</a></div>
+            <a class="siguiente" href="#premium-cars">Siguiente vehículo ↓</a>
+          </div>
+        </article>
+
+        <article class="vehiculo-feed" id="premium-cars">
+          <img src="../images/cartel-tallermap.png" alt="Mercedes-Benz CLA 200d de Premium Cars" width="1200" height="750" loading="lazy">
+          <div class="vehiculo-contenido">
+            <div class="vehiculo-top"><div><span class="estado">Vendido</span><h2>Mercedes-Benz CLA 200d</h2><p>Premium Cars · Paterna, Valencia</p></div><div class="precio">27.500 €</div></div>
+            <div class="datos"><span>2020</span><span>72.000 km</span><span>Diésel</span><span>Automático</span></div>
+            <div class="acciones"><a class="boton boton-pequeno" href="tel:+34960000002">Llamar</a><a class="boton boton-pequeno" href="https://www.google.com/maps/search/?api=1&query=Premium+Cars+Paterna+Valencia">Cómo llegar</a><a class="boton boton-pequeno" href="vehiculo-ejemplo.html">Ver vehículo</a></div>
+          </div>
+        </article>
+      </section>
     </div>
   </main>
 </body>
