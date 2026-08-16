@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editor V4 · Usuarios de Desguaces | TallerMap</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=4">
+  <style>
+    .v4-users-wrap{width:min(1200px,calc(100% - 24px));margin:18px auto 56px;display:grid;gap:16px}
+    .v4-users-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+    .v4-users-grid>div{padding:12px;border:1px solid var(--v4-border);border-radius:10px;background:#fafbfc}
+    .v4-users-grid strong{display:block;font-size:1.3rem}.v4-users-grid span{font-size:.75rem;color:var(--v4-muted)}
+    .v4-user-access{padding:14px;border:1px solid var(--v4-border);border-radius:14px;background:#fff;margin-bottom:10px}
+    .v4-user-access-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.v4-user-access-head strong,.v4-user-access-head small{display:block}.v4-user-access-head small{color:var(--v4-muted);margin-top:3px}
+    .v4-user-access-body p{margin:8px 0;font-size:.9rem}.v4-access-badge{padding:6px 9px;border-radius:999px;font-size:.78rem;font-weight:900;white-space:nowrap}
+    .v4-access-pendiente{background:#fef3c7;color:#92400e}.v4-access-aprobado{background:#dcfce7;color:#166534}.v4-access-rechazado{background:#f1f5f9;color:#475569}.v4-access-bloqueado{background:#fee2e2;color:#991b1b}
+    .v4-users-filters{display:grid;grid-template-columns:1fr 220px auto;gap:10px;align-items:end}
+    @media(max-width:700px){.v4-users-grid{grid-template-columns:1fr 1fr}.v4-users-filters{grid-template-columns:1fr}.v4-user-access-head{flex-direction:column}}
+  </style>
+</head>
+<body data-auth-state="checking">
+<div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
+<header class="v4-top">
+  <div><strong>TallerMap · Editor V4</strong><small>Usuarios y accesos de Desguaces</small></div>
+  <nav>
+    <a class="v4-btn v4-soft" href="admin-editor-v4.html">Talleres</a>
+    <a class="v4-btn v4-soft" href="admin-editor-v4-desguaces.html">Desguaces</a>
+    <a class="v4-btn v4-primary" href="admin-editor-v4-desguace-usuarios.html" aria-current="page">Usuarios de desguaces</a>
+    <button id="v4du-logout" class="v4-btn v4-soft" type="button">Cerrar sesión</button>
+  </nav>
+</header>
+<main class="v4-users-wrap">
+  <section class="v4-card v4-pad">
+    <h2>Usuarios y accesos</h2>
+    <p class="v4-status">Cada acceso queda vinculado a un único desguace. Los usuarios nuevos permanecen pendientes hasta que tú los apruebes.</p>
+    <div class="v4-users-grid">
+      <div><strong id="v4du-total">0</strong><span>Total</span></div>
+      <div><strong id="v4du-pendientes">0</strong><span>Pendientes</span></div>
+      <div><strong id="v4du-aprobados">0</strong><span>Aprobados</span></div>
+      <div><strong id="v4du-bloqueados">0</strong><span>Bloqueados</span></div>
+    </div>
+    <div class="v4-users-filters">
+      <div class="v4-field"><label for="v4du-buscar">Buscar usuario o desguace</label><input id="v4du-buscar" placeholder="Nombre, email, teléfono, desguace o municipio"></div>
+      <div class="v4-field"><label for="v4du-filtro">Estado</label><select id="v4du-filtro"><option value="todos">Todos</option><option value="pendiente">Pendientes</option><option value="aprobado">Aprobados</option><option value="bloqueado">Bloqueados</option><option value="rechazado">Rechazados</option></select></div>
+      <button id="v4du-recargar" class="v4-btn v4-primary" type="button">Recargar</button>
+    </div>
+    <div id="v4du-estado" class="v4-status">Cargando usuarios…</div>
+    <div id="v4du-lista"></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-editor-v4-desguace-usuarios.js?v=1"></script>
+</body>
+</html>
