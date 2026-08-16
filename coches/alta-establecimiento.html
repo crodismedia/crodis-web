@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añadir establecimiento | TallerMap</title>
+  <meta name="robots" content="noindex,follow">
+  <link rel="stylesheet" href="../css/estilo.css?v=20260816-1">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor cabecera-contenido">
+      <a href="/" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Profesionales</small></span></a>
+      <nav class="menu"><a href="/">Inicio</a><a href="/coches.html">Coches</a><a href="/coches/alta-establecimiento.html" aria-current="page">Añadir establecimiento</a></nav>
+    </div>
+  </header>
+  <main class="seccion">
+    <div class="contenedor">
+      <div class="titulo-seccion alineado-izquierda"><span>Área para propietarios</span><h1>Añade tu establecimiento</h1><p>Registra un concesionario o negocio de compraventa para gestionar posteriormente su catálogo de vehículos.</p></div>
+      <form id="form-alta-establecimiento" class="buscador" autocomplete="on">
+        <div class="campo-busqueda"><div><label for="nombre">Nombre del establecimiento</label><input id="nombre" name="nombre" type="text" required></div></div>
+        <div class="campo-busqueda"><div><label for="tipo">Tipo de establecimiento</label><select id="tipo" name="tipo" required><option value="">Selecciona</option><option value="concesionario">Concesionario</option><option value="compraventa">Compraventa</option><option value="taller-con-venta">Taller con venta de vehículos</option></select></div></div>
+        <div class="campo-busqueda"><div><label for="direccion">Dirección</label><input id="direccion" name="direccion" type="text" required></div></div>
+        <div class="campo-busqueda"><div><label for="municipio">Municipio</label><input id="municipio" name="municipio" type="text" required></div></div>
+        <div class="campo-busqueda"><div><label for="provincia">Provincia</label><input id="provincia" name="provincia" type="text" required></div></div>
+        <div class="campo-busqueda"><div><label for="telefono">Teléfono</label><input id="telefono" name="telefono" type="tel"></div></div>
+        <div class="campo-busqueda"><div><label for="email">Correo electrónico</label><input id="email" name="email" type="email" required></div></div>
+        <div class="campo-busqueda"><div><label for="web">Web</label><input id="web" name="web" type="url" placeholder="https://"></div></div>
+        <button class="boton boton-buscar" type="submit">Añadir establecimiento</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
