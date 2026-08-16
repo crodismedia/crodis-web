@@ -1,19 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /pages/admin.html
-Disallow: /pages/admin-*.html
-Disallow: /api/
-Disallow: /lib/
-Disallow: /*?*servicio=*  # Disallow filtered service pages
-Disallow: /*?*page=*&servicio=*  # Disallow filtered pagination
-
-# Google-specific
-User-agent: Googlebot
-Allow: /
-
-# Blog and content
-Allow: /blog/
-Allow: /landing/
 
 Sitemap: https://www.tallermap.es/sitemap-index.xml
-Sitemap: https://www.tallermap.es/sitemap-blog.xml

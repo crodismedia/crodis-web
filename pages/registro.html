@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index,follow,max-image-preview:large">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -11,7 +10,7 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="TallerMap">
-    <meta name="description" content="Solicita el alta de tu taller en TallerMap.">
+    <meta name="description" content="Solicita gratis el alta de tu taller en TallerMap, el directorio de la Comunidad Valenciana que se amplía a nuevas provincias.">
     <title>Registrar taller | TallerMap</title>
     <link rel="stylesheet" href="../css/estilo.css">
     <link rel="stylesheet" href="../css/cookie-consent.css">
@@ -38,7 +37,7 @@
                     <h1>Solicita el alta de tu taller en <span>TallerMap</span></h1>
                     <p>Completa el formulario con los datos públicos del negocio. Revisaremos la solicitud antes de publicar la ficha.</p>
                     <ul class="registro-lista">
-                        <li>Puedes solicitar el alta de talleres de toda España.</li>
+                        <li>Publicamos talleres de la Comunidad Valenciana y ampliamos la cobertura a nuevas provincias.</li>
                         <li>Comprobamos los datos antes de publicar.</li>
                         <li>La ficha permanece publicada sin obligación de pago y TallerMap gestiona sus cambios.</li>
                     </ul>
@@ -46,13 +45,25 @@
 
                 <form id="formulario-registro" class="formulario-registro" novalidate>
                     <div class="formulario-cabecera">
-                        <span>Datos del taller</span>
-                        <p>Los campos marcados con * son obligatorios.</p>
+                        <span>Alta del taller en 3 pasos</span>
+                        <p>Los campos marcados con * son obligatorios. Podrás revisar todo antes de enviarlo.</p>
                     </div>
+
+                    <ol class="formulario-progreso" aria-label="Progreso del alta">
+                        <li data-indicador-paso="1" aria-current="step"><span>1</span> Datos</li>
+                        <li data-indicador-paso="2"><span>2</span> Servicios</li>
+                        <li data-indicador-paso="3"><span>3</span> Revisión</li>
+                    </ol>
 
                     <div id="mensaje-formulario" class="mensaje-formulario" role="status" aria-live="polite" hidden></div>
 
-                    <div class="formulario-grid">
+                    <section class="formulario-paso" data-paso="1" aria-labelledby="paso-1-titulo">
+                        <div class="formulario-paso-cabecera">
+                            <span>Paso 1 de 3</span>
+                            <h2 id="paso-1-titulo">Datos básicos y ubicación</h2>
+                            <p>Cuéntanos cómo se llama el taller y dónde pueden encontrarlo.</p>
+                        </div>
+                        <div class="formulario-grid">
                         <div class="campo-formulario campo-ancho">
                             <label for="nombre_taller">Nombre del taller *</label>
                             <input id="nombre_taller" name="nombre_taller" type="text" minlength="2" maxlength="120" autocomplete="organization" required>
@@ -92,8 +103,22 @@
                             <select id="provincia" name="provincia" autocomplete="address-level1" required>
                                 <option value="">Selecciona una provincia</option>
                             </select>
-                            <small class="campo-ayuda">Debe coincidir con los dos primeros dígitos del código postal.</small>
+                            <small class="campo-ayuda">Debe coincidir con el código postal. Si está fuera de Alicante, Castellón o Valencia, revisaremos el alta dentro de la ampliación territorial.</small>
                         </div>
+
+                        </div>
+                        <div class="formulario-navegacion formulario-navegacion-derecha">
+                            <button class="boton" type="button" data-siguiente-paso="2">Continuar a horarios y servicios</button>
+                        </div>
+                    </section>
+
+                    <section class="formulario-paso" data-paso="2" aria-labelledby="paso-2-titulo" hidden>
+                        <div class="formulario-paso-cabecera">
+                            <span>Paso 2 de 3</span>
+                            <h2 id="paso-2-titulo">Horarios, servicios y presentación</h2>
+                            <p>Añade la información que ayudará a los conductores a elegir tu taller.</p>
+                        </div>
+                        <div class="formulario-grid">
 
                         <fieldset class="campo-formulario campo-ancho horarios-formulario" id="horarios-semanales">
                             <legend>Horario semanal *</legend>
@@ -137,7 +162,21 @@
                             <div id="vista-previa-fotos" class="vista-previa-fotos" aria-live="polite"></div>
                         </div>
 
-                    </div>
+                        </div>
+                        <div class="formulario-navegacion">
+                            <button class="boton boton-claro" type="button" data-anterior-paso="1">Volver a datos</button>
+                            <button class="boton" type="button" data-siguiente-paso="3">Revisar solicitud</button>
+                        </div>
+                    </section>
+
+                    <section class="formulario-paso" data-paso="3" aria-labelledby="paso-3-titulo" hidden>
+                        <div class="formulario-paso-cabecera">
+                            <span>Paso 3 de 3</span>
+                            <h2 id="paso-3-titulo">Revisa y envía la solicitud</h2>
+                            <p>Comprueba el resumen y acepta las condiciones antes de enviarlo.</p>
+                        </div>
+
+                        <div id="resumen-alta" class="resumen-alta" aria-live="polite"></div>
 
                     <div class="aceptacion-condiciones">
                         <div class="resumen-privacidad">
@@ -160,7 +199,11 @@
                         <input id="empresa_url" name="empresa_url" type="text" tabindex="-1" autocomplete="off">
                     </div>
 
-                    <button id="boton-enviar" class="boton boton-enviar" type="submit">Enviar solicitud gratuita</button>
+                        <div class="formulario-navegacion">
+                            <button class="boton boton-claro" type="button" data-anterior-paso="2">Volver a servicios</button>
+                            <button id="boton-enviar" class="boton boton-enviar" type="submit">Enviar solicitud gratuita</button>
+                        </div>
+                    </section>
                 </form>
             </div>
         </section>

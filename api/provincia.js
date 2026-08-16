@@ -1,6 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, slugify, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import {
+    escapeHTML,
+    formatPhoneDisplay,
+    renderWorkshopMedia,
+    reviewStatusLabel,
+    safePhone,
+    safeWeb,
+    serviceLabel,
+    slugify,
+    supabaseRpc,
+    workshopSlug
+} from "../lib/server-utils.js";
 
 const PAGE_SIZE = 30;
 const PROVINCIAS = { alicante: "Alicante", castellon: "Castellón", valencia: "Valencia" };
@@ -17,13 +28,37 @@ function renderMunicipios(rows) {
         }).join("");
 }
 
+function mapsURL(row, rawName) {
+    const query = [rawName, row.direccion, row.codigo_postal, row.ciudad, row.provincia, "España"]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+        .join(", ");
+    return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : "";
+}
+
 function renderTalleres(rows) {
     if (!rows.length) return '<p class="mensaje-talleres">Todavía no hay talleres publicados en esta provincia.</p>';
     return rows.map((row) => {
-        const nombre = row.nombre || row.nombre_taller || "Taller sin nombre";
-        const ubicacion = [row.direccion, row.ciudad, row.provincia].filter(Boolean).join(", ");
+        const rawName = row.nombre || row.nombre_taller || "Taller sin nombre";
+        const nombre = escapeHTML(rawName);
+        const ubicacion = [row.direccion, row.codigo_postal, row.ciudad, row.provincia]
+            .filter(Boolean).map(escapeHTML).join(", ");
         const slug = workshopSlug(row);
-        return `<article class="taller-card taller-card-inicial"><div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(nombre)}</a></h3><p class="ubicacion">⌖ ${escapeHTML(ubicacion || "Ubicación no indicada")}</p><div class="taller-pie"><span class="taller-contactos"><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a></span></div></div></article>`;
+        const phone = safePhone(row.telefono);
+        const phoneDisplay = formatPhoneDisplay(row.telefono);
+        const web = safeWeb(row.web);
+        const map = mapsURL(row, rawName);
+        const services = Array.isArray(row.servicios) ? row.servicios.slice(0, 4) : [];
+        const serviceHTML = services.length
+            ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
+            : "<span>Taller mecánico</span>";
+        const contacts = [];
+        if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (map) contacts.push(`<a class="boton boton-pequeno accion-mapa enlace-google-maps" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
+        if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+
+        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
     }).join("");
 }
 
@@ -33,11 +68,17 @@ function pageURL(slug, page) {
 
 function injectPagination(html, slug, page, total) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const previous = page <= 1
+        ? '<span class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
+        : `<a class="boton boton-claro" href="${escapeHTML(pageURL(slug, page - 1))}">← Anterior</a>`;
+    const next = page >= totalPages
+        ? '<span class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
+        : `<a class="boton" href="${escapeHTML(pageURL(slug, page + 1))}">Siguiente →</a>`;
     const pagination = total > PAGE_SIZE ? `
         <div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor municipio-paginacion">
-            <a class="boton boton-claro${page <= 1 ? " deshabilitado" : ""}" aria-disabled="${page <= 1}" href="${escapeHTML(pageURL(slug, Math.max(1, page - 1)))}">← Anterior</a>
+            ${previous}
             <span aria-live="polite">Página ${page} de ${totalPages}</span>
-            <a class="boton${page >= totalPages ? " deshabilitado" : ""}" aria-disabled="${page >= totalPages}" href="${escapeHTML(pageURL(slug, Math.min(totalPages, page + 1)))}">Siguiente →</a>
+            ${next}
         </div>` : '<div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor" hidden></div>';
 
     return html.replace(
@@ -68,10 +109,40 @@ function stripProvinceRuntime(html) {
         .replace(/\s*<script src="\.\.\/js\/provincia\.js"><\/script>/i, "");
 }
 
+function noindexOnFailure(html) {
+    return html.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
+}
+
+function replaceElementInnerHTML(html, id, innerHTML) {
+    const openPattern = new RegExp(`<([a-z0-9]+)\\b([^>]*\\bid=["']${id}["'][^>]*)>`, "i");
+    const match = openPattern.exec(html);
+    if (!match) throw new Error(`No se encontró #${id} en la plantilla provincial`);
+
+    const tag = match[1].toLowerCase();
+    const contentStart = match.index + match[0].length;
+    const tokenPattern = new RegExp(`<\\/?${tag}\\b[^>]*>`, "gi");
+    tokenPattern.lastIndex = contentStart;
+
+    let depth = 1;
+    let token;
+    while ((token = tokenPattern.exec(html))) {
+        const closing = /^<\//.test(token[0]);
+        depth += closing ? -1 : 1;
+        if (depth === 0) {
+            return html.slice(0, contentStart) + innerHTML + html.slice(token.index);
+        }
+    }
+
+    throw new Error(`No se pudo cerrar #${id} en la plantilla provincial`);
+}
+
 function inject(html, municipiosHTML, talleresHTML, total) {
-    html = html.replace(/(<ul id="lista-municipios-provincia"[^>]*>)[\s\S]*?(<\/ul>)/i, `$1${municipiosHTML}$2`);
-    html = html.replace(/(<div id="lista-talleres-provincia"[^>]*>)[\s\S]*?(<\/div>\s*<div id="contenedor-cargar-mas-provincia")/i, `$1${talleresHTML}$2`);
-    html = html.replace(/(<span id="estado-provincia"[^>]*>)[\s\S]*?(<\/span>)/i, `$1${total} ${total === 1 ? "taller" : "talleres"}$2`);
+    html = replaceElementInnerHTML(html, "lista-municipios-provincia", municipiosHTML);
+    html = replaceElementInnerHTML(html, "lista-talleres-provincia", talleresHTML);
+    html = html.replace(
+        /(<span id="estado-provincia"[^>]*>)[\s\S]*?(<\/span>)/i,
+        (_match, open, close) => `${open}${total} ${total === 1 ? "taller" : "talleres"}${close}`
+    );
     return html;
 }
 
@@ -81,8 +152,15 @@ export default async function handler(request, response) {
     if (!provincia) { response.status(404).send("Provincia no encontrada"); return; }
 
     let html;
-    try { html = fs.readFileSync(path.join(process.cwd(), "provincias", `${slug}.html`), "utf8"); }
-    catch (error) { console.error(error); response.status(500).send("No se pudo renderizar la provincia"); return; }
+    try {
+        const internalTemplate = path.join(process.cwd(), "templates", "provincias", `${slug}.html`);
+        const publicTemplate = path.join(process.cwd(), "provincias", `${slug}.html`);
+        html = fs.readFileSync(fs.existsSync(internalTemplate) ? internalTemplate : publicTemplate, "utf8");
+    } catch (error) {
+        console.error(error);
+        response.status(500).send("No se pudo renderizar la provincia");
+        return;
+    }
 
     try {
         const pagina = Math.max(1, Number.parseInt(String(request.query?.pagina || "1"), 10) || 1);
@@ -93,25 +171,37 @@ export default async function handler(request, response) {
         ]);
         const total = Number(talleres[0]?.total_resultados) || talleres.length;
         const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        const municipiosHTML = renderMunicipios(municipios);
+        const talleresHTML = renderTalleres(talleres);
 
-        html = inject(html, renderMunicipios(municipios), renderTalleres(talleres), total);
+        html = inject(html, municipiosHTML, talleresHTML, total);
+
+        if (talleres.length) {
+            const firstSlug = workshopSlug(talleres[0]);
+            if (!firstSlug || !html.includes(`data-taller-slug="${escapeHTML(firstSlug)}"`)) {
+                throw new Error("La inyección SSR no dejó talleres en el HTML final");
+            }
+        }
+
         html = injectPagination(html, slug, pagina, total);
         html = injectSEO(html, slug, pagina, total);
         html = stripProvinceRuntime(html);
 
         response.setHeader("X-TallerMap-Province-SSR", "1");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
         if (total > 0 && pagina > totalPages) {
-            response.setHeader("Content-Type", "text/html; charset=utf-8");
-            response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
             response.status(404).send(html);
             return;
         }
+        response.status(200).send(html);
     } catch (error) {
         console.error("SSR provincia falló:", error);
+        html = stripProvinceRuntime(noindexOnFailure(html));
         response.setHeader("X-TallerMap-Province-SSR", "0");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Retry-After", "60");
+        response.status(503).send(html);
     }
-
-    response.setHeader("Content-Type", "text/html; charset=utf-8");
-    response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
-    response.status(200).send(html);
 }

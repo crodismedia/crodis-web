@@ -53,6 +53,33 @@
             .replace(/^-+|-+$/g, "");
     }
 
+    function etiquetaServicio(servicio) {
+        const raw = typeof servicio === "string"
+            ? servicio
+            : (servicio?.nombre || servicio?.slug || servicio?.servicio || "");
+        const configurada = window.TallerMapServicios?.etiquetas?.[raw];
+        if (configurada) return configurada;
+        const texto = String(raw).replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().toLocaleLowerCase("es");
+        return texto ? texto[0].toLocaleUpperCase("es") + texto.slice(1) : "";
+    }
+
+    function telefonoSeguro(valor) {
+        const raw = String(valor || "").trim();
+        const digitos = raw.replace(/\D/g, "");
+        if (/^0034\d{9}$/.test(digitos)) return `+${digitos.slice(2)}`;
+        if (/^34\d{9}$/.test(digitos)) return `+${digitos}`;
+        if (raw.startsWith("+") && digitos) return `+${digitos}`.slice(0, 20);
+        return digitos.slice(0, 20);
+    }
+
+    function telefonoLegible(valor) {
+        const limpio = telefonoSeguro(valor);
+        const coincidencia = limpio.match(/^(\+34)?(\d{3})(\d{3})(\d{3})$/);
+        return coincidencia
+            ? `${coincidencia[1] ? "+34 " : ""}${coincidencia[2]} ${coincidencia[3]} ${coincidencia[4]}`
+            : limpio;
+    }
+
     function urlSegura(valor) {
         if (!valor) return "";
         try {
@@ -77,7 +104,7 @@
             codigo_postal: leer("codigo_postal"),
             ciudad: leer("ciudad"),
             provincia: leer("provincia"),
-            telefono: leer("telefono").replace(/[^\d+]/g, ""),
+            telefono: telefonoSeguro(leer("telefono")),
             web: leer("web"),
             descripcion: leer("descripcion") || "Consulta los datos públicos disponibles de este taller.",
             servicios: leer("servicios").split("|").map((valor) => valor.trim()).filter(Boolean),
@@ -291,7 +318,7 @@
     async function mostrarTaller(taller) {
         const nombre = taller.nombre || "Taller publicado en TallerMap";
         const direccion = direccionCompleta(taller);
-        const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
+        const telefono = telefonoSeguro(taller.telefono);
         const whatsapp = telefonoWhatsApp(telefono);
         const web = urlSegura(taller.web);
         const descripcion = taller.descripcion || `Consulta los datos públicos de ${nombre}.`;
@@ -305,13 +332,18 @@
 
         const insignia = document.getElementById("taller-verificacion");
         if (insignia) {
-            insignia.textContent = taller.verificado ? "✓ Taller verificado" : "Datos públicos pendientes de verificar";
+            insignia.textContent = taller.verificado ? "✓ Información revisada" : "Información publicada";
             insignia.classList.toggle("verificada", Boolean(taller.verificado));
         }
 
         const contenedorFoto = document.getElementById("taller-foto");
-        const imagen = document.getElementById("taller-foto-imagen");
-        if (contenedorFoto && imagen && foto) {
+        let imagen = document.getElementById("taller-foto-imagen");
+        if (contenedorFoto && foto) {
+            if (!imagen) {
+                imagen = document.createElement("img");
+                imagen.id = "taller-foto-imagen";
+                contenedorFoto.appendChild(imagen);
+            }
             imagen.src = foto;
             imagen.alt = `Imagen de ${nombre}`;
             contenedorFoto.hidden = false;
@@ -331,7 +363,7 @@
             serviciosContenedor.replaceChildren();
             servicios.forEach((servicio) => {
                 const etiqueta = document.createElement("span");
-                etiqueta.textContent = servicio;
+                etiqueta.textContent = etiquetaServicio(servicio);
                 serviciosContenedor.appendChild(etiqueta);
             });
         }
@@ -339,7 +371,7 @@
         const datos = document.getElementById("taller-datos");
         if (datos) {
             datos.replaceChildren();
-            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> <a href="tel:${escaparHTML(telefono)}">${escaparHTML(telefono)}</a></p>`);
+            if (telefono) datos.insertAdjacentHTML("beforeend", `<p><strong>Teléfono:</strong> <a href="tel:${escaparHTML(telefono)}">${escaparHTML(telefonoLegible(telefono))}</a></p>`);
             if (taller.direccion) datos.insertAdjacentHTML("beforeend", `<p><strong>Dirección:</strong> ${escaparHTML(taller.direccion)}</p>`);
             if (taller.codigo_postal) datos.insertAdjacentHTML("beforeend", `<p><strong>Código postal:</strong> ${escaparHTML(taller.codigo_postal)}</p>`);
             if (taller.ciudad) datos.insertAdjacentHTML("beforeend", `<p><strong>Municipio:</strong> ${escaparHTML(taller.ciudad)}</p>`);

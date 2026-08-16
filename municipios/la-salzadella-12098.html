@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">1 taller publicado</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="la Salzadella"
                     data-codigo-municipal="12098"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de la Salzadella…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="automecanica-j-a-rodrigo-la-salzadella-9497cd61"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/automecanica-j-a-rodrigo-la-salzadella-9497cd61">Automecánica J. A. Rodrigo</a></h3><p class="ubicacion">⌖ Carretera CV-10, km 76,8, 12186, La Salzadella, Castellón/Castelló</p><p class="taller-descripcion">Taller mecánico para reparación, revisiones, recambios y sustitución de piezas.</p><div class="especialidades"><span>Mecanica General</span><span>Mantenimiento Programado</span></div><div class="taller-pie"><span class="taller-contactos"><a href="tel:964419264" aria-label="Llamar a Automecánica J. A. Rodrigo">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Automec%C3%A1nica%20J.%20A.%20Rodrigo%2C%20Carretera%20CV-10%2C%20km%2076%2C8%2C%2012186%2C%20La%20Salzadella%2C%20Castell%C3%B3n%2FCastell%C3%B3%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a Automecánica J. A. Rodrigo">Cómo llegar</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>

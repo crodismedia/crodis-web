@@ -1,19 +1,27 @@
 (function cargarConsentimiento() {
-    if (window.__tallerMapConsentBootstrap || window.TallerMapCookies) return;
-    window.__tallerMapConsentBootstrap = true;
+    function asegurarConsentimiento() {
+        if (window.__tallerMapConsentBootstrap || window.TallerMapCookies) return;
+        window.__tallerMapConsentBootstrap = true;
 
-    if (!document.querySelector('link[href$="cookie-consent.css"]')) {
-        const style = document.createElement("link");
-        style.rel = "stylesheet";
-        style.href = "/css/cookie-consent.css";
-        document.head.appendChild(style);
+        if (!document.querySelector('link[href$="cookie-consent.css"]')) {
+            const style = document.createElement("link");
+            style.rel = "stylesheet";
+            style.href = "/css/cookie-consent.css";
+            document.head.appendChild(style);
+        }
+
+        if (!document.querySelector('script[src$="cookie-consent.js"]')) {
+            const script = document.createElement("script");
+            script.src = "/js/cookie-consent.js";
+            script.defer = true;
+            document.head.appendChild(script);
+        }
     }
 
-    if (!document.querySelector('script[src$="cookie-consent.js"]')) {
-        const script = document.createElement("script");
-        script.src = "/js/cookie-consent.js";
-        script.async = false;
-        document.head.appendChild(script);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", asegurarConsentimiento, { once: true });
+    } else {
+        asegurarConsentimiento();
     }
 }());
 

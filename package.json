@@ -1,6 +1,10 @@
 {
   "private": true,
   "type": "module",
+  "scripts": {
+    "generate:municipios": "node scripts/generate-static-municipios.mjs",
+    "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs && node scripts/validate-step-4.mjs && node scripts/validate-html-first-taller.mjs"
+  },
   "dependencies": {
     "@vercel/functions": "latest"
   }

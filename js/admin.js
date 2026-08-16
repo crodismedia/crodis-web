@@ -1,7 +1,5 @@
-/* eslint-disable no-undef */
 (function () {
     "use strict";
-    // IDs definidos en pages/admin.html
 
     const lista = document.getElementById("lista-solicitudes");
     const mensaje = document.getElementById("mensaje-admin");

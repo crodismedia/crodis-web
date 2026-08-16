@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editor V4 · Desguaces | TallerMap</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=2">
+  <style>
+    .v4d-import{margin-top:16px;padding-top:16px;border-top:1px solid var(--v4-border)}
+    .v4d-import-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+    .v4d-import-grid div{padding:10px;border:1px solid var(--v4-border);border-radius:10px;background:#fafbfc}
+    .v4d-import-grid strong{display:block;font-size:1.2rem}.v4d-import-grid span{font-size:.72rem;color:var(--v4-muted)}
+    .v4d-preview{max-height:300px;overflow:auto;display:grid;gap:6px;margin-top:10px}
+    .v4d-preview-row{padding:9px 10px;border:1px solid var(--v4-border);border-radius:9px;background:#fff;font-size:.82rem}
+    .v4d-preview-row.ok{border-color:#86efac;background:#f0fdf4}.v4d-preview-row.error{border-color:#fca5a5;background:#fef2f2}.v4d-preview-row.duplicate{border-color:#fcd34d;background:#fffbeb}
+    .v4d-preview-row strong{display:block}.v4d-preview-row small{display:block;color:#667085;margin-top:2px}
+    .v4d-help{padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;margin:10px 0;font-size:.84rem;line-height:1.45}
+    .v4-turno select{width:100%;min-width:0;padding:9px 28px 9px 9px;border:1px solid #cfd7df;border-radius:9px;background:#fff;color:var(--v4-ink);font:inherit}
+    .v4-turno select:disabled{background:#f1f3f5;color:#98a2b3}
+    @media(max-width:560px){.v4d-import-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body data-auth-state="checking">
+<div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
+<header class="v4-top">
+  <div><strong>TallerMap · Editor V4</strong><small>Departamento Desguaces</small></div>
+  <nav><a class="v4-btn v4-soft" href="admin-editor-v4.html">Talleres</a><a class="v4-btn v4-primary" href="admin-editor-v4-desguaces.html" aria-current="page">Desguaces</a><a class="v4-btn v4-soft" href="admin.html">Panel</a><button id="v4d-logout" class="v4-btn v4-soft" type="button">Cerrar sesión</button></nav>
+</header>
+<main class="v4-wrap">
+  <aside class="v4-card v4-pad">
+    <h2>1. Desguaces</h2>
+    <div class="v4-actions"><button id="v4d-recargar" class="v4-btn v4-primary" type="button">Recargar</button><button id="v4d-nuevo" class="v4-btn v4-green" type="button">+ Nueva ficha</button></div>
+    <div class="v4-field"><label for="v4d-buscar">Buscar</label><input id="v4d-buscar" placeholder="Nombre, municipio o provincia" autocomplete="off"></div>
+    <div id="v4d-lista-estado" class="v4-status">Cargando desguaces…</div>
+    <div class="v4-kpis"><div><strong id="v4d-total">0</strong><span>Total</span></div><div><strong id="v4d-activos">0</strong><span>Activos</span></div><div><strong id="v4d-verificados">0</strong><span>Verificados</span></div></div>
+    <div id="v4d-lista" class="v4-list"></div>
+    <section class="v4d-import" aria-labelledby="v4d-import-title">
+      <h2 id="v4d-import-title">Importar CSV por lote</h2>
+      <div class="v4d-help"><strong>1.</strong> Elige el CSV. Se comprobará automáticamente y no se guardará nada todavía.<br><strong>2.</strong> Revisa abajo cuántas filas son válidas y los errores detectados.<br><strong>3.</strong> Solo entonces se habilitará <strong>Importar válidos en Supabase</strong>.</div>
+      <div class="v4-field"><label for="v4d-csv">Archivo CSV</label><input id="v4d-csv" type="file" accept=".csv,text/csv"></div>
+      <div class="v4-actions"><button id="v4d-comprobar-csv" class="v4-btn v4-primary" type="button">Volver a comprobar CSV</button><button id="v4d-importar-csv" class="v4-btn v4-green" type="button" disabled>Importar válidos en Supabase</button><button id="v4d-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button></div>
+      <div id="v4d-csv-estado" class="v4-status">Selecciona un archivo CSV. La comprobación empezará automáticamente.</div>
+      <div class="v4d-import-grid"><div><strong id="v4d-csv-total">0</strong><span>Filas</span></div><div><strong id="v4d-csv-validas">0</strong><span>Válidas</span></div><div><strong id="v4d-csv-duplicadas">0</strong><span>Duplicadas</span></div><div><strong id="v4d-csv-errores">0</strong><span>Con errores</span></div></div>
+      <div id="v4d-csv-preview" class="v4d-preview" aria-live="polite"></div>
+    </section>
+  </aside>
+  <section class="v4-card v4-pad">
+    <h2>2. Editar ficha de desguace</h2>
+    <p id="v4d-vacio" class="v4-status">Selecciona una ficha o pulsa “Nueva ficha”.</p>
+    <form id="v4d-form" hidden autocomplete="off">
+      <input id="v4d-id" type="hidden">
+      <div class="v4-grid">
+        <div class="v4-field v4-full"><label for="v4d-nombre">Nombre</label><input id="v4d-nombre" required></div>
+        <div class="v4-field"><label for="v4d-telefono">Teléfono</label><input id="v4d-telefono"></div><div class="v4-field"><label for="v4d-web">Web</label><input id="v4d-web" inputmode="url"></div>
+        <div class="v4-field v4-full"><label for="v4d-direccion">Dirección</label><input id="v4d-direccion"></div>
+        <div class="v4-field"><label for="v4d-cp">Código postal</label><input id="v4d-cp" inputmode="numeric" maxlength="5"></div><div class="v4-field"><label for="v4d-municipio">Municipio</label><input id="v4d-municipio" required></div>
+        <div class="v4-field"><label for="v4d-provincia">Provincia</label><select id="v4d-provincia" required><option value="">Seleccionar…</option><option>Alicante/Alacant</option><option>Castellón/Castelló</option><option>Valencia/València</option></select></div><div class="v4-field"><label for="v4d-slug">Slug</label><input id="v4d-slug" placeholder="Se genera automáticamente si queda vacío"></div>
+        <div class="v4-field v4-full"><label for="v4d-maps-url">Google Maps URL</label><input id="v4d-maps-url" inputmode="url"></div>
+        <div class="v4-field v4-full"><label for="v4d-servicios">Servicios</label><input id="v4d-servicios" placeholder="Recogida de vehículos, bajas, recambios usados…"><small>Separados por comas.</small></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><small>Selecciona las horas en listas desplegables con intervalos de 5 minutos.</small><div id="v4-horarios-editor"></div></div>
+        <div class="v4-field v4-full"><label for="v4d-descripcion">Descripción</label><textarea id="v4d-descripcion" rows="7"></textarea></div>
+        <div class="v4-field"><label for="v4d-activo">Estado</label><select id="v4d-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div><div class="v4-field"><label for="v4d-verificado">Verificación</label><select id="v4d-verificado"><option value="false">No verificado</option><option value="true">Verificado</option></select></div>
+      </div>
+      <div id="v4d-estado" class="v4-status">Ficha preparada.</div>
+      <div class="v4-savebar"><div class="v4-actions"><button id="v4d-maps" class="v4-btn v4-soft" type="button">Google Maps</button><button id="v4d-eliminar" class="v4-btn v4-danger" type="button">Eliminar ficha</button></div><div class="v4-actions"><button class="v4-btn v4-primary" type="submit">Guardar ficha</button></div></div>
+    </form>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=4"></script><script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
+<script>
+(function(){
+  function vaciarVista(){
+    var buscar=document.getElementById('v4d-buscar');
+    var csv=document.getElementById('v4d-csv');
+    var form=document.getElementById('v4d-form');
+    var vacio=document.getElementById('v4d-vacio');
+    var preview=document.getElementById('v4d-csv-preview');
+    var importar=document.getElementById('v4d-importar-csv');
+    if(buscar)buscar.value='';
+    if(csv)csv.value='';
+    if(form){form.reset();form.hidden=true;}
+    if(vacio)vacio.hidden=false;
+    if(preview)preview.innerHTML='';
+    ['v4d-csv-total','v4d-csv-validas','v4d-csv-duplicadas','v4d-csv-errores'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0';});
+    if(importar)importar.disabled=true;
+    var estado=document.getElementById('v4d-csv-estado');
+    if(estado){estado.textContent='Selecciona un archivo CSV. La comprobación empezará automáticamente.';estado.className='v4-status';}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    vaciarVista();
+    var input=document.getElementById('v4d-csv');
+    var check=document.getElementById('v4d-comprobar-csv');
+    if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}
+  });
+  window.addEventListener('pageshow',function(){vaciarVista();});
+})();
+</script>
+</body></html>

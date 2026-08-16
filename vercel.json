@@ -2,6 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/pages/taller.html",
+      "destination": "/api/taller-legacy",
+      "statusCode": 301
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "tallermap.es" }],
       "destination": "https://www.tallermap.es/:path*",
@@ -15,9 +20,8 @@
   ],
   "rewrites": [
     { "source": "/", "destination": "/api/home" },
-    { "source": "/talleres/:slug", "destination": "/api/taller?slug=:slug" },
+    { "source": "/talleres/:slug", "destination": "/api/taller-html?slug=:slug" },
     { "source": "/provincias/:provincia.html", "destination": "/api/provincia?provincia=:provincia" },
-    { "source": "/municipios/:archivo.html", "destination": "/api/municipio?archivo=:archivo.html" },
     { "source": "/servicios/mecanica-general.html", "destination": "/api/servicio?servicio=mecanica-general" },
     { "source": "/servicios/neumaticos.html", "destination": "/api/servicio?servicio=neumaticos" },
     { "source": "/servicios/chapa-pintura.html", "destination": "/api/servicio?servicio=chapa-pintura" },

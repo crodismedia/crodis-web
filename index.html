@@ -1,1 +1,109 @@
-noop
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cnyptelvbsndpkzbrete.supabase.co" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talleres mecánicos en la Comunidad Valenciana | TallerMap</title>
+    <meta name="description" content="Encuentra talleres mecánicos en la Comunidad Valenciana por población, código postal o servicio. TallerMap amplía progresivamente su cobertura.">
+    <meta name="author" content="TallerMap">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <link rel="canonical" href="https://www.tallermap.es/">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#000000">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TallerMap">
+    <meta property="og:title" content="Talleres mecánicos cerca de ti | TallerMap">
+    <meta property="og:description" content="Encuentra talleres mecánicos en la Comunidad Valenciana. TallerMap amplía progresivamente su cobertura a nuevas provincias.">
+    <meta property="og:url" content="https://www.tallermap.es/">
+    <meta property="og:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
+    <meta property="og:locale" content="es_ES">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TallerMap">
+    <meta name="twitter:description" content="Encuentra talleres mecánicos en la Comunidad Valenciana. TallerMap amplía progresivamente su cobertura.">
+    <meta name="twitter:image" content="https://www.tallermap.es/images/cartel-tallermap.png">
+    <link rel="stylesheet" href="css/estilo.css?v=20260809-5">
+    <link rel="stylesheet" href="css/cookie-consent.css?v=20260809-5">
+    <style>
+        .hero-texto,.buscador,.campo-busqueda,.poblacion-controles{position:relative;z-index:20}
+        .buscador{pointer-events:auto!important;isolation:isolate}
+        #poblacion,#servicio,#boton-buscar{pointer-events:auto!important;position:relative;z-index:30;opacity:1!important}
+        #poblacion{min-height:38px;color:#162033!important;background:#fff!important;padding:8px 10px!important;border:1px solid #cfd8e3!important;border-radius:8px!important;cursor:text!important;user-select:text!important;-webkit-user-select:text!important}
+        #poblacion:focus{outline:3px solid rgba(20,87,217,.18)!important;border-color:#1457d9!important}
+        .hero::before,.hero-visual{pointer-events:none}
+        .hero-visual a,.hero-visual button{pointer-events:auto}
+        #servicios,#provincias,#talleres,#como-funciona,.pie{content-visibility:auto;contain-intrinsic-size:1px 800px}
+        .cookie-preferences-button{display:none!important}
+        .menu-movil-control,.menu-movil-label,.menu-movil-panel{display:none}
+        #formulario-buscador-publico{grid-template-columns:minmax(240px,1.2fr) minmax(210px,.9fr)!important;align-items:stretch;gap:12px!important;padding:12px!important}
+        #formulario-buscador-publico>.campo-busqueda{min-width:0!important;padding:10px 14px!important}
+        #formulario-buscador-publico>.campo-busqueda:first-child{z-index:300!important;overflow:visible!important}
+        #formulario-buscador-publico #servicio{min-width:0;width:100%;min-height:38px;padding:8px 34px 8px 10px!important;color:#162033!important;background:#fff!important;border:1px solid #cfd8e3!important;border-radius:8px!important;text-overflow:ellipsis}
+        #formulario-buscador-publico #boton-buscar{grid-column:1!important;grid-row:2!important;justify-self:stretch;align-self:stretch;width:100%;min-height:54px;padding:14px 24px!important;font-size:1rem;white-space:nowrap}
+        .poblacion-controles{display:block!important;overflow:visible!important;z-index:400!important}
+        #sugerencias-poblacion{position:absolute!important;top:calc(100% + 8px)!important;left:0!important;right:0!important;width:100%!important;max-height:280px!important;overflow-y:auto!important;overscroll-behavior:contain;background:#fff!important;border:1px solid #dfe6ef!important;border-radius:12px!important;box-shadow:0 18px 38px rgba(20,36,64,.20)!important;z-index:9999!important;-webkit-overflow-scrolling:touch}
+        #sugerencias-poblacion[hidden]{display:none!important}
+        #sugerencias-poblacion .sugerencia-poblacion{display:flex!important;flex-direction:column!important;align-items:flex-start!important;width:100%!important;padding:12px 14px!important;text-align:left!important;color:#162033!important;background:#fff!important;border:0!important;border-bottom:1px solid #edf1f6!important;cursor:pointer!important}
+        #sugerencias-poblacion .sugerencia-poblacion:last-child{border-bottom:0!important}
+        #sugerencias-poblacion .sugerencia-poblacion strong{font-size:15px!important;line-height:1.25!important}
+        #sugerencias-poblacion .sugerencia-poblacion span{margin-top:3px!important;color:#68758a!important;font-size:13px!important;line-height:1.25!important}
+        #sugerencias-poblacion .sugerencia-poblacion:hover,#sugerencias-poblacion .sugerencia-poblacion:focus{background:#f3f7ff!important;outline:none!important}
+        #formulario-buscador-publico #usar-mi-ubicacion{width:auto!important;margin:8px 0 0!important;padding:8px 10px!important;min-height:38px;box-shadow:none!important;font-size:.86rem}
+        #formulario-buscador-publico #estado-ubicacion{display:block;margin-top:6px;font-size:.78rem;line-height:1.35}
+        @media(max-width:1050px){.cabecera-contenido{position:relative}.menu-movil-control{position:absolute;opacity:0;pointer-events:none}.menu-movil-label{display:grid;width:48px;height:48px;margin-left:auto;place-items:center;flex:0 0 auto;color:#071a33;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 8px 20px rgba(20,36,64,.08);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:2147483647;position:relative;pointer-events:auto!important}.menu-movil-icono,.menu-movil-icono:before,.menu-movil-icono:after{display:block;width:23px;height:3px;background:#071a33;border-radius:5px;content:""}.menu-movil-icono{position:relative}.menu-movil-icono:before{position:absolute;top:-7px;left:0}.menu-movil-icono:after{position:absolute;top:7px;left:0}.menu-movil-panel{position:fixed;top:68px;right:0;left:0;z-index:2147483646;gap:4px;padding:12px 18px 20px;background:#fff;border-top:1px solid #dfe6ef;border-bottom:1px solid #dfe6ef;box-shadow:0 18px 30px rgba(20,36,64,.15);pointer-events:auto!important;isolation:isolate}.menu-movil-control:checked~.menu-movil-panel{display:grid!important}.menu-movil-control:checked+.menu-movil-label .menu-movil-icono{background:transparent}.menu-movil-control:checked+.menu-movil-label .menu-movil-icono:before{top:0;transform:rotate(45deg)}.menu-movil-control:checked+.menu-movil-label .menu-movil-icono:after{top:0;transform:rotate(-45deg)}.menu-movil-panel a{display:block;position:relative;z-index:1;padding:14px 15px;color:#071a33;font-weight:800;border-radius:10px;pointer-events:auto!important;touch-action:manipulation;-webkit-tap-highlight-color:rgba(20,87,217,.12)}.menu-movil-panel a:active,.menu-movil-panel a:focus-visible{background:#eaf2ff;outline:none}.menu-movil-panel .menu-movil-registro{margin-top:6px;color:#fff;text-align:center;background:linear-gradient(135deg,#1457d9,#0b43ad)}#formulario-buscador-publico{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}}
+        @media(max-width:750px){.cabecera-contenido{min-height:68px!important;flex-direction:row!important;align-items:center!important;gap:10px!important}.acciones-cabecera{display:none!important}.marca{min-width:0}.marca-texto strong{font-size:20px}.marca-texto small{font-size:10px}#formulario-buscador-publico{grid-template-columns:1fr!important;padding:10px!important;gap:10px!important;overflow:visible!important}#formulario-buscador-publico>.campo-busqueda,#formulario-buscador-publico #boton-buscar{grid-column:1!important;width:100%;justify-self:stretch}#formulario-buscador-publico>.campo-busqueda{border-right:0!important;border-bottom:1px solid #dfe6ef;padding:10px 8px 14px!important}#formulario-buscador-publico #usar-mi-ubicacion{width:100%!important;justify-content:center}#formulario-buscador-publico #boton-buscar{grid-row:auto!important;min-height:52px}#sugerencias-poblacion{max-height:min(280px,42vh)!important}}
+        @media(max-width:420px){#formulario-buscador-publico .campo-icono{display:none}#formulario-buscador-publico>.campo-busqueda{padding-left:4px!important;padding-right:4px!important}#formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio{font-size:16px!important}}
+    </style>
+</head>
+<body>
+<div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de talleres de automoción</span><a href="/pages/registro.html">¿Tienes un taller? Publica tu negocio</a></div></div>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/#servicios">Servicios</a><a href="/#provincias">Provincias</a><a href="/#talleres">Talleres</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html">Coches</a><a href="/#como-funciona">Cómo funciona</a></nav><input class="menu-movil-control" type="checkbox" id="menu-movil-control"><label class="menu-movil-label" for="menu-movil-control" aria-label="Abrir o cerrar menú"><span class="menu-movil-icono"></span></label><nav class="menu-movil-panel"><a href="/">Inicio</a><a href="/#servicios">Servicios</a><a href="/#provincias">Provincias</a><a href="/#talleres">Talleres</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html">Coches</a><a href="/#como-funciona">Cómo funciona</a><a class="menu-movil-registro" href="/pages/registro.html">Registrar taller</a></nav><div class="acciones-cabecera"><a href="/#talleres" class="contador-altas-cabecera"><strong id="contador-altas-cabecera">Directorio</strong><span>de talleres</span></a><a href="/pages/registro.html" class="boton boton-pequeno">Registrar taller</a></div></div></header>
+<main>
+<section class="hero"><div class="contenedor hero-contenido"><div class="hero-texto"><span class="etiqueta">Más fácil, más rápido y cerca de ti</span><h1>Encuentra talleres mecánicos <span>cerca de ti</span></h1><p class="hero-descripcion">Busca talleres mecánicos en la Comunidad Valenciana por población, servicio o código postal. Estamos ampliando progresivamente la cobertura a nuevas provincias.</p><form class="buscador" id="formulario-buscador-publico" role="search" autocomplete="off"><div class="campo-busqueda"><span class="campo-icono">⌖</span><div><label for="poblacion">Población o código postal</label><div class="poblacion-controles"><input id="poblacion" name="poblacion" type="search" autocomplete="off" inputmode="search" placeholder="Ej. Valencia, Silla o 46460"></div><small>Busca por población o código postal.</small></div></div><div class="campo-busqueda"><span class="campo-icono">⚙</span><div><label for="servicio">Servicio</label><select id="servicio" name="servicio"><option value="">Todos los servicios</option><option value="mecanica-general">Mecánica general</option><option value="chapa-pintura">Chapa y pintura</option><option value="neumaticos">Neumáticos</option><option value="diagnosis-electronica">Diagnosis electrónica</option><option value="aire-acondicionado">Aire acondicionado</option><option value="hibridos-electricos">Híbridos y eléctricos</option></select></div></div><button type="submit" class="boton boton-buscar" id="boton-buscar">Buscar talleres</button></form><div class="busquedas-populares"><strong>Búsquedas populares:</strong><a href="/#talleres" data-servicio="cambio-aceite-filtros">Cambio de aceite</a><a href="/#talleres" data-servicio="neumaticos">Neumáticos</a><a href="/#talleres" data-servicio="chapa-pintura">Chapa y pintura</a><a href="/#talleres" data-servicio="pre-itv">Pre-ITV</a></div></div></div></section>
+<section id="servicios" class="seccion"><div class="contenedor"><div class="titulo-seccion"><span>Servicios de automoción</span><h2>Encuentra talleres por especialidad</h2></div></div></section>
+<section id="provincias" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion"><span>Búsqueda por provincia</span><h2>Talleres en la Comunidad Valenciana</h2></div></div></section>
+<section id="talleres" class="seccion"><div class="contenedor"><div class="cabecera-seccion"><div class="titulo-seccion alineado-izquierda"><span>Directorio de talleres</span><h2>Talleres publicados</h2></div></div><div class="talleres-grid" id="lista-talleres"></div></div></section>
+<section id="como-funciona" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion"><h2>Busca talleres publicados</h2></div></div></section>
+</main>
+<footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div></footer>
+<script>
+(function(){
+  const control=document.getElementById('menu-movil-control');
+  const panel=document.querySelector('.menu-movil-panel');
+  if(!control||!panel)return;
+
+  panel.addEventListener('click',function(e){
+    const enlace=e.target.closest('a[href]');
+    if(!enlace)return;
+
+    const href=enlace.getAttribute('href');
+    control.checked=false;
+    if(!href)return;
+
+    e.preventDefault();
+
+    if(href.startsWith('/#') && window.location.pathname === '/'){
+      const id=href.slice(2);
+      const destino=document.getElementById(id);
+      if(destino){
+        destino.scrollIntoView({behavior:'smooth',block:'start'});
+        if(window.history && window.history.replaceState){
+          window.history.replaceState(null,'',href);
+        }else{
+          window.location.hash=id;
+        }
+        return;
+      }
+    }
+
+    window.location.assign(href);
+  });
+})();
+</script>
+<script defer src="js/cookie-consent.js?v=20260809-5"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script defer src="js/servicios.js?v=20260809-5"></script><script defer src="js/supabase.js?v=20260809-5"></script><script defer src="js/busqueda-url.js?v=20260815-7"></script><script defer src="js/autocomplete-municipios.js?v=20260816-2"></script><script defer src="js/imagenes-automaticas.js?v=20260810-2"></script>
+</body>
+</html>

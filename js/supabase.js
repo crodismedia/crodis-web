@@ -16,14 +16,16 @@
         console.error("No se ha cargado la biblioteca de Supabase.");
         return;
     }
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = supabaseClient;
+
     if (!window.TallerMapTallerUI) {
-        console.error("No se ha cargado TallerMapTallerUI.");
+        // El área administrativa solo necesita el cliente de Supabase.
         return;
     }
 
     const ui = window.TallerMapTallerUI;
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    window.supabaseClient = supabaseClient;
 
     let siguienteIndice = 0;
     let poblacionActual = "";
@@ -39,6 +41,20 @@
             .replace(/\s+/g, " ")
             .trim()
             .slice(0, LIMITE_TERMINO);
+    }
+
+    function ubicacionSegura(valor) {
+        const termino = terminoSeguro(valor);
+        if (!termino || /^\d{5}$/.test(termino)) return termino;
+
+        const partes = termino
+            .split("/")
+            .map(parte => parte.trim())
+            .filter(Boolean);
+
+        return partes.length > 1
+            ? partes[partes.length - 1].slice(0, LIMITE_TERMINO)
+            : termino;
     }
 
     function normalizarTexto(valor) {
@@ -103,6 +119,20 @@
         if (poblacion) url.searchParams.set("poblacion", poblacion); else url.searchParams.delete("poblacion");
         if (servicio) url.searchParams.set("servicio", servicio); else url.searchParams.delete("servicio");
         window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    function mostrarResultadosCuandoListos(comportamiento = "smooth") {
+        return new Promise(resolve => {
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    document.getElementById("talleres")?.scrollIntoView({
+                        behavior: comportamiento,
+                        block: "start"
+                    });
+                    resolve();
+                });
+            });
+        });
     }
 
     async function adjuntarFotosFirmadas(talleres) {
@@ -198,9 +228,11 @@
             versionBusqueda += 1;
             siguienteIndice = 0;
             totalResultadosActual = 0;
-            poblacionActual = terminoSeguro(poblacion);
+            poblacionActual = ubicacionSegura(poblacion);
             servicioActual = terminoSeguro(servicio);
             codigoMunicipioActual = codigoMunicipioPreferente(poblacionActual);
+            const campoPoblacion = document.getElementById("poblacion");
+            if (campoPoblacion && poblacionActual) campoPoblacion.value = poblacionActual;
             mostrarEstado("Buscando talleres...");
             actualizarNumeroResultados(0);
             actualizarBoton(false);
@@ -260,10 +292,10 @@
         const poblacion = document.getElementById("poblacion");
         const servicio = document.getElementById("servicio");
         document.getElementById("boton-cargar-mas")?.addEventListener("click", () => cargarTalleres(poblacionActual, servicioActual, false));
-        formulario?.addEventListener("submit", evento => {
+        formulario?.addEventListener("submit", async evento => {
             evento.preventDefault();
-            cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
-            document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            await cargarTalleres(poblacion?.value || "", servicio?.value || "", true);
+            await mostrarResultadosCuandoListos("smooth");
         });
         document.querySelectorAll("[data-servicio]").forEach(enlace => enlace.addEventListener("click", evento => {
             evento.preventDefault();
@@ -277,14 +309,19 @@
         const poblacion = document.getElementById("poblacion");
         const servicio = document.getElementById("servicio");
         const parametros = new URLSearchParams(window.location.search);
-        const poblacionUrl = terminoSeguro(parametros.get("poblacion") || "");
+        const poblacionUrl = ubicacionSegura(parametros.get("poblacion") || "");
         const servicioUrl = terminoSeguro(parametros.get("servicio") || "");
         if (!poblacionUrl && !servicioUrl) return;
         if (poblacion && poblacionUrl) poblacion.value = poblacionUrl;
         if (servicioUrl && promesaServicios) await promesaServicios.catch(() => undefined);
         const servicioResuelto = resolverServicio(servicio, servicioUrl);
         if (servicio && servicioResuelto && [...servicio.options].some(opcion => opcion.value === servicioResuelto)) servicio.value = servicioResuelto;
-        cargarTalleres(poblacion?.value || poblacionUrl, servicio?.value || servicioResuelto, true);
+        await cargarTalleres(
+            poblacion?.value || poblacionUrl,
+            servicio?.value || servicioResuelto,
+            true
+        );
+        await mostrarResultadosCuandoListos("auto");
     }
 
     function iniciar() {

@@ -1,0 +1,55 @@
+name: Generar municipios estáticos
+
+# Regeneración solicitada tras corregir alias municipales en Supabase.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/generate-static-municipios.mjs'
+      - 'package.json'
+      - '.github/workflows/generate-static-municipios.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generar 542 HTML municipales
+        run: npm run generate:municipios
+
+      - name: Verificar cantidad y ausencia de noindex
+        shell: bash
+        run: |
+          count=$(find municipios -maxdepth 1 -type f -name '*-[0-9][0-9][0-9][0-9][0-9].html' | wc -l)
+          echo "Municipios encontrados: $count"
+          test "$count" -eq 542
+          if grep -RIl '<meta name="robots" content="noindex' municipios --include='*.html'; then
+            echo 'ERROR: hay municipios con noindex'
+            exit 1
+          fi
+
+      - name: Guardar HTML generados
+        shell: bash
+        run: |
+          git config user.name 'TallerMap Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add municipios
+          if git diff --cached --quiet; then
+            echo 'No hay cambios que guardar.'
+          else
+            git commit -m 'Generar 542 municipios como HTML estático'
+            git push
+          fi

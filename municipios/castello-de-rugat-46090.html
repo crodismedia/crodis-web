@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">2 talleres publicados</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="Castelló de Rugat"
                     data-codigo-municipal="46090"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de Castelló de Rugat…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="jose-vicente-ribes-barbera-castello-de-rugat-99400add"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/jose-vicente-ribes-barbera-castello-de-rugat-99400add">José Vicente Ribes Barberá</a></h3><p class="ubicacion">⌖ Avinguda del Camí Real, 144, 46841, Castelló de Rugat, Valencia/València</p><p class="taller-descripcion">Taller mecánico de revisión, reparación y mantenimiento de vehículos.</p><div class="especialidades"><span>Baterias</span><span>Neumaticos</span><span>Mecanica General</span></div><details class="taller-horario"><summary>Ver horario semanal</summary><dl><div><dt>Lunes</dt><dd>08:00–13:30 y 15:30–20:00</dd></div><div><dt>Martes</dt><dd>08:00–13:30 y 15:30–20:00</dd></div><div><dt>Miércoles</dt><dd>08:00–13:30 y 15:30–20:00</dd></div><div><dt>Jueves</dt><dd>08:00–13:30 y 15:30–20:00</dd></div><div><dt>Viernes</dt><dd>08:00–13:30 y 15:30–20:00</dd></div><div><dt>Sábado</dt><dd>08:00–13:30</dd></div><div><dt>Domingo</dt><dd>Cerrado</dd></div></dl></details><div class="taller-pie"><span class="taller-contactos"><a href="tel:+34 962 814 084" aria-label="Llamar a José Vicente Ribes Barberá">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Jos%C3%A9%20Vicente%20Ribes%20Barber%C3%A1%2C%20Avinguda%20del%20Cam%C3%AD%20Real%2C%20144%2C%2046841%2C%20Castell%C3%B3%20de%20Rugat%2C%20Valencia%2FVal%C3%A8ncia%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a José Vicente Ribes Barberá">Cómo llegar</a></span></div></div></article><article class="taller-card" data-taller-index="1" data-taller-slug="tecnoauto-c-b-castello-de-rugat-bfabfb59"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/tecnoauto-c-b-castello-de-rugat-bfabfb59">Tecnoauto C.B.</a></h3><p class="ubicacion">⌖ Carretera Ràfol de Salem, 40, P.I. El Molí, 46841, Castelló de Rugat, Valencia/València</p><p class="taller-descripcion">Taller mecánico para reparación, mantenimiento, frenos, aceite y neumáticos.</p><div class="especialidades"><span>Cambio Aceite Filtros</span><span>Frenos</span><span>Neumaticos</span></div><details class="taller-horario"><summary>Ver horario semanal</summary><dl><div><dt>Lunes</dt><dd>08:00–13:30 y 15:30–18:30</dd></div><div><dt>Martes</dt><dd>08:00–13:30 y 15:30–18:30</dd></div><div><dt>Miércoles</dt><dd>08:00–13:30 y 15:30–18:30</dd></div><div><dt>Jueves</dt><dd>08:00–13:30 y 15:30–18:30</dd></div><div><dt>Viernes</dt><dd>08:00–13:30 y 15:30–18:30</dd></div><div><dt>Sábado</dt><dd>Cerrado</dd></div><div><dt>Domingo</dt><dd>Cerrado</dd></div></dl></details><div class="taller-pie"><span class="taller-contactos"><a href="tel:+34 962 814 283" aria-label="Llamar a Tecnoauto C.B.">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Tecnoauto%20C.B.%2C%20Carretera%20R%C3%A0fol%20de%20Salem%2C%2040%2C%20P.I.%20El%20Mol%C3%AD%2C%2046841%2C%20Castell%C3%B3%20de%20Rugat%2C%20Valencia%2FVal%C3%A8ncia%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a Tecnoauto C.B.">Cómo llegar</a><a href="https://tecnoautocb.com/" target="_blank" rel="noopener noreferrer">Web</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>

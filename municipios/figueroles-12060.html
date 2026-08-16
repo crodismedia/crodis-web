@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">1 taller publicado</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="Figueroles"
                     data-codigo-municipal="12060"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de Figueroles…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="jose-juan-beltran-porcar-figueroles-bf95894a"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/jose-juan-beltran-porcar-figueroles-bf95894a">José Juan Beltrán Porcar</a></h3><p class="ubicacion">⌖ Partida Casilla, s/n, 12122, Figueroles, Castellón/Castelló</p><p class="taller-descripcion">Taller dedicado a la reparación, mantenimiento y preparación de vehículos.</p><div class="especialidades"><span>Pre Itv</span><span>Diagnosis Electronica</span><span>Vehiculo Sustitucion</span><span>Lunas Cristales</span></div><div class="taller-pie"><span class="taller-contactos"><a href="tel:964760659" aria-label="Llamar a José Juan Beltrán Porcar">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Jos%C3%A9%20Juan%20Beltr%C3%A1n%20Porcar%2C%20Partida%20Casilla%2C%20s%2Fn%2C%2012122%2C%20Figueroles%2C%20Castell%C3%B3n%2FCastell%C3%B3%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a José Juan Beltrán Porcar">Cómo llegar</a><a href="https://beltranporcarjosejuan.lawebdetutaller.com/" target="_blank" rel="noopener noreferrer">Web</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>

@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">1 taller publicado</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="Montán"
                     data-codigo-municipal="12078"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de Montán…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="talleres-montan-s-c-montan-d7199df7"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/talleres-montan-s-c-montan-d7199df7">Talleres Montán S.C.</a></h3><p class="ubicacion">⌖ Polígono Industrial El Cuadrón, s/n, nave 31, 12447, Montán, Castellón/Castelló</p><p class="taller-descripcion">Taller de mantenimiento y reparación de vehículos.</p><div class="especialidades"><span>Mecanica General</span></div><div class="taller-pie"><span class="taller-contactos"><a href="tel:677841169" aria-label="Llamar a Talleres Montán S.C.">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Talleres%20Mont%C3%A1n%20S.C.%2C%20Pol%C3%ADgono%20Industrial%20El%20Cuadr%C3%B3n%2C%20s%2Fn%2C%20nave%2031%2C%2012447%2C%20Mont%C3%A1n%2C%20Castell%C3%B3n%2FCastell%C3%B3%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a Talleres Montán S.C.">Cómo llegar</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>

@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">1 taller publicado</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="Tuéjar"
                     data-codigo-municipal="46247"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de Tuéjar…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="talleres-tarba-s-l-tuejar-4f40af40"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/talleres-tarba-s-l-tuejar-4f40af40">Talleres Tarba S.L.</a></h3><p class="ubicacion">⌖ Avenida Don Ramón Villanueva Moreno, 123, 46177, Tuéjar, Valencia/València</p><p class="taller-descripcion">Taller mecánico de reparación y mantenimiento de automóviles.</p><div class="especialidades"><span>Reparacion Motor</span><span>Caja Cambios</span><span>Mantenimiento Programado</span><span>Frenos</span></div><details class="taller-horario"><summary>Ver horario semanal</summary><dl><div><dt>Lunes</dt><dd>08:00–14:00 y 16:00–20:30</dd></div><div><dt>Martes</dt><dd>08:00–14:00 y 16:00–20:30</dd></div><div><dt>Miércoles</dt><dd>08:00–14:00 y 16:00–20:30</dd></div><div><dt>Jueves</dt><dd>08:00–14:00 y 16:00–20:30</dd></div><div><dt>Viernes</dt><dd>08:00–14:00 y 16:00–20:30</dd></div><div><dt>Sábado</dt><dd>Cerrado</dd></div><div><dt>Domingo</dt><dd>Cerrado</dd></div></dl></details><div class="taller-pie"><span class="taller-contactos"><a href="tel:+34 961 635 045" aria-label="Llamar a Talleres Tarba S.L.">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Talleres%20Tarba%20S.L.%2C%20Avenida%20Don%20Ram%C3%B3n%20Villanueva%20Moreno%2C%20123%2C%2046177%2C%20Tu%C3%A9jar%2C%20Valencia%2FVal%C3%A8ncia%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a Talleres Tarba S.L.">Cómo llegar</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>

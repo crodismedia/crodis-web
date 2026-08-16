@@ -64,11 +64,19 @@
 
 /* Llamar y web: botones secundarios */
 .taller-card .taller-contactos a[href^="tel:"],
-.taller-card .taller-contactos a[href^="http"]:not(.enlace-google-maps):not(.enlace-ficha-taller) {
+.taller-card .taller-contactos a[href^="http"]:not(.enlace-google-maps):not(.enlace-ficha-taller):not(.accion-mapa) {
     color: #0b3b83;
     background: #eef5ff;
     border-color: #c8dcfa;
     box-shadow: 0 7px 16px rgba(20, 87, 217, .10);
+}
+
+/* Cómo llegar: botón azul principal */
+.taller-card .accion-mapa {
+    color: #fff !important;
+    background: linear-gradient(135deg, #1457d9, #0b43ad);
+    border-color: #0b43ad;
+    box-shadow: 0 10px 22px rgba(20, 87, 217, .25);
 }
 
 /* Ver ficha: botón azul principal */

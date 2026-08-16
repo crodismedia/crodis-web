@@ -1,0 +1,25 @@
+CORRECCION DE FORMATO DE TELEFONOS
+
+1. Descomprime los dos archivos dentro de:
+   F:\TallerMapPublicacion
+
+2. Abre CMD en esa carpeta y ejecuta:
+
+   node aplicar-formato-telefonos.mjs
+   npm run validate
+
+3. Si la validacion es correcta, elimina el instalador:
+
+   del aplicar-formato-telefonos.mjs
+
+Formatos cubiertos:
+
+   962900992       -> 962 900 992
+   +34962900992    -> +34 962 900 992
+   0034962900992   -> +34 962 900 992
+   34962900992     -> +34 962 900 992
+
+Los enlaces de llamada se conservan sin espacios:
+
+   tel:962900992
+   tel:+34962900992

@@ -141,7 +141,7 @@
                             Los resultados se obtienen de las fichas activas publicadas en TallerMap.
                         </p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">Buscando talleres…</span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">1 taller publicado</span>
                 </div>
 
                 <div
@@ -150,9 +150,7 @@
                     data-municipio="Quesa"
                     data-codigo-municipal="46206"
                     aria-live="polite"
-                >
-                    <p class="mensaje-talleres">Cargando talleres de Quesa…</p>
-                </div>
+                ><article class="taller-card" data-taller-index="0" data-taller-slug="benito-ballester-antonio-quesa-9bf5fa12"><div class="taller-informacion"><span class="verificado verificado-en-contenido">Verificado</span><h3><a class="enlace-ficha-taller" href="/talleres/benito-ballester-antonio-quesa-9bf5fa12">Benito Ballester Antonio</a></h3><p class="ubicacion">⌖ Avenida Valencia, 54, 46824, Quesa, Valencia/València</p><p class="taller-descripcion">Taller mecánico de reparación y mantenimiento de automóviles.</p><div class="especialidades"><span>Mantenimiento Programado</span><span>Mecanica General</span></div><div class="taller-pie"><span class="taller-contactos"><a href="tel:+34 962 256 018" aria-label="Llamar a Benito Ballester Antonio">Llamar</a><a class="accion-mapa" href="https://www.google.com/maps/search/?api=1&amp;query=Benito%20Ballester%20Antonio%2C%20Avenida%20Valencia%2C%2054%2C%2046824%2C%20Quesa%2C%20Valencia%2FVal%C3%A8ncia%2C%20Espa%C3%B1a" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a Benito Ballester Antonio">Cómo llegar</a></span></div></div></article></div>
 
                 <div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>
                     <button id="boton-cargar-mas" class="boton" type="button">Cargar más talleres</button>
@@ -218,9 +216,6 @@
             <span><a href="../pages/privacidad.html">Privacidad</a> · <a href="../pages/condiciones-publicacion.html">Condiciones</a></span>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-    <script src="../js/servicios.js"></script>
-    <script src="../js/municipio.js"></script>
+    <script src="../js/municipio-ui.js" defer></script>
 </body>
 </html>
