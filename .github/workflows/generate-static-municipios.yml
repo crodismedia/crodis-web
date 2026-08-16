@@ -1,5 +1,6 @@
 name: Generar municipios estáticos
 
+# Regeneración solicitada tras corregir alias municipales en Supabase.
 on:
   workflow_dispatch:
   push:
