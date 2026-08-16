@@ -5,51 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Área de concesionarios | TallerMap</title>
   <meta name="robots" content="noindex,follow">
-  <link rel="stylesheet" href="../css/estilo.css?v=20260816-1">
+  <link rel="stylesheet" href="../css/estilo.css?v=20260816-4">
   <style>
-    .panel-wrap{max-width:900px;margin:auto}.bloque{margin:20px 0;padding:20px;border:1px solid #dfe6ef;border-radius:16px;background:#fff}.bloque h2{margin-top:0}.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid-form label{display:grid;gap:6px;font-weight:800}.grid-form input,.grid-form select,.grid-form textarea{width:100%;padding:11px;border:1px solid #cfd8e3;border-radius:9px;background:#fff}.acciones{display:flex;flex-wrap:wrap;gap:10px}.vehiculo-demo{padding:14px 0;border-top:1px solid #edf1f6}.estado-opciones{display:flex;flex-wrap:wrap;gap:12px}.nota{padding:12px 14px;border-radius:10px;background:#f3f7ff}@media(max-width:700px){.grid-form{grid-template-columns:1fr}}
+    .panel-wrap{max-width:900px;margin:auto}.bloque{margin:20px 0;padding:20px;border:1px solid #dfe6ef;border-radius:16px;background:#fff}.bloque h2{margin-top:0}.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid-form label{display:grid;gap:6px;font-weight:800}.grid-form input,.grid-form select,.grid-form textarea{width:100%;padding:11px;border:1px solid #cfd8e3;border-radius:9px;background:#fff}.acciones{display:flex;flex-wrap:wrap;gap:10px}.vehiculo-demo{padding:14px 0;border-top:1px solid #edf1f6}.estado-opciones{display:flex;flex-wrap:wrap;gap:12px}.nota{padding:12px 14px;border-radius:10px;background:#f3f7ff}.demo-link{display:inline-flex;padding:12px 18px;border:1px solid #8db3e5;border-radius:10px;font-weight:900;text-decoration:none}@media(max-width:700px){.grid-form{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><span class="marca-texto"><strong>TallerMap</strong><small>Área profesional</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="#acceso">Acceso</a><a href="#establecimiento">Establecimiento</a><a href="#vehiculos">Vehículos</a></nav></div></header>
 <main class="seccion"><div class="contenedor panel-wrap">
   <div class="titulo-seccion alineado-izquierda"><span>Concesionarios y compraventas</span><h1>Gestión del establecimiento</h1><p>Prototipo HTML sin JavaScript. La autenticación y los guardados se conectarán después mediante lógica de servidor.</p></div>
-
-  <section class="bloque" id="acceso">
-    <h2>Acceso del propietario</h2>
-    <form method="post" action="/api/concesionarios/login">
-      <div class="grid-form">
-        <label>Correo o usuario<input name="identificador" autocomplete="username" required></label>
-        <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
-      </div>
-      <div class="acciones"><button class="boton" type="submit">Iniciar sesión</button><a class="boton" href="recuperar-acceso.html">He olvidado mi acceso</a></div>
-    </form>
-  </section>
-
-  <section class="bloque" id="establecimiento">
-    <h2>Añadir establecimiento</h2>
-    <form method="post" action="/api/concesionarios/establecimientos" enctype="multipart/form-data">
-      <div class="grid-form">
-        <label>Nombre del establecimiento<input name="nombre" required></label>
-        <label>Tipo<select name="tipo" required><option value="">Selecciona</option><option value="oficial">Concesionario oficial</option><option value="ocasion">Vehículos de ocasión</option><option value="segunda-mano">Vehículos de segunda mano</option></select></label>
-        <label>Dirección<input name="direccion" required></label>
-        <label>Municipio<input name="municipio" required></label>
-        <label>Provincia<input name="provincia" required></label>
-        <label>Teléfono<input name="telefono" type="tel"></label>
-        <label>Correo<input name="email" type="email" required></label>
-        <label>Web<input name="web" type="url" placeholder="https://"></label>
-      </div>
-      <p class="nota">Las imágenes del establecimiento tendrán su propio límite y se optimizarán antes de almacenarse.</p>
-      <button class="boton" type="submit">Guardar establecimiento</button>
-    </form>
-  </section>
-
-  <section class="bloque" id="vehiculos">
-    <h2>Mis vehículos</h2>
-    <p>El establecimiento podrá publicar una cantidad ilimitada de vehículos.</p>
-    <div class="acciones"><a class="boton" href="anadir-vehiculo.html">+ Añadir vehículo</a></div>
-    <article class="vehiculo-demo"><strong>BMW Serie 3 318d</strong><p>22.900 € · 2021 · 68.000 km</p><div class="estado-opciones"><span>Disponible</span><span>Reservado</span><span>Vendido</span></div><div class="acciones"><a href="anadir-vehiculo.html">Editar</a><a href="anadir-vehiculo.html#fotos">Gestionar 8 fotos</a><a href="#">Eliminar definitivamente</a></div></article>
-  </section>
-</div></main>
-</body>
-</html>
+  <section class="bloque" id="acceso"><h2>Acceso del propietario</h2><form method="post" action="/api/concesionarios/login"><div class="grid-form"><label>Correo o usuario<input name="identificador" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label></div><div class="acciones"><button class="boton" type="submit">Iniciar sesión</button><a class="boton" href="recuperar-acceso.html">He olvidado mi acceso</a><a class="demo-link" href="panel-propietario.html">Ver panel de demostración</a></div></form></section>
+  <section class="bloque" id="establecimiento"><h2>Añadir establecimiento</h2><form method="post" action="/api/concesionarios/establecimientos" enctype="multipart/form-data"><div class="grid-form"><label>Nombre del establecimiento<input name="nombre" required></label><label>Tipo<select name="tipo" required><option value="">Selecciona</option><option value="oficial">Concesionario oficial</option><option value="ocasion">Vehículos de ocasión</option><option value="segunda-mano">Vehículos de segunda mano</option></select></label><label>Dirección<input name="direccion" required></label><label>Municipio<input name="municipio" required></label><label>Provincia<input name="provincia" required></label><label>Teléfono<input name="telefono" type="tel"></label><label>Correo<input name="email" type="email" required></label><label>Web<input name="web" type="url" placeholder="https://"></label></div><p class="nota">Las imágenes del establecimiento tendrán su propio límite y se optimizarán antes de almacenarse.</p><button class="boton" type="submit">Guardar establecimiento</button></form></section>
+  <section class="bloque" id="vehiculos"><h2>Mis vehículos</h2><p>El establecimiento podrá publicar una cantidad ilimitada de vehículos.</p><div class="acciones"><a class="boton" href="anadir-vehiculo.html">+ Añadir vehículo</a><a class="demo-link" href="panel-propietario.html">Gestionar vehículos</a></div></section>
+</div></main></body></html>
