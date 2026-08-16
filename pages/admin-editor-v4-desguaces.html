@@ -16,6 +16,7 @@
     .v4d-preview-row{padding:9px 10px;border:1px solid var(--v4-border);border-radius:9px;background:#fff;font-size:.82rem}
     .v4d-preview-row.ok{border-color:#86efac;background:#f0fdf4}.v4d-preview-row.error{border-color:#fca5a5;background:#fef2f2}.v4d-preview-row.duplicate{border-color:#fcd34d;background:#fffbeb}
     .v4d-preview-row strong{display:block}.v4d-preview-row small{display:block;color:#667085;margin-top:2px}
+    .v4d-help{padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;margin:10px 0;font-size:.84rem;line-height:1.45}
     @media(max-width:560px){.v4d-import-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
@@ -41,14 +42,14 @@
 
     <section class="v4d-import" aria-labelledby="v4d-import-title">
       <h2 id="v4d-import-title">Importar CSV por lote</h2>
-      <p class="v4-status">Primero se comprueba el archivo. <strong>Comprobar CSV no guarda nada en Supabase.</strong></p>
+      <div class="v4d-help"><strong>1.</strong> Elige el CSV. Se comprobará automáticamente y no se guardará nada todavía.<br><strong>2.</strong> Revisa abajo cuántas filas son válidas y los errores detectados.<br><strong>3.</strong> Solo entonces se habilitará <strong>Importar válidos en Supabase</strong>.</div>
       <div class="v4-field"><label for="v4d-csv">Archivo CSV</label><input id="v4d-csv" type="file" accept=".csv,text/csv"></div>
       <div class="v4-actions">
-        <button id="v4d-comprobar-csv" class="v4-btn v4-primary" type="button">Comprobar CSV</button>
+        <button id="v4d-comprobar-csv" class="v4-btn v4-primary" type="button">Volver a comprobar CSV</button>
         <button id="v4d-importar-csv" class="v4-btn v4-green" type="button" disabled>Importar válidos en Supabase</button>
         <button id="v4d-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button>
       </div>
-      <div id="v4d-csv-estado" class="v4-status">Selecciona un archivo para comprobarlo.</div>
+      <div id="v4d-csv-estado" class="v4-status">Selecciona un archivo CSV. La comprobación empezará automáticamente.</div>
       <div class="v4d-import-grid">
         <div><strong id="v4d-csv-total">0</strong><span>Filas</span></div>
         <div><strong id="v4d-csv-validas">0</strong><span>Válidas</span></div>
@@ -91,6 +92,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-editor-v4-horarios.js?v=1"></script>
-<script src="../js/admin-editor-v4-desguaces.js?v=2"></script>
+<script src="../js/admin-editor-v4-desguaces.js?v=3"></script>
+<script>
+  document.addEventListener('DOMContentLoaded',function(){
+    var input=document.getElementById('v4d-csv');
+    var check=document.getElementById('v4d-comprobar-csv');
+    if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}
+  });
+</script>
 </body>
 </html>
