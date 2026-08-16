@@ -6,6 +6,15 @@
     const botonMagicLink = document.getElementById("boton-magic-link");
     const campoEmail = document.getElementById("email-admin");
 
+    function destinoSeguro() {
+        const solicitado = new URLSearchParams(window.location.search).get("next") || "admin.html";
+        return /^[a-z0-9-]+\.html(?:\?[a-z0-9_=&%.-]*)?$/i.test(solicitado)
+            ? solicitado
+            : "admin.html";
+    }
+
+    const destino = destinoSeguro();
+
     function mostrar(texto, tipo) {
         mensaje.textContent = texto;
         mensaje.className = `mensaje-formulario mensaje-${tipo}`;
@@ -17,7 +26,7 @@
         if (!session) return;
         const { data: esAdministrador } = await window.supabaseClient.rpc("es_administrador");
         if (esAdministrador) {
-            window.location.replace("admin.html");
+            window.location.replace(destino);
         } else {
             await window.supabaseClient.auth.signOut();
         }
@@ -47,7 +56,7 @@
             mostrar("Esta cuenta no tiene permisos de administración.", "error");
             return;
         }
-        window.location.replace("admin.html");
+        window.location.replace(destino);
     });
 
     botonMagicLink?.addEventListener("click", async () => {
@@ -60,11 +69,11 @@
 
         botonMagicLink.disabled = true;
         botonMagicLink.textContent = "Enviando enlace...";
-        const destino = new URL("admin.html", window.location.href).href;
+        const redirect = new URL(destino, window.location.href).href;
         const { error } = await window.supabaseClient.auth.signInWithOtp({
             email,
             options: {
-                emailRedirectTo: destino,
+                emailRedirectTo: redirect,
                 shouldCreateUser: false
             }
         });
