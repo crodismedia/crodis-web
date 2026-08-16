@@ -69,11 +69,26 @@
     </form>
   </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="../js/supabase.js"></script><script src="../js/admin-editor-v4-desguaces-horarios.js?v=4"></script><script src="../js/admin-editor-v4-desguaces.js?v=5"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script>
+(function(){
+  var sb=window.supabaseClient;
+  if(!sb||typeof sb.rpc!=='function')return;
+  var rpcReal=sb.rpc.bind(sb);
+  sb.rpc=function(nombre,args,opts){
+    if(nombre==='admin_listar_desguaces') return Promise.resolve({data:[],error:null});
+    return rpcReal(nombre,args,opts);
+  };
+})();
+</script>
+<script src="../js/admin-editor-v4-desguaces-horarios.js?v=4"></script>
+<script src="../js/admin-editor-v4-desguaces.js?v=6"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   var input=document.getElementById('v4d-csv'),check=document.getElementById('v4d-comprobar-csv');
   if(input&&check)input.addEventListener('change',function(){if(input.files&&input.files.length)setTimeout(function(){check.click();},80);});
+  setTimeout(function(){var nuevo=document.getElementById('v4d-nuevo');if(nuevo)nuevo.click();},250);
   var limpiar=document.getElementById('v4d-limpiar');if(limpiar)limpiar.addEventListener('click',function(){var nuevo=document.getElementById('v4d-nuevo');if(nuevo)nuevo.click();});
 });
 </script>
