@@ -1,9 +1,9 @@
 {
+  "id": "/pages/admin-editor-v4.html",
   "name": "TallerMap Editor",
   "short_name": "TM Editor",
   "description": "Editor administrativo V4 de TallerMap",
   "lang": "es",
-  "id": "/pages/admin-editor-v4.html",
   "start_url": "/pages/admin-editor-v4.html?source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -13,16 +13,16 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/icons/tallermap-editor-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/icons/tallermap-editor-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
