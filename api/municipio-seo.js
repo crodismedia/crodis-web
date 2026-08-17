@@ -81,6 +81,46 @@ const SEO_OVERRIDES = {
             </div>
         </section>
 `
+  },
+  "alacant-alicante-03014.html": {
+    originalName: "Alacant/Alicante",
+    originalDescription: "Encuentra talleres mecánicos publicados en Alacant/Alicante. Consulta servicios, dirección, teléfono y horarios en TallerMap. Código municipal 03014.",
+    title: "Talleres mecánicos en Alicante (Alacant) | TallerMap",
+    description: "Encuentra talleres mecánicos en Alicante (Alacant). Consulta dirección, teléfono, horarios, servicios, ficha del taller y cómo llegar desde TallerMap.",
+    heading: "Talleres mecánicos en Alicante (Alacant)",
+    schemaName: "Talleres mecánicos en Alicante (Alacant)",
+    intro: `
+                            Encuentra <strong>talleres mecánicos en Alicante (Alacant)</strong> para reparación,
+                            mantenimiento y servicios de automoción. Consulta fichas con dirección, teléfono,
+                            horarios, servicios disponibles y acceso a cómo llegar antes de contactar.
+                        `,
+    searchHeading: "Buscar taller mecánico en Alicante",
+    resultsHeading: "Talleres mecánicos publicados en Alicante",
+    resultsText: "Consulta talleres de automoción publicados en Alicante capital y accede a la ficha de cada negocio para revisar sus datos disponibles.",
+    localSection: `
+        <section class="seccion municipio-seo-local" aria-labelledby="seo-alicante-titulo">
+            <div class="contenedor">
+                <div class="titulo-seccion alineado-izquierda">
+                    <span>Directorio de automoción en Alicante</span>
+                    <h2 id="seo-alicante-titulo">Encuentra taller mecánico en Alicante por servicio</h2>
+                    <p>
+                        TallerMap reúne talleres de automoción publicados en Alicante capital. Puedes consultar
+                        opciones de <a href="../servicios/mecanica-general.html">mecánica general</a>,
+                        <a href="../servicios/neumaticos.html">neumáticos</a>,
+                        <a href="../servicios/chapa-pintura.html">chapa y pintura</a>,
+                        <a href="../servicios/diagnosis-electronica.html">diagnosis electrónica</a>,
+                        <a href="../servicios/aire-acondicionado.html">aire acondicionado</a> y
+                        <a href="../servicios/hibridos-electricos.html">híbridos y eléctricos</a>.
+                    </p>
+                    <p>
+                        Cada ficha enlazada desde este directorio muestra los datos disponibles del taller, como
+                        dirección, teléfono, horario, servicios y acceso a cómo llegar. Si buscas opciones fuera de
+                        la capital, consulta también los <a href="../provincias/alicante.html">talleres de la provincia de Alicante</a>.
+                    </p>
+                </div>
+            </div>
+        </section>
+`
   }
 };
 
