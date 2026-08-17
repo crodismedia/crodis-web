@@ -63,16 +63,24 @@ function postalAddress(workshop) {
     };
 }
 
+function esAlicante(workshop) {
+    const provincia = String(workshop?.provincia || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("es");
+    return provincia.includes("alicante") || provincia.includes("alacant");
+}
+
 function renderServices(workshop) {
-    const services = Array.isArray(workshop?.servicios) ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 16) : [];
+    const services = Array.isArray(workshop?.servicios) ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 24) : [];
     if (!services.length) return '<span>Taller mecánico</span>';
     return services.map((service) => `<span>${escapeHTML(service)}</span>`).join("");
 }
 
-function renderSchedule(schedule) {
+function scheduleRows(schedule) {
     if (!schedule || typeof schedule !== "object") return "";
     const days = [["lunes", "Lunes"], ["martes", "Martes"], ["miercoles", "Miércoles"], ["jueves", "Jueves"], ["viernes", "Viernes"], ["sabado", "Sábado"], ["domingo", "Domingo"]];
-    const rows = days.map(([key, label]) => {
+    return days.map(([key, label]) => {
         const value = schedule[key];
         if (!value) return "";
         const text = value.cerrado ? "Cerrado" : (Array.isArray(value.turnos) ? value.turnos : [])
@@ -81,7 +89,13 @@ function renderSchedule(schedule) {
             .join(" y ");
         return text ? `<div><dt>${label}</dt><dd>${escapeHTML(text)}</dd></div>` : "";
     }).filter(Boolean).join("");
-    return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
+}
+
+function renderSchedule(schedule, visible = false) {
+    const rows = scheduleRows(schedule);
+    if (!rows) return "";
+    if (visible) return `<dl class="taller-horario-visible">${rows}</dl>`;
+    return `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>`;
 }
 
 function openingHoursSpecifications(schedule) {
@@ -176,6 +190,11 @@ function renderRelated(rows, workshop) {
     return { title, cards, state };
 }
 
+function renderAlicanteGenericCover(workshop) {
+    const horario = renderSchedule(workshop?.horarios, true);
+    return `<div id="taller-foto" class="ficha-publica-foto ficha-publica-portada-verde"><div class="tm-auto-portada tm-auto-portada-grande tm-auto-portada-horario" role="group" aria-label="Horario de atención"><div class="tm-portada-identidad" aria-hidden="true"><img src="/favicon.svg" alt="" width="58" height="58"><strong>TallerMap</strong><span>Conectamos conductores<br>con talleres de confianza</span></div><div class="tm-portada-horario-contenido"><h2><span aria-hidden="true">◷</span> Horario de atención</h2>${horario || '<p class="taller-horario-no-disponible">Horario no disponible</p>'}</div></div></div>`;
+}
+
 function renderPhoto(workshop, name) {
     const source = workshopPhotoSource(workshop);
     if (source.url) {
@@ -184,6 +203,7 @@ function renderPhoto(workshop, name) {
     if (source.path) {
         return `<div id="taller-foto" class="ficha-publica-foto" data-foto-ruta="${escapeHTML(source.path)}"></div>`;
     }
+    if (esAlicante(workshop)) return renderAlicanteGenericCover(workshop);
     return '<div id="taller-foto" class="ficha-publica-foto" hidden></div>';
 }
 
@@ -208,11 +228,13 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
     const updated = formatDate(workshop?.updated_at);
     const verified = Boolean(workshop?.verificado);
     const image = primaryImage(workshop);
+    const rolloutAlicante = esAlicante(workshop);
 
     const actions = [];
     if (phone) actions.push(`<a class="boton accion-principal" href="tel:${escapeHTML(phone)}">☎ Llamar ahora</a>`);
+    if (rolloutAlicante && whatsapp) actions.push(`<a class="boton accion-whatsapp" href="https://wa.me/${whatsapp}?text=${encodeURIComponent("Hola, he encontrado vuestro taller en TallerMap y quisiera pedir información.")}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`);
     if (address) actions.push(`<a class="boton boton-claro accion-mapa" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${address}, España`)}" target="_blank" rel="noopener noreferrer">⌖ Cómo llegar</a>`);
-    if (whatsapp) actions.push(`<a class="boton accion-whatsapp" href="https://wa.me/${whatsapp}?text=${encodeURIComponent("Hola, he encontrado vuestro taller en TallerMap y quisiera pedir información.")}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`);
+    if (!rolloutAlicante && whatsapp) actions.push(`<a class="boton accion-whatsapp" href="https://wa.me/${whatsapp}?text=${encodeURIComponent("Hola, he encontrado vuestro taller en TallerMap y quisiera pedir información.")}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`);
     if (web) actions.push(`<a class="boton boton-claro accion-web" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Página web</a>`);
 
     const dataRows = [];
@@ -221,8 +243,10 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
     if (workshop?.codigo_postal) dataRows.push(`<p><strong>Código postal:</strong> ${escapeHTML(workshop.codigo_postal)}</p>`);
     if (city) dataRows.push(`<p><strong>Municipio:</strong> ${escapeHTML(city)}</p>`);
     if (province) dataRows.push(`<p><strong>Provincia:</strong> ${escapeHTML(province)}</p>`);
-    const schedule = renderSchedule(workshop?.horarios);
-    if (schedule) dataRows.push(schedule);
+    if (!rolloutAlicante) {
+        const schedule = renderSchedule(workshop?.horarios);
+        if (schedule) dataRows.push(schedule);
+    }
 
     const crumbs = [
         '<a href="/">Inicio</a>',
@@ -232,6 +256,9 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
     ].filter(Boolean).join("");
 
     const related = renderRelated(relatedRows, workshop);
+    const servicesMarkup = rolloutAlicante
+        ? `<section class="ficha-servicios-ofrecidos" aria-labelledby="servicios-ofrecidos-titulo"><h2 id="servicios-ofrecidos-titulo">Servicios que se ofrecen</h2><p>Servicios confirmados en esta ficha</p><div id="taller-servicios" class="especialidades especialidades-destacadas">${renderServices(workshop)}</div></section>`
+        : `<div id="taller-servicios" class="especialidades">${renderServices(workshop)}</div>`;
 
     html = html
         .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHTML(title)}</title>`)
@@ -244,10 +271,10 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
         .replace(/<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">[\s\S]*?<\/nav>/i, `<nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">${crumbs}</nav>`)
         .replace(/<span id="taller-verificacion" class="ficha-insignia">[\s\S]*?<\/span>/i, `<span id="taller-verificacion" class="ficha-insignia${verified ? " verificada" : ""}">${reviewStatusLabel(verified)}</span>`)
         .replace(/<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/i, `<span id="taller-actualizacion" class="ficha-fecha">${updated ? `Última actualización: ${escapeHTML(updated)}` : ""}</span>`)
-        .replace(/<div id="taller-acciones" class="ficha-publica-acciones">[\s\S]*?<\/div>/i, `<div id="taller-acciones" class="ficha-publica-acciones">${actions.join("")}</div>`)
+        .replace(/<div id="taller-acciones" class="ficha-publica-acciones">[\s\S]*?<\/div>/i, `<div id="taller-acciones" class="ficha-publica-acciones${rolloutAlicante ? " ficha-publica-acciones-alicante" : ""}">${actions.join("")}</div>`)
         .replace(/<p id="taller-descripcion">[\s\S]*?<\/p>/i, `<p id="taller-descripcion">${escapeHTML(description)}</p>`)
-        .replace(/<div id="taller-servicios" class="especialidades">[\s\S]*?<\/div>/i, `<div id="taller-servicios" class="especialidades">${renderServices(workshop)}</div>`)
-        .replace(/<div id="taller-datos" class="ficha-publica-datos">[\s\S]*?<\/div>/i, `<div id="taller-datos" class="ficha-publica-datos">${dataRows.join("")}</div>`)
+        .replace(/<div id="taller-servicios" class="especialidades">[\s\S]*?<\/div>/i, servicesMarkup)
+        .replace(/<div id="taller-datos" class="ficha-publica-datos">[\s\S]*?<\/div>/i, `<div id="taller-datos" class="ficha-publica-datos${rolloutAlicante ? " ficha-publica-datos-alicante" : ""}">${dataRows.join("")}</div>`)
         .replace(/<h2 id="relacionados-titulo">[\s\S]*?<\/h2>/i, `<h2 id="relacionados-titulo">${escapeHTML(related.title)}</h2>`)
         .replace(/<p id="relacionados-estado" class="ficha-cargando">[\s\S]*?<\/p>/i, related.state)
         .replace(/<div id="talleres-relacionados" class="ficha-relacionados-lista">[\s\S]*?<\/div>/i, `<div id="talleres-relacionados" class="ficha-relacionados-lista">${related.cards}</div>`)
@@ -337,7 +364,7 @@ export default async function handler(request, response) {
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=3600");
         response.setHeader("X-TallerMap-HTML-First", "1");
-        response.setHeader("X-TallerMap-Ficha-SSR", "2");
+        response.setHeader("X-TallerMap-Ficha-SSR", "3");
         response.setHeader("X-TallerMap-Canonical-Slug", canonicalSlug);
         response.status(200).send(html);
     } catch (error) {
