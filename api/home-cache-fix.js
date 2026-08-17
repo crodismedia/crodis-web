@@ -2,8 +2,38 @@ import fs from "node:fs";
 import path from "node:path";
 import homeHandler from "./home.js";
 
-const BUSQUEDA_VERSION = "20260817-4";
-const AUTOCOMPLETE_VERSION = "20260817-4";
+const BUSQUEDA_VERSION = "20260817-5";
+const AUTOCOMPLETE_VERSION = "20260817-5";
+
+const ROUTER_GLOBAL = `
+<script>
+(function(){
+  document.addEventListener('submit', function(event){
+    var form = event.target;
+    if (!form || form.id !== 'formulario-buscador-publico') return;
+
+    var poblacion = document.getElementById('poblacion');
+    var servicio = document.getElementById('servicio');
+    var nombre = String(poblacion && poblacion.value || '').trim();
+    if (!nombre) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var params = new URLSearchParams();
+    params.set('poblacion', nombre);
+
+    var codigo = String(poblacion && poblacion.dataset.codigoMunicipal || '').trim();
+    if (/^\\d{5}$/.test(codigo)) params.set('codigo_municipal', codigo);
+
+    var servicioSeleccionado = String(servicio && servicio.value || '').trim();
+    if (servicioSeleccionado) params.set('servicio', servicioSeleccionado);
+
+    window.location.assign('/?' + params.toString() + '#talleres');
+  }, true);
+}());
+</script>
+`;
 
 function slugify(value) {
   return String(value || "")
@@ -59,7 +89,7 @@ function buscarArchivoMunicipio(valor, codigoMunicipal = "") {
 function actualizarVersiones(html) {
   if (typeof html !== "string") return html;
 
-  return html
+  let output = html
     .replace(
       /js\/busqueda-url\.js(?:\?[^\"']*)?/g,
       `js/busqueda-url.js?v=${BUSQUEDA_VERSION}`
@@ -68,6 +98,12 @@ function actualizarVersiones(html) {
       /js\/autocomplete-municipios\.js(?:\?[^\"']*)?/g,
       `js/autocomplete-municipios.js?v=${AUTOCOMPLETE_VERSION}`
     );
+
+  if (!output.includes("params.set('codigo_municipal'")) {
+    output = output.replace(/<\/body>/i, `${ROUTER_GLOBAL}</body>`);
+  }
+
+  return output;
 }
 
 export default async function handler(request, response) {
