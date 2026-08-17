@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talleres por provincia | TallerMap</title>
+  <meta name="description" content="Elige provincia para consultar talleres mecánicos publicados en Alicante, Castellón o Valencia.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://www.tallermap.es/talleres.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css?v=20260809-5">
+  <style>
+    .selector-talleres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:28px}
+    .selector-taller{display:flex;flex-direction:column;gap:8px;padding:24px;border:1px solid #dfe6ef;border-radius:16px;background:#fff;color:#071a33;text-decoration:none;box-shadow:0 8px 22px rgba(20,36,64,.06);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+    .selector-taller strong{font-size:1.12rem}.selector-taller span{color:#68758a;line-height:1.45}
+    .selector-taller:hover,.selector-taller:focus-visible{transform:translateY(-2px);border-color:#1457d9;box-shadow:0 12px 28px rgba(20,87,217,.12);outline:none}
+    @media(max-width:750px){.selector-talleres{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de talleres de automoción</span><a href="/">TallerMap</a></div></div>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/talleres.html" aria-current="page">Talleres</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html">Coches</a></nav></div></header>
+<main>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="titulo-seccion"><span>Directorio de talleres</span><h1>Elige una provincia</h1><p>Selecciona la provincia para ver sus talleres y después navegar por municipios.</p></div>
+      <div class="selector-talleres">
+        <a class="selector-taller" href="/provincias/alicante.html"><strong>Alicante / Alacant</strong><span>Ver talleres de la provincia de Alicante</span></a>
+        <a class="selector-taller" href="/provincias/castellon.html"><strong>Castellón / Castelló</strong><span>Ver talleres de la provincia de Castellón</span></a>
+        <a class="selector-taller" href="/provincias/valencia.html"><strong>Valencia / València</strong><span>Ver talleres de la provincia de Valencia</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div></footer>
+</body>
+</html>
