@@ -156,12 +156,21 @@
                 if (!respuesta.ok) throw new Error("No se pudo resolver la ubicación");
                 const datos = await respuesta.json();
                 const d = datos.address || {};
-                const localidad = d.town || d.village || d.city || d.municipality || d.city_district || "";
+                const localidad = d.city || d.town || d.village || d.municipality || d.city_district || "";
                 const cp = String(d.postcode || "").match(/^\d{5}$/)?.[0] || "";
-                if (localidad || cp) poblacion.value = localidad || cp;
-                estado.textContent = localidad ? `Ubicación detectada: ${localidad}${cp?` (${cp})`:""}.` : "Ubicación detectada.";
+                if (!localidad && !cp) throw new Error("No se pudo identificar la población");
+
+                poblacion.value = localidad || cp;
+                radio.value = "";
+                actualizarUrlRadio("");
+                estado.textContent = localidad
+                    ? `Ubicación detectada: ${localidad}${cp?` (${cp})`:""}. Buscando talleres de esta población…`
+                    : `Código postal detectado: ${cp}. Buscando talleres…`;
+
+                formulario.requestSubmit();
             } catch (error) {
-                estado.textContent = "No se pudo obtener tu ubicación. Revisa el permiso de ubicación.";
+                console.error("Ubicación por población:", error);
+                estado.textContent = "No se pudo obtener tu población. Revisa el permiso de ubicación.";
             } finally {
                 ubicacion.disabled = false;
                 ubicacion.textContent = "Usar mi ubicación";
