@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import homeHandler from "./home.js";
 
-const BUSQUEDA_VERSION = "20260817-5";
-const AUTOCOMPLETE_VERSION = "20260817-5";
+const BUSQUEDA_VERSION = "20260817-6";
+const AUTOCOMPLETE_VERSION = "20260817-6";
 
 const ROUTER_GLOBAL = `
 <script>
