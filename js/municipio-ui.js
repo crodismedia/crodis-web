@@ -14,7 +14,51 @@
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+  const normalizarEtiquetaServicio = (value) => {
+    let texto = String(value || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLocaleLowerCase('es-ES');
+
+    if (!texto) return '';
+
+    const acronimos = [
+      [/\bpre[\s-]*itv\b/gi, 'Pre-ITV'],
+      [/\bitv\b/gi, 'ITV'],
+      [/\badas\b/gi, 'ADAS'],
+      [/\babs\b/gi, 'ABS'],
+      [/\bobd\b/gi, 'OBD'],
+      [/\bdpf\b/gi, 'DPF'],
+      [/\bfap\b/gi, 'FAP'],
+      [/\begr\b/gi, 'EGR'],
+      [/\bglp\b/gi, 'GLP'],
+      [/\bsuv\b/gi, 'SUV'],
+      [/\bev\b/gi, 'EV']
+    ];
+
+    acronimos.forEach(([patron, reemplazo]) => {
+      texto = texto.replace(patron, reemplazo);
+    });
+
+    return texto.charAt(0).toLocaleUpperCase('es-ES') + texto.slice(1);
+  };
+
   const serviceSlugByLabel = new Map();
+  const serviceNameBySlug = new Map();
+
+  const espaciarNombresMunicipio = () => {
+    document
+      .querySelectorAll('.municipio-hero h1, .migas span, #talleres h2, .municipio-faq h2')
+      .forEach(element => {
+        if (element.children.length) return;
+        const texto = String(element.textContent || '');
+        if (!texto.includes('/')) return;
+        element.textContent = texto
+          .replace(/\s*\/\s*/g, ' / ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      });
+  };
 
   const cargarCatalogoServicios = async () => {
     try {
@@ -39,10 +83,14 @@
 
       servicios.forEach(servicio => {
         const slug = String(servicio?.slug || '').trim();
-        const nombre = String(servicio?.nombre || slug).trim();
+        const nombreOriginal = String(servicio?.nombre || slug).trim();
+        const nombre = normalizarEtiquetaServicio(nombreOriginal);
         if (!slug || !nombre) return;
+
         select.appendChild(new Option(nombre, slug));
+        serviceSlugByLabel.set(slugify(nombreOriginal), slug);
         serviceSlugByLabel.set(slugify(nombre), slug);
+        serviceNameBySlug.set(slug, nombre);
       });
 
       if ([...select.options].some(option => option.value === valorActual)) {
@@ -51,13 +99,38 @@
     } catch (error) {
       console.warn('No se pudo cargar el catálogo completo de servicios; se mantiene el catálogo incluido en el HTML.', error);
       [...select.options].forEach(option => {
-        if (option.value) serviceSlugByLabel.set(slugify(option.textContent), option.value);
+        if (!option.value) return;
+        const nombreOriginal = String(option.textContent || '').trim();
+        const nombre = normalizarEtiquetaServicio(nombreOriginal);
+        option.textContent = nombre;
+        serviceSlugByLabel.set(slugify(nombreOriginal), option.value);
+        serviceSlugByLabel.set(slugify(nombre), option.value);
+        serviceNameBySlug.set(option.value, nombre);
       });
     }
   };
 
+  const formatearEtiquetasServicios = () => {
+    list.querySelectorAll('.especialidades span').forEach(span => {
+      const original = String(span.textContent || '').trim();
+      if (!original) return;
+
+      if (!span.dataset.servicioOriginal) {
+        span.dataset.servicioOriginal = original;
+      }
+
+      const slugOriginal = slugify(original);
+      const slugServicio = serviceSlugByLabel.get(slugOriginal) || '';
+      const nombreCanonico = slugServicio ? serviceNameBySlug.get(slugServicio) : '';
+
+      span.textContent = nombreCanonico || normalizarEtiquetaServicio(original);
+    });
+  };
+
   const iniciar = async () => {
+    espaciarNombresMunicipio();
     await cargarCatalogoServicios();
+    formatearEtiquetasServicios();
 
     const options = Array.from(select.options);
     const wrapper = document.createElement('div');
@@ -90,7 +163,10 @@
     };
 
     options.forEach(option => {
-      if (option.value) serviceSlugByLabel.set(slugify(option.textContent), option.value);
+      if (option.value) {
+        serviceSlugByLabel.set(slugify(option.textContent), option.value);
+        serviceNameBySlug.set(option.value, normalizarEtiquetaServicio(option.textContent));
+      }
       const item = document.createElement('button');
       item.type = 'button';
       item.className = 'servicio-personalizado-opcion';
@@ -136,7 +212,8 @@
 
     const cardServices = card => Array.from(card.querySelectorAll('.especialidades span'))
       .map(span => {
-        const labelSlug = slugify(span.textContent);
+        const textoOriginal = span.dataset.servicioOriginal || span.textContent;
+        const labelSlug = slugify(textoOriginal);
         return serviceSlugByLabel.get(labelSlug) || labelSlug;
       });
 
