@@ -21,6 +21,7 @@
   "rewrites": [
     { "source": "/", "destination": "/api/home" },
     { "source": "/talleres/:slug", "destination": "/api/taller-html?slug=:slug" },
+    { "source": "/municipios/valencia-46250.html", "destination": "/api/municipio-seo?archivo=valencia-46250.html" },
     { "source": "/provincias/:provincia.html", "destination": "/api/provincia?provincia=:provincia" },
     { "source": "/servicios/mecanica-general.html", "destination": "/api/servicio?servicio=mecanica-general" },
     { "source": "/servicios/neumaticos.html", "destination": "/api/servicio?servicio=neumaticos" },
