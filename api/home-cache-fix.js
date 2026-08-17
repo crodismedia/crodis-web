@@ -1,7 +1,49 @@
+import fs from "node:fs";
+import path from "node:path";
 import homeHandler from "./home.js";
 
-const BUSQUEDA_VERSION = "20260817-2";
-const AUTOCOMPLETE_VERSION = "20260817-2";
+const BUSQUEDA_VERSION = "20260817-3";
+const AUTOCOMPLETE_VERSION = "20260817-3";
+
+function slugify(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function buscarArchivoMunicipio(valor) {
+  const termino = slugify(valor);
+  if (!termino || termino.length < 3 || /^\d{5}$/.test(termino)) return "";
+
+  let archivos = [];
+  try {
+    archivos = fs.readdirSync(path.join(process.cwd(), "municipios"));
+  } catch {
+    return "";
+  }
+
+  const candidatos = archivos.filter(nombre => {
+    if (!nombre.endsWith(".html") || nombre === "index.html") return false;
+    const base = nombre.replace(/\.html$/i, "");
+    return (
+      base.startsWith(`${termino}-`) ||
+      base.includes(`-${termino}-`) ||
+      base === termino
+    );
+  });
+
+  if (candidatos.length === 1) return candidatos[0];
+
+  const exactos = candidatos.filter(nombre => {
+    const sinCodigo = nombre.replace(/-\d{5}\.html$/i, "");
+    return sinCodigo === termino || sinCodigo.endsWith(`-${termino}`);
+  });
+
+  return exactos.length === 1 ? exactos[0] : "";
+}
 
 function actualizarVersiones(html) {
   if (typeof html !== "string") return html;
@@ -18,8 +60,21 @@ function actualizarVersiones(html) {
 }
 
 export default async function handler(request, response) {
-  const sendOriginal = response.send.bind(response);
+  const poblacion = String(request.query?.poblacion || "").trim();
+  const servicio = String(request.query?.servicio || "").trim();
+  const archivoMunicipio = buscarArchivoMunicipio(poblacion);
 
+  if (archivoMunicipio) {
+    const params = new URLSearchParams();
+    if (servicio) params.set("servicio", servicio);
+    const query = params.toString();
+    const destino = `/municipios/${archivoMunicipio}${query ? `?${query}` : ""}#talleres`;
+    response.setHeader("Cache-Control", "no-store");
+    response.redirect(302, destino);
+    return;
+  }
+
+  const sendOriginal = response.send.bind(response);
   response.send = (body) => sendOriginal(actualizarVersiones(body));
 
   return homeHandler(request, response);
