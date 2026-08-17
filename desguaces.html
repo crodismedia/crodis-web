@@ -25,15 +25,8 @@
     "name": "Desguaces en la Comunidad Valenciana",
     "description": "Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos en Alicante, Castellón y Valencia.",
     "url": "https://www.tallermap.es/desguaces.html",
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "TallerMap",
-      "url": "https://www.tallermap.es/"
-    },
-    "about": {
-      "@type": "Thing",
-      "name": "Desguaces y Centros Autorizados de Tratamiento de Vehículos"
-    },
+    "isPartOf": {"@type": "WebSite", "name": "TallerMap", "url": "https://www.tallermap.es/"},
+    "about": {"@type": "Thing", "name": "Desguaces y Centros Autorizados de Tratamiento de Vehículos"},
     "areaServed": [
       {"@type": "AdministrativeArea", "name": "Alicante"},
       {"@type": "AdministrativeArea", "name": "Castellón"},
@@ -68,29 +61,58 @@
     .desguace-acciones a:nth-child(n+2){background:#f2f4f7;color:#344054}
     .desguaces-estado{grid-column:1/-1;margin:0;padding:16px;border:1px dashed #d0d5dd;border-radius:12px;color:#667085;background:rgba(255,255,255,.75)}
     .desguaces-error{color:#b42318;border-color:#fda29b;background:#fff5f5}
+    .menu-desguaces{position:relative;display:inline-flex;align-items:stretch}
+    .menu-desguaces>a{display:flex;align-items:center;gap:5px}
+    .menu-desguaces>a::after{content:"▾";font-size:.72em}
+    .submenu-desguaces{display:none;position:absolute;top:100%;left:0;z-index:10000;min-width:190px;padding:8px;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 16px 34px rgba(20,36,64,.16)}
+    .submenu-desguaces a{display:block!important;padding:10px 12px!important;border-radius:8px;white-space:nowrap}
+    .submenu-desguaces a:hover,.submenu-desguaces a:focus{background:#f3f7ff;outline:none}
+    .menu-desguaces:hover .submenu-desguaces,.menu-desguaces:focus-within .submenu-desguaces{display:block}
+    .provincia-oculta{display:none!important}
     @media(max-width:900px){.desguaces-lista{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:620px){.desguaces-lista{grid-template-columns:1fr}.desguace-card-cabecera{align-items:flex-start}.desguace-verificado{font-size:.68rem}}
   </style>
 </head>
 <body>
 <div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de automoción</span><a href="/">TallerMap</a></div></div>
-<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html" aria-current="page">Desguaces</a><a href="/coches.html">Coches</a></nav></div></header>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><span class="menu-desguaces"><a href="/desguaces.html" aria-current="page">Desguaces</a><span class="submenu-desguaces"><a href="/desguaces.html?provincia=castellon">Castellón</a><a href="/desguaces.html?provincia=valencia">Valencia</a><a href="/desguaces.html?provincia=alicante">Alicante</a></span></span><a href="/coches.html">Coches</a></nav></div></header>
 <main>
-  <section class="seccion">
+  <section class="seccion" id="cabecera-desguaces">
     <div class="contenedor">
-      <div class="titulo-seccion"><span>Departamento Desguaces</span><h1>Desguaces en la Comunidad Valenciana</h1><p>Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos. Las fichas activas y verificadas del Editor V4 se publican aquí automáticamente.</p><p id="contador-desguaces-publicados" class="desguaces-resumen">Cargando desguaces publicados…</p></div>
+      <div class="titulo-seccion"><span>Departamento Desguaces</span><h1 id="titulo-desguaces">Desguaces en la Comunidad Valenciana</h1><p id="descripcion-desguaces">Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos. Las fichas activas y verificadas del Editor V4 se publican aquí automáticamente.</p><p id="contador-desguaces-publicados" class="desguaces-resumen">Cargando desguaces publicados…</p></div>
       <div class="provincias-grid">
-        <a class="provincia-card" href="#alicante"><strong>Alicante / Alacant</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" href="#castellon"><strong>Castellón / Castelló</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" href="#valencia"><strong>Valencia / València</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="alicante" href="/desguaces.html?provincia=alicante"><strong>Alicante / Alacant</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="castellon" href="/desguaces.html?provincia=castellon"><strong>Castellón / Castelló</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="valencia" href="/desguaces.html?provincia=valencia"><strong>Valencia / València</strong><span>Desguaces de la provincia</span></a>
       </div>
     </div>
   </section>
-  <section id="alicante" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Alicante / Alacant</span><h2>Desguaces en Alicante</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-alicante" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
-  <section id="castellon" class="seccion"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Castellón / Castelló</span><h2>Desguaces en Castellón</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-castellon" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
-  <section id="valencia" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Valencia / València</span><h2>Desguaces en Valencia</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-valencia" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="alicante" data-seccion-provincia="alicante" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Alicante / Alacant</span><h2>Desguaces en Alicante</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-alicante" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="castellon" data-seccion-provincia="castellon" class="seccion"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Castellón / Castelló</span><h2>Desguaces en Castellón</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-castellon" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="valencia" data-seccion-provincia="valencia" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Valencia / València</span><h2>Desguaces en Valencia</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-valencia" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
 </main>
 <footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div></footer>
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  const provincia=(params.get('provincia')||'').toLowerCase();
+  const validas=['alicante','castellon','valencia'];
+  if(!validas.includes(provincia)) return;
+
+  const nombres={alicante:'Alicante',castellon:'Castellón',valencia:'Valencia'};
+  document.querySelectorAll('[data-seccion-provincia]').forEach(seccion=>{
+    seccion.classList.toggle('provincia-oculta',seccion.dataset.seccionProvincia!==provincia);
+  });
+  document.querySelectorAll('.provincia-card').forEach(card=>{
+    card.classList.toggle('provincia-oculta',card.dataset.provincia!==provincia);
+  });
+  const titulo=document.getElementById('titulo-desguaces');
+  const descripcion=document.getElementById('descripcion-desguaces');
+  if(titulo) titulo.textContent=`Desguaces en ${nombres[provincia]}`;
+  if(descripcion) descripcion.textContent=`Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos de la provincia de ${nombres[provincia]}.`;
+  document.title=`Desguaces en ${nombres[provincia]} | TallerMap`;
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="js/supabase.js?v=20260816-1"></script>
 <script src="js/desguaces-publico.js?v=20260816-1"></script>
