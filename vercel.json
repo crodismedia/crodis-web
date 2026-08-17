@@ -37,7 +37,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/api/home" },
+    { "source": "/", "destination": "/api/home-cache-fix" },
     { "source": "/talleres/:slug", "destination": "/api/taller-html?slug=:slug" },
     { "source": "/provincias/:provincia.html", "destination": "/api/provincia?provincia=:provincia" },
     { "source": "/servicios/mecanica-general.html", "destination": "/api/servicio?servicio=mecanica-general" },
