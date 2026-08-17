@@ -131,21 +131,30 @@ function extraerTurnos(texto){
 }
 function detectarDias(texto){
   const n=limpiarTexto(texto).replace(/[.]/g,' ');
+  if(/lunes\s*(?:a|-|al)\s*viernes/.test(n))return LABORABLES.slice();
+  if(/lunes\s*(?:a|-|al)\s*domingo/.test(n))return DIAS.map(x=>x[0]);
   const encontrados=[];
   for(const [alias,dia] of Object.entries(ALIAS)){
     if(new RegExp(`(^|[^a-z])${alias.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}([^a-z]|$)`,'i').test(n)&&!encontrados.includes(dia))encontrados.push(dia);
   }
-  if(/lunes\s*(?:a|-|al)\s*viernes/.test(n))return LABORABLES.slice();
-  if(/lunes\s*(?:a|-|al)\s*domingo/.test(n))return DIAS.map(x=>x[0]);
   return encontrados;
 }
 function parsearPegado(texto){
   const resultado={};
   const lineas=String(texto||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-  for(let linea of lineas){
-    const dias=detectarDias(linea);
+  for(let i=0;i<lineas.length;i++){
+    const dias=detectarDias(lineas[i]);
     if(!dias.length)continue;
-    const horario=extraerTurnos(linea);
+    let bloque=lineas[i];
+    let horario=extraerTurnos(bloque);
+    if(!horario){
+      for(let j=i+1;j<lineas.length&&j<=i+2;j++){
+        if(detectarDias(lineas[j]).length)break;
+        bloque+=' '+lineas[j];
+        horario=extraerTurnos(bloque);
+        if(horario)break;
+      }
+    }
     if(!horario)continue;
     for(const dia of dias)resultado[dia]={cerrado:horario.cerrado,turnos:horario.turnos.map(t=>({...t}))};
   }
