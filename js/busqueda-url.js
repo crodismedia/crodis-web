@@ -13,6 +13,24 @@
         });
     }
 
+    function prepararServicios() {
+        const seccion = document.getElementById("servicios");
+        if (!seccion) return;
+
+        let lista = document.getElementById("lista-servicios-publicos");
+        if (!lista) {
+            const contenedor = seccion.querySelector(".contenedor") || seccion;
+            lista = document.createElement("div");
+            lista.id = "lista-servicios-publicos";
+            lista.className = "servicios-grid";
+            contenedor.appendChild(lista);
+        }
+
+        if (window.TallerMapServicios?.rellenarTarjetas) {
+            window.TallerMapServicios.rellenarTarjetas(lista);
+        }
+    }
+
     function prepararMenuDesguaces() {
         const enlaces = [...document.querySelectorAll('a[href="/desguaces.html"]')];
         if (!enlaces.length) return;
@@ -168,6 +186,7 @@
 
     function iniciar() {
         prepararMenuTalleres();
+        prepararServicios();
         prepararMenuDesguaces();
         prepararBuscador();
         cargarMapaReal();
