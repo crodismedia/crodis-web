@@ -173,7 +173,20 @@
       .tm-auto-portada-grande .tm-auto-tipo{font-size:.86rem}
       .tm-auto-portada-grande .tm-auto-lugar{font-size:1rem}
       .ficha-publica-foto>img[src]:not([src=""]){position:relative;z-index:2}
-      @media(max-width:600px){.ficha-publica-foto:has(.tm-auto-portada-grande){min-height:250px}.tm-auto-portada-grande{padding:22px}.tm-auto-portada{padding:15px}}
+      .taller-card .taller-pie a.enlace-ficha-taller,
+      .taller-card .taller-pie a[href*="google.com/maps"],
+      .taller-card .taller-pie a[href*="maps.google"]{color:#fff!important;-webkit-text-fill-color:#fff!important}
+      @media(max-width:600px){
+        .ficha-publica-foto:has(.tm-auto-portada-grande){min-height:250px}
+        .tm-auto-portada-grande{padding:22px}
+        .taller-card .taller-imagen:has(> .tm-auto-portada:not(.tm-auto-portada-grande)){height:148px!important;min-height:148px!important;aspect-ratio:auto!important}
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande){padding:14px 16px;gap:8px;justify-content:space-between}
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-contenido strong,
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-lugar,
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) small{display:none}
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-contenido{margin-top:auto}
+        .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-tipo{font-size:.75rem}
+      }
     `;
     document.head.appendChild(style);
   }
