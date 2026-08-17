@@ -8,8 +8,51 @@
         .trim();
 
     function prepararMenuTalleres() {
-        document.querySelectorAll('header a[href="/#talleres"]').forEach(enlace => {
+        const enlaces = [...document.querySelectorAll('header a[href="/#talleres"], header a[href="/talleres.html"]')];
+        if (!enlaces.length) return;
+
+        if (!document.getElementById("estilos-menu-talleres")) {
+            const estilo = document.createElement("style");
+            estilo.id = "estilos-menu-talleres";
+            estilo.textContent = `
+                .tm-talleres-menu{position:relative;display:inline-flex;align-items:stretch}
+                .tm-talleres-menu>.tm-talleres-principal{display:flex!important;align-items:center;gap:4px}
+                .tm-talleres-menu>.tm-talleres-principal::before{content:"▾";order:2;margin-left:2px;font-size:.72em;line-height:1}
+                .tm-talleres-submenu{display:none;position:absolute;top:100%;left:50%;z-index:10000;min-width:185px;padding:8px;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 16px 34px rgba(20,36,64,.16);transform:translateX(-50%)}
+                .tm-talleres-submenu a{display:block!important;padding:10px 12px!important;border-radius:8px!important;white-space:nowrap}
+                .tm-talleres-submenu a::after{display:none!important}
+                .tm-talleres-submenu a:hover,.tm-talleres-submenu a:focus{background:#f3f7ff;outline:none}
+                .tm-talleres-menu:hover .tm-talleres-submenu,.tm-talleres-menu:focus-within .tm-talleres-submenu{display:block}
+                .menu-movil-panel .tm-talleres-menu{display:block;width:100%}
+                .menu-movil-panel .tm-talleres-menu>.tm-talleres-principal{width:100%}
+                .menu-movil-panel .tm-talleres-submenu{display:grid;position:static;min-width:0;margin:0 0 4px 14px;padding:0 0 0 12px;border:0;border-left:2px solid #dfe6ef;border-radius:0;box-shadow:none;transform:none}
+                .menu-movil-panel .tm-talleres-submenu a{padding:10px 12px!important;font-size:.92em;font-weight:700!important}
+            `;
+            document.head.appendChild(estilo);
+        }
+
+        enlaces.forEach(enlace => {
             enlace.setAttribute("href", "/talleres.html");
+            enlace.classList.add("tm-talleres-principal");
+            if (enlace.closest(".tm-talleres-menu")) return;
+
+            const contenedor = document.createElement("span");
+            contenedor.className = "tm-talleres-menu";
+            enlace.parentNode.insertBefore(contenedor, enlace);
+            contenedor.appendChild(enlace);
+
+            const submenu = document.createElement("span");
+            submenu.className = "tm-talleres-submenu";
+            submenu.innerHTML = `
+                <a href="/talleres.html">Ver talleres</a>
+                <a href="/pages/registro.html">Registrar taller</a>
+            `;
+            contenedor.appendChild(submenu);
+        });
+
+        document.querySelectorAll('.acciones-cabecera a[href="/pages/registro.html"], .menu-movil-panel > a.menu-movil-registro').forEach(enlace => enlace.remove());
+        document.querySelectorAll(".acciones-cabecera").forEach(bloque => {
+            if (!bloque.children.length) bloque.remove();
         });
     }
 
