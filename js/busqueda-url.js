@@ -7,6 +7,47 @@
         .toLowerCase()
         .trim();
 
+    function prepararMenuDesguaces() {
+        const enlaces = [...document.querySelectorAll('a[href="/desguaces.html"]')];
+        if (!enlaces.length) return;
+
+        if (!document.getElementById("estilos-menu-desguaces")) {
+            const estilo = document.createElement("style");
+            estilo.id = "estilos-menu-desguaces";
+            estilo.textContent = `
+                .tm-desguaces-menu{position:relative;display:inline-flex;align-items:stretch}
+                .tm-desguaces-menu>a{display:flex!important;align-items:center;gap:5px}
+                .tm-desguaces-menu>a::after{content:"▾";font-size:.72em}
+                .tm-desguaces-submenu{display:none;position:absolute;top:100%;left:0;z-index:10000;min-width:190px;padding:8px;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 16px 34px rgba(20,36,64,.16)}
+                .tm-desguaces-submenu a{display:block!important;padding:10px 12px!important;border-radius:8px!important;white-space:nowrap}
+                .tm-desguaces-submenu a:hover,.tm-desguaces-submenu a:focus{background:#f3f7ff;outline:none}
+                .tm-desguaces-menu:hover .tm-desguaces-submenu,.tm-desguaces-menu:focus-within .tm-desguaces-submenu{display:block}
+                .menu-movil-panel .tm-desguaces-menu{display:block;width:100%}
+                .menu-movil-panel .tm-desguaces-menu>a{width:100%}
+                .menu-movil-panel .tm-desguaces-submenu{display:grid;position:static;min-width:0;margin:0 0 4px 14px;padding:0 0 0 12px;border:0;border-left:2px solid #dfe6ef;border-radius:0;box-shadow:none}
+                .menu-movil-panel .tm-desguaces-submenu a{padding:10px 12px!important;font-size:.92em;font-weight:700!important}
+            `;
+            document.head.appendChild(estilo);
+        }
+
+        enlaces.forEach(enlace => {
+            if (enlace.closest(".tm-desguaces-menu")) return;
+            const contenedor = document.createElement("span");
+            contenedor.className = "tm-desguaces-menu";
+            enlace.parentNode.insertBefore(contenedor, enlace);
+            contenedor.appendChild(enlace);
+
+            const submenu = document.createElement("span");
+            submenu.className = "tm-desguaces-submenu";
+            submenu.innerHTML = `
+                <a href="/desguaces.html?provincia=castellon">Castellón</a>
+                <a href="/desguaces.html?provincia=valencia">Valencia</a>
+                <a href="/desguaces.html?provincia=alicante">Alicante</a>
+            `;
+            contenedor.appendChild(submenu);
+        });
+    }
+
     function cargarMapaReal() {
         if (document.querySelector('script[data-tallermap-mapa="1"]')) return;
         const script = document.createElement("script");
@@ -120,6 +161,7 @@
     }
 
     function iniciar() {
+        prepararMenuDesguaces();
         prepararBuscador();
         cargarMapaReal();
     }
