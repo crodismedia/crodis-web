@@ -1,4 +1,4 @@
-const CACHE_NAME = "tallermap-editor-v4-shell-v2";
+const CACHE_NAME = "tallermap-editor-v4-shell-v3";
 const SHELL = [
   "/pages/admin-editor-v4.html",
   "/css/admin-editor-v4.css",
