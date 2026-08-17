@@ -4,23 +4,120 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coches | TallerMap</title>
-  <meta name="description" content="Próximamente: vehículos de ocasión y segunda mano en TallerMap.">
+  <meta name="description" content="Demo de la futura sección de vehículos de ocasión y segunda mano de TallerMap.">
   <meta name="robots" content="noindex,follow">
+  <link rel="canonical" href="https://www.tallermap.es/coches.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilo.css?v=20260809-5">
+  <style>
+    :root{--azul:#1457d9;--azul-oscuro:#071a33;--gris:#68758a;--borde:#dfe6ef;--fondo:#f6f8fb;--verde:#138a50}
+    body{background:var(--fondo);color:var(--azul-oscuro)}
+    .coches-demo-aviso{background:#fff4cf;border-bottom:1px solid #f0d77a;color:#6c5200;text-align:center;padding:9px 16px;font-weight:800;font-size:.88rem}
+    .coches-hero{padding:64px 0 42px;background:linear-gradient(135deg,#071a33 0%,#123f7d 55%,#1457d9 100%);color:#fff}
+    .coches-hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:34px;align-items:center}
+    .coches-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.1);font-weight:800;font-size:.82rem}
+    .coches-hero h1{margin:15px 0 12px;font-size:clamp(2.15rem,5vw,4.2rem);line-height:1.02;color:#fff}
+    .coches-hero p{max-width:760px;margin:0;color:rgba(255,255,255,.86);font-size:1.05rem;line-height:1.65}
+    .coches-hero-panel{padding:24px;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:rgba(255,255,255,.1);backdrop-filter:blur(7px);box-shadow:0 20px 45px rgba(0,0,0,.18)}
+    .coches-hero-panel strong{display:block;font-size:1.15rem;margin-bottom:12px}
+    .coches-hero-panel ul{display:grid;gap:10px;margin:0;padding:0;list-style:none;color:rgba(255,255,255,.9)}
+    .coches-hero-panel li::before{content:"✓";display:inline-grid;place-items:center;width:22px;height:22px;margin-right:9px;border-radius:50%;background:rgba(255,255,255,.16);font-weight:900}
+    .coches-buscador{margin-top:-25px;position:relative;z-index:5}
+    .coches-buscador-box{display:grid;grid-template-columns:1.1fr .9fr .8fr auto;gap:12px;padding:18px;border:1px solid var(--borde);border-radius:18px;background:#fff;box-shadow:0 16px 40px rgba(20,36,64,.12)}
+    .coches-campo label{display:block;margin-bottom:6px;font-size:.78rem;font-weight:900;color:#536174;text-transform:uppercase;letter-spacing:.03em}
+    .coches-campo input,.coches-campo select{width:100%;min-height:46px;padding:0 12px;border:1px solid #cfd8e3;border-radius:10px;background:#fff;color:#162033;font-size:16px}
+    .coches-buscar{align-self:end;min-height:46px;padding:0 20px;border:0;border-radius:10px;background:var(--azul);color:#fff;font-weight:900;cursor:pointer}
+    .coches-seccion{padding:54px 0}
+    .coches-seccion-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}
+    .coches-seccion-head span{display:block;margin-bottom:5px;color:var(--azul);font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+    .coches-seccion-head h2{margin:0;font-size:clamp(1.55rem,3vw,2.25rem)}
+    .coches-seccion-head p{margin:0;color:var(--gris)}
+    .coches-categorias{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:34px}
+    .coches-categoria{display:block;padding:22px;border:1px solid var(--borde);border-radius:16px;background:#fff;text-decoration:none;color:inherit;box-shadow:0 8px 22px rgba(20,36,64,.05)}
+    .coches-categoria b{display:block;margin-bottom:6px;font-size:1.05rem}
+    .coches-categoria small{color:var(--gris);line-height:1.45}
+    .coches-listado{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+    .coche-card{overflow:hidden;border:1px solid var(--borde);border-radius:18px;background:#fff;box-shadow:0 10px 26px rgba(20,36,64,.07)}
+    .coche-foto{position:relative;display:grid;place-items:center;min-height:210px;background:linear-gradient(145deg,#dfe8f5,#f8fafc);overflow:hidden}
+    .coche-foto::after{content:"DEMO";position:absolute;top:14px;left:14px;padding:6px 9px;border-radius:999px;background:#071a33;color:#fff;font-size:.72rem;font-weight:900;letter-spacing:.05em}
+    .coche-silueta{font-size:5rem;filter:grayscale(1);opacity:.78}
+    .coche-info{padding:18px}
+    .coche-info h3{margin:0 0 5px;font-size:1.15rem}
+    .coche-meta{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0 16px}
+    .coche-meta span{padding:6px 8px;border-radius:8px;background:#f2f5f9;color:#536174;font-size:.77rem;font-weight:800}
+    .coche-precio{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:14px;border-top:1px solid #edf1f6}
+    .coche-precio strong{font-size:1.3rem;color:#0d8049}
+    .coche-precio a{color:var(--azul);font-weight:900;text-decoration:none}
+    .coches-cta{margin-top:36px;padding:28px;border-radius:20px;background:#071a33;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px}
+    .coches-cta h2{margin:0 0 7px;color:#fff;font-size:1.5rem}.coches-cta p{margin:0;color:rgba(255,255,255,.76)}
+    .coches-cta .boton-demo{display:inline-flex;padding:12px 18px;border-radius:10px;background:#fff;color:#071a33;text-decoration:none;font-weight:900;white-space:nowrap}
+    .coches-nota{padding:0 0 55px;text-align:center;color:#68758a;font-size:.88rem}
+    @media(max-width:980px){.coches-hero-grid{grid-template-columns:1fr}.coches-buscador-box{grid-template-columns:1fr 1fr}.coches-buscar{grid-column:1/-1}.coches-listado{grid-template-columns:1fr 1fr}}
+    @media(max-width:700px){.coches-demo-aviso{font-size:.8rem}.coches-hero{padding:45px 0 38px}.coches-buscador{margin-top:-18px}.coches-buscador-box,.coches-categorias,.coches-listado{grid-template-columns:1fr}.coches-seccion-head,.coches-cta{align-items:flex-start;flex-direction:column}.coche-foto{min-height:185px}}
+  </style>
 </head>
 <body>
+<div class="coches-demo-aviso">Vista DEMO · La sección Coches todavía no está abierta al público</div>
 <header class="cabecera">
   <div class="contenedor cabecera-contenido">
     <a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Talleres y vehículos</small></span></a>
+    <nav class="menu"><a href="/">Inicio</a><a href="/#talleres">Talleres</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html" aria-current="page">Coches</a></nav>
   </div>
 </header>
 <main>
-  <section class="seccion">
-    <div class="contenedor">
-      <div class="titulo-seccion"><span>Nuevo departamento</span><h1>Vehículos de ocasión y segunda mano</h1><p>Estamos preparando esta nueva sección de TallerMap.</p><p><a class="boton" href="/">Volver a TallerMap</a></p></div>
+  <section class="coches-hero">
+    <div class="contenedor coches-hero-grid">
+      <div>
+        <span class="coches-kicker">🚗 Nuevo departamento · DEMO</span>
+        <h1>Coches de ocasión y segunda mano</h1>
+        <p>Una futura sección de TallerMap para encontrar vehículos publicados por concesionarios, compraventas y profesionales, con filtros claros por población, marca, precio y tipo de vehículo.</p>
+      </div>
+      <aside class="coches-hero-panel">
+        <strong>La idea de la sección</strong>
+        <ul>
+          <li>Vehículos de ocasión</li>
+          <li>Vehículos de segunda mano</li>
+          <li>Concesionarios y compraventas</li>
+          <li>Fichas individuales de cada vehículo</li>
+        </ul>
+      </aside>
     </div>
   </section>
+
+  <section class="coches-buscador" aria-label="Buscador demo de coches">
+    <div class="contenedor">
+      <div class="coches-buscador-box">
+        <div class="coches-campo"><label for="demo-marca">Marca</label><select id="demo-marca"><option>Todas las marcas</option><option>SEAT</option><option>Volkswagen</option><option>Peugeot</option><option>Renault</option><option>Toyota</option></select></div>
+        <div class="coches-campo"><label for="demo-poblacion">Población</label><input id="demo-poblacion" type="text" placeholder="Ej. Benidorm"></div>
+        <div class="coches-campo"><label for="demo-precio">Precio máximo</label><select id="demo-precio"><option>Sin límite</option><option>10.000 €</option><option>15.000 €</option><option>20.000 €</option><option>30.000 €</option></select></div>
+        <button class="coches-buscar" type="button" onclick="alert('Buscador de demostración. Todavía no está conectado a la base de datos.')">Buscar coches</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="coches-seccion">
+    <div class="contenedor">
+      <div class="coches-seccion-head"><div><span>Explorar</span><h2>Cómo quedaría el departamento</h2></div><p>Contenido de muestra, sin anuncios reales.</p></div>
+      <div class="coches-categorias">
+        <a class="coches-categoria" href="#vehiculos"><b>🚙 Vehículos de ocasión</b><small>Coches revisados y publicados por profesionales.</small></a>
+        <a class="coches-categoria" href="#vehiculos"><b>🔑 Segunda mano</b><small>Vehículos usados organizados por marca, población y precio.</small></a>
+        <a class="coches-categoria" href="#concesionarios"><b>🏢 Concesionarios</b><small>Directorio de concesionarios, compraventas y vendedores profesionales.</small></a>
+      </div>
+
+      <div class="coches-seccion-head" id="vehiculos"><div><span>Vehículos destacados</span><h2>Ejemplo de resultados</h2></div><p>Las fichas definitivas se alimentarán desde la base de datos.</p></div>
+      <div class="coches-listado">
+        <article class="coche-card"><div class="coche-foto"><span class="coche-silueta" aria-hidden="true">🚗</span></div><div class="coche-info"><h3>SEAT León 1.5 TSI</h3><div class="coche-meta"><span>2021</span><span>48.000 km</span><span>Gasolina</span><span>Manual</span></div><div class="coche-precio"><strong>16.900 €</strong><a href="#">Ver ficha →</a></div></div></article>
+        <article class="coche-card"><div class="coche-foto"><span class="coche-silueta" aria-hidden="true">🚙</span></div><div class="coche-info"><h3>Peugeot 3008 BlueHDi</h3><div class="coche-meta"><span>2020</span><span>72.000 km</span><span>Diésel</span><span>Automático</span></div><div class="coche-precio"><strong>19.500 €</strong><a href="#">Ver ficha →</a></div></div></article>
+        <article class="coche-card"><div class="coche-foto"><span class="coche-silueta" aria-hidden="true">🚘</span></div><div class="coche-info"><h3>Toyota Corolla Hybrid</h3><div class="coche-meta"><span>2022</span><span>36.000 km</span><span>Híbrido</span><span>Automático</span></div><div class="coche-precio"><strong>21.900 €</strong><a href="#">Ver ficha →</a></div></div></article>
+      </div>
+
+      <section class="coches-cta" id="concesionarios">
+        <div><h2>¿Concesionario o compraventa?</h2><p>En la versión definitiva podrán disponer de perfil profesional y publicar su stock de vehículos.</p></div>
+        <a class="boton-demo" href="#" onclick="alert('Función de demostración. El alta de concesionarios todavía no está activa.');return false;">Publicar vehículos · Próximamente</a>
+      </section>
+    </div>
+  </section>
+  <p class="contenedor coches-nota">Esta página permanece con <strong>noindex</strong> mientras sea una demostración, para que no interfiera con el SEO actual de TallerMap.</p>
 </main>
 </body>
 </html>
