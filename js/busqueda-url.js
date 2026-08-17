@@ -7,6 +7,12 @@
         .toLowerCase()
         .trim();
 
+    function prepararMenuTalleres() {
+        document.querySelectorAll('header a[href="/#talleres"]').forEach(enlace => {
+            enlace.setAttribute("href", "/talleres.html");
+        });
+    }
+
     function prepararMenuDesguaces() {
         const enlaces = [...document.querySelectorAll('a[href="/desguaces.html"]')];
         if (!enlaces.length) return;
@@ -161,6 +167,7 @@
     }
 
     function iniciar() {
+        prepararMenuTalleres();
         prepararMenuDesguaces();
         prepararBuscador();
         cargarMapaReal();
