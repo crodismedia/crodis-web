@@ -2,12 +2,26 @@
 "use strict";
 const DIAS=[['lunes','Lunes'],['martes','Martes'],['miercoles','Miércoles'],['jueves','Jueves'],['viernes','Viernes'],['sabado','Sábado'],['domingo','Domingo']];
 const LABORABLES=['lunes','martes','miercoles','jueves','viernes'];
+const ALIAS={
+  lunes:'lunes',lun:'lunes',
+  martes:'martes',mar:'martes',
+  miercoles:'miercoles',miércoles:'miercoles',mie:'miercoles',mié:'miercoles',
+  jueves:'jueves',jue:'jueves',
+  viernes:'viernes',vie:'viernes',
+  sabado:'sabado',sábado:'sabado',sab:'sabado',sáb:'sabado',
+  domingo:'domingo',dom:'domingo'
+};
 let root=null;
 
 function render(){
   root=document.getElementById('v4-horarios-editor');
   if(!root)return;
-  root.innerHTML=`<div class="v4-horarios v4-horarios-partidos">
+  root.innerHTML=`<div class="v4-horario-importador">
+    <div class="v4-horario-importador-cabecera"><strong>Pegar horarios</strong><span>Copia el horario desde Google, una web o un texto y lo adapto automáticamente.</span></div>
+    <textarea id="v4-horario-pegado" rows="6" placeholder="Ejemplo:\nLunes 09:00–14:00, 16:00–19:00\nMartes 09:00–14:00, 16:00–19:00\nSábado 09:00–13:00\nDomingo Cerrado"></textarea>
+    <div class="v4-horario-importador-acciones"><button id="v4-interpretar-horario" class="v4-btn v4-primary" type="button">Interpretar y aplicar</button><span id="v4-horario-importador-estado" class="v4-status"></span></div>
+  </div>
+  <div class="v4-horarios v4-horarios-partidos">
     <div class="v4-horario-cabecera">
       <small>Horario partido: mañana y tarde. Para horario continuo deja la tarde vacía.</small>
       <button id="v4-copiar-laborables" class="v4-btn v4-soft" type="button">Aplicar lunes–viernes</button>
@@ -15,10 +29,10 @@ function render(){
     <div class="v4-horario-titulos"><span></span><strong>Abre mañana</strong><strong>Cierra mañana</strong><strong>Abre tarde</strong><strong>Cierra tarde</strong><strong>Cerrado</strong></div>
     ${DIAS.map(([k,n])=>`<div class="v4-dia v4-dia-partido" data-dia="${k}">
       <strong>${n}</strong>
-      <input class="v4-m1" type="time" step="900" aria-label="${n} abre mañana">
-      <input class="v4-m2" type="time" step="900" aria-label="${n} cierra mañana">
-      <input class="v4-t1" type="time" step="900" aria-label="${n} abre tarde">
-      <input class="v4-t2" type="time" step="900" aria-label="${n} cierra tarde">
+      <input class="v4-m1" type="time" step="60" aria-label="${n} abre mañana">
+      <input class="v4-m2" type="time" step="60" aria-label="${n} cierra mañana">
+      <input class="v4-t1" type="time" step="60" aria-label="${n} abre tarde">
+      <input class="v4-t2" type="time" step="60" aria-label="${n} cierra tarde">
       <label><input class="v4-dia-cerrado" type="checkbox"> Sí</label>
     </div>`).join('')}
   </div>
@@ -26,6 +40,7 @@ function render(){
   root.addEventListener('change',e=>{if(e.target.classList.contains('v4-dia-cerrado'))actualizarDia(e.target.closest('.v4-dia-partido'));});
   document.getElementById('v4-copiar-laborables')?.addEventListener('click',copiarLaborables);
   document.getElementById('v4-limpiar-horario')?.addEventListener('click',()=>cargar(null));
+  document.getElementById('v4-interpretar-horario')?.addEventListener('click',interpretarPegado);
   cargar(null);
 }
 
@@ -37,8 +52,9 @@ function actualizarDia(row){
 }
 function ponerTurno(row,prefijo,turno){
   get(row,prefijo+'1').value=turno?.apertura||'';
-  get(row,prefijo+'2').value=turno?.cierre||'';
+  get(row,prefijo+'2').value=normalizarHoraInput(turno?.cierre)||'';
 }
+function normalizarHoraInput(h){return h==='24:00'?'23:59':(h||'');}
 function turnosDeDia(dia){
   if(!dia||typeof dia!=='object')return[];
   if(Array.isArray(dia.turnos))return dia.turnos;
@@ -92,6 +108,70 @@ function copiarLaborables(){
   }
 }
 
+function limpiarTexto(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\u00a0/g,' ').trim();}
+function horaCanonica(raw){
+  let s=String(raw||'').trim().toLowerCase().replace(/h/g,'').replace('.',':').replace(/\s+/g,'');
+  const m=s.match(/^(\d{1,2})(?::(\d{2}))?$/);
+  if(!m)return null;
+  const h=Number(m[1]),min=Number(m[2]||0);
+  if(h<0||h>24||min<0||min>59||(h===24&&min!==0))return null;
+  return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+}
+function extraerTurnos(texto){
+  const t=String(texto||'').replace(/[–—]/g,'-');
+  if(/cerrad|closed|no abre/i.test(t))return{cerrado:true,turnos:[]};
+  if(/24\s*h|24\s*horas/i.test(t))return{cerrado:false,turnos:[{apertura:'00:00',cierre:'23:59'}]};
+  const re=/(\d{1,2}(?::\d{2})?)\s*(?:-|a|hasta)\s*(\d{1,2}(?::\d{2})?)/gi;
+  const turnos=[];let m;
+  while((m=re.exec(t))&&turnos.length<2){
+    const apertura=horaCanonica(m[1]),cierre=horaCanonica(m[2]);
+    if(apertura&&cierre&&minutos(cierre)>minutos(apertura))turnos.push({apertura,cierre});
+  }
+  return turnos.length?{cerrado:false,turnos}:null;
+}
+function detectarDias(texto){
+  const n=limpiarTexto(texto).replace(/[.]/g,' ');
+  const encontrados=[];
+  for(const [alias,dia] of Object.entries(ALIAS)){
+    if(new RegExp(`(^|[^a-z])${alias.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}([^a-z]|$)`,'i').test(n)&&!encontrados.includes(dia))encontrados.push(dia);
+  }
+  if(/lunes\s*(?:a|-|al)\s*viernes/.test(n))return LABORABLES.slice();
+  if(/lunes\s*(?:a|-|al)\s*domingo/.test(n))return DIAS.map(x=>x[0]);
+  return encontrados;
+}
+function parsearPegado(texto){
+  const resultado={};
+  const lineas=String(texto||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  for(let linea of lineas){
+    const dias=detectarDias(linea);
+    if(!dias.length)continue;
+    const horario=extraerTurnos(linea);
+    if(!horario)continue;
+    for(const dia of dias)resultado[dia]={cerrado:horario.cerrado,turnos:horario.turnos.map(t=>({...t}))};
+  }
+  return resultado;
+}
+function aplicarImportado(datos){
+  let aplicados=0;
+  for(const [k] of DIAS){
+    if(!datos[k])continue;
+    const row=root.querySelector(`[data-dia="${k}"]`),dia=datos[k];
+    get(row,'v4-dia-cerrado').checked=!!dia.cerrado;
+    ponerTurno(row,'v4-m',dia.turnos?.[0]);
+    ponerTurno(row,'v4-t',dia.turnos?.[1]);
+    actualizarDia(row);aplicados++;
+  }
+  return aplicados;
+}
+function setImportStatus(msg,error=false){const el=document.getElementById('v4-horario-importador-estado');if(!el)return;el.textContent=msg;el.className='v4-status '+(error?'error':'ok');}
+function interpretarPegado(){
+  const texto=document.getElementById('v4-horario-pegado')?.value||'';
+  if(!texto.trim()){setImportStatus('Pega primero el horario.',true);return;}
+  const datos=parsearPegado(texto),aplicados=aplicarImportado(datos);
+  if(!aplicados){setImportStatus('No pude reconocer días y horas. Prueba con una línea por día.',true);return;}
+  setImportStatus(`✓ Horario interpretado y aplicado en ${aplicados} día(s). Revísalo y guarda la ficha.`);
+}
+
 document.addEventListener('DOMContentLoaded',render);
-window.TallerMapHorariosV4={cargar,obtener};
+window.TallerMapHorariosV4={cargar,obtener,parsearPegado};
 }());
