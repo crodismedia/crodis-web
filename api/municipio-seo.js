@@ -3,6 +3,8 @@ import path from "node:path";
 
 const SEO_OVERRIDES = {
   "valencia-46250.html": {
+    originalName: "València",
+    originalDescription: "Encuentra talleres mecánicos publicados en València. Consulta servicios, dirección, teléfono y horarios en TallerMap. Código municipal 46250.",
     title: "Talleres mecánicos en Valencia (València) | TallerMap",
     description: "Encuentra talleres mecánicos en Valencia (València). Consulta dirección, teléfono, horarios, servicios, ficha del taller y cómo llegar desde TallerMap.",
     heading: "Talleres mecánicos en Valencia (València)",
@@ -39,12 +41,56 @@ const SEO_OVERRIDES = {
             </div>
         </section>
 `
+  },
+  "castello-de-la-plana-castellon-de-la-plana-12040.html": {
+    originalName: "Castelló de la Plana/Castellón de la Plana",
+    originalDescription: "Encuentra talleres mecánicos publicados en Castelló de la Plana/Castellón de la Plana. Consulta servicios, dirección, teléfono y horarios en TallerMap. Código municipal 12040.",
+    title: "Talleres mecánicos en Castellón (Castelló de la Plana) | TallerMap",
+    description: "Encuentra talleres mecánicos en Castellón (Castelló de la Plana). Consulta dirección, teléfono, horarios, servicios, ficha del taller y cómo llegar.",
+    heading: "Talleres mecánicos en Castellón (Castelló de la Plana)",
+    schemaName: "Talleres mecánicos en Castellón (Castelló de la Plana)",
+    intro: `
+                            Encuentra <strong>talleres mecánicos en Castellón (Castelló de la Plana)</strong> para reparación,
+                            mantenimiento y servicios de automoción. Consulta fichas con dirección, teléfono,
+                            horarios, servicios disponibles y acceso a cómo llegar antes de contactar.
+                        `,
+    searchHeading: "Buscar taller mecánico en Castellón",
+    resultsHeading: "Talleres mecánicos publicados en Castellón",
+    resultsText: "Consulta talleres de automoción publicados en Castellón de la Plana y accede a la ficha de cada negocio para revisar sus datos disponibles.",
+    localSection: `
+        <section class="seccion municipio-seo-local" aria-labelledby="seo-castellon-titulo">
+            <div class="contenedor">
+                <div class="titulo-seccion alineado-izquierda">
+                    <span>Directorio de automoción en Castellón</span>
+                    <h2 id="seo-castellon-titulo">Encuentra taller mecánico en Castellón por servicio</h2>
+                    <p>
+                        TallerMap reúne talleres de automoción publicados en Castellón de la Plana. Puedes consultar
+                        opciones de <a href="../servicios/mecanica-general.html">mecánica general</a>,
+                        <a href="../servicios/neumaticos.html">neumáticos</a>,
+                        <a href="../servicios/chapa-pintura.html">chapa y pintura</a>,
+                        <a href="../servicios/diagnosis-electronica.html">diagnosis electrónica</a>,
+                        <a href="../servicios/aire-acondicionado.html">aire acondicionado</a> y
+                        <a href="../servicios/hibridos-electricos.html">híbridos y eléctricos</a>.
+                    </p>
+                    <p>
+                        Cada ficha enlazada desde este directorio muestra los datos disponibles del taller, como
+                        dirección, teléfono, horario, servicios y acceso a cómo llegar. Para ampliar la búsqueda,
+                        consulta también los <a href="../provincias/castellon.html">talleres de la provincia de Castellón</a>.
+                    </p>
+                </div>
+            </div>
+        </section>
+`
   }
 };
 
 function safeFileName(value) {
   const fileName = String(value || "").trim().toLowerCase();
   return Object.hasOwn(SEO_OVERRIDES, fileName) ? fileName : "";
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function replaceMetaDescription(html, description) {
@@ -56,15 +102,19 @@ function replaceMetaDescription(html, description) {
 }
 
 function applySEO(html, config) {
+  const originalName = escapeRegExp(config.originalName);
+  const originalSchemaName = escapeRegExp(`Talleres mecánicos en ${config.originalName}`);
+  const originalDescription = escapeRegExp(config.originalDescription);
+
   let output = html
     .replace(/<title>[\s\S]*?<\/title>/i, `<title>${config.title}</title>`)
     .replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${config.heading}</h1>`)
     .replace(/<p class="municipio-intro">[\s\S]*?<\/p>/i, `<p class="municipio-intro">${config.intro}</p>`)
-    .replace(/<h2>Buscar en València<\/h2>/i, `<h2>${config.searchHeading}</h2>`)
-    .replace(/<h2>Talleres publicados en València<\/h2>/i, `<h2>${config.resultsHeading}</h2>`)
+    .replace(new RegExp(`<h2>Buscar en ${originalName}<\\/h2>`, "i"), `<h2>${config.searchHeading}</h2>`)
+    .replace(new RegExp(`<h2>Talleres publicados en ${originalName}<\\/h2>`, "i"), `<h2>${config.resultsHeading}</h2>`)
     .replace(/<p>\s*Los resultados se obtienen de las fichas activas publicadas en TallerMap\.\s*<\/p>/i, `<p>${config.resultsText}</p>`)
-    .replace(/"name":\s*"Talleres mecánicos en València"/i, `"name": "${config.schemaName}"`)
-    .replace(/"description":\s*"Encuentra talleres mecánicos publicados en València\. Consulta servicios, dirección, teléfono y horarios en TallerMap\. Código municipal 46250\."/i, `"description": "${config.description}"`);
+    .replace(new RegExp(`"name":\\s*"${originalSchemaName}"`, "i"), `"name": "${config.schemaName}"`)
+    .replace(new RegExp(`"description":\\s*"${originalDescription}"`, "i"), `"description": "${config.description}"`);
 
   output = replaceMetaDescription(output, config.description);
 
