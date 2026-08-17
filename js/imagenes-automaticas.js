@@ -13,6 +13,13 @@
     return String(valor || "").replace(/\s+/g, " ").trim();
   }
 
+  function normalizar(valor) {
+    return texto(valor)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es");
+  }
+
   function ubicacionCorta(valor) {
     const limpia = texto(valor).replace(/^⌖\s*/, "");
     if (!limpia) return "Ubicación no indicada";
@@ -27,7 +34,10 @@
   }
 
   function hayImagenReal(contenedor) {
-    return [...contenedor.querySelectorAll("img")].some((img) => texto(img.getAttribute("src")));
+    return [...contenedor.querySelectorAll("img")].some((img) => {
+      if (img.closest(".tm-auto-portada")) return false;
+      return Boolean(texto(img.getAttribute("src")));
+    });
   }
 
   function crearPortada(nombre, ubicacion, grande) {
@@ -63,6 +73,63 @@
     return portada;
   }
 
+  function esFichaAlicante() {
+    const referencia = [
+      document.getElementById("taller-direccion")?.textContent,
+      document.getElementById("migas-pan")?.textContent
+    ].filter(Boolean).join(" ");
+    const n = normalizar(referencia);
+    return n.includes("alicante") || n.includes("alacant");
+  }
+
+  function clonarHorarioVisible() {
+    const horarioExistente = document.querySelector("#taller-datos .taller-horario");
+    const dl = horarioExistente?.querySelector("dl");
+    if (!dl) return null;
+    const copia = dl.cloneNode(true);
+    copia.className = "taller-horario-visible";
+    horarioExistente.remove();
+    return copia;
+  }
+
+  function crearPortadaAlicante(horarioVisible) {
+    const portada = document.createElement("div");
+    portada.className = "tm-auto-portada tm-auto-portada-grande tm-auto-portada-horario";
+    portada.setAttribute("role", "group");
+    portada.setAttribute("aria-label", "Horario de atención");
+
+    const identidad = document.createElement("div");
+    identidad.className = "tm-portada-identidad";
+    identidad.setAttribute("aria-hidden", "true");
+    const logo = document.createElement("img");
+    logo.src = "/favicon.svg";
+    logo.alt = "";
+    logo.width = 58;
+    logo.height = 58;
+    const marca = document.createElement("strong");
+    marca.textContent = "TallerMap";
+    const lema = document.createElement("span");
+    lema.innerHTML = "Conectamos conductores<br>con talleres de confianza";
+    identidad.append(logo, marca, lema);
+
+    const contenido = document.createElement("div");
+    contenido.className = "tm-portada-horario-contenido";
+    const titulo = document.createElement("h2");
+    titulo.textContent = "◷ Horario de atención";
+    contenido.appendChild(titulo);
+    if (horarioVisible) {
+      contenido.appendChild(horarioVisible);
+    } else {
+      const sinHorario = document.createElement("p");
+      sinHorario.className = "taller-horario-no-disponible";
+      sinHorario.textContent = "Horario no disponible";
+      contenido.appendChild(sinHorario);
+    }
+
+    portada.append(identidad, contenido);
+    return portada;
+  }
+
   function asegurarTarjeta(tarjeta) {
     const contenedor = tarjeta.querySelector(".taller-imagen");
     if (!contenedor) return;
@@ -85,9 +152,29 @@
     const existente = contenedor.querySelector(":scope > .tm-auto-portada");
     if (hayImagenReal(contenedor)) {
       existente?.remove();
+      contenedor.classList.remove("ficha-publica-portada-verde");
       return;
     }
 
+    if (esFichaAlicante()) {
+      const horarioVisible = clonarHorarioVisible();
+      if (existente?.classList.contains("tm-auto-portada-horario")) {
+        if (horarioVisible) {
+          const contenido = existente.querySelector(".tm-portada-horario-contenido");
+          contenido?.querySelector(".taller-horario-no-disponible")?.remove();
+          contenido?.querySelector(".taller-horario-visible")?.remove();
+          contenido?.appendChild(horarioVisible);
+        }
+      } else {
+        existente?.remove();
+        contenedor.prepend(crearPortadaAlicante(horarioVisible));
+      }
+      contenedor.classList.add("ficha-publica-portada-verde");
+      contenedor.hidden = false;
+      return;
+    }
+
+    contenedor.classList.remove("ficha-publica-portada-verde");
     const ubicacion = ubicacionCorta(document.getElementById("taller-direccion")?.textContent);
     if (!existente) contenedor.prepend(crearPortada(nombre, ubicacion, true));
     contenedor.hidden = false;
