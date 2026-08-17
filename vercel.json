@@ -30,6 +30,10 @@
     {
       "src": "/municipios/alacant-alicante-03014\\.html",
       "dest": "/api/municipio-seo?archivo=alacant-alicante-03014.html"
+    },
+    {
+      "src": "/municipios/benidorm-03031\\.html",
+      "dest": "/api/municipio-benidorm-seo"
     }
   ],
   "rewrites": [
