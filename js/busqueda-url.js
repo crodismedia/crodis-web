@@ -12,7 +12,7 @@
     function cargarMapaReal() {
         if (document.querySelector('script[data-tallermap-mapa="1"]')) return;
         const script = document.createElement("script");
-        script.src = "/js/mapa-talleres.js?v=20260815-2";
+        script.src = "/js/mapa-talleres.js?v=20260817-1";
         script.defer = true;
         script.dataset.tallermapMapa = "1";
         document.head.appendChild(script);
@@ -39,7 +39,13 @@
         const contenedor = document.getElementById("lista-talleres");
         if (!contenedor) return;
         const ui = window.TallerMapTallerUI;
-        const ordenados = [...talleres].sort((a,b) => Number(a.distancia_km ?? Infinity) - Number(b.distancia_km ?? Infinity));
+        const limite = Number(radio);
+        const ordenados = [...talleres]
+            .filter(taller => {
+                const distancia = Number(taller?.distancia_km);
+                return Number.isFinite(distancia) && distancia <= limite;
+            })
+            .sort((a,b) => Number(a.distancia_km) - Number(b.distancia_km));
 
         if (!ordenados.length) {
             contenedor.innerHTML = `<p class="mensaje-talleres">No hay talleres con ubicación registrada dentro de ${radio} km.</p>`;
@@ -80,7 +86,14 @@
             p_limite: 20
         });
         if (error) throw error;
-        renderCercanos(Array.isArray(data) ? data : [], radio, estado);
+
+        const limite = Number(radio);
+        const resultados = (Array.isArray(data) ? data : []).filter(taller => {
+            const distancia = Number(taller?.distancia_km);
+            return Number.isFinite(distancia) && distancia <= limite;
+        });
+
+        renderCercanos(resultados, radio, estado);
         document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth", block: "start" });
         boton.textContent = "Buscar talleres";
     }
@@ -156,8 +169,9 @@
         };
 
         radio.addEventListener("change", () => {
-            actualizarUrlRadio(RADIOS_VALIDOS.has(radio.value) ? radio.value : "");
-            estado.textContent = radio.value ? `Filtro activo: hasta ${radio.value} km desde tu ubicación.` : "";
+            const r = RADIOS_VALIDOS.has(radio.value) ? radio.value : "";
+            actualizarUrlRadio(r);
+            estado.textContent = r ? `Filtro activo: hasta ${r} km desde tu ubicación.` : "";
         });
 
         formulario.addEventListener("submit", async evento => {
@@ -189,33 +203,6 @@
         if (servicioUrl) {
             const opcion = [...servicio.options].find(o => normalizarTexto(o.value) === servicioUrl || normalizarTexto(o.textContent) === servicioUrl);
             if (opcion) servicio.value = opcion.value;
-        }
-
-        let estilos = document.getElementById("layout-buscador-final");
-        if (!estilos) {
-            estilos = document.createElement("style");
-            estilos.id = "layout-buscador-final";
-            estilos.textContent = `
-                #formulario-buscador-publico{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:0!important;align-items:stretch!important;padding:22px!important}
-                #formulario-buscador-publico>.campo-busqueda{display:block!important;min-width:0!important;position:relative!important;margin:0!important;box-sizing:border-box!important}
-                #formulario-buscador-publico>.campo-busqueda:nth-of-type(1){grid-column:1!important;padding:8px 28px 8px 8px!important;border-right:1px solid #dfe6ef!important}
-                #formulario-buscador-publico>.campo-busqueda:nth-of-type(2){grid-column:2!important;padding:8px 8px 8px 28px!important}
-                #formulario-buscador-publico>.campo-busqueda>div{display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important}
-                #formulario-buscador-publico label{display:block!important;margin:0 0 8px!important}
-                #formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio,#formulario-buscador-publico #radio-busqueda{display:block!important;width:100%!important;min-height:48px!important;box-sizing:border-box!important;border:1px solid #cfd8e3!important;border-radius:9px!important;background:#fff!important;color:#162033!important;padding:10px 12px!important;font:inherit!important}
-                #formulario-buscador-publico #radio-busqueda{margin:12px 0 0!important}
-                #formulario-buscador-publico #usar-mi-ubicacion,#formulario-buscador-publico #boton-buscar{display:flex!important;width:100%!important;min-height:48px!important;margin:12px 0 0!important;align-items:center!important;justify-content:center!important;padding:10px 16px!important;border-radius:10px!important;font-weight:800!important}
-                #formulario-buscador-publico #estado-ubicacion{display:block!important;margin:7px 0 0!important;color:#64748b!important;font-size:.74rem!important;line-height:1.35!important}
-                #formulario-buscador-publico #estado-ubicacion:empty{display:none!important}
-                #formulario-buscador-publico #usar-mi-ubicacion{background:#F59E0B!important;border:1px solid #F59E0B!important;color:#fff!important}
-                #formulario-buscador-publico #boton-buscar{background:#07883F!important;border:1px solid #07883F!important;color:#fff!important}
-                @media(max-width:1050px){
-                    #formulario-buscador-publico{grid-template-columns:1fr!important;gap:10px!important;padding:12px!important}
-                    #formulario-buscador-publico>.campo-busqueda:nth-of-type(1),#formulario-buscador-publico>.campo-busqueda:nth-of-type(2){grid-column:1!important;border-right:0!important;padding:6px!important}
-                    #formulario-buscador-publico #poblacion,#formulario-buscador-publico #servicio,#formulario-buscador-publico #radio-busqueda{font-size:16px!important}
-                }
-            `;
-            document.head.appendChild(estilos);
         }
     }
 
