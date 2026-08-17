@@ -7,6 +7,13 @@
         .toLowerCase()
         .trim();
 
+    const slugMunicipio = valor => String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
     function prepararMenuTalleres() {
         document.querySelectorAll('header a[href="/#talleres"]').forEach(enlace => {
             enlace.setAttribute("href", "/talleres.html");
@@ -132,6 +139,27 @@
         contenidoPoblacion?.appendChild(estado);
         contenidoPoblacion?.appendChild(buscar);
 
+        formulario.addEventListener("submit", evento => {
+            const nombreMunicipio = String(poblacion.value || "").trim();
+            const codigoMunicipal = String(poblacion.dataset.codigoMunicipal || "").trim();
+
+            if (!nombreMunicipio || !/^\d{5}$/.test(codigoMunicipal)) return;
+
+            const slug = slugMunicipio(nombreMunicipio);
+            if (!slug) return;
+
+            evento.preventDefault();
+            evento.stopImmediatePropagation();
+
+            const parametros = new URLSearchParams();
+            const servicioSeleccionado = String(servicio.value || "").trim();
+            if (servicioSeleccionado) parametros.set("servicio", servicioSeleccionado);
+
+            const query = parametros.toString();
+            const destino = `/municipios/${slug}-${codigoMunicipal}.html${query ? `?${query}` : ""}#talleres`;
+            window.location.assign(destino);
+        }, true);
+
         ubicacion.onclick = async () => {
             ubicacion.disabled = true;
             ubicacion.textContent = "Localizando…";
@@ -158,6 +186,7 @@
                 if (!localidad && !cp) throw new Error("No se pudo identificar la población");
 
                 poblacion.value = localidad || cp;
+                poblacion.dataset.codigoMunicipal = "";
                 estado.textContent = localidad
                     ? `Ubicación detectada: ${localidad}${cp ? ` (${cp})` : ""}. Buscando talleres de esta población…`
                     : `Código postal detectado: ${cp}. Buscando talleres…`;
