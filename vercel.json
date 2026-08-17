@@ -26,6 +26,10 @@
     {
       "src": "/municipios/castello-de-la-plana-castellon-de-la-plana-12040\\.html",
       "dest": "/api/municipio-seo?archivo=castello-de-la-plana-castellon-de-la-plana-12040.html"
+    },
+    {
+      "src": "/municipios/alacant-alicante-03014\\.html",
+      "dest": "/api/municipio-seo?archivo=alacant-alicante-03014.html"
     }
   ],
   "rewrites": [
