@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import homeHandler from "./home.js";
 
-const BUSQUEDA_VERSION = "20260817-3";
-const AUTOCOMPLETE_VERSION = "20260817-3";
+const BUSQUEDA_VERSION = "20260817-4";
+const AUTOCOMPLETE_VERSION = "20260817-4";
 
 function slugify(value) {
   return String(value || "")
@@ -14,10 +14,7 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-function buscarArchivoMunicipio(valor) {
-  const termino = slugify(valor);
-  if (!termino || termino.length < 3 || /^\d{5}$/.test(termino)) return "";
-
+function buscarArchivoMunicipio(valor, codigoMunicipal = "") {
   let archivos = [];
   try {
     archivos = fs.readdirSync(path.join(process.cwd(), "municipios"));
@@ -25,8 +22,22 @@ function buscarArchivoMunicipio(valor) {
     return "";
   }
 
-  const candidatos = archivos.filter(nombre => {
-    if (!nombre.endsWith(".html") || nombre === "index.html") return false;
+  const paginas = archivos.filter(nombre =>
+    nombre.endsWith(".html") && nombre !== "index.html"
+  );
+
+  const codigo = String(codigoMunicipal || "").trim();
+  if (/^\d{5}$/.test(codigo)) {
+    const porCodigo = paginas.filter(nombre =>
+      nombre.toLowerCase().endsWith(`-${codigo}.html`)
+    );
+    if (porCodigo.length === 1) return porCodigo[0];
+  }
+
+  const termino = slugify(valor);
+  if (!termino || termino.length < 3 || /^\d{5}$/.test(termino)) return "";
+
+  const candidatos = paginas.filter(nombre => {
     const base = nombre.replace(/\.html$/i, "");
     return (
       base.startsWith(`${termino}-`) ||
@@ -61,8 +72,9 @@ function actualizarVersiones(html) {
 
 export default async function handler(request, response) {
   const poblacion = String(request.query?.poblacion || "").trim();
+  const codigoMunicipal = String(request.query?.codigo_municipal || "").trim();
   const servicio = String(request.query?.servicio || "").trim();
-  const archivoMunicipio = buscarArchivoMunicipio(poblacion);
+  const archivoMunicipio = buscarArchivoMunicipio(poblacion, codigoMunicipal);
 
   if (archivoMunicipio) {
     const params = new URLSearchParams();
