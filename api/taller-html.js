@@ -229,6 +229,7 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
     const verified = Boolean(workshop?.verificado);
     const image = primaryImage(workshop);
     const rolloutAlicante = esAlicante(workshop);
+    const photoSource = workshopPhotoSource(workshop);
 
     const actions = [];
     if (phone) actions.push(`<a class="boton accion-principal" href="tel:${escapeHTML(phone)}">☎ Llamar ahora</a>`);
@@ -243,9 +244,10 @@ function inject(html, workshop, canonicalSlug, relatedRows) {
     if (workshop?.codigo_postal) dataRows.push(`<p><strong>Código postal:</strong> ${escapeHTML(workshop.codigo_postal)}</p>`);
     if (city) dataRows.push(`<p><strong>Municipio:</strong> ${escapeHTML(city)}</p>`);
     if (province) dataRows.push(`<p><strong>Provincia:</strong> ${escapeHTML(province)}</p>`);
-    if (!rolloutAlicante) {
-        const schedule = renderSchedule(workshop?.horarios);
-        if (schedule) dataRows.push(schedule);
+    const schedule = renderSchedule(workshop?.horarios, rolloutAlicante);
+    if (schedule) {
+        if (!rolloutAlicante) dataRows.push(schedule);
+        else if (photoSource.url || photoSource.path) dataRows.push(`<div class="taller-horario-visible-bloque"><h2>Horario de atención</h2>${schedule}</div>`);
     }
 
     const crumbs = [
