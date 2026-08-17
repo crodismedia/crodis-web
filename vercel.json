@@ -22,6 +22,10 @@
     {
       "src": "/municipios/valencia-46250\\.html",
       "dest": "/api/municipio-seo?archivo=valencia-46250.html"
+    },
+    {
+      "src": "/municipios/castello-de-la-plana-castellon-de-la-plana-12040\\.html",
+      "dest": "/api/municipio-seo?archivo=castello-de-la-plana-castellon-de-la-plana-12040.html"
     }
   ],
   "rewrites": [
