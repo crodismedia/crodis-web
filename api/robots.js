@@ -10,7 +10,6 @@ export default function handler(_request, response) {
         "Disallow: /lib/",
         "",
         "Sitemap: https://www.tallermap.es/sitemap-index.xml",
-        "Host: www.tallermap.es",
         "",
         "# TallerMap robots actualizado 2026-08-17"
     ].join("\n"));
