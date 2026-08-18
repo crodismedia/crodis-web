@@ -4,6 +4,7 @@ import homeHandler from "./home.js";
 
 const BUSQUEDA_VERSION = "20260817-6";
 const AUTOCOMPLETE_VERSION = "20260817-6";
+const FICHAS_ALICANTE_VERSION = "20260818-1";
 
 const ROUTER_GLOBAL = `
 <script>
@@ -24,7 +25,7 @@ const ROUTER_GLOBAL = `
     params.set('poblacion', nombre);
 
     var codigo = String(poblacion && poblacion.dataset.codigoMunicipal || '').trim();
-    if (/^\\d{5}$/.test(codigo)) params.set('codigo_municipal', codigo);
+    if (/^\d{5}$/.test(codigo)) params.set('codigo_municipal', codigo);
 
     var servicioSeleccionado = String(servicio && servicio.value || '').trim();
     if (servicioSeleccionado) params.set('servicio', servicioSeleccionado);
@@ -101,6 +102,13 @@ function actualizarVersiones(html) {
 
   if (!output.includes("params.set('codigo_municipal'")) {
     output = output.replace(/<\/body>/i, `${ROUTER_GLOBAL}</body>`);
+  }
+
+  if (!output.includes("fichas-publicas-alicante.js")) {
+    output = output.replace(
+      /<\/body>/i,
+      `<script defer src="/js/fichas-publicas-alicante.js?v=${FICHAS_ALICANTE_VERSION}"></script></body>`
+    );
   }
 
   return output;
