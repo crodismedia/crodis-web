@@ -5,7 +5,6 @@
 supabase
 scripts
 crodis-web-main
-talleres_silla_valencia_con_imagenes_2026-07-24
 *.csv
 *.xlsx
 *.sql
