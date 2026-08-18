@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#111827">
+  <meta name="application-name" content="TallerMap Editor">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TM Editor">
+  <title>Editor V4 Vacío | TallerMap</title>
+  <link rel="manifest" href="../admin-editor-v4.webmanifest?v=2">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="stylesheet" href="../css/admin-editor-v4.css?v=5">
+</head>
+<body data-auth-state="checking">
+<div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
+<header class="v4-top">
+  <div><strong>TallerMap · Editor V4 Vacío</strong><small>Sin talleres cargados al abrir</small></div>
+  <nav>
+    <a class="v4-btn v4-primary" href="admin-editor-v4-vacio.html" aria-current="page">V4 vacío</a>
+    <a class="v4-btn v4-soft" href="admin-editor-v4.html">V4 normal</a>
+    <a class="v4-btn v4-soft" href="admin-editor-v4-desguaces.html">Desguaces</a>
+    <a class="v4-btn v4-soft" href="admin.html">Panel</a>
+    <button id="v4-logout" class="v4-btn v4-soft" type="button">Cerrar sesión</button>
+  </nav>
+</header>
+<main class="v4-wrap">
+  <aside class="v4-card v4-pad">
+    <h2>1. Territorio y lote</h2>
+    <div class="v4-field"><label for="v4-provincia">Provincia</label><select id="v4-provincia"><option value="">Seleccionar provincia…</option><option value="Alicante/Alacant">Alicante/Alacant</option><option value="Castellón/Castelló">Castellón/Castelló</option><option value="Valencia/València">Valencia/València</option></select></div>
+    <div class="v4-field"><label for="v4-municipio">Municipio</label><select id="v4-municipio" disabled><option value="">Seleccionar municipio…</option></select></div>
+    <div class="v4-actions"><button id="v4-cargar" class="v4-btn v4-primary" type="button" disabled>Cargar talleres</button><button id="v4-nuevo" class="v4-btn v4-green" type="button" disabled>Nuevo taller</button><button id="v4-incompletos" class="v4-btn v4-soft" type="button">Solo incompletos</button></div>
+    <div id="v4-territorio-estado" class="v4-status">Editor vacío. Selecciona provincia y municipio cuando quieras cargar.</div>
+    <div class="v4-kpis"><div><strong id="v4-total">0</strong><span>Total</span></div><div><strong id="v4-pendientes">0</strong><span>Incompletos</span></div><div><strong id="v4-seleccionados">0</strong><span>Seleccionados</span></div></div>
+    <div class="v4-actions"><button id="v4-seleccionar-todos" class="v4-btn v4-soft" type="button">Seleccionar todos</button><button id="v4-limpiar" class="v4-btn v4-soft" type="button">Limpiar</button><button id="v4-borrar" class="v4-btn v4-danger" type="button" disabled>Borrar seleccionados</button></div>
+    <div id="v4-lista" class="v4-list"></div>
+    <div class="v4-actions"><button id="v4-exportar" class="v4-btn v4-soft" type="button">Exportar CSV</button></div>
+  </aside>
+
+  <section class="v4-card v4-pad">
+    <h2>2. Editar ficha</h2>
+    <p id="v4-vacio" class="v4-status">No hay ningún taller cargado.</p>
+    <form id="v4-form" hidden>
+      <input id="v4-id" type="hidden">
+      <div class="v4-grid">
+        <div class="v4-field v4-full"><label for="v4-nombre">Nombre</label><input id="v4-nombre" required></div>
+        <div class="v4-field"><label for="v4-telefono">Teléfono</label><input id="v4-telefono"></div>
+        <div class="v4-field"><label for="v4-web">Web</label><input id="v4-web" inputmode="url"></div>
+        <div class="v4-field v4-full"><label for="v4-direccion">Dirección</label><input id="v4-direccion"></div>
+        <div class="v4-field"><label for="v4-cp">Código postal</label><input id="v4-cp" inputmode="numeric" maxlength="5" required></div>
+        <div class="v4-field"><label for="v4-ciudad">Municipio</label><input id="v4-ciudad" list="v4-municipios-lista" required></div>
+        <div class="v4-field v4-full"><label for="v4-provincia-ficha">Provincia</label><input id="v4-provincia-ficha" readonly></div>
+        <div id="v4-validacion-territorio" class="v4-status v4-full">Ubicación pendiente de validar.</div>
+        <div class="v4-field"><label for="v4-cerrado">Estado temporal</label><select id="v4-cerrado"><option value="false">Abierto / sin cierre temporal</option><option value="true">Cerrado temporalmente</option></select></div>
+        <div class="v4-field"><label for="v4-motivo">Motivo</label><input id="v4-motivo"></div>
+        <div class="v4-field"><label for="v4-reapertura">Reapertura prevista</label><input id="v4-reapertura" type="date"></div>
+        <div class="v4-field"><label for="v4-tipo">Tipo de negocio</label><select id="v4-tipo"><option value="taller">Taller</option><option value="concesionario">Concesionario</option><option value="concesionario-oficial">Concesionario oficial</option><option value="compraventa">Venta de vehículos de segunda mano</option></select></div>
+        <div class="v4-field"><label for="v4-oficial">Servicio oficial</label><select id="v4-oficial"><option value="false">No</option><option value="true">Sí</option></select></div>
+        <div class="v4-field"><label for="v4-marcas">Marca(s) servicio oficial</label><input id="v4-marcas" placeholder="Peugeot, Bosch Car Service…"></div>
+        <div class="v4-field v4-full"><label>Servicios</label><div id="v4-servicios" class="v4-services"></div></div>
+        <div class="v4-field v4-full"><label>Horario semanal</label><div id="v4-horarios-editor"></div></div>
+        <div class="v4-field v4-full"><label for="v4-descripcion">Descripción</label><textarea id="v4-descripcion" rows="8"></textarea></div>
+      </div>
+      <datalist id="v4-municipios-lista"></datalist>
+      <div id="v4-estado" class="v4-status">Ficha cargada.</div>
+      <div class="v4-savebar"><div class="v4-actions"><button id="v4-maps" class="v4-btn v4-soft" type="button">Google Maps</button><button id="v4-publica" class="v4-btn v4-soft" type="button" disabled>Ver ficha publicada</button></div><div class="v4-actions"><button class="v4-btn v4-primary" type="submit">Guardar ficha</button><button id="v4-guardar-siguiente" class="v4-btn v4-green" type="button">Guardar y siguiente</button></div></div>
+    </form>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/admin-editor-v4-horarios.js?v=5"></script>
+<script src="../js/admin-editor-v4.js?v=1"></script>
+<script>
+window.addEventListener('load',()=>{
+  const p=document.getElementById('v4-provincia');
+  const m=document.getElementById('v4-municipio');
+  const lista=document.getElementById('v4-lista');
+  const total=document.getElementById('v4-total');
+  const pendientes=document.getElementById('v4-pendientes');
+  const seleccionados=document.getElementById('v4-seleccionados');
+  const form=document.getElementById('v4-form');
+  const vacio=document.getElementById('v4-vacio');
+  if(p) p.value='';
+  if(m){m.innerHTML='<option value="">Seleccionar municipio…</option>';m.disabled=true;}
+  if(lista) lista.innerHTML='';
+  if(total) total.textContent='0';
+  if(pendientes) pendientes.textContent='0';
+  if(seleccionados) seleccionados.textContent='0';
+  if(form) form.hidden=true;
+  if(vacio){vacio.hidden=false;vacio.textContent='No hay ningún taller cargado.';}
+});
+</script>
+</body>
+</html>
