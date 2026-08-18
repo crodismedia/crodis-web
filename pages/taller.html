@@ -3,11 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Ficha de taller | TallerMap</title>
 
@@ -16,13 +12,6 @@
         content="Consulta la información pública de este taller en TallerMap."
     >
 
-    <!--
-        Esta plantilla NO es una segunda ficha pública.
-        La ficha real se genera exclusivamente mediante:
-        /talleres/:slug
-        ->
-        /api/taller-html.js
-    -->
     <meta
         name="robots"
         id="robots-taller"
@@ -35,50 +24,16 @@
         href="https://www.tallermap.es/pages/taller.html"
     >
 
-    <link
-        rel="icon"
-        href="../favicon.ico"
-        sizes="any"
-    >
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
-    <link
-        rel="icon"
-        href="../favicon.svg"
-        type="image/svg+xml"
-    >
+    <link rel="stylesheet" href="../css/estilo.css">
+    <link rel="stylesheet" href="../css/valoraciones.css">
+    <link rel="stylesheet" href="../css/taller-publico.css?v=20260818-6">
+    <link rel="stylesheet" href="../css/taller-publico-verde.css?v=20260818-6">
+    <link rel="stylesheet" href="../css/cookie-consent.css">
 
-    <link
-        rel="stylesheet"
-        href="../css/estilo.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../css/valoraciones.css"
-        data-tallermap-valoraciones-css="true"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../css/taller-publico.css?v=20260818-5"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../css/taller-publico-verde.css?v=20260818-5"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../css/cookie-consent.css"
-    >
-
-    <!-- Datos estructurados base.
-         api/taller-html.js los sustituye con los datos reales. -->
-    <script
-        type="application/ld+json"
-        id="datos-estructurados-taller"
-    >
+    <script type="application/ld+json" id="datos-estructurados-taller">
     {
         "@context": "https://schema.org",
         "@type": "AutoRepair",
@@ -86,10 +41,7 @@
     }
     </script>
 
-    <script
-        type="application/ld+json"
-        id="datos-estructurados-migas"
-    >
+    <script type="application/ld+json" id="datos-estructurados-migas">
     {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -97,11 +49,6 @@
     }
     </script>
 
-    <!--
-        Si alguien intenta entrar directamente en la ruta antigua,
-        se dirige a la ficha canónica /talleres/:slug.
-        Este script NO construye ninguna ficha.
-    -->
     <script src="../js/taller-legacy-redirect.js?v=20260818-2"></script>
 </head>
 
@@ -112,10 +59,8 @@
 
     <div class="contenedor cabecera-contenido">
 
-        <a
-            href="../index.html"
-            class="marca"
-        >
+        <a href="../index.html" class="marca">
+
             <img
                 class="marca-icono marca-icono-logo"
                 src="../favicon.svg"
@@ -129,7 +74,9 @@
                 <strong>TallerMap</strong>
                 <small>Talleres cerca de ti</small>
             </span>
+
         </a>
+
 
         <a
             href="../index.html#talleres"
@@ -153,121 +100,80 @@
     </a>
 
 
-    <nav
-        id="migas-pan"
-        class="ficha-migas"
-        aria-label="Migas de pan"
-    >
-
-        <a href="../index.html">
-            Inicio
-        </a>
-
-        <span
-            class="ficha-migas-separador"
-            aria-hidden="true"
-        >
-            ›
-        </span>
-
-        <span>
-            Ficha de taller
-        </span>
-
+    <!--
+        IMPORTANTE:
+        esta etiqueta se mantiene exactamente así
+        porque api/taller-html.js la sustituye.
+    -->
+    <nav id="migas-pan" class="ficha-migas" aria-label="Migas de pan">
+        <a href="../index.html">Inicio</a>
+        <span class="ficha-migas-separador" aria-hidden="true">›</span>
+        <span>Ficha de taller</span>
     </nav>
 
 
-    <!--
-        ÚNICA FICHA PÚBLICA.
-
-        Este HTML es solamente la estructura base.
-
-        Los datos reales se insertan EN EL SERVIDOR
-        mediante api/taller-html.js.
-
-        Aquí NO existe JavaScript que vuelva a consultar
-        el taller y construya otra ficha.
-    -->
-    <article
-        id="ficha-taller"
-        aria-live="polite"
-    >
+    <article id="ficha-taller" aria-live="polite">
 
         <span class="etiqueta">
             Ficha pública de TallerMap
         </span>
 
 
-        <h1 id="taller-nombre">
-            Ficha de taller
-        </h1>
+        <!-- NOMBRE -->
+        <h1 id="taller-nombre">Ficha de taller</h1>
 
 
-        <p
-            id="taller-direccion"
-            class="ficha-publica-direccion"
-        ></p>
+        <!-- DIRECCIÓN -->
+        <p id="taller-direccion" class="ficha-publica-direccion"></p>
 
 
         <!--
-            api/taller-html.js sustituye este bloque por:
-            - foto real, o
-            - rectángulo verde con horario.
+            FOTO O PORTADA VERDE
+            Este bloque lo sustituye api/taller-html.js
         -->
-        <div
-            id="taller-foto"
-            class="ficha-publica-foto"
-            hidden
-        ></div>
+        <div id="taller-foto" class="ficha-publica-foto" hidden></div>
 
 
+        <!-- ESTADO -->
         <div class="ficha-estado">
 
-            <span
-                id="taller-verificacion"
-                class="ficha-insignia"
-            >
+            <span id="taller-verificacion" class="ficha-insignia">
                 Datos pendientes de verificar
             </span>
 
-            <span
-                id="taller-actualizacion"
-                class="ficha-fecha"
-            ></span>
+            <span id="taller-actualizacion" class="ficha-fecha"></span>
 
         </div>
 
 
-        <!-- Botones públicos -->
-        <div
-            id="taller-acciones"
-            class="ficha-publica-acciones"
-        ></div>
+        <!--
+            BOTONES:
+            llamar
+            WhatsApp
+            cómo llegar
+            web
+        -->
+        <div id="taller-acciones" class="ficha-publica-acciones"></div>
 
 
-        <!-- Descripción -->
+        <!-- DESCRIPCIÓN -->
         <p id="taller-descripcion"></p>
 
 
-        <!-- Servicios -->
-        <div
-            id="taller-servicios"
-            class="especialidades"
-        ></div>
+        <!-- SERVICIOS -->
+        <div id="taller-servicios" class="especialidades"></div>
 
 
         <!--
-            Teléfono
-            Dirección
-            Código postal
-            Municipio
-            Provincia
-            Horario cuando corresponda
+            DATOS:
+            teléfono
+            dirección
+            código postal
+            municipio
+            provincia
+            horario
         -->
-        <div
-            id="taller-datos"
-            class="ficha-publica-datos"
-        ></div>
+        <div id="taller-datos" class="ficha-publica-datos"></div>
 
 
         <p class="ficha-aviso">
@@ -287,6 +193,7 @@
                 Soy el propietario: reclamar ficha
             </a>
 
+
             <a
                 id="corregir-ficha"
                 class="boton boton-claro"
@@ -300,11 +207,8 @@
     </article>
 
 
-    <section
-        id="contexto-local"
-        class="ficha-contexto"
-        hidden
-    >
+    <!-- CONTEXTO LOCAL -->
+    <section id="contexto-local" class="ficha-contexto" hidden>
 
         <h2 id="contexto-titulo">
             Talleres de la zona
@@ -312,14 +216,12 @@
 
         <p id="contexto-texto"></p>
 
-        <div
-            id="contexto-enlaces"
-            class="ficha-contexto-enlaces"
-        ></div>
+        <div id="contexto-enlaces" class="ficha-contexto-enlaces"></div>
 
     </section>
 
 
+    <!-- RELACIONADOS -->
     <section
         class="ficha-relacionados"
         aria-labelledby="relacionados-titulo"
@@ -329,17 +231,11 @@
             Otros talleres que pueden interesarte
         </h2>
 
-        <p
-            id="relacionados-estado"
-            class="ficha-cargando"
-        >
+        <p id="relacionados-estado" class="ficha-cargando">
             Buscando talleres relacionados…
         </p>
 
-        <div
-            id="talleres-relacionados"
-            class="ficha-relacionados-lista"
-        ></div>
+        <div id="talleres-relacionados" class="ficha-relacionados-lista"></div>
 
     </section>
 
@@ -364,27 +260,20 @@
 
 
 <!--
-=========================================================
-SCRIPTS AUXILIARES
-=========================================================
+=====================================================
+IMPORTANTE
+=====================================================
 
-IMPORTANTE:
+NO cargar:
+    taller.js
+    taller-urls.js
 
-NO cargar aquí:
-
-    js/taller.js
-    js/taller-urls.js
-
-Esos scripts construían otra versión de la ficha
-en el navegador.
-
-La ficha principal ahora tiene UN SOLO renderizador:
-
+La ficha se genera únicamente mediante:
     api/taller-html.js
 
-Estos scripts inferiores únicamente añaden funciones
-auxiliares y NO reconstruyen la ficha principal.
-=========================================================
+imagenes-automaticas.js solo gestiona:
+    foto real / portada verde.
+=====================================================
 -->
 
 
@@ -395,11 +284,9 @@ auxiliares y NO reconstruyen la ficha principal.
 
 
 <script
-   <script
     defer
-    src="../js/imagenes-automaticas.js?v=20260818-6"
+    src="../js/imagenes-automaticas.js?v=20260818-7"
     data-tallermap-imagenes-auto="true"
-></script>
 ></script>
 
 
