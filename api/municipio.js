@@ -1,17 +1,29 @@
 import fs from "node:fs";
 import path from "node:path";
-import { escapeHTML, renderWorkshopMedia, reviewStatusLabel, safePhone, safeWeb, serviceLabel, supabaseRpc, workshopSlug } from "../lib/server-utils.js";
+import {
+    escapeHTML,
+    renderWorkshopMedia,
+    reviewStatusLabel,
+    safePhone,
+    safeWeb,
+    serviceLabel,
+    supabaseRpc,
+    workshopSlug
+} from "../lib/server-utils.js";
 
+const SITE_URL = "https://www.tallermap.es";
 const PAGE_SIZE = 30;
 
 function safeFileName(value) {
-    const name = String(value || "").trim();
-    if (!/^[a-z0-9-]+\.html$/i.test(name)) return "";
-    return name;
+    const fileName = String(value || "").trim().toLowerCase();
+    return /^[a-z0-9-]+-\d{5}\.html$/.test(fileName) ? fileName : "";
 }
 
 function safeService(value) {
-    return String(value || "").replace(/[^a-z0-9-]/gi, "").slice(0, 80);
+    return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+        .slice(0, 80);
 }
 
 function requestedPage(value) {
@@ -19,161 +31,459 @@ function requestedPage(value) {
     return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-function readMunicipalityData(html) {
-    const match = html.match(/id="lista-talleres"[\s\S]*?data-municipio="([^"]+)"[\s\S]*?data-codigo-municipal="([^"]+)"/i);
-    if (!match) throw new Error("No se encontraron los datos del municipio en la plantilla");
-    return { name: match[1], code: match[2] };
+function humanizeSlug(value) {
+    return String(value || "")
+        .replace(/-\d{5}\.html$/i, "")
+        .split("-")
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toLocaleUpperCase("es") + part.slice(1))
+        .join(" ");
 }
 
-function isAlicanteMunicipality(code) {
-    return String(code || "").replace(/\D/g, "").startsWith("03");
+function readMunicipalityMeta(fileName) {
+    const fallbackCode = (fileName.match(/(\d{5})\.html$/) || [])[1] || "";
+    const fallbackName = humanizeSlug(fileName);
+
+    try {
+        const source = fs.readFileSync(
+            path.join(process.cwd(), "municipios", fileName),
+            "utf8"
+        );
+
+        const match = source.match(
+            /id="lista-talleres"[\s\S]*?data-municipio="([^"]+)"[\s\S]*?data-codigo-municipal="([^"]+)"/i
+        );
+
+        if (match) {
+            return {
+                name: String(match[1] || fallbackName).trim(),
+                code: String(match[2] || fallbackCode).replace(/\D/g, "").slice(0, 5)
+            };
+        }
+    } catch (_error) {
+        // El HTML antiguo solo se usa como fuente de metadatos, nunca como plantilla visual.
+    }
+
+    return {
+        name: fallbackName,
+        code: fallbackCode
+    };
 }
 
-function renderSchedule(schedule) {
-    if (!schedule || typeof schedule !== "object") return "";
-    const days = [["lunes","Lunes"],["martes","Martes"],["miercoles","Miércoles"],["jueves","Jueves"],["viernes","Viernes"],["sabado","Sábado"],["domingo","Domingo"]];
-    const rows = days.map(([key, label]) => {
-        const value = schedule[key];
-        if (!value) return "";
-        const text = value.cerrado ? "Cerrado" : (Array.isArray(value.turnos) ? value.turnos : [])
-            .map((slot) => `${slot.apertura || ""}–${slot.cierre || ""}`)
-            .filter((slot) => slot !== "–").join(" y ");
-        return text ? `<div><dt>${label}</dt><dd>${escapeHTML(text)}</dd></div>` : "";
-    }).filter(Boolean).join("");
-    return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
+function cleanDescription(value) {
+    const text = String(value || "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    if (!text || /^servicios\b/i.test(text) || text.length > 220) {
+        return "Consulta la ficha del taller para conocer sus servicios y datos de contacto.";
+    }
+
+    return text;
 }
 
-function mapsURL(workshop, rawName, directions = false) {
-    const location = [rawName, workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia, "España"]
-        .filter(Boolean).map((value) => String(value).trim()).filter(Boolean).join(", ");
-    if (!location) return "";
-    if (directions) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+function mapsURL(workshop, name) {
+    const query = [
+        name,
+        workshop?.direccion,
+        workshop?.codigo_postal,
+        workshop?.ciudad,
+        workshop?.provincia,
+        "España"
+    ]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+        .join(", ");
+
+    return query
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+        : "";
 }
 
-function renderWorkshop(workshop, index, rolloutAlicante = false) {
-    const rawName = workshop.nombre || workshop.nombre_taller || "Taller sin nombre";
-    const name = escapeHTML(rawName);
+function renderWorkshop(workshop) {
+    const rawName = workshop?.nombre || workshop?.nombre_taller || "Taller sin nombre";
     const slug = workshopSlug(workshop);
-    const address = [workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia].filter(Boolean).map(escapeHTML).join(", ");
-    const phone = safePhone(workshop.telefono);
-    const web = safeWeb(workshop.web);
-    const map = mapsURL(workshop, rawName, rolloutAlicante);
-    const description = escapeHTML(workshop.descripcion || "Consulta la ficha del taller para conocer sus servicios y datos de contacto.");
-    const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
-    const serviceHTML = services.length ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("") : "<span>Taller mecánico</span>";
-    const contacts = [];
-    if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
-    if (map) contacts.push(`<a class="accion-mapa${rolloutAlicante ? " accion-mapa-alicante" : ""}" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${name}">Cómo llegar</a>`);
-    if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-    return `<article class="taller-card${rolloutAlicante ? " taller-card-alicante" : ""}" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(workshop, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a>` : name}</h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+    const phone = safePhone(workshop?.telefono);
+    const web = safeWeb(workshop?.web);
+    const map = mapsURL(workshop, rawName);
+
+    const address = [
+        workshop?.direccion,
+        workshop?.codigo_postal,
+        workshop?.ciudad,
+        workshop?.provincia
+    ]
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+        .join(", ");
+
+    const services = Array.isArray(workshop?.servicios)
+        ? workshop.servicios
+            .map(serviceLabel)
+            .filter(Boolean)
+            .slice(0, 4)
+        : [];
+
+    const serviceMarkup = (services.length ? services : ["Taller mecánico"])
+        .map((service) => `<span>${escapeHTML(service)}</span>`)
+        .join("");
+
+    const buttons = [];
+
+    if (phone) {
+        buttons.push(
+            `<a class="tm-card-btn tm-card-btn-call" href="tel:${escapeHTML(phone)}">Llamar</a>`
+        );
+    }
+
+    if (slug) {
+        buttons.push(
+            `<a class="tm-card-btn tm-card-btn-profile" href="/talleres/${encodeURIComponent(slug)}">▤ Ver ficha</a>`
+        );
+    }
+
+    if (map) {
+        buttons.push(
+            `<a class="tm-card-btn tm-card-btn-map" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer">⌖ Abrir en Google Maps</a>`
+        );
+    }
+
+    if (web) {
+        buttons.push(
+            `<a class="tm-card-btn tm-card-btn-web" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`
+        );
+    }
+
+    return `
+        <article class="taller-card taller-card-unificada" data-taller-slug="${escapeHTML(slug)}">
+            ${renderWorkshopMedia(workshop, rawName)}
+            <div class="taller-informacion">
+                <span class="verificado verificado-en-contenido">
+                    ${escapeHTML(reviewStatusLabel(Boolean(workshop?.verificado)))}
+                </span>
+
+                <h3>
+                    ${slug
+                        ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(rawName)}</a>`
+                        : escapeHTML(rawName)}
+                </h3>
+
+                <p class="ubicacion">⌖ ${escapeHTML(address || "Ubicación no indicada")}</p>
+
+                <p class="taller-descripcion">
+                    ${escapeHTML(cleanDescription(workshop?.descripcion))}
+                </p>
+
+                <div class="especialidades">
+                    ${serviceMarkup}
+                </div>
+
+                <div class="tm-card-actions">
+                    ${buttons.join("") || "<span>Sin datos de contacto publicados</span>"}
+                </div>
+            </div>
+        </article>
+    `;
 }
 
 function pageURL(fileName, page, service) {
     const params = new URLSearchParams();
-    if (page > 1) params.set("pagina", String(page));
-    if (service) params.set("servicio", service);
+
+    if (page > 1) {
+        params.set("pagina", String(page));
+    }
+
+    if (service) {
+        params.set("servicio", service);
+    }
+
     const query = params.toString();
     return `/municipios/${fileName}${query ? `?${query}` : ""}`;
 }
 
-function selectService(html, service) {
-    if (!service) return html;
-    const pattern = new RegExp(`(<option\\s+value="${service.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}")([^>]*>)`, "i");
-    return html.replace(pattern, "$1 selected$2");
+function renderServiceOptions(selected) {
+    const options = [
+        ["", "Todos los servicios"],
+        ["mecanica-general", "Mecánica general"],
+        ["cambio-aceite-filtros", "Cambio de aceite y filtros"],
+        ["chapa-pintura", "Chapa y pintura"],
+        ["neumaticos", "Neumáticos"],
+        ["diagnosis-electronica", "Diagnosis electrónica"],
+        ["aire-acondicionado", "Aire acondicionado"],
+        ["pre-itv", "Pre-ITV"],
+        ["hibridos-electricos", "Híbridos y eléctricos"]
+    ];
+
+    return options
+        .map(([value, label]) => (
+            `<option value="${escapeHTML(value)}"${value === selected ? " selected" : ""}>${escapeHTML(label)}</option>`
+        ))
+        .join("");
 }
 
-function injectAlicantePublicCardStyles(html, enabled) {
-    if (!enabled) return html;
-    const css = `<style id="tm-alicante-fichas-publicas">.pagina-municipio .taller-card-alicante .taller-contactos .accion-mapa-alicante{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:1px solid #df7418;border-radius:11px;background:linear-gradient(135deg,#f5a23b,#ed7f1d);color:#fff!important;-webkit-text-fill-color:#fff!important;font-weight:850;text-decoration:none;box-shadow:0 8px 18px rgba(237,127,29,.24);transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}.pagina-municipio .taller-card-alicante .taller-contactos .accion-mapa-alicante:hover{filter:brightness(.96);transform:translateY(-1px);box-shadow:0 11px 22px rgba(237,127,29,.3)}.pagina-municipio .taller-card-alicante .taller-contactos .accion-mapa-alicante:focus-visible{outline:3px solid rgba(245,162,59,.32);outline-offset:2px}</style>`;
-    return html.replace("</head>", `${css}\n</head>`);
-}
-
-function stripMunicipalityRuntime(html) {
-    const result = html
-        .replace(/\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
-        .replace(/\s*<script\s+src="\.\.\/js\/servicios\.js"><\/script>/i, "")
-        .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
-    return /imagenes-automaticas\.js/i.test(result) ? result : result.replace("</body>", '<script defer src="../js/imagenes-automaticas.js?v=20260810-2"></script>\n</body>');
-}
-
-function injectPagination(html, fileName, page, total, service) {
+function renderPagination(fileName, page, total, service) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const previous = page <= 1 ? '<span id="boton-pagina-anterior" class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>' : `<a id="boton-pagina-anterior" class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`;
-    const next = page >= totalPages ? '<span id="boton-pagina-siguiente" class="boton deshabilitado" aria-disabled="true">Siguiente →</span>' : `<a id="boton-pagina-siguiente" class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`;
-    const pagination = total > PAGE_SIZE ? `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor municipio-paginacion">${previous}<span id="estado-paginacion" aria-live="polite">Página ${page} de ${totalPages}</span>${next}</div>` : `<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden></div>`;
-    return html.replace(/<div id="contenedor-cargar-mas" class="cargar-mas-contenedor" hidden>[\s\S]*?<\/div>/i, pagination);
-}
 
-function injectHeadSEO(html, fileName, page, total, service) {
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const validPage = total > 0 && page <= totalPages;
-    const indexable = validPage && !service;
-    let result = html;
-    if (!indexable) result = result.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
-    if (indexable && page > 1) {
-        result = result.replace(/<title>([^<]+)<\/title>/i, `<title>Página ${page} · $1</title>`)
-            .replace(/<meta name="description" content="([^"]*)">/i, `<meta name="description" content="Página ${page}. $1">`)
-            .replace(/<link rel="canonical" href="[^"]+">/i, `<link rel="canonical" href="https://www.tallermap.es${pageURL(fileName, page, "")}">`);
+    if (totalPages <= 1) {
+        return "";
     }
-    const links = [];
-    if (indexable && page > 1) links.push(`<link rel="prev" href="https://www.tallermap.es${pageURL(fileName, page - 1, "")}">`);
-    if (indexable && page < totalPages) links.push(`<link rel="next" href="https://www.tallermap.es${pageURL(fileName, page + 1, "")}">`);
-    if (links.length) result = result.replace("</head>", `${links.join("\n")}\n</head>`);
-    return result;
+
+    const previous = page > 1
+        ? `<a class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`
+        : `<span class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>`;
+
+    const next = page < totalPages
+        ? `<a class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`
+        : `<span class="boton deshabilitado" aria-disabled="true">Siguiente →</span>`;
+
+    return `
+        <nav class="cargar-mas-contenedor municipio-paginacion" aria-label="Paginación">
+            ${previous}
+            <span>Página ${page} de ${totalPages}</span>
+            ${next}
+        </nav>
+    `;
 }
 
-function noindexOnFailure(html) {
-    return html.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow,max-image-preview:large">');
+function renderPage({ fileName, municipality, workshops, total, page, service }) {
+    const name = municipality.name;
+    const code = municipality.code;
+    const canonicalPath = `/municipios/${fileName}`;
+    const canonical = `${SITE_URL}${canonicalPath}`;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const indexable = !service && page <= totalPages;
+    const title = page > 1
+        ? `Página ${page} · Talleres mecánicos en ${name} | TallerMap`
+        : `Talleres mecánicos en ${name} | TallerMap`;
+
+    const description = `Encuentra talleres mecánicos publicados en ${name}. Consulta servicios, dirección, teléfono, ficha del taller y cómo llegar en TallerMap.`;
+
+    const cards = workshops.length
+        ? workshops.map(renderWorkshop).join("")
+        : `
+            <div class="municipio-sin-talleres">
+                <h3>Todavía no hay talleres publicados en ${escapeHTML(name)}</h3>
+                <p>Un taller de esta población puede solicitar gratuitamente su alta en TallerMap.</p>
+                <a class="boton" href="/pages/registro.html">Registrar un taller</a>
+            </div>
+        `;
+
+    const structuredData = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: `Talleres mecánicos en ${name}`,
+        description,
+        url: canonical,
+        isPartOf: {
+            "@type": "WebSite",
+            name: "TallerMap",
+            url: `${SITE_URL}/`
+        },
+        about: {
+            "@type": "Place",
+            name,
+            identifier: code
+        },
+        breadcrumb: {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+                {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Inicio",
+                    item: `${SITE_URL}/`
+                },
+                {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Municipios",
+                    item: `${SITE_URL}/municipios/`
+                },
+                {
+                    "@type": "ListItem",
+                    position: 3,
+                    name,
+                    item: canonical
+                }
+            ]
+        }
+    }).replace(/</g, "\\u003c");
+
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHTML(title)}</title>
+    <meta name="description" content="${escapeHTML(description)}">
+    <meta name="robots" content="${indexable ? "index,follow,max-image-preview:large" : "noindex,follow,max-image-preview:large"}">
+    <link rel="canonical" href="${escapeHTML(canonical)}">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/estilo.css">
+    <link rel="stylesheet" href="/css/municipios.css">
+    <script type="application/ld+json">${structuredData}</script>
+    <style>
+        .taller-card-unificada{display:flex;flex-direction:column;overflow:hidden}
+        .taller-card-unificada .taller-imagen{min-height:154px}
+        .tm-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e4e9f0}
+        .tm-card-btn{min-height:44px;display:flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:800;text-align:center}
+        .tm-card-btn-call{border:1px solid #cfe0fb;background:#f3f8ff;color:#0d47a1}
+        .tm-card-btn-profile{background:#1457d9;color:#fff;box-shadow:0 7px 16px rgba(20,87,217,.18)}
+        .tm-card-btn-map{grid-column:1/-1;background:#079447;color:#fff;box-shadow:0 7px 16px rgba(7,148,71,.18)}
+        .tm-card-btn-web{grid-column:1/-1;border:1px solid #d9e0e8;background:#fff;color:#17223b}
+        @media (max-width:640px){.tm-card-actions{grid-template-columns:1fr}.tm-card-btn-map,.tm-card-btn-web{grid-column:auto}}
+    </style>
+</head>
+<body class="pagina-municipio">
+    <header class="cabecera">
+        <div class="contenedor cabecera-contenido">
+            <a href="/" class="marca" aria-label="Volver al inicio de TallerMap">
+                <img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46">
+                <span class="marca-texto"><strong>TallerMap</strong><small>Talleres cerca de ti</small></span>
+            </a>
+            <nav class="menu" aria-label="Navegación principal">
+                <a href="/">Inicio</a>
+                <a href="/municipios/">Municipios</a>
+                <a href="/#servicios">Servicios</a>
+                <a href="/pages/registro.html">Registrar taller</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="municipio-hero">
+            <div class="contenedor">
+                <nav class="migas" aria-label="Migas de pan">
+                    <a href="/">Inicio</a><span aria-hidden="true">›</span>
+                    <a href="/municipios/">Municipios</a><span aria-hidden="true">›</span>
+                    <span>${escapeHTML(name)}</span>
+                </nav>
+
+                <div class="municipio-hero-grid">
+                    <div>
+                        <span class="etiqueta">Directorio local de talleres</span>
+                        <h1>Talleres mecánicos en ${escapeHTML(name)}</h1>
+                        <p class="municipio-intro">
+                            Consulta talleres de reparación y mantenimiento publicados en TallerMap para
+                            <strong>${escapeHTML(name)}</strong>. Filtra por servicio y abre la ficha individual
+                            para revisar horarios, contacto y cómo llegar.
+                        </p>
+                        <p class="municipio-codigo">Código municipal: <strong>${escapeHTML(code)}</strong></p>
+                    </div>
+
+                    <aside class="municipio-panel">
+                        <h2>Buscar en ${escapeHTML(name)}</h2>
+                        <form class="buscador municipio-buscador" method="get" action="${escapeHTML(canonicalPath)}">
+                            <label for="servicio">Servicio del vehículo</label>
+                            <select id="servicio" name="servicio">
+                                ${renderServiceOptions(service)}
+                            </select>
+                            <button type="submit" class="boton boton-buscar">Filtrar talleres</button>
+                        </form>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section id="talleres" class="seccion seccion-gris">
+            <div class="contenedor">
+                <div class="cabecera-seccion">
+                    <div class="titulo-seccion alineado-izquierda">
+                        <span>Resultados locales</span>
+                        <h2>Talleres publicados en ${escapeHTML(name)}</h2>
+                        <p>Todos los resultados usan la misma tarjeta pública de TallerMap.</p>
+                    </div>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">
+                        ${total} ${total === 1 ? "taller publicado" : "talleres publicados"}
+                    </span>
+                </div>
+
+                <div class="talleres-grid" id="lista-talleres" data-municipio="${escapeHTML(name)}" data-codigo-municipal="${escapeHTML(code)}">
+                    ${cards}
+                </div>
+
+                ${renderPagination(fileName, page, total, service)}
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie">
+        <div class="contenedor copyright">
+            <span>© 2026 TallerMap</span>
+            <span>Una plataforma de CRODIS Media</span>
+        </div>
+    </footer>
+</body>
+</html>`;
 }
 
 export default async function handler(request, response) {
     const fileName = safeFileName(request.query?.archivo);
     const page = requestedPage(request.query?.pagina);
     const service = safeService(request.query?.servicio);
-    if (!fileName) { response.status(404).send("Municipio no encontrado."); return; }
-    const filePath = path.join(process.cwd(), "municipios", fileName);
-    let html;
-    try { html = fs.readFileSync(filePath, "utf8"); }
-    catch (_error) { response.status(404).send("Municipio no encontrado."); return; }
-    let municipality;
-    try { municipality = readMunicipalityData(html); }
-    catch (error) { console.error("No se pudo leer la plantilla municipal:", error); response.status(500).send("No se pudo renderizar el municipio."); return; }
-    const rolloutAlicante = isAlicanteMunicipality(municipality.code);
+
+    if (!fileName) {
+        response.status(404).send("Municipio no encontrado.");
+        return;
+    }
+
+    const municipality = readMunicipalityMeta(fileName);
+
+    if (!municipality.code) {
+        response.status(404).send("Municipio no encontrado.");
+        return;
+    }
+
     try {
         const from = (page - 1) * PAGE_SIZE;
-        const workshops = await supabaseRpc("buscar_talleres_municipio", { p_codigo_municipal: municipality.code, p_servicio: service, p_desde: from, p_limite: PAGE_SIZE });
-        const total = workshops.length ? Number(workshops[0]?.total_resultados) || workshops.length : 0;
+
+        const workshops = await supabaseRpc("buscar_talleres_municipio", {
+            p_codigo_municipal: municipality.code,
+            p_servicio: service,
+            p_desde: from,
+            p_limite: PAGE_SIZE
+        });
+
+        const total = workshops.length
+            ? Number(workshops[0]?.total_resultados) || workshops.length
+            : 0;
+
         const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-        if (page > totalPages && total > 0) {
-            html = injectHeadSEO(html, fileName, page, total, service);
-            html = injectAlicantePublicCardStyles(html, rolloutAlicante);
-            html = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1<p class="mensaje-talleres">Esta página de resultados no existe.</p>$2`);
-            html = stripMunicipalityRuntime(html);
-            response.setHeader("Content-Type", "text/html; charset=utf-8");
-            response.setHeader("Cache-Control", "no-store, max-age=0");
-            response.status(404).send(html); return;
+
+        if (total > 0 && page > totalPages) {
+            response
+                .status(404)
+                .send(renderPage({
+                    fileName,
+                    municipality,
+                    workshops: [],
+                    total,
+                    page,
+                    service
+                }));
+            return;
         }
-        const workshopHTML = workshops.length ? workshops.map((workshop, index) => renderWorkshop(workshop, index, rolloutAlicante)).join("") : `<div class="municipio-sin-talleres"><h3>Todavía no hay talleres publicados en ${escapeHTML(municipality.name)}</h3><p>Un taller de esta población puede solicitar gratuitamente su alta en TallerMap.</p><a class="boton" href="../pages/registro.html">Registrar un taller</a></div>`;
-        html = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1${workshopHTML}$2`);
-        html = html.replace(/<span class="orden-talleres mapa-estado"[^>]*>[\s\S]*?<\/span>/i, `<span class="orden-talleres mapa-estado" aria-live="polite">${total} ${total === 1 ? "taller publicado" : "talleres publicados"}</span>`);
-        html = injectPagination(html, fileName, page, total, service);
-        html = injectHeadSEO(html, fileName, page, total, service);
-        html = injectAlicantePublicCardStyles(html, rolloutAlicante);
-        html = selectService(html, service);
-        html = stripMunicipalityRuntime(html);
+
+        const html = renderPage({
+            fileName,
+            municipality,
+            workshops,
+            total,
+            page,
+            service
+        });
+
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", "no-store, max-age=0");
+        response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+        response.setHeader("X-TallerMap-Municipio-Renderer", "unico-v1");
         response.setHeader("X-TallerMap-Municipio", municipality.code);
-        response.setHeader("X-TallerMap-Municipio-Talleres", String(total));
-        response.setHeader("X-TallerMap-Alicante-Public-Cards", rolloutAlicante ? "1" : "0");
         response.status(200).send(html);
     } catch (error) {
-        console.error("No se pudo renderizar el municipio desde Supabase:", error);
-        html = injectAlicantePublicCardStyles(stripMunicipalityRuntime(noindexOnFailure(html)), rolloutAlicante);
-        response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", "no-store, max-age=0");
+        console.error("No se pudo renderizar el municipio:", error);
         response.setHeader("Retry-After", "60");
-        response.status(503).send(html);
+        response.status(503).send("No se pudo cargar el municipio en este momento.");
     }
 }
