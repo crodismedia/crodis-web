@@ -64,12 +64,12 @@
     <div class="v4-actions"><button id="v4-exportar" class="v4-btn v4-soft" type="button">Exportar CSV</button></div>
 
     <section class="v4-csv-import" aria-labelledby="v4-csv-title">
-      <h2 id="v4-csv-title">Importar archivo CSV</h2>
-      <div class="v4-csv-help">Selecciona un CSV, el editor lo comprobará primero y mostrará filas válidas, duplicadas y con errores. <strong>No se guarda nada hasta pulsar “Importar válidos”.</strong> La columna <strong>horarios</strong> puede contener texto copiado de Google.</div>
+      <h2 id="v4-csv-title">Cargar CSV para editar</h2>
+      <div class="v4-csv-help">Selecciona un CSV exportado desde Supabase. El editor comprobará la columna <strong>id</strong> y localizará cada taller existente. <strong>No crea talleres nuevos y no modifica nada al cargar el archivo.</strong> Después podrás completar horarios y usar “Guardar y siguiente” para recorrer el lote.</div>
       <div class="v4-field"><label for="v4-csv">Archivo CSV</label><input id="v4-csv" type="file" accept=".csv,text/csv"></div>
-      <div class="v4-actions"><button id="v4-comprobar-csv" class="v4-btn v4-primary" type="button">Comprobar CSV</button><button id="v4-importar-csv" class="v4-btn v4-green" type="button" disabled>Importar válidos</button><button id="v4-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button></div>
+      <div class="v4-actions"><button id="v4-comprobar-csv" class="v4-btn v4-primary" type="button">Comprobar CSV</button><button id="v4-importar-csv" class="v4-btn v4-green" type="button" disabled>Cargar para editar</button><button id="v4-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button></div>
       <div id="v4-csv-estado" class="v4-status">Selecciona un archivo CSV.</div>
-      <div class="v4-csv-kpis"><div><strong id="v4-csv-total">0</strong><span>Filas</span></div><div><strong id="v4-csv-validas">0</strong><span>Válidas</span></div><div><strong id="v4-csv-duplicadas">0</strong><span>Duplicadas</span></div><div><strong id="v4-csv-errores">0</strong><span>Errores</span></div></div>
+      <div class="v4-csv-kpis"><div><strong id="v4-csv-total">0</strong><span>Filas</span></div><div><strong id="v4-csv-validas">0</strong><span>Existentes</span></div><div><strong id="v4-csv-duplicadas">0</strong><span>IDs repetidos</span></div><div><strong id="v4-csv-errores">0</strong><span>Errores</span></div></div>
       <div id="v4-csv-preview" class="v4-csv-preview" aria-live="polite"></div>
     </section>
   </aside>
@@ -108,7 +108,7 @@
 <script src="../js/supabase.js"></script>
 <script src="../js/admin-editor-v4-horarios.js?v=6"></script>
 <script src="../js/admin-editor-v4.js?v=2"></script>
-<script src="../js/admin-editor-v4-import-csv.js?v=1"></script>
+<script src="../js/admin-editor-v4-import-csv.js?v=2"></script>
 <script src="../js/admin-editor-v4-vaciar.js?v=1"></script>
 <script src="../js/admin-editor-v4-install.js?v=2"></script>
 </body>
