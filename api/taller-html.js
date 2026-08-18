@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+
 import {
     escapeHTML,
     formatPhoneDisplay,
@@ -12,15 +13,25 @@ import {
     workshopPhotoSource
 } from "../lib/server-utils.js";
 
+
 const SITE_URL = "https://www.tallermap.es";
 const DEFAULT_IMAGE = `${SITE_URL}/images/cartel-tallermap.png`;
 
+
+/* =====================================================
+   UTILIDADES
+===================================================== */
+
 function cleanText(value, maxLength = 160) {
-    const text = String(value || "").replace(/\s+/g, " ").trim();
+    const text = String(value || "")
+        .replace(/\s+/g, " ")
+        .trim();
+
     return text.length > maxLength
         ? `${text.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
         : text;
 }
+
 
 function titleFor(workshop) {
     const name = cleanText(workshop?.nombre || "Taller", 70);
@@ -41,18 +52,42 @@ function titleFor(workshop) {
         );
     }
 
-    return cleanText(`${name} | TallerMap`, 68);
+    return cleanText(
+        `${name} | TallerMap`,
+        68
+    );
 }
 
+
 function descriptionFor(workshop) {
-    const name = cleanText(workshop?.nombre || "este taller", 70);
-    const city = cleanText(workshop?.ciudad || "", 45);
-    const province = cleanText(workshop?.provincia || "", 45);
-    const supplied = cleanText(workshop?.descripcion || "", 155);
+    const name = cleanText(
+        workshop?.nombre || "este taller",
+        70
+    );
 
-    if (supplied) return supplied;
+    const city = cleanText(
+        workshop?.ciudad || "",
+        45
+    );
 
-    const location = [city, province]
+    const province = cleanText(
+        workshop?.provincia || "",
+        45
+    );
+
+    const supplied = cleanText(
+        workshop?.descripcion || "",
+        155
+    );
+
+    if (supplied) {
+        return supplied;
+    }
+
+    const location = [
+        city,
+        province
+    ]
         .filter(Boolean)
         .join(", ");
 
@@ -61,6 +96,7 @@ function descriptionFor(workshop) {
         155
     );
 }
+
 
 function workshopAddress(workshop) {
     return [
@@ -82,11 +118,27 @@ function workshopAddress(workshop) {
         .join(", ");
 }
 
+
 function postalAddress(workshop) {
-    const streetAddress = cleanText(workshop?.direccion || "", 120);
-    const postalCode = cleanText(workshop?.codigo_postal || "", 12);
-    const addressLocality = cleanText(workshop?.ciudad || "", 80);
-    const addressRegion = cleanText(workshop?.provincia || "", 80);
+    const streetAddress = cleanText(
+        workshop?.direccion || "",
+        120
+    );
+
+    const postalCode = cleanText(
+        workshop?.codigo_postal || "",
+        12
+    );
+
+    const addressLocality = cleanText(
+        workshop?.ciudad || "",
+        80
+    );
+
+    const addressRegion = cleanText(
+        workshop?.provincia || "",
+        80
+    );
 
     if (
         !streetAddress &&
@@ -99,24 +151,36 @@ function postalAddress(workshop) {
 
     return {
         "@type": "PostalAddress",
-        ...(streetAddress ? { streetAddress } : {}),
-        ...(postalCode ? { postalCode } : {}),
-        ...(addressLocality ? { addressLocality } : {}),
-        ...(addressRegion ? { addressRegion } : {}),
+
+        ...(streetAddress
+            ? { streetAddress }
+            : {}),
+
+        ...(postalCode
+            ? { postalCode }
+            : {}),
+
+        ...(addressLocality
+            ? { addressLocality }
+            : {}),
+
+        ...(addressRegion
+            ? { addressRegion }
+            : {}),
+
         addressCountry: "ES"
     };
 }
 
-/*
- * FICHA PÚBLICA VERDE
- *
- * Se aplica a toda la Comunidad Valenciana:
- * Alicante / Alacant
- * Castellón / Castelló
- * Valencia / València
- */
+
+/* =====================================================
+   FICHA VERDE COMÚN
+===================================================== */
+
 function usaFichaPublicaVerde(workshop) {
-    const provincia = String(workshop?.provincia || "")
+    const provincia = String(
+        workshop?.provincia || ""
+    )
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("es");
@@ -130,8 +194,15 @@ function usaFichaPublicaVerde(workshop) {
     );
 }
 
+
+/* =====================================================
+   SERVICIOS
+===================================================== */
+
 function renderServices(workshop) {
-    const services = Array.isArray(workshop?.servicios)
+    const services = Array.isArray(
+        workshop?.servicios
+    )
         ? workshop.servicios
             .map(serviceLabel)
             .filter(Boolean)
@@ -143,12 +214,23 @@ function renderServices(workshop) {
     }
 
     return services
-        .map((service) => `<span>${escapeHTML(service)}</span>`)
+        .map(
+            (service) =>
+                `<span>${escapeHTML(service)}</span>`
+        )
         .join("");
 }
 
+
+/* =====================================================
+   HORARIOS
+===================================================== */
+
 function scheduleRows(schedule) {
-    if (!schedule || typeof schedule !== "object") {
+    if (
+        !schedule ||
+        typeof schedule !== "object"
+    ) {
         return "";
     }
 
@@ -166,16 +248,25 @@ function scheduleRows(schedule) {
         .map(([key, label]) => {
             const value = schedule[key];
 
-            if (!value) return "";
+            if (!value) {
+                return "";
+            }
 
             const text = value.cerrado
                 ? "Cerrado"
-                : (Array.isArray(value.turnos) ? value.turnos : [])
+                : (
+                    Array.isArray(value.turnos)
+                        ? value.turnos
+                        : []
+                )
                     .map(
                         (slot) =>
                             `${slot?.apertura || ""}–${slot?.cierre || ""}`
                     )
-                    .filter((slot) => slot !== "–")
+                    .filter(
+                        (slot) =>
+                            slot !== "–"
+                    )
                     .join(" y ");
 
             return text
@@ -186,25 +277,47 @@ function scheduleRows(schedule) {
         .join("");
 }
 
-function renderSchedule(schedule, visible = false) {
-    const rows = scheduleRows(schedule);
 
-    if (!rows) return "";
+function renderSchedule(
+    schedule,
+    visible = false
+) {
+    const rows =
+        scheduleRows(schedule);
+
+    if (!rows) {
+        return "";
+    }
 
     if (visible) {
-        return `<dl class="taller-horario-visible">${rows}</dl>`;
+        return `
+            <dl class="taller-horario-visible">
+                ${rows}
+            </dl>
+        `;
     }
 
     return `
         <details class="taller-horario">
-            <summary>Ver horario semanal</summary>
-            <dl>${rows}</dl>
+            <summary>
+                Ver horario semanal
+            </summary>
+
+            <dl>
+                ${rows}
+            </dl>
         </details>
     `;
 }
 
-function openingHoursSpecifications(schedule) {
-    if (!schedule || typeof schedule !== "object") {
+
+function openingHoursSpecifications(
+    schedule
+) {
+    if (
+        !schedule ||
+        typeof schedule !== "object"
+    ) {
         return undefined;
     }
 
@@ -220,17 +333,32 @@ function openingHoursSpecifications(schedule) {
 
     const result = [];
 
-    for (const [key, dayOfWeek] of Object.entries(dayNames)) {
+    for (
+        const [key, dayOfWeek]
+        of Object.entries(dayNames)
+    ) {
         const value = schedule[key];
 
-        if (!value || value.cerrado) continue;
+        if (
+            !value ||
+            value.cerrado
+        ) {
+            continue;
+        }
 
-        for (const slot of Array.isArray(value.turnos)
-            ? value.turnos
-            : []) {
+        for (
+            const slot
+            of Array.isArray(value.turnos)
+                ? value.turnos
+                : []
+        ) {
+            const opens = String(
+                slot?.apertura || ""
+            ).trim();
 
-            const opens = String(slot?.apertura || "").trim();
-            const closes = String(slot?.cierre || "").trim();
+            const closes = String(
+                slot?.cierre || ""
+            ).trim();
 
             if (
                 !/^\d{2}:\d{2}$/.test(opens) ||
@@ -240,7 +368,9 @@ function openingHoursSpecifications(schedule) {
             }
 
             result.push({
-                "@type": "OpeningHoursSpecification",
+                "@type":
+                    "OpeningHoursSpecification",
+
                 dayOfWeek,
                 opens,
                 closes
@@ -248,103 +378,164 @@ function openingHoursSpecifications(schedule) {
         }
     }
 
-    return result.length ? result : undefined;
+    return result.length
+        ? result
+        : undefined;
 }
+
+
+/* =====================================================
+   FECHAS / URL
+===================================================== */
 
 function formatDate(value) {
-    if (!value) return "";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return cleanText(value, 40);
+    if (!value) {
+        return "";
     }
 
-    return new Intl.DateTimeFormat("es-ES", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    }).format(date);
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return cleanText(
+            value,
+            40
+        );
+    }
+
+    return new Intl.DateTimeFormat(
+        "es-ES",
+        {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }
+    ).format(date);
 }
 
-function provinceURL(province) {
-    const primaryName = String(province || "")
-        .split("/")[0]
-        .trim();
 
-    const slug = slugify(primaryName);
+function provinceURL(province) {
+    const primaryName =
+        String(province || "")
+            .split("/")[0]
+            .trim();
+
+    const slug =
+        slugify(primaryName);
 
     return slug
         ? `/provincias/${slug}.html`
         : "/provincias/";
 }
 
+
 function municipalityURL(workshop) {
-    const city = String(workshop?.ciudad || "").trim();
+    const city =
+        String(
+            workshop?.ciudad || ""
+        ).trim();
 
-    const municipalCode = String(
-        workshop?.codigo_municipal || ""
-    )
-        .replace(/\D/g, "")
-        .slice(0, 5);
+    const municipalCode =
+        String(
+            workshop?.codigo_municipal || ""
+        )
+            .replace(/\D/g, "")
+            .slice(0, 5);
 
-    if (city && municipalCode) {
+    if (
+        city &&
+        municipalCode
+    ) {
         return `/municipios/${slugify(city)}-${municipalCode}.html`;
     }
 
-    const params = new URLSearchParams();
+    const params =
+        new URLSearchParams();
 
     if (city) {
-        params.set("poblacion", city);
+        params.set(
+            "poblacion",
+            city
+        );
     }
 
     return `/${params.toString() ? `?${params.toString()}` : ""}#talleres`;
 }
 
-function whatsappPhone(value) {
-    const digits = String(value || "").replace(/\D/g, "");
 
-    if (/^[67]\d{8}$/.test(digits)) {
+function whatsappPhone(value) {
+    const digits =
+        String(value || "")
+            .replace(/\D/g, "");
+
+    if (
+        /^[67]\d{8}$/.test(digits)
+    ) {
         return `34${digits}`;
     }
 
-    if (/^34[67]\d{8}$/.test(digits)) {
+    if (
+        /^34[67]\d{8}$/.test(digits)
+    ) {
         return digits;
     }
 
     return "";
 }
 
+
 function primaryImage(workshop) {
-    const source = workshopPhotoSource(workshop);
-    return source.url || DEFAULT_IMAGE;
+    const source =
+        workshopPhotoSource(workshop);
+
+    return (
+        source.url ||
+        DEFAULT_IMAGE
+    );
 }
 
+
+/* =====================================================
+   DATOS DESDE SUPABASE
+===================================================== */
+
 async function fetchWorkshop(slug) {
-    const rows = await supabaseRpc(
-        "obtener_taller_publico",
-        {
-            p_id: null,
-            p_slug: slug
-        }
-    );
+    const rows =
+        await supabaseRpc(
+            "obtener_taller_publico",
+            {
+                p_id: null,
+                p_slug: slug
+            }
+        );
 
     if (!rows.length) {
         return null;
     }
 
-    const workshop = rows[0];
+    const workshop =
+        rows[0];
 
     try {
-        const contextRows = await supabaseRpc(
-            "obtener_contexto_taller",
-            {
-                p_id: workshop?.id || null,
-                p_slug: slug
-            }
-        );
+        const contextRows =
+            await supabaseRpc(
+                "obtener_contexto_taller",
+                {
+                    p_id:
+                        workshop?.id ||
+                        null,
 
-        const context = contextRows[0];
+                    p_slug:
+                        slug
+                }
+            );
+
+        const context =
+            contextRows[0];
 
         if (!context) {
             return workshop;
@@ -352,23 +543,28 @@ async function fetchWorkshop(slug) {
 
         return {
             ...workshop,
+
             ciudad:
                 context.municipio ||
                 workshop.ciudad ||
                 "",
+
             codigo_municipal:
                 context.codigo_municipal ||
                 workshop.codigo_municipal ||
                 "",
+
             provincia:
                 workshop.provincia ||
                 context.provincia ||
                 "",
+
             provincia_slug:
                 context.provincia_slug ||
                 workshop.provincia_slug ||
                 ""
         };
+
     } catch (error) {
         console.warn(
             "No se pudo obtener contexto municipal:",
@@ -379,16 +575,28 @@ async function fetchWorkshop(slug) {
     }
 }
 
-async function fetchRelated(workshop, slug) {
+
+async function fetchRelated(
+    workshop,
+    slug
+) {
     try {
         return await supabaseRpc(
             "buscar_talleres_relacionados",
             {
-                p_id: workshop?.id || null,
-                p_slug: workshop?.slug || slug,
-                p_limite: 6
+                p_id:
+                    workshop?.id ||
+                    null,
+
+                p_slug:
+                    workshop?.slug ||
+                    slug,
+
+                p_limite:
+                    6
             }
         );
+
     } catch (error) {
         console.warn(
             "No se pudieron obtener talleres relacionados:",
@@ -399,15 +607,28 @@ async function fetchRelated(workshop, slug) {
     }
 }
 
-function renderRelated(rows, workshop) {
+
+/* =====================================================
+   TALLERES RELACIONADOS
+===================================================== */
+
+function renderRelated(
+    rows,
+    workshop
+) {
     const cards = rows
-        .filter((row) => row?.slug)
+        .filter(
+            (row) =>
+                row?.slug
+        )
         .slice(0, 6)
         .map((row) => {
-            const name = cleanText(
-                row?.nombre || "Taller",
-                100
-            );
+            const name =
+                cleanText(
+                    row?.nombre ||
+                    "Taller",
+                    100
+                );
 
             const address = [
                 row?.direccion,
@@ -424,20 +645,34 @@ function renderRelated(rows, workshop) {
                         slugify(row.slug)
                     )}"
                 >
-                    <strong>${escapeHTML(name)}</strong>
-                    <small>${escapeHTML(address)}</small>
+                    <strong>
+                        ${escapeHTML(name)}
+                    </strong>
+
+                    <small>
+                        ${escapeHTML(address)}
+                    </small>
                 </a>
             `;
         })
         .join("");
 
-    const title = workshop?.ciudad
-        ? `Otros talleres en ${workshop.ciudad}`
-        : "Otros talleres que pueden interesarte";
+    const title =
+        workshop?.ciudad
+            ? `Otros talleres en ${workshop.ciudad}`
+            : "Otros talleres que pueden interesarte";
 
-    const state = cards
-        ? ""
-        : '<p id="relacionados-estado" class="ficha-relacionados-vacio">Todavía no hay otros talleres relacionados disponibles.</p>';
+    const state =
+        cards
+            ? ""
+            : `
+                <p
+                    id="relacionados-estado"
+                    class="ficha-relacionados-vacio"
+                >
+                    Todavía no hay otros talleres relacionados disponibles.
+                </p>
+            `;
 
     return {
         title,
@@ -446,31 +681,37 @@ function renderRelated(rows, workshop) {
     };
 }
 
-/*
- * Portada verde con horario.
- *
- * Se usa cuando el taller no tiene fotografía.
- */
-function renderGenericGreenCover(workshop) {
-    const horario = renderSchedule(
-        workshop?.horarios,
-        true
-    );
+
+/* =====================================================
+   PORTADA VERDE
+===================================================== */
+
+function renderGenericGreenCover(
+    workshop
+) {
+    const horario =
+        renderSchedule(
+            workshop?.horarios,
+            true
+        );
 
     return `
         <div
             id="taller-foto"
             class="ficha-publica-foto ficha-publica-portada-verde"
         >
+
             <div
                 class="tm-auto-portada tm-auto-portada-grande tm-auto-portada-horario"
                 role="group"
                 aria-label="Horario de atención"
             >
+
                 <div
                     class="tm-portada-identidad"
                     aria-hidden="true"
                 >
+
                     <img
                         src="/favicon.svg"
                         alt=""
@@ -478,32 +719,57 @@ function renderGenericGreenCover(workshop) {
                         height="58"
                     >
 
-                    <strong>TallerMap</strong>
+                    <strong>
+                        TallerMap
+                    </strong>
 
                     <span>
                         Conectamos conductores<br>
                         con talleres de confianza
                     </span>
+
                 </div>
 
-                <div class="tm-portada-horario-contenido">
+                <div
+                    class="tm-portada-horario-contenido"
+                >
+
                     <h2>
-                        <span aria-hidden="true">◷</span>
+                        <span aria-hidden="true">
+                            ◷
+                        </span>
+
                         Horario de atención
                     </h2>
 
                     ${
                         horario ||
-                        '<p class="taller-horario-no-disponible">Horario no disponible</p>'
+                        `
+                        <p class="taller-horario-no-disponible">
+                            Horario no disponible
+                        </p>
+                        `
                     }
+
                 </div>
+
             </div>
+
         </div>
     `;
 }
 
-function renderPhoto(workshop, name) {
-    const source = workshopPhotoSource(workshop);
+
+/* =====================================================
+   FOTO
+===================================================== */
+
+function renderPhoto(
+    workshop,
+    name
+) {
+    const source =
+        workshopPhotoSource(workshop);
 
     if (source.url) {
         return `
@@ -511,6 +777,7 @@ function renderPhoto(workshop, name) {
                 id="taller-foto"
                 class="ficha-publica-foto"
             >
+
                 <img
                     id="taller-foto-imagen"
                     src="${escapeHTML(source.url)}"
@@ -518,6 +785,7 @@ function renderPhoto(workshop, name) {
                     loading="lazy"
                     decoding="async"
                 >
+
             </div>
         `;
     }
@@ -532,33 +800,58 @@ function renderPhoto(workshop, name) {
         `;
     }
 
-    /*
-     * SIN FOTO:
-     * mostrar directamente la portada verde
-     * con el horario.
-     */
-    if (usaFichaPublicaVerde(workshop)) {
-        return renderGenericGreenCover(workshop);
+    if (
+        usaFichaPublicaVerde(
+            workshop
+        )
+    ) {
+        return renderGenericGreenCover(
+            workshop
+        );
     }
 
-    return '<div id="taller-foto" class="ficha-publica-foto" hidden></div>';
+    return `
+        <div
+            id="taller-foto"
+            class="ficha-publica-foto"
+            hidden
+        ></div>
+    `;
 }
+
+
+/* =====================================================
+   BLOQUEO DEL SEGUNDO RENDERIZADOR
+
+   Seguridad adicional:
+   aunque por error volviera a aparecer alguna referencia
+   a taller.js o taller-urls.js en la plantilla,
+   el SSR las elimina antes de responder.
+===================================================== */
 
 function stripContentRuntime(html) {
     return html
+
         .replace(
-            /\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i,
+            /\s*<script\s+src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/gi,
             ""
         )
+
         .replace(
-            /\s*<script\s+src="\.\.\/js\/taller\.js[^\"]*"><\/script>/i,
+            /\s*<script\s+src="\.\.\/js\/taller\.js[^\"]*"><\/script>/gi,
             ""
         )
+
         .replace(
-            /\s*<script\s+src="\.\.\/js\/taller-urls\.js[^\"]*"><\/script>/i,
+            /\s*<script\s+src="\.\.\/js\/taller-urls\.js[^\"]*"><\/script>/gi,
             ""
         );
 }
+
+
+/* =====================================================
+   INYECCIÓN SSR ÚNICA
+===================================================== */
 
 function inject(
     html,
@@ -569,76 +862,93 @@ function inject(
     const canonical =
         `${SITE_URL}/talleres/${encodeURIComponent(canonicalSlug)}`;
 
-    const title = titleFor(workshop);
-    const description = descriptionFor(workshop);
+    const title =
+        titleFor(workshop);
 
-    const name = cleanText(
-        workshop?.nombre || "Ficha de taller",
-        100
-    );
+    const description =
+        descriptionFor(workshop);
 
-    const address = workshopAddress(workshop);
+    const name =
+        cleanText(
+            workshop?.nombre ||
+            "Ficha de taller",
+            100
+        );
 
-    const phone = safePhone(
-        workshop?.telefono
-    );
+    const address =
+        workshopAddress(
+            workshop
+        );
 
-    const web = safeWeb(
-        workshop?.web
-    );
+    const phone =
+        safePhone(
+            workshop?.telefono
+        );
 
-    const whatsapp = whatsappPhone(phone);
+    const web =
+        safeWeb(
+            workshop?.web
+        );
 
-    const city = cleanText(
-        workshop?.ciudad || "",
-        80
-    );
+    const whatsapp =
+        whatsappPhone(phone);
 
-    const province = cleanText(
-        workshop?.provincia || "",
-        80
-    );
+    const city =
+        cleanText(
+            workshop?.ciudad || "",
+            80
+        );
 
-    const updated = formatDate(
-        workshop?.updated_at
-    );
+    const province =
+        cleanText(
+            workshop?.provincia || "",
+            80
+        );
 
-    const verified = Boolean(
-        workshop?.verificado
-    );
+    const updated =
+        formatDate(
+            workshop?.updated_at
+        );
 
-    const image = primaryImage(workshop);
+    const verified =
+        Boolean(
+            workshop?.verificado
+        );
 
-    /*
-     * IMPORTANTE:
-     * Alicante, Castellón y Valencia usan
-     * la misma ficha pública verde.
-     */
+    const image =
+        primaryImage(workshop);
+
     const fichaVerde =
-        usaFichaPublicaVerde(workshop);
+        usaFichaPublicaVerde(
+            workshop
+        );
 
     const photoSource =
-        workshopPhotoSource(workshop);
+        workshopPhotoSource(
+            workshop
+        );
 
-    /*
-     * BOTONES DE LA FICHA PÚBLICA
-     */
+
+    /* =================================================
+       BOTONES
+    ================================================= */
+
     const actions = [];
 
     if (phone) {
-        actions.push(
-            `<a
+        actions.push(`
+            <a
                 class="boton accion-principal"
                 href="tel:${escapeHTML(phone)}"
             >
                 ☎ Llamar ahora
-            </a>`
-        );
+            </a>
+        `);
     }
 
     if (whatsapp) {
-        actions.push(
-            `<a
+        actions.push(`
+            <a
                 class="boton accion-whatsapp"
                 href="https://wa.me/${whatsapp}?text=${encodeURIComponent(
                     "Hola, he encontrado vuestro taller en TallerMap y quisiera pedir información."
@@ -647,13 +957,13 @@ function inject(
                 rel="noopener noreferrer"
             >
                 WhatsApp
-            </a>`
-        );
+            </a>
+        `);
     }
 
     if (address) {
-        actions.push(
-            `<a
+        actions.push(`
+            <a
                 class="boton boton-claro accion-mapa"
                 href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                     `${name}, ${address}, España`
@@ -662,180 +972,255 @@ function inject(
                 rel="noopener noreferrer"
             >
                 ⌖ Cómo llegar
-            </a>`
-        );
+            </a>
+        `);
     }
 
     if (web) {
-        actions.push(
-            `<a
+        actions.push(`
+            <a
                 class="boton boton-claro accion-web"
                 href="${escapeHTML(web)}"
                 target="_blank"
                 rel="noopener noreferrer"
             >
                 Página web
-            </a>`
-        );
+            </a>
+        `);
     }
 
-    /*
-     * DATOS PÚBLICOS
-     */
+
+    /* =================================================
+       DATOS PÚBLICOS
+    ================================================= */
+
     const dataRows = [];
 
     if (phone) {
-        dataRows.push(
-            `<p>
-                <strong>Teléfono:</strong>
-                <a href="tel:${escapeHTML(phone)}">
+        dataRows.push(`
+            <p>
+                <strong>
+                    Teléfono:
+                </strong>
+
+                <a
+                    href="tel:${escapeHTML(phone)}"
+                >
                     ${escapeHTML(
                         formatPhoneDisplay(phone)
                     )}
                 </a>
-            </p>`
-        );
+            </p>
+        `);
     }
 
     if (workshop?.direccion) {
-        dataRows.push(
-            `<p>
-                <strong>Dirección:</strong>
-                ${escapeHTML(workshop.direccion)}
-            </p>`
-        );
+        dataRows.push(`
+            <p>
+                <strong>
+                    Dirección:
+                </strong>
+
+                ${escapeHTML(
+                    workshop.direccion
+                )}
+            </p>
+        `);
     }
 
     if (workshop?.codigo_postal) {
-        dataRows.push(
-            `<p>
-                <strong>Código postal:</strong>
-                ${escapeHTML(workshop.codigo_postal)}
-            </p>`
-        );
+        dataRows.push(`
+            <p>
+                <strong>
+                    Código postal:
+                </strong>
+
+                ${escapeHTML(
+                    workshop.codigo_postal
+                )}
+            </p>
+        `);
     }
 
     if (city) {
-        dataRows.push(
-            `<p>
-                <strong>Municipio:</strong>
+        dataRows.push(`
+            <p>
+                <strong>
+                    Municipio:
+                </strong>
+
                 ${escapeHTML(city)}
-            </p>`
-        );
+            </p>
+        `);
     }
 
     if (province) {
-        dataRows.push(
-            `<p>
-                <strong>Provincia:</strong>
+        dataRows.push(`
+            <p>
+                <strong>
+                    Provincia:
+                </strong>
+
                 ${escapeHTML(province)}
-            </p>`
-        );
+            </p>
+        `);
     }
 
-    /*
-     * HORARIO
-     *
-     * En la ficha verde queda siempre visible.
-     *
-     * Si no existe fotografía:
-     * aparece dentro de la portada verde.
-     *
-     * Si existe fotografía:
-     * aparece como bloque visible debajo.
-     */
-    const schedule = renderSchedule(
-        workshop?.horarios,
-        fichaVerde
-    );
+
+    /* =================================================
+       HORARIO
+    ================================================= */
+
+    const schedule =
+        renderSchedule(
+            workshop?.horarios,
+            fichaVerde
+        );
 
     if (schedule) {
         if (!fichaVerde) {
-            dataRows.push(schedule);
-        } else if (
+            dataRows.push(
+                schedule
+            );
+        }
+
+        else if (
             photoSource.url ||
             photoSource.path
         ) {
-            dataRows.push(
-                `<div class="taller-horario-visible-bloque">
-                    <h2>Horario de atención</h2>
+            dataRows.push(`
+                <div
+                    class="taller-horario-visible-bloque"
+                >
+                    <h2>
+                        Horario de atención
+                    </h2>
+
                     ${schedule}
-                </div>`
-            );
+                </div>
+            `);
         }
     }
 
-    /*
-     * MIGAS DE PAN
-     */
+
+    /* =================================================
+       MIGAS
+    ================================================= */
+
     const crumbs = [
-        '<a href="/">Inicio</a>',
+        `<a href="/">Inicio</a>`,
 
         province
-            ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(
-                provinceURL(province)
-            )}">${escapeHTML(province)}</a>`
+            ? `
+                <span
+                    class="ficha-migas-separador"
+                    aria-hidden="true"
+                >
+                    ›
+                </span>
+
+                <a
+                    href="${escapeHTML(
+                        provinceURL(province)
+                    )}"
+                >
+                    ${escapeHTML(province)}
+                </a>
+            `
             : "",
 
         city
-            ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(
-                municipalityURL(workshop)
-            )}">${escapeHTML(city)}</a>`
+            ? `
+                <span
+                    class="ficha-migas-separador"
+                    aria-hidden="true"
+                >
+                    ›
+                </span>
+
+                <a
+                    href="${escapeHTML(
+                        municipalityURL(workshop)
+                    )}"
+                >
+                    ${escapeHTML(city)}
+                </a>
+            `
             : "",
 
-        `<span class="ficha-migas-separador" aria-hidden="true">›</span><span>${escapeHTML(
-            name
-        )}</span>`
+        `
+            <span
+                class="ficha-migas-separador"
+                aria-hidden="true"
+            >
+                ›
+            </span>
+
+            <span>
+                ${escapeHTML(name)}
+            </span>
+        `
     ]
         .filter(Boolean)
         .join("");
 
-    const related = renderRelated(
-        relatedRows,
-        workshop
-    );
 
-    /*
-     * SERVICIOS
-     *
-     * En las tres provincias se utiliza
-     * el diseño destacado de la ficha verde.
-     */
-    const servicesMarkup = fichaVerde
-        ? `
-            <section
-                class="ficha-servicios-ofrecidos"
-                aria-labelledby="servicios-ofrecidos-titulo"
-            >
-                <h2 id="servicios-ofrecidos-titulo">
-                    Servicios que se ofrecen
-                </h2>
+    const related =
+        renderRelated(
+            relatedRows,
+            workshop
+        );
 
-                <p>
-                    Servicios confirmados en esta ficha
-                </p>
 
+    /* =================================================
+       SERVICIOS
+    ================================================= */
+
+    const servicesMarkup =
+        fichaVerde
+
+            ? `
+                <section
+                    class="ficha-servicios-ofrecidos"
+                    aria-labelledby="servicios-ofrecidos-titulo"
+                >
+
+                    <h2
+                        id="servicios-ofrecidos-titulo"
+                    >
+                        Servicios que se ofrecen
+                    </h2>
+
+                    <p>
+                        Servicios confirmados en esta ficha
+                    </p>
+
+                    <div
+                        id="taller-servicios"
+                        class="especialidades especialidades-destacadas"
+                    >
+                        ${renderServices(workshop)}
+                    </div>
+
+                </section>
+            `
+
+            : `
                 <div
                     id="taller-servicios"
-                    class="especialidades especialidades-destacadas"
+                    class="especialidades"
                 >
                     ${renderServices(workshop)}
                 </div>
-            </section>
-        `
-        : `
-            <div
-                id="taller-servicios"
-                class="especialidades"
-            >
-                ${renderServices(workshop)}
-            </div>
-        `;
+            `;
 
-    /*
-     * INYECCIÓN EN LA PLANTILLA PÚBLICA
-     */
+
+    /* =================================================
+       INYECCIÓN
+    ================================================= */
+
     html = html
+
         .replace(
             /<title>[\s\S]*?<\/title>/i,
             `<title>${escapeHTML(title)}</title>`
@@ -848,7 +1233,7 @@ function inject(
 
         .replace(
             /<meta\s+name="robots"[^>]*>/i,
-            '<meta name="robots" id="robots-taller" content="index,follow,max-image-preview:large">'
+            `<meta name="robots" id="robots-taller" content="index,follow,max-image-preview:large">`
         )
 
         .replace(
@@ -864,13 +1249,17 @@ function inject(
         .replace(
             /<p\s+id="taller-direccion"\s+class="ficha-publica-direccion">[\s\S]*?<\/p>/i,
             `<p id="taller-direccion" class="ficha-publica-direccion">${escapeHTML(
-                address || "Ubicación no indicada"
+                address ||
+                "Ubicación no indicada"
             )}</p>`
         )
 
         .replace(
             /<div id="taller-foto" class="ficha-publica-foto" hidden>[\s\S]*?<\/div>/i,
-            renderPhoto(workshop, name)
+            renderPhoto(
+                workshop,
+                name
+            )
         )
 
         .replace(
@@ -894,19 +1283,20 @@ function inject(
             }</span>`
         )
 
-        /*
-         * Conservamos temporalmente el nombre CSS
-         * "-alicante" porque ese CSS ya existe.
-         *
-         * Ahora la clase se aplica a las tres provincias.
-         */
         .replace(
             /<div id="taller-acciones" class="ficha-publica-acciones">[\s\S]*?<\/div>/i,
-            `<div id="taller-acciones" class="ficha-publica-acciones${
-                fichaVerde
-                    ? " ficha-publica-acciones-alicante"
-                    : ""
-            }">${actions.join("")}</div>`
+            `
+            <div
+                id="taller-acciones"
+                class="ficha-publica-acciones${
+                    fichaVerde
+                        ? " ficha-publica-acciones-alicante"
+                        : ""
+                }"
+            >
+                ${actions.join("")}
+            </div>
+            `
         )
 
         .replace(
@@ -921,11 +1311,18 @@ function inject(
 
         .replace(
             /<div id="taller-datos" class="ficha-publica-datos">[\s\S]*?<\/div>/i,
-            `<div id="taller-datos" class="ficha-publica-datos${
-                fichaVerde
-                    ? " ficha-publica-datos-alicante"
-                    : ""
-            }">${dataRows.join("")}</div>`
+            `
+            <div
+                id="taller-datos"
+                class="ficha-publica-datos${
+                    fichaVerde
+                        ? " ficha-publica-datos-alicante"
+                        : ""
+                }"
+            >
+                ${dataRows.join("")}
+            </div>
+            `
         )
 
         .replace(
@@ -955,21 +1352,41 @@ function inject(
             "/"
         );
 
-    /*
-     * CONTEXTO LOCAL
-     */
-    if (city || province) {
+
+    /* =================================================
+       CONTEXTO LOCAL
+    ================================================= */
+
+    if (
+        city ||
+        province
+    ) {
         const localLinks = [
+
             city
-                ? `<a class="boton" href="${escapeHTML(
-                    municipalityURL(workshop)
-                )}">Ver talleres en ${escapeHTML(city)}</a>`
+                ? `
+                    <a
+                        class="boton"
+                        href="${escapeHTML(
+                            municipalityURL(workshop)
+                        )}"
+                    >
+                        Ver talleres en ${escapeHTML(city)}
+                    </a>
+                `
                 : "",
 
             province
-                ? `<a class="boton boton-claro" href="${escapeHTML(
-                    provinceURL(province)
-                )}">Ver talleres en ${escapeHTML(province)}</a>`
+                ? `
+                    <a
+                        class="boton boton-claro"
+                        href="${escapeHTML(
+                            provinceURL(province)
+                        )}"
+                    >
+                        Ver talleres en ${escapeHTML(province)}
+                    </a>
+                `
                 : ""
         ]
             .filter(Boolean)
@@ -979,7 +1396,7 @@ function inject(
 
             .replace(
                 /<section id="contexto-local" class="ficha-contexto" hidden>/i,
-                '<section id="contexto-local" class="ficha-contexto">'
+                `<section id="contexto-local" class="ficha-contexto">`
             )
 
             .replace(
@@ -1006,22 +1423,66 @@ function inject(
             );
     }
 
-    /*
-     * OPEN GRAPH / REDES SOCIALES
-     */
-    const social = `
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="TallerMap">
-        <meta property="og:title" content="${escapeHTML(title)}">
-        <meta property="og:description" content="${escapeHTML(description)}">
-        <meta property="og:url" content="${escapeHTML(canonical)}">
-        <meta property="og:image" content="${escapeHTML(image)}">
-        <meta property="og:locale" content="es_ES">
 
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="${escapeHTML(title)}">
-        <meta name="twitter:description" content="${escapeHTML(description)}">
-        <meta name="twitter:image" content="${escapeHTML(image)}">
+    /* =================================================
+       OPEN GRAPH
+    ================================================= */
+
+    const social = `
+        <meta
+            property="og:type"
+            content="website"
+        >
+
+        <meta
+            property="og:site_name"
+            content="TallerMap"
+        >
+
+        <meta
+            property="og:title"
+            content="${escapeHTML(title)}"
+        >
+
+        <meta
+            property="og:description"
+            content="${escapeHTML(description)}"
+        >
+
+        <meta
+            property="og:url"
+            content="${escapeHTML(canonical)}"
+        >
+
+        <meta
+            property="og:image"
+            content="${escapeHTML(image)}"
+        >
+
+        <meta
+            property="og:locale"
+            content="es_ES"
+        >
+
+        <meta
+            name="twitter:card"
+            content="summary_large_image"
+        >
+
+        <meta
+            name="twitter:title"
+            content="${escapeHTML(title)}"
+        >
+
+        <meta
+            name="twitter:description"
+            content="${escapeHTML(description)}"
+        >
+
+        <meta
+            name="twitter:image"
+            content="${escapeHTML(image)}"
+        >
     `;
 
     html = html.replace(
@@ -1029,144 +1490,251 @@ function inject(
         `$1${social}`
     );
 
-    /*
-     * DATOS ESTRUCTURADOS SEO
-     */
+
+    /* =================================================
+       SEO ESTRUCTURADO
+    ================================================= */
+
     const structuredData = {
-        "@context": "https://schema.org",
-        "@type": "AutoRepair",
-        "@id": `${canonical}#negocio`,
+        "@context":
+            "https://schema.org",
+
+        "@type":
+            "AutoRepair",
+
+        "@id":
+            `${canonical}#negocio`,
+
         name,
-        url: canonical,
+
+        url:
+            canonical,
+
         description,
+
         image,
-        address: postalAddress(workshop),
-        telephone: phone || undefined,
-        sameAs: web ? [web] : undefined,
+
+        address:
+            postalAddress(workshop),
+
+        telephone:
+            phone ||
+            undefined,
+
+        sameAs:
+            web
+                ? [web]
+                : undefined,
+
         openingHoursSpecification:
             openingHoursSpecifications(
                 workshop?.horarios
             ),
-        areaServed: city
-            ? {
-                "@type": "City",
-                name: city
-            }
-            : undefined,
+
+        areaServed:
+            city
+                ? {
+                    "@type":
+                        "City",
+
+                    name:
+                        city
+                }
+                : undefined,
+
         serviceType:
-            Array.isArray(workshop?.servicios)
+            Array.isArray(
+                workshop?.servicios
+            )
                 ? workshop.servicios
                     .map(serviceLabel)
                     .filter(Boolean)
                 : undefined
     };
 
-    Object.keys(structuredData).forEach(
-        (key) => {
-            if (
-                structuredData[key] === undefined ||
-                (
-                    Array.isArray(structuredData[key]) &&
-                    !structuredData[key].length
-                )
-            ) {
-                delete structuredData[key];
-            }
-        }
-    );
 
-    /*
-     * BREADCRUMBS SEO
-     */
+    Object
+        .keys(
+            structuredData
+        )
+        .forEach(
+            (key) => {
+                if (
+                    structuredData[key] === undefined ||
+                    (
+                        Array.isArray(
+                            structuredData[key]
+                        ) &&
+                        !structuredData[key].length
+                    )
+                ) {
+                    delete structuredData[key];
+                }
+            }
+        );
+
+
+    /* =================================================
+       BREADCRUMBS SEO
+    ================================================= */
+
     const breadcrumbItems = [
         {
-            "@type": "ListItem",
-            position: 1,
-            name: "Inicio",
-            item: `${SITE_URL}/`
+            "@type":
+                "ListItem",
+
+            position:
+                1,
+
+            name:
+                "Inicio",
+
+            item:
+                `${SITE_URL}/`
         }
     ];
 
-    let position = 2;
+    let position =
+        2;
 
     if (province) {
         breadcrumbItems.push({
-            "@type": "ListItem",
-            position: position++,
-            name: province,
-            item: `${SITE_URL}${provinceURL(province)}`
+            "@type":
+                "ListItem",
+
+            position:
+                position++,
+
+            name:
+                province,
+
+            item:
+                `${SITE_URL}${provinceURL(province)}`
         });
     }
 
     if (city) {
         breadcrumbItems.push({
-            "@type": "ListItem",
-            position: position++,
-            name: city,
-            item: `${SITE_URL}${municipalityURL(workshop)}`
+            "@type":
+                "ListItem",
+
+            position:
+                position++,
+
+            name:
+                city,
+
+            item:
+                `${SITE_URL}${municipalityURL(workshop)}`
         });
     }
 
     breadcrumbItems.push({
-        "@type": "ListItem",
+        "@type":
+            "ListItem",
+
         position,
+
         name,
-        item: canonical
+
+        item:
+            canonical
     });
+
 
     html = html.replace(
         /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-taller">[\s\S]*?<\/script>/i,
+
         `<script type="application/ld+json" id="datos-estructurados-taller">${
-            JSON.stringify(structuredData)
-                .replace(/</g, "\\u003c")
+            JSON.stringify(
+                structuredData
+            )
+                .replace(
+                    /</g,
+                    "\\u003c"
+                )
         }</script>`
     );
+
 
     html = html.replace(
         /<script\s+type="application\/ld\+json"\s+id="datos-estructurados-migas">[\s\S]*?<\/script>/i,
+
         `<script type="application/ld+json" id="datos-estructurados-migas">${
             JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "BreadcrumbList",
-                itemListElement: breadcrumbItems
-            }).replace(/</g, "\\u003c")
+                "@context":
+                    "https://schema.org",
+
+                "@type":
+                    "BreadcrumbList",
+
+                itemListElement:
+                    breadcrumbItems
+            })
+                .replace(
+                    /</g,
+                    "\\u003c"
+                )
         }</script>`
     );
 
-    return stripContentRuntime(html);
+
+    /*
+     * Última protección:
+     * ninguna ficha pública enviada al navegador
+     * puede contener taller.js ni taller-urls.js.
+     */
+    return stripContentRuntime(
+        html
+    );
 }
+
+
+/* =====================================================
+   HANDLER
+===================================================== */
 
 export default async function handler(
     request,
     response
 ) {
-    const rawSlug = Array.isArray(
-        request.query?.slug
-    )
-        ? request.query.slug[0]
-        : request.query?.slug;
+    const rawSlug =
+        Array.isArray(
+            request.query?.slug
+        )
+            ? request.query.slug[0]
+            : request.query?.slug;
 
-    const requestedSlug = slugify(rawSlug);
+
+    const requestedSlug =
+        slugify(rawSlug);
+
 
     if (!requestedSlug) {
         response
             .status(404)
-            .send("Ficha no encontrada.");
+            .send(
+                "Ficha no encontrada."
+            );
 
         return;
     }
 
+
     let template;
 
+
     try {
-        template = fs.readFileSync(
-            path.join(
-                process.cwd(),
-                "pages",
-                "taller.html"
-            ),
-            "utf8"
-        );
+        template =
+            fs.readFileSync(
+                path.join(
+                    process.cwd(),
+                    "pages",
+                    "taller.html"
+                ),
+                "utf8"
+            );
+
     } catch (error) {
         console.error(
             "No se pudo leer la plantilla de taller:",
@@ -1175,29 +1743,44 @@ export default async function handler(
 
         response
             .status(500)
-            .send("No se pudo renderizar la ficha.");
+            .send(
+                "No se pudo renderizar la ficha."
+            );
 
         return;
     }
 
+
     try {
         const workshop =
-            await fetchWorkshop(requestedSlug);
+            await fetchWorkshop(
+                requestedSlug
+            );
+
 
         if (!workshop) {
             response
                 .status(404)
-                .send("Ficha no encontrada.");
+                .send(
+                    "Ficha no encontrada."
+                );
 
             return;
         }
+
 
         const canonicalSlug =
             slugify(
                 workshop?.slug ||
                 requestedSlug
-            ) || requestedSlug;
+            ) ||
+            requestedSlug;
 
+
+        /*
+         * Si existe cualquier slug antiguo o incorrecto,
+         * siempre se redirige a una sola URL.
+         */
         if (
             canonicalSlug !==
             requestedSlug
@@ -1223,48 +1806,59 @@ export default async function handler(
             return;
         }
 
+
         const related =
             await fetchRelated(
                 workshop,
                 canonicalSlug
             );
 
-        const html = inject(
-            template,
-            workshop,
-            canonicalSlug,
-            related
-        );
+
+        const html =
+            inject(
+                template,
+                workshop,
+                canonicalSlug,
+                related
+            );
+
 
         response.setHeader(
             "Content-Type",
             "text/html; charset=utf-8"
         );
 
+
         response.setHeader(
             "Cache-Control",
             "public, s-maxage=600, stale-while-revalidate=3600"
         );
 
+
+        /*
+         * Estas cabeceras nos permiten confirmar
+         * que el usuario está viendo la ficha única SSR.
+         */
         response.setHeader(
             "X-TallerMap-HTML-First",
             "1"
         );
 
-        /*
-         * Versión 4:
-         * ficha verde común para Alicante,
-         * Castellón y Valencia.
-         */
         response.setHeader(
             "X-TallerMap-Ficha-SSR",
-            "4"
+            "5"
+        );
+
+        response.setHeader(
+            "X-TallerMap-Single-Renderer",
+            "1"
         );
 
         response.setHeader(
             "X-TallerMap-Canonical-Slug",
             canonicalSlug
         );
+
 
         response
             .status(200)
