@@ -67,6 +67,28 @@
     }
   }
 
+  async function registrarServiceWorkerEditor() {
+    if (!("serviceWorker" in navigator)) return;
+
+    try {
+      const rootScope = `${window.location.origin}/`;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+
+      await Promise.all(registrations.map(async registration => {
+        const worker = registration.active || registration.waiting || registration.installing;
+        const scriptURL = String(worker?.scriptURL || "");
+        const esEditorV4 = scriptURL.includes("/admin-editor-v4-sw.js");
+        if (esEditorV4 && registration.scope === rootScope) {
+          await registration.unregister();
+        }
+      }));
+
+      await navigator.serviceWorker.register("/admin-editor-v4-sw.js?v=6", { scope: "/pages/" });
+    } catch (error) {
+      console.warn("No se pudo registrar TallerMap Editor como aplicación:", error);
+    }
+  }
+
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     deferredPrompt = event;
@@ -82,18 +104,12 @@
   document.addEventListener("DOMContentLoaded", () => {
     if (isStandalone()) {
       hideBanner();
-      return;
+    } else {
+      button()?.addEventListener("click", installEditor);
+      closeButton()?.addEventListener("click", hideBanner);
+      fallbackTimer = window.setTimeout(setManualFallback, 1800);
     }
 
-    button()?.addEventListener("click", installEditor);
-    closeButton()?.addEventListener("click", hideBanner);
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/admin-editor-v4-sw.js", { scope: "/" })
-        .then(() => navigator.serviceWorker.ready)
-        .catch(error => console.warn("No se pudo registrar TallerMap Editor como aplicación:", error));
-    }
-
-    fallbackTimer = window.setTimeout(setManualFallback, 1800);
+    void registrarServiceWorkerEditor();
   }, { once: true });
 }());
