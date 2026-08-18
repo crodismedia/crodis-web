@@ -1,4 +1,4 @@
-const CACHE_NAME = "tallermap-editor-v4-shell-v5";
+const CACHE_NAME = "tallermap-editor-v4-shell-v6";
 const SHELL = [
   "/pages/admin-editor-v4.html",
   "/css/admin-editor-v4.css",
@@ -26,6 +26,7 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  if (!url.pathname.startsWith("/pages/") && !SHELL.includes(url.pathname)) return;
   if (url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {
