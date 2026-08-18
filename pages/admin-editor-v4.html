@@ -16,6 +16,18 @@
   <link rel="apple-touch-icon" href="../favicon.svg">
   <link rel="stylesheet" href="../css/estilo.css">
   <link rel="stylesheet" href="../css/admin-editor-v4.css?v=5">
+  <style>
+    .v4-csv-import{margin-top:16px;padding-top:16px;border-top:1px solid #d9e0e7}
+    .v4-csv-help{padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;margin:10px 0;font-size:.84rem;line-height:1.45}
+    .v4-csv-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+    .v4-csv-kpis div{padding:9px;border:1px solid #d9e0e7;border-radius:9px;background:#fff}
+    .v4-csv-kpis strong{display:block;font-size:1.15rem}.v4-csv-kpis span{font-size:.72rem;color:#667085}
+    .v4-csv-preview{max-height:260px;overflow:auto;display:grid;gap:6px;margin-top:8px}
+    .v4-csv-row{padding:8px 10px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;font-size:.8rem}
+    .v4-csv-row.ok{border-color:#86efac;background:#f0fdf4}.v4-csv-row.error{border-color:#fca5a5;background:#fef2f2}.v4-csv-row.duplicate{border-color:#fcd34d;background:#fffbeb}
+    .v4-csv-row strong,.v4-csv-row small{display:block}.v4-csv-row small{color:#667085;margin-top:2px}
+    @media(max-width:560px){.v4-csv-kpis{grid-template-columns:1fr 1fr}}
+  </style>
 </head>
 <body data-auth-state="checking">
 <div id="v4-auth-check" class="v4-auth-check">Comprobando acceso de administración…</div>
@@ -50,6 +62,16 @@
     <div class="v4-actions"><button id="v4-seleccionar-todos" class="v4-btn v4-soft" type="button">Seleccionar todos</button><button id="v4-limpiar" class="v4-btn v4-soft" type="button">Limpiar</button><button id="v4-borrar" class="v4-btn v4-danger" type="button" disabled>Borrar seleccionados</button></div>
     <div id="v4-lista" class="v4-list"></div>
     <div class="v4-actions"><button id="v4-exportar" class="v4-btn v4-soft" type="button">Exportar CSV</button></div>
+
+    <section class="v4-csv-import" aria-labelledby="v4-csv-title">
+      <h2 id="v4-csv-title">Importar archivo CSV</h2>
+      <div class="v4-csv-help">Selecciona un CSV, el editor lo comprobará primero y mostrará filas válidas, duplicadas y con errores. <strong>No se guarda nada hasta pulsar “Importar válidos”.</strong> La columna <strong>horarios</strong> puede contener texto copiado de Google.</div>
+      <div class="v4-field"><label for="v4-csv">Archivo CSV</label><input id="v4-csv" type="file" accept=".csv,text/csv"></div>
+      <div class="v4-actions"><button id="v4-comprobar-csv" class="v4-btn v4-primary" type="button">Comprobar CSV</button><button id="v4-importar-csv" class="v4-btn v4-green" type="button" disabled>Importar válidos</button><button id="v4-plantilla-csv" class="v4-btn v4-soft" type="button">Descargar plantilla</button></div>
+      <div id="v4-csv-estado" class="v4-status">Selecciona un archivo CSV.</div>
+      <div class="v4-csv-kpis"><div><strong id="v4-csv-total">0</strong><span>Filas</span></div><div><strong id="v4-csv-validas">0</strong><span>Válidas</span></div><div><strong id="v4-csv-duplicadas">0</strong><span>Duplicadas</span></div><div><strong id="v4-csv-errores">0</strong><span>Errores</span></div></div>
+      <div id="v4-csv-preview" class="v4-csv-preview" aria-live="polite"></div>
+    </section>
   </aside>
 
   <section class="v4-card v4-pad">
@@ -84,8 +106,9 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-editor-v4-horarios.js?v=5"></script>
-<script src="../js/admin-editor-v4.js?v=1"></script>
+<script src="../js/admin-editor-v4-horarios.js?v=6"></script>
+<script src="../js/admin-editor-v4.js?v=2"></script>
+<script src="../js/admin-editor-v4-import-csv.js?v=1"></script>
 <script src="../js/admin-editor-v4-install.js?v=2"></script>
 </body>
 </html>
