@@ -63,7 +63,45 @@
     });
   }
 
+  function repararMenuDesguacesMovil() {
+    if (!document.getElementById("tm-desguaces-movil-cerrado")) {
+      const estilo = document.createElement("style");
+      estilo.id = "tm-desguaces-movil-cerrado";
+      estilo.textContent = `
+        @media (max-width: 1050px) {
+          .menu-movil-panel .tm-desguaces-submenu {
+            display: none !important;
+          }
+          .menu-movil-panel .tm-desguaces-menu.abierto .tm-desguaces-submenu {
+            display: grid !important;
+          }
+        }
+      `;
+      document.head.appendChild(estilo);
+    }
+
+    if (document.documentElement.dataset.tmDesguacesMovilClick) return;
+    document.documentElement.dataset.tmDesguacesMovilClick = "1";
+
+    document.addEventListener("click", event => {
+      const enlace = event.target.closest(".menu-movil-panel .tm-desguaces-menu > a");
+      if (!enlace || !window.matchMedia("(max-width: 1050px)").matches) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const menu = enlace.closest(".tm-desguaces-menu");
+      if (!menu) return;
+
+      const abrir = !menu.classList.contains("abierto");
+      menu.classList.toggle("abierto", abrir);
+      enlace.setAttribute("aria-expanded", abrir ? "true" : "false");
+      enlace.setAttribute("aria-haspopup", "true");
+    }, true);
+  }
+
   repararMigasEstructuradas();
+  repararMenuDesguacesMovil();
 
   cargar("/js/imagenes-automaticas.js?v=20260810-2", "data-tallermap-imagenes-auto");
   cargar("/js/taller-urls-core.js", "data-tallermap-urls-core");
