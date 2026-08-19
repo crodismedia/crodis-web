@@ -8,6 +8,11 @@
     display: none !important;
 }
 
+/* Las tarjetas de especialidades se muestran sin iconos genéricos. */
+.servicio-card .servicio-icono {
+    display: none !important;
+}
+
 .taller-card .taller-pie {
     display: flex;
     flex-direction: column;
