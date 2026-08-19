@@ -7,6 +7,20 @@
         .toLowerCase()
         .trim();
 
+    function cerrarMenuTalleres() {
+        document.querySelectorAll(".tm-talleres-menu.abierto").forEach(menu => {
+            menu.classList.remove("abierto");
+            menu.querySelector(".tm-talleres-principal")?.setAttribute("aria-expanded", "false");
+        });
+    }
+
+    function cerrarMenuDesguaces() {
+        document.querySelectorAll(".tm-desguaces-menu.abierto").forEach(menu => {
+            menu.classList.remove("abierto");
+            menu.querySelector(":scope > a")?.setAttribute("aria-expanded", "false");
+        });
+    }
+
     function prepararMenuTalleres() {
         const enlaces = [...document.querySelectorAll('header a[href="/#talleres"], header a[href="/talleres.html"]')];
         if (!enlaces.length) return;
@@ -55,11 +69,8 @@
             enlace.addEventListener("click", event => {
                 event.preventDefault();
                 const abrir = !contenedor.classList.contains("abierto");
-
-                document.querySelectorAll(".tm-talleres-menu.abierto").forEach(menu => {
-                    menu.classList.remove("abierto");
-                    menu.querySelector(".tm-talleres-principal")?.setAttribute("aria-expanded", "false");
-                });
+                cerrarMenuTalleres();
+                cerrarMenuDesguaces();
 
                 if (abrir) {
                     contenedor.classList.add("abierto");
@@ -68,21 +79,16 @@
             });
         });
 
-        if (!document.documentElement.dataset.tmTalleresClick) {
-            document.documentElement.dataset.tmTalleresClick = "1";
+        if (!document.documentElement.dataset.tmMenusClick) {
+            document.documentElement.dataset.tmMenusClick = "1";
             document.addEventListener("click", event => {
-                if (event.target.closest(".tm-talleres-menu")) return;
-                document.querySelectorAll(".tm-talleres-menu.abierto").forEach(menu => {
-                    menu.classList.remove("abierto");
-                    menu.querySelector(".tm-talleres-principal")?.setAttribute("aria-expanded", "false");
-                });
+                if (!event.target.closest(".tm-talleres-menu")) cerrarMenuTalleres();
+                if (!event.target.closest(".tm-desguaces-menu")) cerrarMenuDesguaces();
             });
             document.addEventListener("keydown", event => {
                 if (event.key !== "Escape") return;
-                document.querySelectorAll(".tm-talleres-menu.abierto").forEach(menu => {
-                    menu.classList.remove("abierto");
-                    menu.querySelector(".tm-talleres-principal")?.setAttribute("aria-expanded", "false");
-                });
+                cerrarMenuTalleres();
+                cerrarMenuDesguaces();
             });
         }
 
@@ -131,7 +137,7 @@
     }
 
     function prepararMenuDesguaces() {
-        const enlaces = [...document.querySelectorAll('a[href="/desguaces.html"]')];
+        const enlaces = [...document.querySelectorAll('header a[href="/desguaces.html"]')];
         if (!enlaces.length) return;
 
         if (!document.getElementById("estilos-menu-desguaces")) {
@@ -144,10 +150,11 @@
                 .tm-desguaces-submenu{display:none;position:absolute;top:100%;left:0;z-index:10000;min-width:190px;padding:8px;background:#fff;border:1px solid #dfe6ef;border-radius:12px;box-shadow:0 16px 34px rgba(20,36,64,.16)}
                 .tm-desguaces-submenu a{display:block!important;padding:10px 12px!important;border-radius:8px!important;white-space:nowrap}
                 .tm-desguaces-submenu a:hover,.tm-desguaces-submenu a:focus{background:#f3f7ff;outline:none}
-                .tm-desguaces-menu:hover .tm-desguaces-submenu,.tm-desguaces-menu:focus-within .tm-desguaces-submenu{display:block}
+                .tm-desguaces-menu.abierto .tm-desguaces-submenu{display:block}
                 .menu-movil-panel .tm-desguaces-menu{display:block;width:100%}
                 .menu-movil-panel .tm-desguaces-menu>a{width:100%}
-                .menu-movil-panel .tm-desguaces-submenu{display:grid;position:static;min-width:0;margin:0 0 4px 14px;padding:0 0 0 12px;border:0;border-left:2px solid #dfe6ef;border-radius:0;box-shadow:none}
+                .menu-movil-panel .tm-desguaces-submenu{display:none;position:static;min-width:0;margin:0 0 4px 14px;padding:0 0 0 12px;border:0;border-left:2px solid #dfe6ef;border-radius:0;box-shadow:none}
+                .menu-movil-panel .tm-desguaces-menu.abierto .tm-desguaces-submenu{display:grid}
                 .menu-movil-panel .tm-desguaces-submenu a{padding:10px 12px!important;font-size:.92em;font-weight:700!important}
             `;
             document.head.appendChild(estilo);
@@ -168,6 +175,20 @@
                 <a href="/desguaces.html?provincia=alicante">Alicante</a>
             `;
             contenedor.appendChild(submenu);
+
+            enlace.setAttribute("aria-haspopup", "true");
+            enlace.setAttribute("aria-expanded", "false");
+            enlace.addEventListener("click", event => {
+                event.preventDefault();
+                const abrir = !contenedor.classList.contains("abierto");
+                cerrarMenuDesguaces();
+                cerrarMenuTalleres();
+
+                if (abrir) {
+                    contenedor.classList.add("abierto");
+                    enlace.setAttribute("aria-expanded", "true");
+                }
+            });
         });
     }
 
