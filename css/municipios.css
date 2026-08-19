@@ -281,6 +281,64 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Acciones de las tarjetas provinciales: teléfono, cómo llegar y ficha. */
+#lista-talleres-provincia .taller-pie {
+    display: block !important;
+    margin-top: 12px;
+}
+
+#lista-talleres-provincia .taller-contactos,
+#lista-talleres-provincia .taller-contactos-provincia {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px !important;
+    width: 100%;
+    align-items: stretch;
+}
+
+#lista-talleres-provincia .taller-contactos > a,
+#lista-talleres-provincia .taller-contactos-provincia > a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 40px;
+    padding: 9px 8px !important;
+    border: 0 !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-size: .84rem !important;
+    font-weight: 800 !important;
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none !important;
+    white-space: nowrap;
+    box-shadow: 0 5px 14px rgba(15,23,42,.15);
+}
+
+#lista-talleres-provincia .taller-contactos > a[href^="tel:"],
+#lista-talleres-provincia .taller-contactos-provincia .accion-telefono {
+    background: #159447 !important;
+}
+
+#lista-talleres-provincia .taller-contactos .accion-mapa,
+#lista-talleres-provincia .taller-contactos .enlace-google-maps,
+#lista-talleres-provincia .taller-contactos-provincia .accion-mapa {
+    background: #145fd1 !important;
+}
+
+#lista-talleres-provincia .taller-contactos .enlace-ficha-taller,
+#lista-talleres-provincia .taller-contactos-provincia .accion-ficha {
+    background: #e46f16 !important;
+}
+
+#lista-talleres-provincia .taller-contactos > a:hover,
+#lista-talleres-provincia .taller-contactos-provincia > a:hover {
+    filter: brightness(.94);
+    transform: translateY(-1px);
+}
+
 .cargar-mas-contenedor.municipio-paginacion {
     display: flex;
     justify-content: center;
@@ -349,5 +407,16 @@
         min-height: 44px;
         padding: 9px 11px;
         font-size: 0.94rem;
+    }
+
+    #lista-talleres-provincia .taller-contactos,
+    #lista-talleres-provincia .taller-contactos-provincia {
+        grid-template-columns: 1fr;
+    }
+
+    #lista-talleres-provincia .taller-contactos > a,
+    #lista-talleres-provincia .taller-contactos-provincia > a {
+        width: 100%;
+        min-height: 44px;
     }
 }
