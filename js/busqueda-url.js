@@ -180,15 +180,94 @@
         document.head.appendChild(script);
     }
 
-    function obtenerPosicionActual() {
+    function obtenerPosicionPrecisa() {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) return reject(new Error("Geolocalización no disponible"));
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
+
+            let mejor = null;
+            let terminado = false;
+            const inicio = Date.now();
+            const finalizar = (error) => {
+                if (terminado) return;
+                terminado = true;
+                if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                clearTimeout(temporizador);
+                if (mejor) resolve(mejor);
+                else reject(error || new Error("No se pudo obtener la ubicación"));
+            };
+
+            const watchId = navigator.geolocation.watchPosition(posicion => {
+                if (!mejor || Number(posicion.coords.accuracy) < Number(mejor.coords.accuracy)) {
+                    mejor = posicion;
+                }
+
+                const transcurrido = Date.now() - inicio;
+                if (Number(mejor.coords.accuracy) <= 25 && transcurrido >= 4000) {
+                    finalizar();
+                }
+            }, error => {
+                if (mejor) finalizar();
+                else if (error.code === error.PERMISSION_DENIED) finalizar(error);
+            }, {
                 enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 15000
+                timeout: 30000,
+                maximumAge: 0
             });
+
+            const temporizador = setTimeout(() => finalizar(), 22000);
         });
+    }
+
+    async function resolverLocalidad(posicion) {
+        const parametros = new URLSearchParams({
+            format: "jsonv2",
+            lat: String(posicion.coords.latitude),
+            lon: String(posicion.coords.longitude),
+            zoom: "18",
+            addressdetails: "1",
+            "accept-language": "es"
+        });
+        const respuesta = await fetch(`https://nominatim.openstreetmap.org/reverse?${parametros}`, {
+            headers: { Accept: "application/json" }
+        });
+        if (!respuesta.ok) return { localidad: "", cp: "" };
+        const datos = await respuesta.json();
+        const d = datos.address || {};
+        return {
+            localidad: d.city || d.town || d.village || d.municipality || d.city_district || "",
+            cp: String(d.postcode || "").match(/^\d{5}$/)?.[0] || ""
+        };
+    }
+
+    async function buscarTalleresGPS(posicion, servicio) {
+        if (!window.supabaseClient || !window.TallerMapTallerUI) return { encontrados: false, radio: 0 };
+
+        const radios = [10, 15, 25];
+        const limite = servicio ? 5 : 20;
+        for (const radio of radios) {
+            const { data, error } = await window.supabaseClient.rpc("buscar_talleres_por_gps", {
+                p_latitud: posicion.coords.latitude,
+                p_longitud: posicion.coords.longitude,
+                p_servicio: servicio || "",
+                p_radio_km: radio,
+                p_limite: limite
+            });
+            if (error) {
+                console.error("Búsqueda GPS:", error);
+                break;
+            }
+            if (Array.isArray(data) && data.length) {
+                const contenedor = document.getElementById("lista-talleres");
+                if (contenedor) contenedor.innerHTML = data.map(window.TallerMapTallerUI.crearTarjeta).join("");
+                const titulo = document.querySelector("#talleres .titulo-seccion h2");
+                if (titulo) titulo.textContent = servicio
+                    ? `${data.length} talleres cercanos con este servicio`
+                    : `${data.length} talleres cercanos`;
+                document.getElementById("talleres")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                return { encontrados: true, radio, total: data.length };
+            }
+        }
+        return { encontrados: false, radio: 25 };
     }
 
     function prepararBuscador() {
@@ -233,38 +312,27 @@
 
         ubicacion.onclick = async () => {
             ubicacion.disabled = true;
-            ubicacion.textContent = "Localizando…";
-            estado.textContent = "Buscando tu ubicación…";
+            ubicacion.textContent = "Afinando ubicación…";
+            estado.textContent = "Buscando la posición más precisa disponible…";
             try {
-                const posicion = await obtenerPosicionActual();
-                const parametros = new URLSearchParams({
-                    format: "jsonv2",
-                    lat: String(posicion.coords.latitude),
-                    lon: String(posicion.coords.longitude),
-                    zoom: "18",
-                    addressdetails: "1",
-                    "accept-language": "es"
-                });
-                const respuesta = await fetch(`https://nominatim.openstreetmap.org/reverse?${parametros}`, {
-                    headers: { Accept: "application/json" }
-                });
-                if (!respuesta.ok) throw new Error("No se pudo resolver la ubicación");
+                const posicion = await obtenerPosicionPrecisa();
+                const precision = Math.round(Number(posicion.coords.accuracy) || 0);
+                estado.textContent = `Ubicación obtenida con precisión aproximada de ±${precision} m. Buscando talleres cercanos…`;
 
-                const datos = await respuesta.json();
-                const d = datos.address || {};
-                const localidad = d.city || d.town || d.village || d.municipality || d.city_district || "";
-                const cp = String(d.postcode || "").match(/^\d{5}$/)?.[0] || "";
-                if (!localidad && !cp) throw new Error("No se pudo identificar la población");
+                const resultadoGPS = await buscarTalleresGPS(posicion, servicio.value || "");
+                const { localidad, cp } = await resolverLocalidad(posicion);
+                if (localidad || cp) poblacion.value = localidad || cp;
 
-                poblacion.value = localidad || cp;
-                estado.textContent = localidad
-                    ? `Ubicación detectada: ${localidad}${cp ? ` (${cp})` : ""}. Buscando talleres de esta población…`
-                    : `Código postal detectado: ${cp}. Buscando talleres…`;
-
-                formulario.requestSubmit();
+                if (resultadoGPS.encontrados) {
+                    const detalleRadio = resultadoGPS.radio > 10 ? ` Se amplió el radio a ${resultadoGPS.radio} km porque no había resultados más cerca.` : "";
+                    estado.textContent = `Ubicación: ${localidad || cp || "detectada"}. Precisión ±${precision} m.${detalleRadio}`;
+                } else {
+                    estado.textContent = `No hay talleres geolocalizados suficientes cerca. Usando la búsqueda por ${localidad ? "población" : "código postal"} como alternativa.`;
+                    if (localidad || cp) formulario.requestSubmit();
+                }
             } catch (error) {
-                console.error("Ubicación por población:", error);
-                estado.textContent = "No se pudo obtener tu población. Revisa el permiso de ubicación.";
+                console.error("Ubicación precisa:", error);
+                estado.textContent = "No se pudo obtener una ubicación precisa. Revisa el permiso de ubicación e inténtalo de nuevo.";
             } finally {
                 ubicacion.disabled = false;
                 ubicacion.textContent = "Usar mi ubicación";
