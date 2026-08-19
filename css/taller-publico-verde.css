@@ -109,6 +109,23 @@ Alicante · Castellón · Valencia
 .ficha-publica-datos-alicante { grid-template-columns:repeat(5,minmax(0,1fr)); }
 .ficha-publica-datos>p,.ficha-publica-datos>div,.ficha-publica-datos>details { border-color:#d8eade !important;background:#f8fdf9 !important;color:#172033 !important; }
 .ficha-publica-datos>p strong,.ficha-publica-datos>div strong,.ficha-publica-datos>details summary { color:#126b39 !important; }
+
+/* Teléfono, dirección, CP, municipio y provincia: título centrado y valor debajo. */
+.ficha-publica-datos-alicante > p,
+.ficha-publica-datos-alicante > div:not(.taller-horario-visible-bloque) {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ficha-publica-datos-alicante > p strong,
+.ficha-publica-datos-alicante > div:not(.taller-horario-visible-bloque) strong {
+    display: block;
+    width: 100%;
+    margin: 0 0 6px;
+    text-align: center;
+}
+
 .ficha-publica-datos-alicante>.taller-horario-visible-bloque { grid-column:1/-1;padding:20px 22px;border:1px solid #cfe7d8 !important;border-radius:16px;background:#f6fcf8 !important; }
 .taller-horario-visible-bloque h2 { margin:0 0 12px;color:#146b38 !important;font-size:1.15rem; }
 .taller-horario-visible-bloque .taller-horario-visible { color:#172033 !important; }
