@@ -379,8 +379,8 @@
             datos.insertAdjacentHTML("beforeend", horarioHTML(taller.horarios));
         }
 
-        document.title = taller.ciudad && taller.provincia
-            ? `${nombre} | Taller mecánico en ${taller.ciudad} (${taller.provincia}) | TallerMap`.slice(0, 68)
+        document.title = taller.ciudad
+            ? `${nombre} – Taller en ${taller.ciudad} | TallerMap`
             : `${nombre} | TallerMap`;
 
         const slugFinal = taller.slug || slug || slugSeguro(`${nombre}-${taller.ciudad || ""}`);
