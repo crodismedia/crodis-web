@@ -13,6 +13,28 @@
     display: none !important;
 }
 
+/* Especialidades: menos altura y menos espacio vacío. */
+#lista-servicios-publicos .servicio-card {
+    padding: 20px 22px !important;
+}
+
+#lista-servicios-publicos .servicio-card h3 {
+    margin: 0 0 7px !important;
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+}
+
+#lista-servicios-publicos .servicio-card p {
+    min-height: 0 !important;
+    margin: 0 0 10px !important;
+    line-height: 1.4 !important;
+}
+
+#lista-servicios-publicos .servicio-card a {
+    display: inline-block;
+    margin-top: 0 !important;
+}
+
 /* Evita que el submenú de Desguaces herede la raya activa del menú principal. */
 .tm-desguaces-submenu a::after {
     display: none !important;
@@ -137,6 +159,38 @@
 
 /* Android y pantallas estrechas */
 @media (max-width: 768px) {
+    #lista-servicios-publicos .servicio-card {
+        padding: 16px 18px !important;
+    }
+
+    #lista-servicios-publicos .servicio-card h3 {
+        margin-bottom: 5px !important;
+        font-size: 17px !important;
+    }
+
+    #lista-servicios-publicos .servicio-card p {
+        margin-bottom: 8px !important;
+        font-size: 13px !important;
+    }
+
+    #formulario-buscador-publico {
+        gap: 6px !important;
+        padding: 8px !important;
+    }
+
+    #formulario-buscador-publico > .campo-busqueda {
+        padding-top: 8px !important;
+        padding-bottom: 10px !important;
+    }
+
+    #formulario-buscador-publico #usar-mi-ubicacion {
+        margin-top: 6px !important;
+    }
+
+    #formulario-buscador-publico #boton-buscar {
+        min-height: 48px !important;
+    }
+
     .taller-card .taller-pie {
         gap: 10px;
     }
