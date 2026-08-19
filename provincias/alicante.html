@@ -21,6 +21,69 @@
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../css/estilo.css">
     <link rel="stylesheet" href="../css/municipios.css">
+    <style>
+        /* Tarjetas provinciales: teléfono bien alineado y acciones con contraste real. */
+        #lista-talleres-provincia .taller-pie {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            flex-wrap: wrap !important;
+            margin-top: 14px !important;
+            padding-top: 14px !important;
+        }
+        #lista-talleres-provincia .taller-contactos {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+        }
+        #lista-talleres-provincia .taller-contactos a[href^="tel:"] {
+            display: inline-flex !important;
+            align-items: center !important;
+            min-height: 42px !important;
+            padding: 0 !important;
+            margin-right: auto !important;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #0b57d0 !important;
+            -webkit-text-fill-color: #0b57d0 !important;
+            font-weight: 850 !important;
+            text-decoration: none !important;
+        }
+        #lista-talleres-provincia .taller-contactos a:not([href^="tel:"]) {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 42px !important;
+            padding: 10px 16px !important;
+            border: 1px solid #0846ad !important;
+            border-radius: 11px !important;
+            background: #0b57d0 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 850 !important;
+            text-decoration: none !important;
+            box-shadow: 0 7px 16px rgba(11,87,208,.24) !important;
+        }
+        #lista-talleres-provincia .taller-contactos a:not([href^="tel:"]):hover {
+            background: #0846ad !important;
+            border-color: #073b91 !important;
+        }
+        @media (max-width: 560px) {
+            #lista-talleres-provincia .taller-contactos {
+                align-items: stretch !important;
+            }
+            #lista-talleres-provincia .taller-contactos a[href^="tel:"] {
+                min-height: 38px !important;
+            }
+            #lista-talleres-provincia .taller-contactos a:not([href^="tel:"]) {
+                min-width: 126px !important;
+            }
+        }
+    </style>
     <script type="application/ld+json">
     {
       "@context":"https://schema.org",
