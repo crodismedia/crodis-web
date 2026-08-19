@@ -6,7 +6,6 @@ import {
     renderWorkshopMedia,
     reviewStatusLabel,
     safePhone,
-    safeWeb,
     serviceLabel,
     slugify,
     supabaseRpc,
@@ -47,18 +46,17 @@ function renderTalleres(rows) {
         const slug = workshopSlug(row);
         const phone = safePhone(row.telefono);
         const phoneDisplay = formatPhoneDisplay(row.telefono);
-        const web = safeWeb(row.web);
         const map = mapsURL(row, rawName);
         const services = Array.isArray(row.servicios) ? row.servicios.slice(0, 4) : [];
         const serviceHTML = services.length
             ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
             : "<span>Taller mecánico</span>";
         const contacts = [];
-        if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
-        if (map) contacts.push(`<a class="boton boton-pequeno accion-mapa enlace-google-maps" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
-        if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+        if (phone) contacts.push(`<a class="accion-provincia accion-telefono" href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">☎ ${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (map) contacts.push(`<a class="accion-provincia accion-mapa enlace-google-maps" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">⌖ Cómo llegar</a>`);
+        if (slug) contacts.push(`<a class="accion-provincia accion-ficha" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver ficha de ${nombre}">Ver ficha</a>`);
 
-        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie"><span class="taller-contactos taller-contactos-provincia">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
     }).join("");
 }
 
@@ -101,6 +99,21 @@ function injectSEO(html, slug, page, total) {
     if (page < totalPages) links.push(`<link rel="next" href="https://www.tallermap.es${pageURL(slug, page + 1)}">`);
     if (links.length) result = result.replace("</head>", `${links.join("\n")}\n</head>`);
     return result;
+}
+
+function injectActionStyles(html) {
+    const styles = `
+<style id="tm-provincia-acciones">
+.taller-contactos-provincia{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;width:100%;align-items:stretch}
+.taller-contactos-provincia .accion-provincia{display:inline-flex!important;align-items:center;justify-content:center;min-height:40px;padding:9px 10px!important;border:0!important;border-radius:10px!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:.86rem!important;font-weight:800!important;line-height:1.15;text-align:center;text-decoration:none!important;box-shadow:0 5px 14px rgba(15,23,42,.15);white-space:nowrap}
+.taller-contactos-provincia .accion-telefono{background:#159447!important}
+.taller-contactos-provincia .accion-mapa{background:#145fd1!important}
+.taller-contactos-provincia .accion-ficha{background:#e46f16!important}
+.taller-contactos-provincia .accion-provincia:hover{filter:brightness(.94);transform:translateY(-1px)}
+.taller-card .taller-pie{display:block!important}
+@media(max-width:560px){.taller-contactos-provincia{grid-template-columns:1fr}.taller-contactos-provincia .accion-provincia{width:100%;min-height:44px}}
+</style>`;
+    return html.includes('id="tm-provincia-acciones"') ? html : html.replace("</head>", `${styles}\n</head>`);
 }
 
 function stripProvinceRuntime(html) {
@@ -185,6 +198,7 @@ export default async function handler(request, response) {
 
         html = injectPagination(html, slug, pagina, total);
         html = injectSEO(html, slug, pagina, total);
+        html = injectActionStyles(html);
         html = stripProvinceRuntime(html);
 
         response.setHeader("X-TallerMap-Province-SSR", "1");
