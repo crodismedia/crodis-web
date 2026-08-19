@@ -115,23 +115,31 @@
             window.TallerMapServicios.rellenarTarjetas(lista);
         }
 
+        lista.querySelectorAll("[data-servicio]").forEach(enlace => {
+            const valor = String(enlace.dataset.servicio || "").trim();
+            if (valor) enlace.setAttribute("href", `/?servicio=${encodeURIComponent(valor)}#talleres`);
+        });
+
         if (!lista.dataset.tmServicioClick) {
             lista.dataset.tmServicioClick = "1";
             lista.addEventListener("click", event => {
                 const enlace = event.target.closest("[data-servicio]");
                 if (!enlace || !lista.contains(enlace)) return;
 
-                event.preventDefault();
-                const valor = enlace.dataset.servicio || "";
+                const valor = String(enlace.dataset.servicio || "").trim();
+                if (!valor) return;
+
                 const selector = document.getElementById("servicio");
                 const formulario = document.getElementById("formulario-buscador-publico");
+                const opcion = selector ? [...selector.options].find(item => item.value === valor) : null;
 
-                if (selector) {
-                    const opcion = [...selector.options].find(item => item.value === valor);
-                    if (opcion) selector.value = valor;
+                if (!selector || !formulario || !opcion) {
+                    return;
                 }
 
-                formulario?.requestSubmit();
+                event.preventDefault();
+                selector.value = valor;
+                formulario.requestSubmit();
             });
         }
     }
