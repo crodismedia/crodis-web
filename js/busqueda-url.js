@@ -108,6 +108,26 @@
         if (window.TallerMapServicios?.rellenarTarjetas) {
             window.TallerMapServicios.rellenarTarjetas(lista);
         }
+
+        if (!lista.dataset.tmServicioClick) {
+            lista.dataset.tmServicioClick = "1";
+            lista.addEventListener("click", event => {
+                const enlace = event.target.closest("[data-servicio]");
+                if (!enlace || !lista.contains(enlace)) return;
+
+                event.preventDefault();
+                const valor = enlace.dataset.servicio || "";
+                const selector = document.getElementById("servicio");
+                const formulario = document.getElementById("formulario-buscador-publico");
+
+                if (selector) {
+                    const opcion = [...selector.options].find(item => item.value === valor);
+                    if (opcion) selector.value = valor;
+                }
+
+                formulario?.requestSubmit();
+            });
+        }
     }
 
     function prepararMenuDesguaces() {
