@@ -1,0 +1,59 @@
+/* Botones secundarios de la ficha pública: gestión y navegación local. */
+
+.ficha-publica-gestion #reclamar-ficha {
+    background: #e7f8ed !important;
+    border: 1px solid #bfe3cc !important;
+    color: #126534 !important;
+    box-shadow: 0 5px 14px rgba(18,101,52,.08) !important;
+}
+
+.ficha-publica-gestion #corregir-ficha {
+    background: #f3f5f7 !important;
+    border: 1px solid #d9dee5 !important;
+    color: #46515f !important;
+    box-shadow: 0 5px 14px rgba(46,57,72,.06) !important;
+}
+
+.ficha-publica-gestion #reclamar-ficha:hover,
+.ficha-publica-gestion #corregir-ficha:hover {
+    transform: translateY(-1px) !important;
+    filter: brightness(.985);
+}
+
+.ficha-contexto-enlaces .boton {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 11px;
+    background: #eaf2ff !important;
+    border: 1px solid #cbdcff !important;
+    color: #2455a6 !important;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 5px 14px rgba(36,85,166,.08);
+}
+
+.ficha-contexto-enlaces .boton:hover {
+    background: #dfeaff !important;
+    transform: translateY(-1px);
+}
+
+.ficha-contexto-enlaces .boton.boton-claro {
+    background: #edf4ff !important;
+    border-color: #d2e1ff !important;
+    color: #2b5ca8 !important;
+}
+
+@media (max-width: 600px) {
+    .ficha-contexto-enlaces {
+        display: grid !important;
+        grid-template-columns: 1fr;
+    }
+
+    .ficha-contexto-enlaces .boton,
+    .ficha-publica-gestion .boton {
+        width: 100%;
+    }
+}
