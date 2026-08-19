@@ -9,7 +9,7 @@
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/admin-dashboard.css">
   <style>
-    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stats-card{padding:18px}.stats-card span{display:block;color:#66736b;font-size:.8rem;font-weight:750}.stats-card strong{display:block;font-size:1.85rem;margin-top:8px}.stats-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}.stats-list{display:grid;gap:11px}.stats-row{display:grid;grid-template-columns:minmax(120px,1fr) 2fr auto;gap:12px;align-items:center}.stats-row small{color:#66736b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stats-bar{height:10px;background:#edf2ee;border-radius:999px;overflow:hidden}.stats-bar i{display:block;height:100%;background:#138a43;border-radius:999px}.stats-row strong{font-variant-numeric:tabular-nums}.stats-note{color:#66736b;font-size:.86rem}.stats-table{width:100%;border-collapse:collapse}.stats-table th,.stats-table td{padding:11px 12px;border-bottom:1px solid #edf1ee;text-align:left;font-size:.86rem}.stats-table th{color:#66736b;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}.stats-good{color:#16713a}.stats-warn{color:#b45309}@media(max-width:1050px){.stats-grid{grid-template-columns:repeat(2,1fr)}.stats-two{grid-template-columns:1fr}}@media(max-width:560px){.stats-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr auto}.stats-bar{grid-column:1/-1}}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stats-card{padding:18px}.stats-card span{display:block;color:#66736b;font-size:.8rem;font-weight:750}.stats-card strong{display:block;font-size:1.85rem;margin-top:8px}.stats-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}.stats-list{display:grid;gap:11px}.stats-row{display:grid;grid-template-columns:minmax(120px,1fr) 2fr auto;gap:12px;align-items:center}.stats-row small{color:#66736b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stats-bar{height:10px;background:#edf2ee;border-radius:999px;overflow:hidden}.stats-bar i{display:block;height:100%;background:#138a43;border-radius:999px}.stats-row strong{font-variant-numeric:tabular-nums}.stats-note{color:#66736b;font-size:.86rem}.stats-table{width:100%;border-collapse:collapse}.stats-table th,.stats-table td{padding:11px 12px;border-bottom:1px solid #edf1ee;text-align:left;font-size:.86rem}.stats-table th{color:#66736b;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}.stats-good{color:#16713a}.stats-warn{color:#b45309}.stats-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stats-filter select{padding:9px 12px;border:1px solid #d7dfd9;border-radius:10px;background:#fff}.stats-rank-name{font-weight:750}.stats-rank-name a{color:inherit;text-decoration:none}.stats-rank-name a:hover{text-decoration:underline}.stats-muted{color:#66736b;font-size:.78rem}.stats-wide{margin-bottom:18px}.stats-kpi5{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1050px){.stats-grid,.stats-kpi5{grid-template-columns:repeat(2,1fr)}.stats-two{grid-template-columns:1fr}}@media(max-width:560px){.stats-grid,.stats-kpi5{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr auto}.stats-bar{grid-column:1/-1}.stats-table{min-width:760px}}
   </style>
 </head>
 <body>
@@ -38,7 +38,21 @@
   <main class="admin-main">
     <header class="admin-top"><h1>Estadísticas</h1><div class="admin-top-actions"><span id="admin-estado" class="admin-status">Verificando acceso…</span><button id="btn-recargar" class="admin-btn" type="button">Actualizar</button></div></header>
     <div class="admin-content">
-      <section class="admin-hero"><div><h2>Evolución y calidad de TallerMap</h2><p>Lectura agregada de la base de datos para controlar crecimiento, verificación, completitud y reparto territorial.</p></div></section>
+      <section class="admin-hero"><div><h2>Rendimiento real de TallerMap</h2><p>Además de calidad y cobertura, aquí puedes ver cuántas personas visitan las fichas y cuántas acciones generan para los talleres.</p></div><div class="stats-filter"><label for="stats-periodo"><strong>Periodo</strong></label><select id="stats-periodo"><option value="7">7 días</option><option value="30" selected>30 días</option><option value="90">90 días</option><option value="365">365 días</option></select></div></section>
+
+      <section class="stats-grid stats-kpi5" aria-label="Interacciones con talleres">
+        <article class="admin-card stats-card"><span>Visitas a fichas</span><strong id="inter-vistas">—</strong><small class="stats-note" id="inter-talleres">—</small></article>
+        <article class="admin-card stats-card"><span>Clics en teléfono</span><strong id="inter-telefono">—</strong></article>
+        <article class="admin-card stats-card"><span>Cómo llegar</span><strong id="inter-mapa">—</strong></article>
+        <article class="admin-card stats-card"><span>WhatsApp</span><strong id="inter-whatsapp">—</strong></article>
+        <article class="admin-card stats-card"><span>Web del taller</span><strong id="inter-web">—</strong></article>
+      </section>
+
+      <section class="admin-card stats-wide">
+        <div class="admin-panel-head"><div><h3>Talleres que más resultados generan</h3><p>Ranking del periodo seleccionado. Las acciones incluyen teléfono, Cómo llegar, WhatsApp y web.</p></div></div>
+        <div class="admin-table-wrap"><table class="stats-table"><thead><tr><th>Taller</th><th>Visitas</th><th>Teléfono</th><th>Cómo llegar</th><th>WhatsApp</th><th>Web</th><th>Acciones</th></tr></thead><tbody id="stats-ranking"><tr><td colspan="7">Cargando…</td></tr></tbody></table></div>
+      </section>
+
       <section class="stats-grid">
         <article class="admin-card stats-card"><span>Talleres totales</span><strong id="stat-total">—</strong></article>
         <article class="admin-card stats-card"><span>Verificados</span><strong id="stat-verificados">—</strong><small id="stat-verificados-pct" class="stats-note">—</small></article>
@@ -46,19 +60,19 @@
         <article class="admin-card stats-card"><span>Fichas creadas últimos 30 días</span><strong id="stat-altas30">—</strong></article>
       </section>
       <section class="stats-two">
-        <article class="admin-card"><div class="admin-panel-head"><div><h3>Fichas creadas por mes</h3><p>Últimos 6 meses según <code>created_at</code> de la base de datos.</p></div></div><div id="stats-meses" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
+        <article class="admin-card"><div class="admin-panel-head"><div><h3>Fichas creadas por mes</h3><p>Últimos 6 meses según <code>created_at</code>.</p></div></div><div id="stats-meses" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Distribución por provincia</h3><p>Valores principales almacenados en la base.</p></div></div><div id="stats-provincias" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
       </section>
       <section class="stats-two">
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Municipios con más talleres</h3><p>Top 10 por número de fichas.</p></div></div><div id="stats-municipios" class="admin-panel-body stats-list"><p class="stats-note">Cargando…</p></div></article>
         <article class="admin-card"><div class="admin-panel-head"><div><h3>Estado de calidad</h3><p>Campos básicos que más requieren atención.</p></div></div><div class="admin-panel-body"><table class="stats-table"><thead><tr><th>Control</th><th>Correctos</th><th>Pendientes</th></tr></thead><tbody id="stats-calidad"><tr><td colspan="3">Cargando…</td></tr></tbody></table></div></article>
       </section>
-      <p class="stats-note">La fecha <code>created_at</code> refleja cuándo se creó la ficha en TallerMap; una importación masiva puede concentrar muchas fichas en el mismo mes. Esta pantalla es solo de lectura.</p>
+      <p class="stats-note">Las interacciones empiezan a contar desde la activación del sistema de estadísticas. Esta pantalla es solo de lectura.</p>
     </div>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/admin-estadisticas.js"></script>
+<script src="../js/admin-estadisticas.js?v=20260819-1"></script>
 </body>
 </html>
