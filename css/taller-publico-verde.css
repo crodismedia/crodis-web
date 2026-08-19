@@ -125,6 +125,96 @@ Alicante · Castellón · Valencia
 .taller-relacionado { background:#fff !important;border-color:#dcebe1 !important; }
 .taller-relacionado:hover { border-color:#9fcdb0 !important;box-shadow:0 12px 26px rgba(4,105,52,.10) !important; }
 
+/* ========================================================
+   MEJORA VISUAL 20/08/2026
+   Más jerarquía, menos aspecto de formulario y mejor móvil.
+======================================================== */
+.ficha-publica {
+    max-width: 1160px;
+}
+
+.ficha-publica article {
+    padding: 42px !important;
+}
+
+.ficha-publica .etiqueta {
+    margin-bottom: 8px;
+    background: #eaf8ef !important;
+    border: 1px solid #cdebd8 !important;
+    color: #08733b !important;
+    font-weight: 850;
+}
+
+.ficha-publica h1 {
+    max-width: 900px;
+    margin-top: 10px !important;
+    font-size: clamp(2.15rem,4.7vw,3.25rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -.035em !important;
+}
+
+.ficha-publica-direccion {
+    max-width: 850px;
+    font-size: 1.08rem !important;
+    line-height: 1.55;
+}
+
+.ficha-estado {
+    margin-top: 14px !important;
+}
+
+#taller-descripcion {
+    max-width: 900px;
+    margin: 28px 0 4px !important;
+    font-size: 1.04rem;
+    line-height: 1.75;
+}
+
+.ficha-publica-acciones-alicante .boton {
+    min-height: 56px;
+    border-radius: 14px;
+    box-shadow: 0 9px 22px rgba(20,36,64,.13);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+.ficha-publica-acciones-alicante .boton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 13px 28px rgba(20,36,64,.18);
+}
+
+.ficha-servicios-ofrecidos {
+    padding-top: 8px;
+}
+
+.ficha-publica .ficha-servicios-ofrecidos .especialidades-destacadas>span {
+    min-height: 52px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(4,105,52,.035);
+}
+
+.ficha-publica-datos>p,
+.ficha-publica-datos>div,
+.ficha-publica-datos>details {
+    min-height: 66px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(4,105,52,.035);
+}
+
+.ficha-aviso {
+    line-height: 1.6;
+}
+
+.ficha-contexto,
+.ficha-relacionados {
+    border-radius: 20px !important;
+}
+
+.taller-relacionado {
+    border-radius: 15px !important;
+}
+
 @media(max-width:820px){
     #taller-foto .tm-auto-portada.tm-auto-portada-horario{grid-template-columns:1fr !important}
     .tm-portada-identidad{padding:22px;border-right:0;border-bottom:1px solid rgba(255,255,255,.22)}
@@ -134,16 +224,34 @@ Alicante · Castellón · Valencia
 }
 
 @media(max-width:600px){
-    #taller-foto.ficha-publica-portada-verde{min-height:0}
-    .tm-portada-identidad{flex-direction:row;justify-content:flex-start;text-align:left}
+    .ficha-publica {
+        margin-top: 14px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    .ficha-publica article {
+        padding: 24px 18px !important;
+        border-radius: 18px !important;
+    }
+    .ficha-publica h1 {
+        font-size: 2.1rem !important;
+        line-height: 1.04 !important;
+    }
+    .ficha-publica-direccion {
+        font-size: .98rem !important;
+    }
+    #taller-foto.ficha-publica-portada-verde{min-height:0;margin:18px 0}
+    .tm-portada-identidad{flex-direction:row;justify-content:flex-start;text-align:left;padding:18px}
     .tm-portada-identidad img{width:48px !important;height:48px !important}
     .tm-portada-identidad strong{font-size:1.4rem}
     .tm-portada-horario-contenido{padding:20px}
     .taller-horario-visible>div{grid-template-columns:1fr auto;gap:12px;padding:7px 0}
     .taller-horario-visible dd{font-size:.93rem}
-    .ficha-publica-acciones-alicante{position:static !important;display:grid !important;grid-template-columns:1fr !important;padding:0 !important;background:transparent !important;box-shadow:none !important}
-    .ficha-publica-acciones-alicante .boton{width:100%}
+    .ficha-publica-acciones-alicante{position:static !important;display:grid !important;grid-template-columns:1fr !important;gap:10px !important;margin:18px 0 24px !important;padding:0 !important;background:transparent !important;box-shadow:none !important}
+    .ficha-publica-acciones-alicante .boton{width:100%;min-height:54px}
     .ficha-publica .ficha-servicios-ofrecidos .especialidades-destacadas{grid-template-columns:1fr}
     .ficha-publica-datos-alicante{grid-template-columns:1fr}
     .ficha-publica-datos-alicante>.taller-horario-visible-bloque{padding:16px}
+    #taller-descripcion{margin-top:22px !important;font-size:1rem;line-height:1.65}
+    .ficha-contexto,.ficha-relacionados{padding:22px 18px !important}
 }
