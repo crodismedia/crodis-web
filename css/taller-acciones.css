@@ -13,6 +13,12 @@
     display: none !important;
 }
 
+/* Evita que el submenú de Desguaces herede la raya activa del menú principal. */
+.tm-desguaces-submenu a::after {
+    display: none !important;
+    content: none !important;
+}
+
 .taller-card .taller-pie {
     display: flex;
     flex-direction: column;
