@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Acceso desguaces | TallerMap</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
+  <style>body{background:#f5f7fa;color:#172033}.wrap{max-width:560px;margin:40px auto;padding:0 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:26px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.field{display:grid;gap:6px;margin:15px 0}.field label{font-weight:800}.field input{width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:10px;font:inherit}.btn{width:100%;min-height:46px;border:0;border-radius:9px;background:#155eef;color:#fff;font-weight:900;cursor:pointer}.muted{color:#667085}.status{margin-top:14px;font-weight:700}.err{color:#b42318}.links{margin-top:20px;padding-top:18px;border-top:1px solid #eaecf0}.links a{color:#155eef;font-weight:800;text-decoration:none}</style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html">Desguaces</a></nav></div></header>
+<main class="wrap"><section class="card"><p class="muted">Área profesional</p><h1>Acceso desguaces</h1><p class="muted">Entra con la cuenta aprobada para gestionar las solicitudes de piezas de tu desguace.</p><form id="login"><div class="field"><label for="email">Correo electrónico</label><input id="email" type="email" required autocomplete="email"></div><div class="field"><label for="password">Contraseña</label><input id="password" type="password" required autocomplete="current-password"></div><button class="btn" type="submit">Entrar</button><p id="estado" class="status" aria-live="polite"></p></form><div class="links"><p><strong>¿Todavía no tienes acceso?</strong></p><p class="muted">Abre la ficha pública de tu desguace y pulsa <strong>Solicitar acceso profesional</strong>. TallerMap revisará la solicitud antes de habilitar la cuenta.</p><a href="/desguaces.html">Buscar mi desguace →</a></div></section></main>
+<script>
+(function(){
+ const SB='https://cnyptelvbsndpkzbrete.supabase.co'; const KEY='sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh';
+ const form=document.getElementById('login'),estado=document.getElementById('estado');
+ const previo=localStorage.getItem('tm_desguace_access_token'); if(previo) location.replace('/panel-desguace.html');
+ form.addEventListener('submit',async e=>{e.preventDefault();estado.className='status';estado.textContent='Comprobando…';const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;try{const r=await fetch(`${SB}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token)throw new Error('Correo o contraseña incorrectos.');localStorage.setItem('tm_desguace_access_token',d.access_token);if(d.refresh_token)localStorage.setItem('tm_desguace_refresh_token',d.refresh_token);location.replace('/panel-desguace.html');}catch(err){estado.className='status err';estado.textContent=err.message||'No se pudo iniciar sesión.';}});
+})();
+</script></body></html>
