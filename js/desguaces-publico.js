@@ -47,6 +47,7 @@
     const servicios = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0, 5) : [];
     const slug = slugSeguro(d.slug);
     const fichaUrl = slug ? `/desguace/${esc(slug)}` : '';
+    const accesoSolicitud = d.id ? `/api/desguaces-solicitar-acceso?id=${encodeURIComponent(d.id)}` : '';
     const nombre = esc(d.nombre || 'Desguace');
     const nombreHtml = fichaUrl
       ? `<a href="${fichaUrl}" style="color:inherit;text-decoration:none">${nombre}</a>`
@@ -69,6 +70,7 @@
         <a href="${esc(maps)}" target="_blank" rel="noopener">Cómo llegar</a>
         ${web ? `<a href="${esc(web)}" target="_blank" rel="noopener">Web</a>` : ''}
         <a href="/acceso-desguaces.html">Acceso profesional</a>
+        ${accesoSolicitud ? `<a href="${esc(accesoSolicitud)}">Solicitar acceso</a>` : ''}
       </div>
     </article>`;
   }
