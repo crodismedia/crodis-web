@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar pieza | TallerMap</title>
+  <meta name="description" content="Solicita una pieza de recambio a un desguace publicado en TallerMap.">
+  <meta name="robots" content="noindex,follow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
+  <style>
+    body{background:#f5f7fa;color:#172033}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700}.field input,.field textarea,.field select{border:1px solid #d0d5dd;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.field textarea{min-height:120px;resize:vertical}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer}.primary{background:#155eef;color:#fff}.secondary{background:#f2f4f7;color:#344054}.notice{margin:0 0 18px;padding:12px 14px;border-radius:10px;background:#eff8ff;color:#175cd3}.status{margin-top:16px;font-weight:700}.status.ok{color:#027a48}.status.err{color:#b42318}@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html">Coches</a></nav></div></header>
+<main class="wrap">
+  <section class="card">
+    <h1>Solicitar pieza</h1>
+    <p id="destino" class="notice">Preparando la solicitud…</p>
+    <form id="form-solicitud">
+      <input type="hidden" id="desguace_slug" name="desguace_slug">
+      <div class="grid">
+        <div class="field"><label for="nombre_cliente">Nombre</label><input id="nombre_cliente" name="nombre_cliente" maxlength="120"></div>
+        <div class="field"><label for="telefono">Teléfono *</label><input id="telefono" name="telefono" required maxlength="40"></div>
+        <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" maxlength="160"></div>
+        <div class="field"><label for="marca">Marca del vehículo</label><input id="marca" name="marca" maxlength="100" placeholder="Ej. SEAT"></div>
+        <div class="field"><label for="modelo">Modelo</label><input id="modelo" name="modelo" maxlength="100" placeholder="Ej. León"></div>
+        <div class="field"><label for="anio">Año</label><input id="anio" name="anio" inputmode="numeric" maxlength="4" placeholder="Ej. 2018"></div>
+        <div class="field"><label for="matricula">Matrícula</label><input id="matricula" name="matricula" maxlength="30"></div>
+        <div class="field full"><label for="motor_version">Motor / versión</label><input id="motor_version" name="motor_version" maxlength="120" placeholder="Ej. 1.6 TDI 115 CV"></div>
+        <div class="field full"><label for="vin">VIN / bastidor</label><input id="vin" name="vin" maxlength="40"></div>
+        <div class="field full"><label for="pieza">Pieza que necesitas *</label><input id="pieza" name="pieza" required maxlength="200" placeholder="Ej. alternador, puerta delantera derecha..."></div>
+        <div class="field"><label for="lado">Lado</label><select id="lado" name="lado"><option value="">No aplica</option><option>Izquierdo</option><option>Derecho</option><option>Delantero</option><option>Trasero</option></select></div>
+        <div class="field"><label for="preferencia_pieza">Preferencia</label><select id="preferencia_pieza" name="preferencia_pieza"><option value="">Sin preferencia</option><option>Usada</option><option>Reconstruida</option><option>Cualquiera</option></select></div>
+        <div class="field full"><label for="referencia_pieza">Referencia de la pieza</label><input id="referencia_pieza" name="referencia_pieza" maxlength="100"></div>
+        <div class="field full"><label for="observaciones">Observaciones</label><textarea id="observaciones" name="observaciones" maxlength="1500" placeholder="Añade cualquier detalle que pueda ayudar a identificar la pieza."></textarea></div>
+      </div>
+      <div class="actions"><button class="btn primary" type="submit">Enviar solicitud</button><a id="volver" class="btn secondary" href="/desguaces.html">Volver</a></div>
+      <p id="estado" class="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const slug = (params.get('desguace') || '').trim().toLowerCase();
+  const inputSlug = document.getElementById('desguace_slug');
+  const destino = document.getElementById('destino');
+  const volver = document.getElementById('volver');
+  const form = document.getElementById('form-solicitud');
+  const estado = document.getElementById('estado');
+
+  if (!/^[a-z0-9-]{2,160}$/.test(slug)) {
+    destino.textContent = 'No se ha indicado un desguace válido.';
+    form.querySelector('button[type="submit"]').disabled = true;
+    return;
+  }
+
+  inputSlug.value = slug;
+  volver.href = `/desguace/${encodeURIComponent(slug)}`;
+  destino.textContent = 'Solicitud para el desguace seleccionado. Completa los datos del vehículo y la pieza.';
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    estado.className = 'status';
+    estado.textContent = 'Enviando…';
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+
+    const payload = Object.fromEntries(new FormData(form).entries());
+    try {
+      const res = await fetch('/api/solicitar-pieza', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo enviar la solicitud.');
+      estado.className = 'status ok';
+      estado.textContent = `Solicitud enviada correctamente. Código: ${data.codigo}`;
+      form.reset();
+      inputSlug.value = slug;
+      button.textContent = 'Solicitud enviada';
+    } catch (err) {
+      estado.className = 'status err';
+      estado.textContent = err.message || 'No se pudo enviar la solicitud.';
+      button.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
