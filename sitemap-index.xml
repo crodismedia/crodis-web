@@ -18,4 +18,8 @@
   <sitemap>
     <loc>https://www.tallermap.es/sitemap-talleres.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://www.tallermap.es/sitemap-desguaces.xml</loc>
+    <lastmod>2026-08-20</lastmod>
+  </sitemap>
 </sitemapindex>
