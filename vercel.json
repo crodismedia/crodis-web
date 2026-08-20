@@ -39,6 +39,10 @@
       "destination": "/api/taller-html?slug=:slug"
     },
     {
+      "source": "/desguace/:slug",
+      "destination": "/api/desguace-html?slug=:slug"
+    },
+    {
       "source": "/provincias/:provincia.html",
       "destination": "/api/provincia?provincia=:provincia"
     },
