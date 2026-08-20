@@ -9,7 +9,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
   <style>
-    body{background:#f5f7fa;color:#172033}.wrap{max-width:760px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.search{display:flex;gap:10px;flex-wrap:wrap}.search input{flex:1;min-width:260px;border:1px solid #d0d5dd;border-radius:10px;padding:12px;font:inherit;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer;background:#155eef;color:#fff}.status{margin-top:18px}.status.err{color:#b42318;font-weight:700}.result{margin-top:22px;border-top:1px solid #eaecf0;padding-top:20px}.badge{display:inline-block;background:#ecfdf3;color:#027a48;border-radius:999px;padding:7px 11px;font-weight:800}.data{margin-top:16px}.data p{padding:10px 0;margin:0;border-bottom:1px solid #eaecf0}.muted{color:#667085}.hidden{display:none}
+    body{background:#f5f7fa;color:#172033}.wrap{max-width:760px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.search{display:flex;gap:10px;flex-wrap:wrap}.search input{flex:1;min-width:260px;border:1px solid #d0d5dd;border-radius:10px;padding:12px;font:inherit;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer;background:#155eef;color:#fff}.status{margin-top:18px}.status.err{color:#b42318;font-weight:700}.result{margin-top:22px;border-top:1px solid #eaecf0;padding-top:20px}.badge{display:inline-block;background:#ecfdf3;color:#027a48;border-radius:999px;padding:7px 11px;font-weight:800}.data{margin-top:16px}.data p{padding:10px 0;margin:0;border-bottom:1px solid #eaecf0}.pdf-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.pdf-actions .btn{background:#101828}.muted{color:#667085}.hidden{display:none}
   </style>
 </head>
 <body>
@@ -34,6 +34,9 @@
         <p id="fila-entrega" class="hidden"><strong>Entrega:</strong> <span id="r-entrega"></span></p>
         <p id="fila-precio" class="hidden"><strong>Precio:</strong> <span id="r-precio"></span></p>
       </div>
+      <div id="pdf-actions" class="pdf-actions hidden">
+        <a id="pdf-link" class="btn" href="#">Descargar solicitud PDF</a>
+      </div>
     </section>
   </section>
 </main>
@@ -43,6 +46,8 @@
   const input=document.getElementById('codigo');
   const estado=document.getElementById('estado');
   const resultado=document.getElementById('resultado');
+  const pdfActions=document.getElementById('pdf-actions');
+  const pdfLink=document.getElementById('pdf-link');
   const params=new URLSearchParams(location.search);
   const inicial=(params.get('codigo')||'').trim().toUpperCase();
   if(inicial) input.value=inicial;
@@ -54,6 +59,7 @@
     estado.className='status';
     estado.textContent='Consultando…';
     resultado.classList.add('hidden');
+    pdfActions.classList.add('hidden');
     try{
       const res=await fetch('/api/estado-solicitud?codigo='+encodeURIComponent(codigo));
       const data=await res.json().catch(()=>({}));
@@ -67,6 +73,8 @@
       const fe=document.getElementById('fila-entrega'); fe.classList.toggle('hidden',!s.entrega); txt('r-entrega',s.entrega);
       const total=(s.precio!==null?Number(s.precio):0)+(s.gastos_envio!==null?Number(s.gastos_envio):0);
       const fp=document.getElementById('fila-precio'); fp.classList.toggle('hidden',s.precio===null); txt('r-precio',s.precio===null?'':money(total));
+      pdfLink.href='/api/solicitud-pdf?codigo='+encodeURIComponent(s.codigo);
+      pdfActions.classList.remove('hidden');
       resultado.classList.remove('hidden');
       history.replaceState(null,'','?codigo='+encodeURIComponent(s.codigo));
     }catch(err){estado.className='status err';estado.textContent=err.message||'No se pudo consultar la solicitud.'}
