@@ -28,7 +28,7 @@
     const filas=[];
     for(let desde=0;;desde+=PAGE){
       const {data,error}=await supabase.from("talleres")
-        .select("id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,web,verificado,servicios,created_at")
+        .select("id,nombre,telefono,direccion,codigo_postal,ciudad,provincia,web,verificado,servicios,horarios,created_at")
         .order("id",{ascending:true})
         .range(desde,desde+PAGE-1);
       if(error)throw error;
@@ -96,7 +96,7 @@
     try{
       const datos=await calcular();
       if(!datos.length){progreso("La selección no contiene talleres.","error");return;}
-      const cabeceras=["id","nombre","telefono","direccion","codigo_postal","ciudad","provincia","web","verificado","servicios","created_at"];
+      const cabeceras=["id","nombre","telefono","direccion","codigo_postal","ciudad","provincia","web","verificado","servicios","horarios","created_at"];
       const lineas=[cabeceras.join(";")];
       datos.forEach(t=>lineas.push(cabeceras.map(c=>valorCSV(t[c])).join(";")));
       const blob=new Blob(["\uFEFF"+lineas.join("\r\n")],{type:"text/csv;charset=utf-8"});
