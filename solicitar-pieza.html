@@ -9,7 +9,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
   <style>
-    body{background:#f5f7fa;color:#172033}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700}.field input,.field textarea,.field select{border:1px solid #d0d5dd;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.field textarea{min-height:120px;resize:vertical}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer}.primary{background:#155eef;color:#fff}.secondary{background:#f2f4f7;color:#344054}.notice{margin:0 0 18px;padding:12px 14px;border-radius:10px;background:#eff8ff;color:#175cd3}.status{margin-top:16px;font-weight:700}.status.ok{color:#027a48}.status.err{color:#b42318}@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+    body{background:#f5f7fa;color:#172033}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700}.field input,.field textarea,.field select{border:1px solid #d0d5dd;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.field textarea{min-height:120px;resize:vertical}.help{font-size:.86rem;color:#667085}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer}.primary{background:#155eef;color:#fff}.secondary{background:#f2f4f7;color:#344054}.notice{margin:0 0 18px;padding:12px 14px;border-radius:10px;background:#eff8ff;color:#175cd3}.status{margin-top:16px;font-weight:700}.status.ok{color:#027a48}.status.err{color:#b42318}.status a{color:#155eef}@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
   </style>
 </head>
 <body>
@@ -35,6 +35,7 @@
         <div class="field"><label for="preferencia_pieza">Preferencia</label><select id="preferencia_pieza" name="preferencia_pieza"><option value="">Sin preferencia</option><option>Usada</option><option>Reconstruida</option><option>Cualquiera</option></select></div>
         <div class="field full"><label for="referencia_pieza">Referencia de la pieza</label><input id="referencia_pieza" name="referencia_pieza" maxlength="100"></div>
         <div class="field full"><label for="observaciones">Observaciones</label><textarea id="observaciones" name="observaciones" maxlength="1500" placeholder="Añade cualquier detalle que pueda ayudar a identificar la pieza."></textarea></div>
+        <div class="field full"><label for="fotos">Fotos de la pieza o del vehículo</label><input id="fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><span class="help">Opcional. Hasta 3 fotos, máximo 5 MB por imagen.</span></div>
       </div>
       <div class="actions"><button class="btn primary" type="submit">Enviar solicitud</button><a id="volver" class="btn secondary" href="/desguaces.html">Volver</a></div>
       <p id="estado" class="status" aria-live="polite"></p>
@@ -43,6 +44,8 @@
 </main>
 <script>
 (function(){
+  const SUPABASE_URL='https://cnyptelvbsndpkzbrete.supabase.co';
+  const SUPABASE_KEY='sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh';
   const params = new URLSearchParams(location.search);
   const slug = (params.get('desguace') || '').trim().toLowerCase();
   const inputSlug = document.getElementById('desguace_slug');
@@ -50,6 +53,7 @@
   const volver = document.getElementById('volver');
   const form = document.getElementById('form-solicitud');
   const estado = document.getElementById('estado');
+  const fotosInput = document.getElementById('fotos');
 
   if (!/^[a-z0-9-]{2,160}$/.test(slug)) {
     destino.textContent = 'No se ha indicado un desguace válido.';
@@ -61,6 +65,29 @@
   volver.href = `/desguace/${encodeURIComponent(slug)}`;
   destino.textContent = 'Solicitud para el desguace seleccionado. Completa los datos del vehículo y la pieza.';
 
+  function extension(file){
+    const byType={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+    return byType[file.type] || '';
+  }
+
+  async function subirFoto(file, codigo, slot){
+    const ext=extension(file);
+    if(!ext) throw new Error('Formato de imagen no permitido. Usa JPG, PNG o WebP.');
+    if(file.size>5*1024*1024) throw new Error('Cada foto debe ocupar como máximo 5 MB.');
+    const path=`solicitudes/${codigo}/${crypto.randomUUID()}.${ext}`;
+    const upload=await fetch(`${SUPABASE_URL}/storage/v1/object/solicitudes-piezas/${path}`,{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':file.type,'x-upsert':'false'},
+      body:file
+    });
+    if(!upload.ok) throw new Error(`No se pudo subir la foto ${slot}.`);
+    const link=await fetch('/api/adjuntar-foto-solicitud',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({codigo,path,slot})
+    });
+    const data=await link.json().catch(()=>({}));
+    if(!link.ok||!data.ok) throw new Error(data.error||`No se pudo vincular la foto ${slot}.`);
+  }
+
   form.addEventListener('submit', async function(e){
     e.preventDefault();
     estado.className = 'status';
@@ -68,7 +95,12 @@
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
 
+    const files=Array.from(fotosInput.files||[]);
+    if(files.length>3){estado.className='status err';estado.textContent='Puedes adjuntar como máximo 3 fotos.';button.disabled=false;return;}
+    if(files.some(f=>!extension(f)||f.size>5*1024*1024)){estado.className='status err';estado.textContent='Revisa las fotos: solo JPG, PNG o WebP y máximo 5 MB cada una.';button.disabled=false;return;}
+
     const payload = Object.fromEntries(new FormData(form).entries());
+    delete payload.fotos;
     try {
       const res = await fetch('/api/solicitar-pieza', {
         method: 'POST',
@@ -77,8 +109,14 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo enviar la solicitud.');
+
+      if(files.length){
+        estado.textContent=`Solicitud creada. Subiendo ${files.length} ${files.length===1?'foto':'fotos'}…`;
+        for(let i=0;i<files.length;i++) await subirFoto(files[i],data.codigo,i+1);
+      }
+
       estado.className = 'status ok';
-      estado.textContent = `Solicitud enviada correctamente. Código: ${data.codigo}`;
+      estado.innerHTML = `Solicitud enviada correctamente. Código: <strong>${data.codigo}</strong>. <a href="/estado-solicitud.html?codigo=${encodeURIComponent(data.codigo)}">Consultar estado</a>`;
       form.reset();
       inputSlug.value = slug;
       button.textContent = 'Solicitud enviada';
