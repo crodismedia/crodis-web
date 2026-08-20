@@ -68,6 +68,7 @@
         ${telefono ? `<a href="${esc(telefonoHref(telefono))}">Llamar · ${esc(telefono)}</a>` : ''}
         <a href="${esc(maps)}" target="_blank" rel="noopener">Cómo llegar</a>
         ${web ? `<a href="${esc(web)}" target="_blank" rel="noopener">Web</a>` : ''}
+        <a href="/acceso-desguaces.html">Acceso profesional</a>
       </div>
     </article>`;
   }
