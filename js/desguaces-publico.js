@@ -34,18 +34,28 @@
     return limpio ? `tel:${limpio}` : '';
   }
 
+  function slugSeguro(valor) {
+    const slug = String(valor || '').trim().toLowerCase();
+    return /^[a-z0-9-]+$/.test(slug) ? slug : '';
+  }
+
   function tarjeta(d) {
     const direccion = [d.direccion, d.codigo_postal, d.municipio].filter(Boolean).join(', ');
     const telefono = String(d.telefono || '').trim();
     const web = urlSegura(d.web);
     const maps = urlSegura(d.google_maps_url) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([d.nombre, direccion, d.provincia].filter(Boolean).join(', '))}`;
     const servicios = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0, 5) : [];
+    const slug = slugSeguro(d.slug);
+    const nombre = esc(d.nombre || 'Desguace');
+    const nombreHtml = slug
+      ? `<a href="/desguace/${esc(slug)}" style="color:inherit;text-decoration:none">${nombre}</a>`
+      : nombre;
 
     return `<article class="desguace-card">
       <div class="desguace-card-cabecera">
         <div>
           <p class="desguace-localidad">${esc(d.municipio || '')}</p>
-          <h3>${esc(d.nombre || 'Desguace')}</h3>
+          <h3>${nombreHtml}</h3>
         </div>
         <span class="desguace-verificado">Verificado</span>
       </div>
@@ -71,7 +81,7 @@
 
     const { data, error } = await sb
       .from('desguaces')
-      .select('id,nombre,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion,activo,verificado,updated_at')
+      .select('id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion,activo,verificado,updated_at')
       .eq('activo', true)
       .eq('verificado', true)
       .order('municipio', { ascending: true })
