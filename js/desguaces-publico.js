@@ -46,9 +46,10 @@
     const maps = urlSegura(d.google_maps_url) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([d.nombre, direccion, d.provincia].filter(Boolean).join(', '))}`;
     const servicios = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0, 5) : [];
     const slug = slugSeguro(d.slug);
+    const fichaUrl = slug ? `/desguace/${esc(slug)}` : '';
     const nombre = esc(d.nombre || 'Desguace');
-    const nombreHtml = slug
-      ? `<a href="/desguace/${esc(slug)}" style="color:inherit;text-decoration:none">${nombre}</a>`
+    const nombreHtml = fichaUrl
+      ? `<a href="${fichaUrl}" style="color:inherit;text-decoration:none">${nombre}</a>`
       : nombre;
 
     return `<article class="desguace-card">
@@ -63,6 +64,7 @@
       ${d.descripcion ? `<p class="desguace-descripcion">${esc(d.descripcion)}</p>` : ''}
       ${servicios.length ? `<div class="desguace-servicios">${servicios.map(s => `<span>${esc(s)}</span>`).join('')}</div>` : ''}
       <div class="desguace-acciones">
+        ${fichaUrl ? `<a href="${fichaUrl}">Ver ficha</a>` : ''}
         ${telefono ? `<a href="${esc(telefonoHref(telefono))}">Llamar · ${esc(telefono)}</a>` : ''}
         <a href="${esc(maps)}" target="_blank" rel="noopener">Cómo llegar</a>
         ${web ? `<a href="${esc(web)}" target="_blank" rel="noopener">Web</a>` : ''}
