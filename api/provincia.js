@@ -70,14 +70,18 @@ function pageURL(slug, page) {
     return `/provincias/${slug}.html${page > 1 ? `?pagina=${page}` : ""}`;
 }
 
+function navigationPageURL(slug, page) {
+    return `${pageURL(slug, page)}#lista-talleres-provincia`;
+}
+
 function injectPagination(html, slug, page, total) {
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const previous = page <= 1
         ? '<span class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>'
-        : `<a class="boton boton-claro" href="${escapeHTML(pageURL(slug, page - 1))}">← Anterior</a>`;
+        : `<a class="boton boton-claro" href="${escapeHTML(navigationPageURL(slug, page - 1))}">← Anterior</a>`;
     const next = page >= totalPages
         ? '<span class="boton deshabilitado" aria-disabled="true">Siguiente →</span>'
-        : `<a class="boton" href="${escapeHTML(pageURL(slug, page + 1))}">Siguiente →</a>`;
+        : `<a class="boton" href="${escapeHTML(navigationPageURL(slug, page + 1))}">Siguiente →</a>`;
     const pagination = total > PAGE_SIZE ? `
         <div id="contenedor-cargar-mas-provincia" class="cargar-mas-contenedor municipio-paginacion">
             ${previous}
