@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado de solicitud | TallerMap</title>
+  <meta name="description" content="Consulta el estado de tu solicitud de pieza en TallerMap.">
+  <meta name="robots" content="noindex,follow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
+  <style>
+    body{background:#f5f7fa;color:#172033}.wrap{max-width:760px;margin:0 auto;padding:34px 20px 70px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.search{display:flex;gap:10px;flex-wrap:wrap}.search input{flex:1;min-width:260px;border:1px solid #d0d5dd;border-radius:10px;padding:12px;font:inherit;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:9px;text-decoration:none;font-weight:800;border:0;cursor:pointer;background:#155eef;color:#fff}.status{margin-top:18px}.status.err{color:#b42318;font-weight:700}.result{margin-top:22px;border-top:1px solid #eaecf0;padding-top:20px}.badge{display:inline-block;background:#ecfdf3;color:#027a48;border-radius:999px;padding:7px 11px;font-weight:800}.data{margin-top:16px}.data p{padding:10px 0;margin:0;border-bottom:1px solid #eaecf0}.muted{color:#667085}.hidden{display:none}
+  </style>
+</head>
+<body>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html">Desguaces</a><a href="/coches.html">Coches</a></nav></div></header>
+<main class="wrap">
+  <section class="card">
+    <h1>Consultar solicitud</h1>
+    <p class="muted">Introduce el código que recibiste al enviar la solicitud.</p>
+    <form id="buscar" class="search">
+      <input id="codigo" name="codigo" required maxlength="80" placeholder="Ej. TM-MT1WAU0K-KBNJ4" autocomplete="off">
+      <button class="btn" type="submit">Consultar estado</button>
+    </form>
+    <p id="estado" class="status" aria-live="polite"></p>
+    <section id="resultado" class="result hidden">
+      <span id="badge" class="badge"></span>
+      <div class="data">
+        <p><strong>Código:</strong> <span id="r-codigo"></span></p>
+        <p><strong>Desguace:</strong> <span id="r-desguace"></span></p>
+        <p><strong>Vehículo:</strong> <span id="r-vehiculo"></span></p>
+        <p><strong>Pieza:</strong> <span id="r-pieza"></span></p>
+        <p id="fila-resultado" class="hidden"><strong>Respuesta:</strong> <span id="r-resultado"></span></p>
+        <p id="fila-entrega" class="hidden"><strong>Entrega:</strong> <span id="r-entrega"></span></p>
+        <p id="fila-precio" class="hidden"><strong>Precio:</strong> <span id="r-precio"></span></p>
+      </div>
+    </section>
+  </section>
+</main>
+<script>
+(function(){
+  const form=document.getElementById('buscar');
+  const input=document.getElementById('codigo');
+  const estado=document.getElementById('estado');
+  const resultado=document.getElementById('resultado');
+  const params=new URLSearchParams(location.search);
+  const inicial=(params.get('codigo')||'').trim().toUpperCase();
+  if(inicial) input.value=inicial;
+
+  function txt(id,value){document.getElementById(id).textContent=value||'—'}
+  function money(value){const n=Number(value);return Number.isFinite(n)?new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n):''}
+
+  async function consultar(codigo){
+    estado.className='status';
+    estado.textContent='Consultando…';
+    resultado.classList.add('hidden');
+    try{
+      const res=await fetch('/api/estado-solicitud?codigo='+encodeURIComponent(codigo));
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok||!data.ok) throw new Error(data.error||'No se pudo consultar la solicitud.');
+      const s=data.solicitud;
+      estado.textContent='';
+      document.getElementById('badge').textContent=s.estado_label;
+      txt('r-codigo',s.codigo); txt('r-desguace',s.desguace);
+      txt('r-vehiculo',[s.marca,s.modelo,s.anio].filter(Boolean).join(' ')); txt('r-pieza',s.pieza);
+      const fr=document.getElementById('fila-resultado'); fr.classList.toggle('hidden',!s.resultado); txt('r-resultado',s.resultado);
+      const fe=document.getElementById('fila-entrega'); fe.classList.toggle('hidden',!s.entrega); txt('r-entrega',s.entrega);
+      const total=(s.precio!==null?Number(s.precio):0)+(s.gastos_envio!==null?Number(s.gastos_envio):0);
+      const fp=document.getElementById('fila-precio'); fp.classList.toggle('hidden',s.precio===null); txt('r-precio',s.precio===null?'':money(total));
+      resultado.classList.remove('hidden');
+      history.replaceState(null,'','?codigo='+encodeURIComponent(s.codigo));
+    }catch(err){estado.className='status err';estado.textContent=err.message||'No se pudo consultar la solicitud.'}
+  }
+
+  form.addEventListener('submit',e=>{e.preventDefault();const codigo=input.value.trim().toUpperCase();if(codigo)consultar(codigo)});
+  if(inicial) consultar(inicial);
+})();
+</script>
+</body>
+</html>
