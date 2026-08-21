@@ -7,6 +7,21 @@
       "statusCode": 301
     },
     {
+      "source": "/talleres.html",
+      "destination": "https://www.tallermap.es/#provincias",
+      "permanent": true
+    },
+    {
+      "source": "/provincias/",
+      "destination": "https://www.tallermap.es/#provincias",
+      "permanent": true
+    },
+    {
+      "source": "/provincias/index.html",
+      "destination": "https://www.tallermap.es/#provincias",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
