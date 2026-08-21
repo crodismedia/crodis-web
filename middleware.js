@@ -33,6 +33,10 @@ export default function middleware(request) {
   const incoming = new URL(request.url);
   const pathname = incoming.pathname;
 
+  if (pathname === '/sitemap-desguaces.xml') {
+    return rewrite(new URL('/api/sitemap-desguaces', request.url));
+  }
+
   if (pathname === '/') {
     const target = new URL('/api/home', request.url);
     target.search = incoming.search;
@@ -59,6 +63,7 @@ export default function middleware(request) {
 export const config = {
   matcher: [
     '/',
+    '/sitemap-desguaces.xml',
     '/provincias/:path*.html',
     '/servicios/:path*.html'
   ]
