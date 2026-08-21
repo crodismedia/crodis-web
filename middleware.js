@@ -38,7 +38,7 @@ export default function middleware(request) {
   }
 
   if (pathname === '/') {
-    const target = new URL('/api/home', request.url);
+    const target = new URL('/api/home-cache-fix', request.url);
     target.search = incoming.search;
     return rewrite(target);
   }
