@@ -12,7 +12,7 @@ import {
 } from "../lib/server-utils.js";
 
 const SITE_URL = "https://www.tallermap.es";
-const PAGE_SIZE = 30;
+const MUNICIPALITY_LIMIT = 5000;
 
 function safeFileName(value) {
     const fileName = String(value || "").trim().toLowerCase();
@@ -24,11 +24,6 @@ function safeService(value) {
         .toLowerCase()
         .replace(/[^a-z0-9-]/g, "")
         .slice(0, 80);
-}
-
-function requestedPage(value) {
-    const page = Number(value);
-    return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
 function humanizeSlug(value) {
@@ -45,11 +40,7 @@ function readMunicipalityMeta(fileName) {
     const fallbackName = humanizeSlug(fileName);
 
     try {
-        const source = fs.readFileSync(
-            path.join(process.cwd(), "municipios", fileName),
-            "utf8"
-        );
-
+        const source = fs.readFileSync(path.join(process.cwd(), "municipios", fileName), "utf8");
         const match = source.match(
             /id="lista-talleres"[\s\S]*?data-municipio="([^"]+)"[\s\S]*?data-codigo-municipal="([^"]+)"/i
         );
@@ -61,24 +52,17 @@ function readMunicipalityMeta(fileName) {
             };
         }
     } catch (_error) {
-        // El HTML antiguo solo se usa como fuente de metadatos, nunca como plantilla visual.
+        // El HTML histórico solo aporta nombre y código municipal.
     }
 
-    return {
-        name: fallbackName,
-        code: fallbackCode
-    };
+    return { name: fallbackName, code: fallbackCode };
 }
 
 function cleanDescription(value) {
-    const text = String(value || "")
-        .replace(/\s+/g, " ")
-        .trim();
-
+    const text = String(value || "").replace(/\s+/g, " ").trim();
     if (!text || /^servicios\b/i.test(text) || text.length > 220) {
         return "Consulta la ficha del taller para conocer sus servicios y datos de contacto.";
     }
-
     return text;
 }
 
@@ -107,7 +91,6 @@ function renderWorkshop(workshop) {
     const phone = safePhone(workshop?.telefono);
     const web = safeWeb(workshop?.web);
     const map = mapsURL(workshop, rawName);
-
     const address = [
         workshop?.direccion,
         workshop?.codigo_postal,
@@ -120,10 +103,7 @@ function renderWorkshop(workshop) {
         .join(", ");
 
     const services = Array.isArray(workshop?.servicios)
-        ? workshop.servicios
-            .map(serviceLabel)
-            .filter(Boolean)
-            .slice(0, 4)
+        ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 4)
         : [];
 
     const serviceMarkup = (services.length ? services : ["Taller mecánico"])
@@ -131,76 +111,24 @@ function renderWorkshop(workshop) {
         .join("");
 
     const buttons = [];
-
-    if (phone) {
-        buttons.push(
-            `<a class="tm-card-btn tm-card-btn-call" href="tel:${escapeHTML(phone)}">Llamar</a>`
-        );
-    }
-
-    if (slug) {
-        buttons.push(
-            `<a class="tm-card-btn tm-card-btn-profile" href="/talleres/${encodeURIComponent(slug)}">▤ Ver ficha</a>`
-        );
-    }
-
-    if (map) {
-        buttons.push(
-            `<a class="tm-card-btn tm-card-btn-map" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer">⌖ Abrir en Google Maps</a>`
-        );
-    }
-
-    if (web) {
-        buttons.push(
-            `<a class="tm-card-btn tm-card-btn-web" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`
-        );
-    }
+    if (phone) buttons.push(`<a class="tm-card-btn tm-card-btn-call" href="tel:${escapeHTML(phone)}">Llamar</a>`);
+    if (slug) buttons.push(`<a class="tm-card-btn tm-card-btn-profile" href="/talleres/${encodeURIComponent(slug)}">▤ Ver ficha</a>`);
+    if (map) buttons.push(`<a class="tm-card-btn tm-card-btn-map" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer">⌖ Abrir en Google Maps</a>`);
+    if (web) buttons.push(`<a class="tm-card-btn tm-card-btn-web" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
 
     return `
         <article class="taller-card taller-card-unificada" data-taller-slug="${escapeHTML(slug)}">
             ${renderWorkshopMedia(workshop, rawName)}
             <div class="taller-informacion">
-                <span class="verificado verificado-en-contenido">
-                    ${escapeHTML(reviewStatusLabel(Boolean(workshop?.verificado)))}
-                </span>
-
-                <h3>
-                    ${slug
-                        ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(rawName)}</a>`
-                        : escapeHTML(rawName)}
-                </h3>
-
+                <span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(workshop?.verificado)))}</span>
+                <h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(rawName)}</a>` : escapeHTML(rawName)}</h3>
                 <p class="ubicacion">⌖ ${escapeHTML(address || "Ubicación no indicada")}</p>
-
-                <p class="taller-descripcion">
-                    ${escapeHTML(cleanDescription(workshop?.descripcion))}
-                </p>
-
-                <div class="especialidades">
-                    ${serviceMarkup}
-                </div>
-
-                <div class="tm-card-actions">
-                    ${buttons.join("") || "<span>Sin datos de contacto publicados</span>"}
-                </div>
+                <p class="taller-descripcion">${escapeHTML(cleanDescription(workshop?.descripcion))}</p>
+                <div class="especialidades">${serviceMarkup}</div>
+                <div class="tm-card-actions">${buttons.join("") || "<span>Sin datos de contacto publicados</span>"}</div>
             </div>
         </article>
     `;
-}
-
-function pageURL(fileName, page, service) {
-    const params = new URLSearchParams();
-
-    if (page > 1) {
-        params.set("pagina", String(page));
-    }
-
-    if (service) {
-        params.set("servicio", service);
-    }
-
-    const query = params.toString();
-    return `/municipios/${fileName}${query ? `?${query}` : ""}`;
 }
 
 function renderServiceOptions(selected) {
@@ -217,50 +145,21 @@ function renderServiceOptions(selected) {
     ];
 
     return options
-        .map(([value, label]) => (
-            `<option value="${escapeHTML(value)}"${value === selected ? " selected" : ""}>${escapeHTML(label)}</option>`
-        ))
+        .map(([value, label]) => `<option value="${escapeHTML(value)}"${value === selected ? " selected" : ""}>${escapeHTML(label)}</option>`)
         .join("");
 }
 
-function renderPagination(fileName, page, total, service) {
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-    if (totalPages <= 1) {
-        return "";
-    }
-
-    const previous = page > 1
-        ? `<a class="boton boton-claro" href="${escapeHTML(pageURL(fileName, page - 1, service))}">← Anterior</a>`
-        : `<span class="boton boton-claro deshabilitado" aria-disabled="true">← Anterior</span>`;
-
-    const next = page < totalPages
-        ? `<a class="boton" href="${escapeHTML(pageURL(fileName, page + 1, service))}">Siguiente →</a>`
-        : `<span class="boton deshabilitado" aria-disabled="true">Siguiente →</span>`;
-
-    return `
-        <nav class="cargar-mas-contenedor municipio-paginacion" aria-label="Paginación">
-            ${previous}
-            <span>Página ${page} de ${totalPages}</span>
-            ${next}
-        </nav>
-    `;
-}
-
-function renderPage({ fileName, municipality, workshops, total, page, service }) {
+function renderPage({ fileName, municipality, workshops, service }) {
     const name = municipality.name;
     const code = municipality.code;
     const canonicalPath = `/municipios/${fileName}`;
     const canonical = `${SITE_URL}${canonicalPath}`;
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const indexable = !service && page <= totalPages;
-    const title = page > 1
-        ? `Página ${page} · Talleres mecánicos en ${name} | TallerMap`
-        : `Talleres mecánicos en ${name} | TallerMap`;
-
+    const indexable = !service;
+    const title = `Talleres mecánicos en ${name} | TallerMap`;
     const description = `Encuentra talleres mecánicos publicados en ${name}. Consulta servicios, dirección, teléfono, ficha del taller y cómo llegar en TallerMap.`;
+    const total = workshops.length;
 
-    const cards = workshops.length
+    const cards = total
         ? workshops.map(renderWorkshop).join("")
         : `
             <div class="municipio-sin-talleres">
@@ -276,37 +175,14 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
         name: `Talleres mecánicos en ${name}`,
         description,
         url: canonical,
-        isPartOf: {
-            "@type": "WebSite",
-            name: "TallerMap",
-            url: `${SITE_URL}/`
-        },
-        about: {
-            "@type": "Place",
-            name,
-            identifier: code
-        },
+        isPartOf: { "@type": "WebSite", name: "TallerMap", url: `${SITE_URL}/` },
+        about: { "@type": "Place", name, identifier: code },
         breadcrumb: {
             "@type": "BreadcrumbList",
             itemListElement: [
-                {
-                    "@type": "ListItem",
-                    position: 1,
-                    name: "Inicio",
-                    item: `${SITE_URL}/`
-                },
-                {
-                    "@type": "ListItem",
-                    position: 2,
-                    name: "Municipios",
-                    item: `${SITE_URL}/municipios/`
-                },
-                {
-                    "@type": "ListItem",
-                    position: 3,
-                    name,
-                    item: canonical
-                }
+                { "@type": "ListItem", position: 1, name: "Inicio", item: `${SITE_URL}/` },
+                { "@type": "ListItem", position: 2, name: "Municipios", item: `${SITE_URL}/municipios/` },
+                { "@type": "ListItem", position: 3, name, item: canonical }
             ]
         }
     }).replace(/</g, "\\u003c");
@@ -366,11 +242,7 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
                     <div>
                         <span class="etiqueta">Directorio local de talleres</span>
                         <h1>Talleres mecánicos en ${escapeHTML(name)}</h1>
-                        <p class="municipio-intro">
-                            Consulta talleres de reparación y mantenimiento publicados en TallerMap para
-                            <strong>${escapeHTML(name)}</strong>. Filtra por servicio y abre la ficha individual
-                            para revisar horarios, contacto y cómo llegar.
-                        </p>
+                        <p class="municipio-intro">Consulta talleres de reparación y mantenimiento publicados en TallerMap para <strong>${escapeHTML(name)}</strong>. Filtra por servicio y abre la ficha individual para revisar horarios, contacto y cómo llegar.</p>
                         <p class="municipio-codigo">Código municipal: <strong>${escapeHTML(code)}</strong></p>
                     </div>
 
@@ -378,9 +250,7 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
                         <h2>Buscar en ${escapeHTML(name)}</h2>
                         <form class="buscador municipio-buscador" method="get" action="${escapeHTML(canonicalPath)}">
                             <label for="servicio">Servicio del vehículo</label>
-                            <select id="servicio" name="servicio">
-                                ${renderServiceOptions(service)}
-                            </select>
+                            <select id="servicio" name="servicio">${renderServiceOptions(service)}</select>
                             <button type="submit" class="boton boton-buscar">Filtrar talleres</button>
                         </form>
                     </aside>
@@ -396,16 +266,10 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
                         <h2>Talleres publicados en ${escapeHTML(name)}</h2>
                         <p>Todos los resultados usan la misma tarjeta pública de TallerMap.</p>
                     </div>
-                    <span class="orden-talleres mapa-estado" aria-live="polite">
-                        ${total} ${total === 1 ? "taller publicado" : "talleres publicados"}
-                    </span>
+                    <span class="orden-talleres mapa-estado" aria-live="polite">${total} ${total === 1 ? "taller publicado" : "talleres publicados"}</span>
                 </div>
 
-                <div class="talleres-grid" id="lista-talleres" data-municipio="${escapeHTML(name)}" data-codigo-municipal="${escapeHTML(code)}">
-                    ${cards}
-                </div>
-
-                ${renderPagination(fileName, page, total, service)}
+                <div class="talleres-grid" id="lista-talleres" data-municipio="${escapeHTML(name)}" data-codigo-municipal="${escapeHTML(code)}">${cards}</div>
             </div>
         </section>
     </main>
@@ -422,7 +286,6 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
 
 export default async function handler(request, response) {
     const fileName = safeFileName(request.query?.archivo);
-    const page = requestedPage(request.query?.pagina);
     const service = safeService(request.query?.servicio);
 
     if (!fileName) {
@@ -431,54 +294,36 @@ export default async function handler(request, response) {
     }
 
     const municipality = readMunicipalityMeta(fileName);
-
     if (!municipality.code) {
         response.status(404).send("Municipio no encontrado.");
         return;
     }
 
-    try {
-        const from = (page - 1) * PAGE_SIZE;
+    // Arquitectura: una sola URL pública por municipio.
+    // Las antiguas URLs paginadas se consolidan de forma permanente.
+    if (request.query?.pagina !== undefined) {
+        const destination = service
+            ? `/municipios/${fileName}?servicio=${encodeURIComponent(service)}`
+            : `/municipios/${fileName}`;
+        response.setHeader("Cache-Control", "public, max-age=3600");
+        response.redirect(301, destination);
+        return;
+    }
 
+    try {
         const workshops = await supabaseRpc("buscar_talleres_municipio", {
             p_codigo_municipal: municipality.code,
             p_servicio: service,
-            p_desde: from,
-            p_limite: PAGE_SIZE
+            p_desde: 0,
+            p_limite: MUNICIPALITY_LIMIT
         });
 
-        const total = workshops.length
-            ? Number(workshops[0]?.total_resultados) || workshops.length
-            : 0;
+        const html = renderPage({ fileName, municipality, workshops, service });
 
-        const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-        if (total > 0 && page > totalPages) {
-            response
-                .status(404)
-                .send(renderPage({
-                    fileName,
-                    municipality,
-                    workshops: [],
-                    total,
-                    page,
-                    service
-                }));
-            return;
-        }
-
-        const html = renderPage({
-            fileName,
-            municipality,
-            workshops,
-            total,
-            page,
-            service
-        });
-
+        if (service) response.setHeader("X-Robots-Tag", "noindex, follow");
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
-        response.setHeader("X-TallerMap-Municipio-Renderer", "unico-v1");
+        response.setHeader("X-TallerMap-Municipio-Renderer", "unico-v2");
         response.setHeader("X-TallerMap-Municipio", municipality.code);
         response.status(200).send(html);
     } catch (error) {
