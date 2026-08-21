@@ -41,7 +41,7 @@
   "routes": [
     {
       "src": "/municipios/([^/]+-[0-9]{5})\\.html",
-      "dest": "/api/municipio?archivo=$1.html"
+      "dest": "/api/municipio-seo?archivo=$1.html"
     }
   ],
   "rewrites": [
