@@ -38,52 +38,30 @@
       "permanent": true
     }
   ],
-  "routes": [
-    {
-      "src": "/municipios/([^/]+-[0-9]{5})\\.html",
-      "dest": "/api/municipio-seo?archivo=$1.html"
-    }
-  ],
   "rewrites": [
     {
       "source": "/",
       "destination": "/api/home-cache-fix"
     },
     {
+      "source": "/provincias/:provincia.html",
+      "destination": "/api/provincia?provincia=:provincia"
+    },
+    {
+      "source": "/municipios/:archivo.html",
+      "destination": "/api/municipio?archivo=:archivo.html"
+    },
+    {
       "source": "/talleres/:slug",
       "destination": "/api/taller-html?slug=:slug"
     },
     {
+      "source": "/servicios/:servicio.html",
+      "destination": "/api/servicio?servicio=:servicio"
+    },
+    {
       "source": "/desguace/:slug",
       "destination": "/api/desguace-html?slug=:slug"
-    },
-    {
-      "source": "/provincias/:provincia.html",
-      "destination": "/api/provincia-seo?provincia=:provincia"
-    },
-    {
-      "source": "/servicios/mecanica-general.html",
-      "destination": "/api/servicio?servicio=mecanica-general"
-    },
-    {
-      "source": "/servicios/neumaticos.html",
-      "destination": "/api/servicio?servicio=neumaticos"
-    },
-    {
-      "source": "/servicios/chapa-pintura.html",
-      "destination": "/api/servicio?servicio=chapa-pintura"
-    },
-    {
-      "source": "/servicios/diagnosis-electronica.html",
-      "destination": "/api/servicio?servicio=diagnosis-electronica"
-    },
-    {
-      "source": "/servicios/aire-acondicionado.html",
-      "destination": "/api/servicio?servicio=aire-acondicionado"
-    },
-    {
-      "source": "/servicios/hibridos-electricos.html",
-      "destination": "/api/servicio?servicio=hibridos-electricos"
     },
     {
       "source": "/robots.txt",
@@ -96,6 +74,10 @@
     {
       "source": "/sitemap-municipios.xml",
       "destination": "/api/sitemap-municipios"
+    },
+    {
+      "source": "/sitemap-desguaces.xml",
+      "destination": "/api/sitemap-desguaces"
     }
   ],
   "headers": [
@@ -213,6 +195,19 @@
     },
     {
       "source": "/sitemap-municipios.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap-desguaces.xml",
       "headers": [
         {
           "key": "Content-Type",
