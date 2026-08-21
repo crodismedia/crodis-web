@@ -59,7 +59,7 @@
     },
     {
       "source": "/provincias/:provincia.html",
-      "destination": "/api/provincia?provincia=:provincia"
+      "destination": "/api/provincia-seo?provincia=:provincia"
     },
     {
       "source": "/servicios/mecanica-general.html",
