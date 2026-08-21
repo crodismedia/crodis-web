@@ -35,6 +35,18 @@
       "destination": "/api/home-cache-fix"
     },
     {
+      "source": "/provincias/alicante.html",
+      "destination": "/api/provincia?provincia=alicante"
+    },
+    {
+      "source": "/provincias/castellon.html",
+      "destination": "/api/provincia?provincia=castellon"
+    },
+    {
+      "source": "/provincias/valencia.html",
+      "destination": "/api/provincia?provincia=valencia"
+    },
+    {
       "source": "/talleres/:slug",
       "destination": "/api/taller-html?slug=:slug"
     },
