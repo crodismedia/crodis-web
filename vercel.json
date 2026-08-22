@@ -40,6 +40,10 @@
       "destination": "/api/home-cache-fix"
     },
     {
+      "source": "/municipios/",
+      "destination": "/api/municipios-index"
+    },
+    {
       "source": "/provincias/alicante.html",
       "destination": "/api/provincia?provincia=alicante"
     },
