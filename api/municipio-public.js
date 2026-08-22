@@ -31,13 +31,23 @@ export default async function handler(request, response) {
             !service &&
             /^[a-z0-9-]+-\d{5}\.html$/.test(fileName)
         ) {
+            const baseCanonical = `https://www.tallermap.es/municipios/${fileName}`;
             const path = `/municipios/${fileName}?pagina=${page}`;
             const canonical = `https://www.tallermap.es${path}`;
 
-            output = output.replace(
-                /<link rel="canonical" href="[^"]+">/i,
-                `<link rel="canonical" href="${canonical}">`
-            );
+            output = output
+                .replace(
+                    /<link rel="canonical" href="[^"]+">/i,
+                    `<link rel="canonical" href="${canonical}">`
+                )
+                .replaceAll(
+                    `"url":"${baseCanonical}"`,
+                    `"url":"${canonical}"`
+                )
+                .replaceAll(
+                    `"item":"${baseCanonical}"`,
+                    `"item":"${canonical}"`
+                );
 
             const links = [
                 `<link rel="prev" href="https://www.tallermap.es/municipios/${fileName}${page > 2 ? `?pagina=${page - 1}` : ""}">`
