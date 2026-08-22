@@ -451,6 +451,12 @@ export default async function handler(request, response) {
             ? Number(workshops[0]?.total_resultados) || workshops.length
             : 0;
 
+        if (total === 0) {
+            response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+            response.status(404).send("Municipio sin talleres publicados.");
+            return;
+        }
+
         const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
         if (total > 0 && page > totalPages) {
