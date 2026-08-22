@@ -83,8 +83,12 @@ function provinceURL(province) {
     return slug ? `/provincias/${slug}.html` : "/provincias/";
 }
 
+function municipalityName(workshop) {
+    return String(workshop?.municipio || workshop?.ciudad || "").trim();
+}
+
 function municipalityURL(workshop) {
-    const city = String(workshop?.ciudad || "").trim();
+    const city = municipalityName(workshop);
     const code = String(workshop?.codigo_municipal || "")
         .replace(/\D/g, "")
         .slice(0, 5);
@@ -271,7 +275,8 @@ async function fetchWorkshop(slug) {
 
         return {
             ...workshop,
-            ciudad: context.municipio || workshop.ciudad || "",
+            ciudad: workshop.ciudad || context.municipio || "",
+            municipio: context.municipio || workshop.ciudad || "",
             codigo_municipal: context.codigo_municipal || workshop.codigo_municipal || "",
             provincia: workshop.provincia || context.provincia || "",
             provincia_slug: context.provincia_slug || workshop.provincia_slug || ""
@@ -397,6 +402,7 @@ function structuredData(workshop, canonical, name, description, address, phone) 
 }
 
 function breadcrumbData(workshop, canonical, name) {
+    const municipality = municipalityName(workshop);
     const items = [{
         "@type": "ListItem",
         position: 1,
@@ -415,11 +421,11 @@ function breadcrumbData(workshop, canonical, name) {
         });
     }
 
-    if (workshop?.ciudad) {
+    if (municipality) {
         items.push({
             "@type": "ListItem",
             position: position++,
-            name: workshop.ciudad,
+            name: municipality,
             item: `${SITE_URL}${municipalityURL(workshop)}`
         });
     }
@@ -456,14 +462,15 @@ function inject(template, workshop, canonicalSlug, relatedRows) {
     const updated = formatDate(workshop?.updated_at);
     const verified = Boolean(workshop?.verificado);
     const related = renderRelated(relatedRows, workshop);
+    const municipality = municipalityName(workshop);
 
     const crumbs = [
         `<a href="/">Inicio</a>`,
         workshop?.provincia
             ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(provinceURL(workshop.provincia))}">${escapeHTML(workshop.provincia)}</a>`
             : "",
-        workshop?.ciudad
-            ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(municipalityURL(workshop))}">${escapeHTML(workshop.ciudad)}</a>`
+        municipality
+            ? `<span class="ficha-migas-separador" aria-hidden="true">›</span><a href="${escapeHTML(municipalityURL(workshop))}">${escapeHTML(municipality)}</a>`
             : "",
         `<span class="ficha-migas-separador" aria-hidden="true">›</span><span>${escapeHTML(name)}</span>`
     ].filter(Boolean).join("");
@@ -484,9 +491,9 @@ function inject(template, workshop, canonicalSlug, relatedRows) {
         .replace(/<div id="taller-servicios" class="especialidades"><\/div>/i, renderServices(workshop))
         .replace(/<div id="taller-datos" class="ficha-publica-datos"><\/div>/i, `<div id="taller-datos" class="ficha-publica-datos ficha-publica-datos-alicante">${renderDataRows(workshop, phone)}</div>`)
         .replace(/<section id="contexto-local" class="ficha-contexto" hidden>/i, `<section id="contexto-local" class="ficha-contexto">`)
-        .replace(/<h2 id="contexto-titulo">[\s\S]*?<\/h2>/i, `<h2 id="contexto-titulo">${escapeHTML(workshop?.ciudad ? `Talleres en ${workshop.ciudad}` : "Talleres de la zona")}</h2>`)
-        .replace(/<p id="contexto-texto"><\/p>/i, `<p id="contexto-texto">Consulta otros talleres publicados${workshop?.ciudad ? ` en ${escapeHTML(workshop.ciudad)}` : ""}.</p>`)
-        .replace(/<div id="contexto-enlaces" class="ficha-contexto-enlaces"><\/div>/i, `<div id="contexto-enlaces" class="ficha-contexto-enlaces">${workshop?.ciudad ? `<a class="boton" href="${escapeHTML(municipalityURL(workshop))}">Ver talleres en ${escapeHTML(workshop.ciudad)}</a>` : ""}${workshop?.provincia ? `<a class="boton boton-claro" href="${escapeHTML(provinceURL(workshop.provincia))}">Ver talleres en ${escapeHTML(workshop.provincia)}</a>` : ""}</div>`)
+        .replace(/<h2 id="contexto-titulo">[\s\S]*?<\/h2>/i, `<h2 id="contexto-titulo">${escapeHTML(municipality ? `Talleres en ${municipality}` : "Talleres de la zona")}</h2>`)
+        .replace(/<p id="contexto-texto"><\/p>/i, `<p id="contexto-texto">Consulta otros talleres publicados${municipality ? ` en ${escapeHTML(municipality)}` : ""}.</p>`)
+        .replace(/<div id="contexto-enlaces" class="ficha-contexto-enlaces"><\/div>/i, `<div id="contexto-enlaces" class="ficha-contexto-enlaces">${municipality ? `<a class="boton" href="${escapeHTML(municipalityURL(workshop))}">Ver talleres en ${escapeHTML(municipality)}</a>` : ""}${workshop?.provincia ? `<a class="boton boton-claro" href="${escapeHTML(provinceURL(workshop.provincia))}">Ver talleres en ${escapeHTML(workshop.provincia)}</a>` : ""}</div>`)
         .replace(/<h2 id="relacionados-titulo">[\s\S]*?<\/h2>/i, `<h2 id="relacionados-titulo">${escapeHTML(related.title)}</h2>`)
         .replace(/<p id="relacionados-estado" class="ficha-cargando">[\s\S]*?<\/p>/i, related.state)
         .replace(/<div id="talleres-relacionados" class="ficha-relacionados-lista"><\/div>/i, `<div id="talleres-relacionados" class="ficha-relacionados-lista">${related.cards}</div>`)
