@@ -12,6 +12,14 @@ function archivoMunicipalValido(fileName) {
     }
 }
 
+function paginaSolicitada(request) {
+    const value = Array.isArray(request.query?.pagina)
+        ? request.query.pagina[0]
+        : request.query?.pagina;
+
+    return value === undefined ? null : String(value).trim();
+}
+
 export default async function handler(request, response) {
     const fileName = String(request.query?.archivo || "").trim().toLowerCase();
 
@@ -20,6 +28,26 @@ export default async function handler(request, response) {
         response.setHeader("X-Robots-Tag", "noindex, nofollow");
         response.status(404).send("Municipio no encontrado.");
         return;
+    }
+
+    const service = String(request.query?.servicio || "").trim();
+    const rawPage = paginaSolicitada(request);
+
+    if (rawPage !== null && !service) {
+        const page = Number(rawPage);
+        const base = `/municipios/${fileName}`;
+
+        if (!Number.isInteger(page) || page <= 1) {
+            response.setHeader("Cache-Control", "no-store");
+            response.redirect(301, base);
+            return;
+        }
+
+        if (rawPage !== String(page)) {
+            response.setHeader("Cache-Control", "no-store");
+            response.redirect(301, `${base}?pagina=${page}`);
+            return;
+        }
     }
 
     const originalSend = response.send.bind(response);
@@ -41,7 +69,6 @@ export default async function handler(request, response) {
         }
 
         const page = Number(request.query?.pagina || 1);
-        const service = String(request.query?.servicio || "").trim();
 
         if (
             typeof output === "string" &&
