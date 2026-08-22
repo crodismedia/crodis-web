@@ -138,6 +138,7 @@ function actualizarVersiones(html) {
   if (typeof html !== "string") return html;
 
   let output = limpiarEnlacesServicioHTML(html)
+    .replace(/<a href="\/coches\.html">Coches<\/a>/gi, "")
     .replace(
       /js\/busqueda-url\.js(?:\?[^\"']*)?/g,
       `js/busqueda-url.js?v=${BUSQUEDA_VERSION}`
