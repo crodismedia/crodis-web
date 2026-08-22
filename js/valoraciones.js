@@ -2,7 +2,7 @@
   "use strict";
   const SUPABASE_URL="https://cnyptelvbsndpkzbrete.supabase.co";
   const SUPABASE_KEY="sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
-  const cliente=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+  const REST_BASE=`${SUPABASE_URL}/rest/v1`;
   const $=(id)=>document.getElementById(id);
   let taller=null;
 
@@ -12,6 +12,23 @@
   function estado(texto,tipo=""){const el=$("valoraciones-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
   function slugRuta(){const pref="/talleres/";if(location.pathname.startsWith(pref))return decodeURIComponent(location.pathname.slice(pref.length).split("/")[0]||"");return new URLSearchParams(location.search).get("slug")||"";}
   function uuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||""));}
+
+  async function rest(path,options={}){
+    const headers={apikey:SUPABASE_KEY,Accept:"application/json",...(options.body?{"Content-Type":"application/json"}:{}) ,...(options.headers||{})};
+    try{
+      const response=await fetch(`${REST_BASE}/${path}`,{...options,headers});
+      const text=response.status===204?"":await response.text();
+      let data=null;
+      if(text){try{data=JSON.parse(text);}catch(_){data=text;}}
+      if(!response.ok){
+        const message=typeof data==="object"&&data?String(data.message||data.error||response.status):String(data||response.status);
+        return {data:null,error:{status:response.status,message}};
+      }
+      return {data,error:null};
+    }catch(error){
+      return {data:null,error:{status:0,message:String(error?.message||error||"Error de red")}};
+    }
+  }
 
   function construirResumenPortada(){
     let resumen=$("valoraciones-portada");
@@ -84,21 +101,34 @@
   }
 
   async function obtenerTaller(){
-    if(!cliente)return null;
+    const article=$("ficha-taller");
+    const ssrId=String(article?.dataset?.tallerId||"").trim();
+    if(uuid(ssrId)){
+      return {id:ssrId,nombre:String($("taller-nombre")?.textContent||"este taller").trim()};
+    }
+
     const params=new URLSearchParams(location.search);
     const id=params.get("id")||"";
     const slug=slugRuta();
-    const {data,error}=await cliente.rpc("obtener_taller_publico",{p_id:uuid(id)?id:null,p_slug:slug||null});
+    const {data,error}=await rest("rpc/obtener_taller_publico",{
+      method:"POST",
+      body:JSON.stringify({p_id:uuid(id)?id:null,p_slug:slug||null})
+    });
     if(error||!Array.isArray(data)||!data.length)return null;
     return data[0];
   }
 
   async function cargar(){
-    if(!cliente||!taller?.id)return;
-    const {data,error}=await cliente.from("valoraciones")
-      .select("id,nombre_cliente,puntuacion,titulo,comentario,created_at")
-      .eq("taller_id",taller.id).eq("aprobada",true).eq("activa",true)
-      .order("created_at",{ascending:false}).limit(50);
+    if(!taller?.id)return;
+    const params=new URLSearchParams({
+      select:"id,nombre_cliente,puntuacion,titulo,comentario,created_at",
+      taller_id:`eq.${taller.id}`,
+      aprobada:"eq.true",
+      activa:"eq.true",
+      order:"created_at.desc",
+      limit:"50"
+    });
+    const {data,error}=await rest(`valoraciones?${params.toString()}`);
     const lista=$("valoraciones-lista");
     if(error){lista.innerHTML='<p class="valoraciones-vacio">Las reseñas no están disponibles temporalmente.</p>';$("valoraciones-resumen").hidden=true;actualizarResumenPortada([],0);return;}
     const filas=Array.isArray(data)?data:[];
@@ -113,7 +143,7 @@
 
   async function enviar(e){
     e.preventDefault();
-    if(!cliente||!taller?.id){estado("No se ha podido identificar el taller.","error");return;}
+    if(!taller?.id){estado("No se ha podido identificar el taller.","error");return;}
     const form=e.currentTarget;
     if(form.elements.empresa?.value){estado("No se pudo enviar la reseña.","error");return;}
     const puntuacion=Number(new FormData(form).get("puntuacion"));
@@ -126,7 +156,11 @@
     const ultima=Number(localStorage.getItem(clave)||0);
     if(Date.now()-ultima<60000){estado("Espera un minuto antes de enviar otra reseña.","error");return;}
     estado("Enviando reseña…");
-    const {error}=await cliente.from("valoraciones").insert({taller_id:taller.id,nombre_cliente:nombre||null,puntuacion,titulo:titulo||null,comentario,aprobada:false,activa:true});
+    const {error}=await rest("valoraciones",{
+      method:"POST",
+      headers:{Prefer:"return=minimal"},
+      body:JSON.stringify({taller_id:taller.id,nombre_cliente:nombre||null,puntuacion,titulo:titulo||null,comentario,aprobada:false,activa:true})
+    });
     if(error){console.error("No se pudo enviar la valoración:",error);estado("No se pudo enviar la reseña. El sistema de moderación puede requerir configuración.","error");return;}
     localStorage.setItem(clave,String(Date.now()));form.reset();estado("Reseña recibida. Se publicará después de la revisión administrativa.","ok");$("valoracion-pendiente").hidden=false;
   }
