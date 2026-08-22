@@ -181,13 +181,10 @@ export default async function handler(request, response) {
   const pagina = String(request.query?.pagina || "").trim();
   const servicioSlug = slugify(servicio);
 
-  if (!poblacion && !codigoMunicipal && servicioSlug) {
-    const paginaServicio = path.join(process.cwd(), "servicios", `${servicioSlug}.html`);
-    if (fs.existsSync(paginaServicio)) {
-      response.setHeader("Cache-Control", "no-store");
-      response.redirect(301, `/servicios/${servicioSlug}.html`);
-      return;
-    }
+  if (!poblacion && !codigoMunicipal && SERVICIOS_SEO.has(servicioSlug)) {
+    response.setHeader("Cache-Control", "no-store");
+    response.redirect(301, `/servicios/${servicioSlug}.html`);
+    return;
   }
 
   const archivoMunicipio = buscarArchivoMunicipio(poblacion, codigoMunicipal);
