@@ -100,41 +100,56 @@ function uuidValido(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+async function buscarSlugActivo({ id = null, slug = null }) {
+  const rows = await supabaseRpc("obtener_taller_publico", {
+    p_id: id,
+    p_slug: slug
+  });
+  return rows?.[0]?.slug ? slugify(rows[0].slug) : "";
+}
+
 async function resolverSlug(request) {
   const query = request?.query || {};
 
   const slugQuery = first(query.slug);
   if (slugQuery) {
     const slugLegacy = slugify(slugQuery);
-    return LEGACY_SLUG_TO_SLUG[slugLegacy] || slugLegacy;
+    const candidato = LEGACY_SLUG_TO_SLUG[slugLegacy] || slugLegacy;
+    return candidato ? buscarSlugActivo({ slug: candidato }) : "";
   }
 
   const id = first(query.id);
   if (id && LEGACY_ID_TO_SLUG[id]) {
-    return LEGACY_ID_TO_SLUG[id];
+    return buscarSlugActivo({ slug: LEGACY_ID_TO_SLUG[id] });
   }
 
   const nombre = first(query.nombre);
   if (nombre) {
     const nombreNormalizado = slugify(nombre);
-    if (LEGACY_NAME_TO_SLUG[nombreNormalizado]) {
-      return LEGACY_NAME_TO_SLUG[nombreNormalizado];
+    const candidato = LEGACY_NAME_TO_SLUG[nombreNormalizado];
+    if (candidato) {
+      return buscarSlugActivo({ slug: candidato });
     }
   }
 
   if (!uuidValido(id)) return "";
-
-  try {
-    const rows = await supabaseRpc("obtener_taller_publico", { p_id: id, p_slug: null });
-    return rows?.[0]?.slug ? slugify(rows[0].slug) : "";
-  } catch (error) {
-    console.warn("No se pudo resolver la URL legacy del taller:", error);
-    return "";
-  }
+  return buscarSlugActivo({ id });
 }
 
 export default async function handler(request, response) {
-  const slug = await resolverSlug(request);
+  let slug;
+
+  try {
+    slug = await resolverSlug(request);
+  } catch (error) {
+    console.error("No se pudo resolver la URL legacy del taller:", error);
+    response.setHeader("Content-Type", "text/plain; charset=utf-8");
+    response.setHeader("Cache-Control", "no-store");
+    response.setHeader("Retry-After", "60");
+    response.setHeader("X-Robots-Tag", "noindex, nofollow");
+    response.status(503).send("No se pudo comprobar esta ficha en este momento.");
+    return;
+  }
 
   if (slug) {
     response.setHeader("Cache-Control", "public, max-age=0, s-maxage=3600");
