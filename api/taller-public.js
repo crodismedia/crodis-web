@@ -2,6 +2,14 @@ import tallerHandler from "./taller-html.js";
 
 const VALORACIONES_VERSION = "20260823-2";
 const RECLAMACION_VERSION = "20260823-2";
+const VALORACIONES_CSS_VERSION = "20260823-1";
+
+function versionarCSS(html) {
+    return html.replace(
+        /href="\/css\/valoraciones\.css(?:\?[^\"]*)?"/i,
+        `href="/css/valoraciones.css?v=${VALORACIONES_CSS_VERSION}"`
+    );
+}
 
 function diferirCSSSecundario(html) {
     return html
@@ -40,7 +48,7 @@ function prepararFichaCanonica(html) {
             ""
         );
 
-    return versionarScripts(diferirCSSSecundario(output));
+    return versionarScripts(diferirCSSSecundario(versionarCSS(output)));
 }
 
 export default async function handler(request, response) {
