@@ -1,6 +1,6 @@
 import tallerHandler from "./taller-html.js";
 
-const VALORACIONES_VERSION = "20260823-1";
+const VALORACIONES_VERSION = "20260823-2";
 const RECLAMACION_VERSION = "20260823-2";
 
 function diferirCSSSecundario(html) {
