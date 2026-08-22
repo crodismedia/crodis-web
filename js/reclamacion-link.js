@@ -45,22 +45,44 @@
 
   const sesion=sessionId();
 
+  function cuerpoEvento(evento){
+    return JSON.stringify({
+      slug,
+      evento,
+      session_id:sesion,
+      path:window.location.pathname
+    });
+  }
+
   function registrar(evento){
+    const body=cuerpoEvento(evento);
+
+    try{
+      if(typeof navigator.sendBeacon==='function'){
+        const blob=new Blob([body],{type:'application/json'});
+        if(navigator.sendBeacon('/api/estadistica-taller',blob))return;
+      }
+    }catch(_error){/* fallback a fetch */}
+
     fetch('/api/estadistica-taller',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       credentials:'same-origin',
       keepalive:true,
-      body:JSON.stringify({
-        slug,
-        evento,
-        session_id:sesion,
-        path:window.location.pathname
-      })
+      body
     }).catch(function(){/* Las estadísticas nunca deben bloquear la ficha. */});
   }
 
-  registrar('ficha_vista');
+  function registrarVista(){
+    const run=function(){registrar('ficha_vista');};
+    if(typeof window.requestIdleCallback==='function'){
+      window.requestIdleCallback(run,{timeout:1500});
+    }else{
+      window.setTimeout(run,150);
+    }
+  }
+
+  registrarVista();
 
   document.addEventListener('click',function(event){
     const target=event.target instanceof Element?event.target.closest('a'):null;
