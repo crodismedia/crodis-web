@@ -3,6 +3,35 @@ import path from "node:path";
 
 import { escapeHTML, slugify, supabaseRpc } from "../lib/server-utils.js";
 
+const DIRECTORY_STRUCTURED_DATA = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Talleres mecánicos por municipio",
+    url: "https://www.tallermap.es/municipios/",
+    isPartOf: {
+        "@type": "WebSite",
+        name: "TallerMap",
+        url: "https://www.tallermap.es/"
+    },
+    breadcrumb: {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Inicio",
+                item: "https://www.tallermap.es/"
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Municipios",
+                item: "https://www.tallermap.es/municipios/"
+            }
+        ]
+    }
+}).replace(/</g, "\\u003c");
+
 function renderMunicipalityList(items) {
     const unique = Array.from(
         new Map(
@@ -35,6 +64,10 @@ function injectList(template, rows) {
         .replace(
             list,
             `<ul class="lista-municipios" id="lista-municipios">\n${rows}\n                </ul>`
+        )
+        .replace(
+            /<script type="application\/ld\+json">[\s\S]*?<\/script>/i,
+            `<script type="application/ld+json">${DIRECTORY_STRUCTURED_DATA}</script>`
         )
         .replace('href="../index.html"', 'href="/"')
         .replace('href="../pages/registro.html"', 'href="/pages/registro.html"');
