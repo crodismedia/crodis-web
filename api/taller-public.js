@@ -1,8 +1,16 @@
 import tallerHandler from "./taller-html.js";
 
+const TALLER_SHELL_VERSION = "20260823-1";
 const VALORACIONES_VERSION = "20260823-2";
 const RECLAMACION_VERSION = "20260823-2";
 const VALORACIONES_CSS_VERSION = "20260823-1";
+
+function usarCSSLigero(html) {
+    return html.replace(
+        /href="\/css\/estilo\.css(?:\?[^\"]*)?"/i,
+        `href="/css/taller-shell.css?v=${TALLER_SHELL_VERSION}"`
+    );
+}
 
 function versionarCSS(html) {
     return html.replace(
@@ -48,7 +56,13 @@ function prepararFichaCanonica(html) {
             ""
         );
 
-    return versionarScripts(diferirCSSSecundario(versionarCSS(output)));
+    return versionarScripts(
+        diferirCSSSecundario(
+            versionarCSS(
+                usarCSSLigero(output)
+            )
+        )
+    );
 }
 
 export default async function handler(request, response) {
