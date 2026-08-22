@@ -78,6 +78,11 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function paginaPositiva(value) {
+  const page = Number(String(value || "").trim());
+  return Number.isInteger(page) && page > 1 ? page : null;
+}
+
 function buscarArchivoMunicipio(valor, codigoMunicipal = "") {
   let archivos = [];
   try {
@@ -179,11 +184,19 @@ export default async function handler(request, response) {
   const codigoMunicipal = String(request.query?.codigo_municipal || "").trim();
   const servicio = String(request.query?.servicio || "").trim();
   const pagina = String(request.query?.pagina || "").trim();
+  const page = paginaPositiva(pagina);
   const servicioSlug = slugify(servicio);
 
   if (!poblacion && !codigoMunicipal && SERVICIOS_SEO.has(servicioSlug)) {
+    const destino = `/servicios/${servicioSlug}.html${page ? `?pagina=${page}` : ""}`;
     response.setHeader("Cache-Control", "no-store");
-    response.redirect(301, `/servicios/${servicioSlug}.html`);
+    response.redirect(301, destino);
+    return;
+  }
+
+  if (!poblacion && !codigoMunicipal && !servicio && pagina) {
+    response.setHeader("Cache-Control", "no-store");
+    response.redirect(301, "/");
     return;
   }
 
@@ -192,6 +205,7 @@ export default async function handler(request, response) {
   if (archivoMunicipio) {
     const params = new URLSearchParams();
     if (servicio) params.set("servicio", servicio);
+    if (page) params.set("pagina", String(page));
     const query = params.toString();
     const destino = `/municipios/${archivoMunicipio}${query ? `?${query}` : ""}#talleres`;
     response.setHeader("Cache-Control", "no-store");
