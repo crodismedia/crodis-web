@@ -17,6 +17,11 @@
       "permanent": true
     },
     {
+      "source": "/desguace/:slug/index.html",
+      "destination": "https://www.tallermap.es/desguace/:slug",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
