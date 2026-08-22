@@ -39,10 +39,13 @@ const ROUTER_GLOBAL = `
 const ENLACES_SERVICIO_LIMPIOS = `
 <script data-tm-enlaces-servicio="1">
 (function(){
+  var permitidos = new Set([
+    'mecanica-general','frenos','embrague','cambio-aceite-filtros','correa-distribucion','cadena-distribucion','pre-itv','reparacion-motor','caja-cambios','sistema-refrigeracion','escape-catalizador','baterias','electricidad-automovil','alternador-motor-arranque','centralitas-electronica','suspension-amortiguadores','alineacion-direccion','equilibrado-ruedas','neumaticos','lunas-cristales','carroceria','chapa-pintura','diagnosis-electronica','aire-acondicionado','calefaccion-climatizacion','hibridos-electricos'
+  ]);
   function limpiar(){
     document.querySelectorAll('[data-servicio]').forEach(function(enlace){
       var slug = String(enlace.getAttribute('data-servicio') || '').trim().toLowerCase();
-      if (/^[a-z0-9-]+$/.test(slug)) enlace.setAttribute('href', '/servicios/' + slug + '.html');
+      if (permitidos.has(slug)) enlace.setAttribute('href', '/servicios/' + slug + '.html');
     });
   }
   if (document.readyState === 'loading') {
