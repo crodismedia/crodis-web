@@ -64,7 +64,7 @@
     },
     {
       "source": "/desguaces.html",
-      "destination": "/api/desguaces-public"
+      "destination": "/api/desguaces-seo"
     },
     {
       "source": "/provincias/alicante.html",
@@ -84,7 +84,7 @@
     },
     {
       "source": "/desguace/:slug",
-      "destination": "/api/desguace-html?slug=:slug"
+      "destination": "/api/desguace-public?slug=:slug"
     },
     {
       "source": "/servicios/:servicio.html",
