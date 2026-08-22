@@ -63,6 +63,10 @@
       "destination": "/api/home-cache-fix"
     },
     {
+      "source": "/desguaces.html",
+      "destination": "/api/desguaces-public"
+    },
+    {
       "source": "/provincias/alicante.html",
       "destination": "/api/provincia-public?provincia=alicante"
     },
