@@ -80,7 +80,7 @@
     },
     {
       "source": "/talleres/:slug",
-      "destination": "/api/taller-html?slug=:slug"
+      "destination": "/api/taller-public?slug=:slug"
     },
     {
       "source": "/desguace/:slug",
