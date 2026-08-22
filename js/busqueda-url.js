@@ -1,6 +1,10 @@
 (function () {
     "use strict";
 
+    const SERVICIOS_SEO = new Set([
+        "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
+    ]);
+
     const normalizarTexto = valor => String(valor || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -47,7 +51,7 @@
         }
 
         enlaces.forEach(enlace => {
-            enlace.setAttribute("href", "/talleres.html");
+            enlace.setAttribute("href", "/provincias/");
             enlace.classList.add("tm-talleres-principal");
             if (enlace.closest(".tm-talleres-menu")) return;
 
@@ -59,7 +63,7 @@
             const submenu = document.createElement("span");
             submenu.className = "tm-talleres-submenu";
             submenu.innerHTML = `
-                <a href="/talleres.html">Ver talleres</a>
+                <a href="/provincias/">Ver talleres</a>
                 <a href="/pages/registro.html">Registrar taller</a>
             `;
             contenedor.appendChild(submenu);
@@ -117,7 +121,13 @@
 
         lista.querySelectorAll("[data-servicio]").forEach(enlace => {
             const valor = String(enlace.dataset.servicio || "").trim();
-            if (valor) enlace.setAttribute("href", `/?servicio=${encodeURIComponent(valor)}#talleres`);
+            if (!valor) return;
+            enlace.setAttribute(
+                "href",
+                SERVICIOS_SEO.has(valor)
+                    ? `/servicios/${encodeURIComponent(valor)}.html`
+                    : `/?servicio=${encodeURIComponent(valor)}#talleres`
+            );
         });
 
         if (!lista.dataset.tmServicioClick) {
@@ -127,7 +137,7 @@
                 if (!enlace || !lista.contains(enlace)) return;
 
                 const valor = String(enlace.dataset.servicio || "").trim();
-                if (!valor) return;
+                if (!valor || SERVICIOS_SEO.has(valor)) return;
 
                 const selector = document.getElementById("servicio");
                 const formulario = document.getElementById("formulario-buscador-publico");
@@ -178,9 +188,9 @@
             const submenu = document.createElement("span");
             submenu.className = "tm-desguaces-submenu";
             submenu.innerHTML = `
-                <a href="/desguaces.html?provincia=castellon">Castellón</a>
-                <a href="/desguaces.html?provincia=valencia">Valencia</a>
-                <a href="/desguaces.html?provincia=alicante">Alicante</a>
+                <a href="/desguaces.html#castellon">Castellón</a>
+                <a href="/desguaces.html#valencia">Valencia</a>
+                <a href="/desguaces.html#alicante">Alicante</a>
             `;
             contenedor.appendChild(submenu);
 
