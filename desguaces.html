@@ -75,15 +75,15 @@
 </head>
 <body>
 <div class="barra-superior"><div class="contenedor barra-contenido"><span>Directorio profesional de automoción</span><a href="/">TallerMap</a></div></div>
-<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><span class="menu-desguaces"><a href="/desguaces.html" aria-current="page">Desguaces</a><span class="submenu-desguaces"><a href="/desguaces.html?provincia=castellon">Castellón</a><a href="/desguaces.html?provincia=valencia">Valencia</a><a href="/desguaces.html?provincia=alicante">Alicante</a></span></span><a href="/coches.html">Coches</a></nav></div></header>
+<header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="favicon.svg" alt="" aria-hidden="true" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><span class="menu-desguaces"><a href="/desguaces.html" aria-current="page">Desguaces</a><span class="submenu-desguaces"><a href="/desguaces.html#castellon">Castellón</a><a href="/desguaces.html#valencia">Valencia</a><a href="/desguaces.html#alicante">Alicante</a></span></span><a href="/coches.html">Coches</a></nav></div></header>
 <main>
   <section class="seccion" id="cabecera-desguaces">
     <div class="contenedor">
       <div class="titulo-seccion"><span>Departamento Desguaces</span><h1 id="titulo-desguaces">Desguaces en la Comunidad Valenciana</h1><p id="descripcion-desguaces">Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos. Las fichas activas y verificadas del Editor V4 se publican aquí automáticamente.</p><p id="contador-desguaces-publicados" class="desguaces-resumen">Cargando desguaces publicados…</p></div>
       <div class="provincias-grid">
-        <a class="provincia-card" data-provincia="alicante" href="/desguaces.html?provincia=alicante"><strong>Alicante / Alacant</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" data-provincia="castellon" href="/desguaces.html?provincia=castellon"><strong>Castellón / Castelló</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" data-provincia="valencia" href="/desguaces.html?provincia=valencia"><strong>Valencia / València</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="alicante" href="/desguaces.html#alicante"><strong>Alicante / Alacant</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="castellon" href="/desguaces.html#castellon"><strong>Castellón / Castelló</strong><span>Desguaces de la provincia</span></a>
+        <a class="provincia-card" data-provincia="valencia" href="/desguaces.html#valencia"><strong>Valencia / València</strong><span>Desguaces de la provincia</span></a>
       </div>
     </div>
   </section>
@@ -95,9 +95,15 @@
 <script>
 (function(){
   const params=new URLSearchParams(location.search);
-  const provincia=(params.get('provincia')||'').toLowerCase();
+  const queryProvincia=(params.get('provincia')||'').toLowerCase();
+  const hashProvincia=location.hash.replace(/^#/,'').toLowerCase();
   const validas=['alicante','castellon','valencia'];
+  const provincia=validas.includes(hashProvincia)?hashProvincia:queryProvincia;
   if(!validas.includes(provincia)) return;
+
+  if(validas.includes(queryProvincia)){
+    history.replaceState(null,'',`/desguaces.html#${queryProvincia}`);
+  }
 
   const nombres={alicante:'Alicante',castellon:'Castellón',valencia:'Valencia'};
   document.querySelectorAll('[data-seccion-provincia]').forEach(seccion=>{
