@@ -1,5 +1,8 @@
 import tallerHandler from "./taller-html.js";
 
+const VALORACIONES_VERSION = "20260823-1";
+const RECLAMACION_VERSION = "20260823-2";
+
 function diferirCSSSecundario(html) {
     return html
         .replace(
@@ -9,6 +12,18 @@ function diferirCSSSecundario(html) {
         .replace(
             /<link rel="stylesheet" href="(\/css\/taller-botones-contexto\.css(?:\?[^\"]*)?)">/i,
             '<link rel="stylesheet" href="$1" media="print" onload="this.media=\'all\'"><noscript><link rel="stylesheet" href="$1"></noscript>'
+        );
+}
+
+function versionarScripts(html) {
+    return html
+        .replace(
+            /src="\/js\/valoraciones\.js(?:\?[^\"]*)?"/i,
+            `src="/js/valoraciones.js?v=${VALORACIONES_VERSION}"`
+        )
+        .replace(
+            /src="\/js\/reclamacion-link\.js(?:\?[^\"]*)?"/i,
+            `src="/js/reclamacion-link.js?v=${RECLAMACION_VERSION}"`
         );
 }
 
@@ -25,7 +40,7 @@ function prepararFichaCanonica(html) {
             ""
         );
 
-    return diferirCSSSecundario(output);
+    return versionarScripts(diferirCSSSecundario(output));
 }
 
 export default async function handler(request, response) {
