@@ -46,6 +46,7 @@ function render(d) {
   const name = clean(d.nombre || 'Desguace', 120);
   const municipality = clean(d.municipio, 80);
   const province = clean(d.provincia, 80);
+  const provinceSlug = province.toLowerCase().includes('castell') ? 'castellon' : province.toLowerCase().includes('alicante') ? 'alicante' : 'valencia';
   const address = [d.direccion, d.codigo_postal, d.municipio, d.provincia].filter(Boolean).map(v => clean(v,120)).join(', ');
   const phone = safePhone(d.telefono);
   const web = safeWeb(d.web);
@@ -79,7 +80,7 @@ ${serviceHtml ? `<div class="dg-services">${serviceHtml}</div>` : ''}
 <div class="actions">${phoneButton}<a class="btn" href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>${webButton}</div></article>
 <div class="grid"><section class="dg-card data"><h2>Datos del desguace</h2><p><strong>Nombre:</strong> ${escapeHTML(name)}</p>${municipality?`<p><strong>Municipio:</strong> ${escapeHTML(municipality)}</p>`:''}${province?`<p><strong>Provincia:</strong> ${escapeHTML(province)}</p>`:''}${d.codigo_postal?`<p><strong>Código postal:</strong> ${escapeHTML(clean(d.codigo_postal,20))}</p>`:''}${phone?`<p><strong>Teléfono:</strong> ${escapeHTML(formatPhoneDisplay(phone))}</p>`:''}<h3>Horario</h3>${scheduleHtml(d.horarios)}</section>
 <aside class="request"><h2>¿Buscas una pieza?</h2><p>Envía una solicitud a este desguace indicando tu vehículo y la pieza que necesitas.</p><a class="btn" href="/solicitar-pieza.html?desguace=${encodeURIComponent(slug)}">Solicitar pieza</a></aside></div>
-<a class="back" href="/desguaces.html?provincia=${encodeURIComponent(province.toLowerCase().includes('castell')?'castellon':province.toLowerCase().includes('alicante')?'alicante':'valencia')}">← Volver a desguaces</a></main></body></html>`;
+<a class="back" href="/desguaces.html#${encodeURIComponent(provinceSlug)}">← Volver a desguaces</a></main></body></html>`;
 }
 
 export default async function handler(req, res) {
