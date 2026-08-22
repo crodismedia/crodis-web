@@ -35,7 +35,7 @@
     },
     {
       "src": "/municipios/([^/]+-[0-9]{5})\\.html",
-      "dest": "/api/municipio?archivo=$1.html"
+      "dest": "/api/municipio-public?archivo=$1.html"
     }
   ],
   "rewrites": [
