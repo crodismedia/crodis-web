@@ -50,6 +50,12 @@ function isRewrittenPublicPath(referencePath) {
     return rewriteMatchers.some((pattern) => pattern.test(normalized));
 }
 
+function isServerlessFunction(referencePath) {
+    const normalized = String(referencePath || "").replace(/^\/+/, "");
+    return normalized.startsWith("api/") &&
+        existsSync(join(root, `${normalized}.js`));
+}
+
 for (const path of javascriptFiles) {
     try {
         execFileSync(process.execPath, ["--check", path], { stdio: "pipe" });
@@ -81,6 +87,7 @@ for (const path of htmlFiles) {
     while ((match = referencePattern.exec(source))) {
         const rawReference = match[2].trim();
         if (!rawReference || externalReference.test(rawReference)) continue;
+        if (/\$\{[^}]+\}/.test(rawReference)) continue;
 
         const relativePath = relative(root, path).replaceAll("\\", "/");
         if (relativePath.startsWith("municipios/") && rawReference === "../js/municipio.js") {
@@ -107,7 +114,10 @@ for (const path of htmlFiles) {
 
         if (!existsSync(target)) {
             const publicTarget = relative(root, target).replaceAll("\\", "/");
-            if (!isRewrittenPublicPath(publicTarget)) {
+            if (
+                !isRewrittenPublicPath(publicTarget) &&
+                !isServerlessFunction(publicTarget)
+            ) {
                 report(`Referencia local rota en ${relative(root, path)}: ${rawReference}`);
             }
         }
