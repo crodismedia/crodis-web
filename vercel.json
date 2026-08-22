@@ -2,11 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
-      "source": "/pages/taller.html",
-      "destination": "/api/taller-legacy",
-      "statusCode": 301
-    },
-    {
       "source": "/municipios/index.html",
       "destination": "https://www.tallermap.es/municipios/",
       "permanent": true
@@ -49,6 +44,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/pages/taller.html",
+      "destination": "/api/taller-legacy"
+    },
     {
       "source": "/",
       "destination": "/api/home-cache-fix"
