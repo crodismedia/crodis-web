@@ -5,6 +5,9 @@ import homeHandler from "./home.js";
 const BUSQUEDA_VERSION = "20260817-6";
 const AUTOCOMPLETE_VERSION = "20260817-6";
 const FICHAS_ALICANTE_VERSION = "20260818-1";
+const SERVICIOS_SEO = new Set([
+  "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
+]);
 
 const ROUTER_GLOBAL = `
 <script>
@@ -46,6 +49,15 @@ const ENLACES_SERVICIO_LIMPIOS = `
     document.querySelectorAll('[data-servicio]').forEach(function(enlace){
       var slug = String(enlace.getAttribute('data-servicio') || '').trim().toLowerCase();
       if (permitidos.has(slug)) enlace.setAttribute('href', '/servicios/' + slug + '.html');
+    });
+    document.querySelectorAll('a[href^="/desguaces.html?provincia="]').forEach(function(enlace){
+      try {
+        var url = new URL(enlace.getAttribute('href'), window.location.origin);
+        var provincia = String(url.searchParams.get('provincia') || '').toLowerCase();
+        if (['alicante','castellon','valencia'].includes(provincia)) {
+          enlace.setAttribute('href', '/desguaces.html#' + provincia);
+        }
+      } catch (_error) {}
     });
   }
   if (document.readyState === 'loading') {
@@ -110,8 +122,16 @@ function buscarArchivoMunicipio(valor, codigoMunicipal = "") {
 
 function limpiarEnlacesServicioHTML(html) {
   return String(html || "")
-    .replace(/href="\/?\?servicio=([a-z0-9-]+)#talleres"/gi, 'href="/servicios/$1.html"')
-    .replace(/href="\.\.\/\?servicio=([a-z0-9-]+)#talleres"/gi, 'href="/servicios/$1.html"');
+    .replace(/href="\/?\?servicio=([a-z0-9-]+)#talleres"/gi, (match, slug) => (
+      SERVICIOS_SEO.has(String(slug).toLowerCase())
+        ? `href="/servicios/${String(slug).toLowerCase()}.html"`
+        : match
+    ))
+    .replace(/href="\.\.\/\?servicio=([a-z0-9-]+)#talleres"/gi, (match, slug) => (
+      SERVICIOS_SEO.has(String(slug).toLowerCase())
+        ? `href="/servicios/${String(slug).toLowerCase()}.html"`
+        : match
+    ));
 }
 
 function actualizarVersiones(html) {
