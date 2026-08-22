@@ -37,8 +37,16 @@ export default async function handler(request, response) {
 
             output = output
                 .replace(
+                    /<meta name="description" content="([^"]*)">/i,
+                    `<meta name="description" content="Página ${page}. $1">`
+                )
+                .replace(
                     /<link rel="canonical" href="[^"]+">/i,
                     `<link rel="canonical" href="${canonical}">`
+                )
+                .replace(
+                    /("@type":"CollectionPage","name":")([^"]+)(")/i,
+                    `$1Página ${page} · $2$3`
                 )
                 .replaceAll(
                     `"url":"${baseCanonical}"`,
