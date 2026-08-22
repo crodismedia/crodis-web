@@ -17,6 +17,11 @@
       "permanent": true
     },
     {
+      "source": "/talleres.html",
+      "destination": "https://www.tallermap.es/provincias/",
+      "permanent": true
+    },
+    {
       "source": "/desguace/:slug/index.html",
       "destination": "https://www.tallermap.es/desguace/:slug",
       "permanent": true
