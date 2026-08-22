@@ -3,8 +3,8 @@ import { slugify, supabaseRpc } from "../lib/server-utils.js";
 const SITE_URL = "https://www.tallermap.es";
 
 // Mapeo SEO temporal de URLs legacy detectadas en Search Console.
-// Evita que versiones antiguas /pages/taller.html?... terminen en home
-// cuando el id/slug antiguo ya no coincide con la ficha pública actual.
+// Las URLs antiguas resolubles redirigen a la ficha canónica.
+// Las que ya no corresponden a ninguna ficha devuelven 410 Gone para evitar soft-404.
 const LEGACY_ID_TO_SLUG = {
   "4a5dac44-936f-4e0b-884e-e8d8aec06f66": "antonio-perea-garcia-hondon-de-las-nieves-4a5dac44",
   "f85efa90-259e-4fd2-8699-8a9e4d35254d": "taller-victoria-guardamar-guardamar-del-segura-f85efa90",
@@ -136,14 +136,16 @@ async function resolverSlug(request) {
 export default async function handler(request, response) {
   const slug = await resolverSlug(request);
 
-  response.setHeader("Cache-Control", "public, max-age=0, s-maxage=3600");
+  if (slug) {
+    response.setHeader("Cache-Control", "public, max-age=0, s-maxage=3600");
+    response.statusCode = 301;
+    response.setHeader("Location", `${SITE_URL}/talleres/${encodeURIComponent(slug)}`);
+    response.end();
+    return;
+  }
 
-  response.statusCode = 301;
-  response.setHeader(
-    "Location",
-    slug
-      ? `${SITE_URL}/talleres/${encodeURIComponent(slug)}`
-      : `${SITE_URL}/`
-  );
-  response.end();
+  response.setHeader("Content-Type", "text/plain; charset=utf-8");
+  response.setHeader("Cache-Control", "public, max-age=0, s-maxage=3600");
+  response.setHeader("X-Robots-Tag", "noindex, nofollow");
+  response.status(410).send("Esta ficha antigua ya no está disponible.");
 }
