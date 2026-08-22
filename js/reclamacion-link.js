@@ -20,6 +20,7 @@
     if(id)destino.searchParams.set('taller',id);
     if(slug)destino.searchParams.set('slug',slug);
     enlace.href=destino.pathname+destino.search;
+    enlace.rel='nofollow';
     enlace.removeAttribute('target');
     enlace.textContent='Soy el propietario: reclamar ficha';
   }
