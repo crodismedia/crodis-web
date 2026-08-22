@@ -13,7 +13,7 @@ const requireCondition = (condition, message) => { if (!condition) errors.push(m
 const publicFiles = [
     "api/municipio.js",
     "api/servicio.js",
-    "api/taller.js",
+    "api/taller-html.js",
     "js/taller-ui.js",
     "js/provincia.js",
     "js/taller.js"
@@ -24,9 +24,9 @@ requireCondition(serviceLabel("suspension-amortiguadores") === "Suspensión y am
 requireCondition(reviewStatusLabel(true) === "✓ Información revisada", "La etiqueta revisada debe ser clara y prudente.");
 requireCondition(reviewStatusLabel(false) === "Información publicada", "La etiqueta no revisada no debe insinuar verificación.");
 requireCondition(formatPhoneDisplay("963782395") === "963 782 395", "Los teléfonos españoles deben mostrarse en grupos legibles.");
-requireCondition(formatPhoneDisplay("+34963782395") === "+34 963 782 395", "Los teléfonos con prefijo deben conservar el prefijo y ser legibles.");
-requireCondition(formatPhoneDisplay("0034963782395") === "+34 963 782 395", "El prefijo 0034 debe normalizarse como +34.");
-requireCondition(formatPhoneDisplay("34963782395") === "+34 963 782 395", "El prefijo 34 sin signo debe normalizarse como +34.");
+requireCondition(formatPhoneDisplay("+34963782395") === "963 782 395", "Los teléfonos deben mostrarse sin el prefijo +34.");
+requireCondition(formatPhoneDisplay("0034963782395") === "963 782 395", "Los teléfonos deben mostrarse sin el prefijo 0034.");
+requireCondition(formatPhoneDisplay("34963782395") === "963 782 395", "Los teléfonos deben mostrarse sin el prefijo 34.");
 requireCondition(workshopPhotoSource({ fotos: ["solicitudes/demo/fachada.webp"] }).path === "solicitudes/demo/fachada.webp", "Debe aceptar rutas de fotografías subidas.");
 requireCondition(workshopPhotoSource({ fotos: ["https://cdn.example.com/fachada.webp"] }).url === "https://cdn.example.com/fachada.webp", "Debe aceptar fotografías autorizadas con URL segura.");
 requireCondition(!workshopPhotoSource({ imagen_url: "https://example.com/foto.jpg" }).url, "No debe usar imágenes externas sin autorización registrada.");
@@ -38,7 +38,12 @@ for (const file of publicFiles) {
 
 const homeApi = read("api/home.js");
 requireCondition(/buscar_talleres_profesional/.test(homeApi) && /p_ubicacion:\s*""/.test(homeApi), "La portada debe solicitar registros completos.");
-requireCondition(homeApi.includes('FRONTEND_VERSION = "20260810-3"'), "La portada debe solicitar la versión corregida de las tarjetas.");
+requireCondition(
+    /const FRONTEND_VERSION = "\d{8}-\d+";/.test(homeApi) &&
+    homeApi.includes('taller-ui.js?v=${FRONTEND_VERSION}') &&
+    homeApi.includes('supabase.js?v=${FRONTEND_VERSION}'),
+    "La portada debe versionar conjuntamente sus runtimes públicos."
+);
 
 const cardRuntime = read("js/taller-ui.js");
 requireCondition(/<div class="taller-imagen[\s\S]*?<\/div>\s*<div class="taller-informacion">\s*<span class="verificado verificado-en-contenido">/.test(cardRuntime), "Las tarjetas dinámicas deben colocar la insignia fuera de la imagen.");
@@ -46,7 +51,11 @@ requireCondition(cardRuntime.includes('toLocaleLowerCase("es")'), "Las tarjetas 
 
 const workshopTemplate = read("pages/taller.html");
 requireCondition(!/<img[^>]+id="taller-foto-imagen"[^>]+src=""/i.test(workshopTemplate), "La ficha no debe solicitar una imagen con URL vacía.");
-requireCondition(workshopTemplate.includes('taller.js?v=20260810-4'), "La ficha debe solicitar la versión corregida de su runtime.");
+requireCondition(
+    !/<script[^>]+src="[^"]*taller\.js[^"]*"/i.test(workshopTemplate) &&
+    /<script[^>]+src="[^"]*imagenes-automaticas\.js\?v=\d{8}-\d+"[^>]*>/is.test(workshopTemplate),
+    "La ficha HTML-first debe excluir el runtime heredado y versionar su gestor de imágenes."
+);
 
 for (const file of ["api/municipio.js", "api/servicio.js", "api/provincia.js"]) {
     const source = read(file);
@@ -54,7 +63,10 @@ for (const file of ["api/municipio.js", "api/servicio.js", "api/provincia.js"]) 
 }
 
 const provinceApi = read("api/provincia.js");
-requireCondition(/cacheControl = "no-store"/.test(provinceApi), "Un fallo provincial transitorio no debe almacenarse en caché.");
+requireCondition(
+    /setHeader\(\s*"Cache-Control"\s*,\s*"no-store"\s*\)/s.test(provinceApi),
+    "Un fallo provincial transitorio no debe almacenarse en caché."
+);
 
 for (const file of ["sitemap.xml", "sitemap-index.xml", "sitemap-provincias.xml", "servicios/sitemap.xml"]) {
     requireCondition(read(file).includes("2026-08-10"), `${file} debe reflejar la actualización actual.`);
@@ -100,7 +112,11 @@ requireCondition(serviceResponse.body.includes('class="taller-imagen taller-imag
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La paginación de servicio no debe crear enlaces deshabilitados.");
 
 const imageRuntime = read("js/imagenes-automaticas.js");
-requireCondition(imageRuntime.includes("Imagen no disponible") && imageRuntime.includes('from("fotos-talleres").createSignedUrls'), "El runtime debe diferenciar placeholders y fotografías autorizadas.");
+requireCondition(
+    imageRuntime.includes("Imagen no disponible") &&
+    /\.from\(\s*"fotos-talleres"\s*\)\s*\.createSignedUrls\(/s.test(imageRuntime),
+    "El runtime debe diferenciar placeholders y fotografías autorizadas."
+);
 
 const supabaseRuntime = read("js/supabase.js");
 requireCondition(
@@ -111,7 +127,7 @@ requireCondition(
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
 requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general") && municipalityResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página municipal debe traducir servicios y preparar fotos autorizadas.");
-requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div><div class="taller-informacion"><span class="verificado verificado-en-contenido">✓ Información revisada<\/span><h3>/s.test(municipalityResponse.body), "La insignia municipal debe aparecer en el contenido y no superponerse a la imagen.");
+requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div>\s*<div class="taller-informacion">\s*<span class="verificado verificado-en-contenido">\s*✓ Información revisada\s*<\/span>\s*<h3>/s.test(municipalityResponse.body), "La insignia municipal debe aparecer en el contenido y no superponerse a la imagen.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(municipalityResponse.body), "La paginación municipal no debe crear enlaces deshabilitados.");
 
 const provinceResponse = createResponse();
