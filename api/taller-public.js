@@ -54,7 +54,14 @@ function prepararFichaCanonica(html) {
 export default async function handler(request, response) {
     const originalSend = response.send.bind(response);
 
-    response.send = (body) => originalSend(prepararFichaCanonica(body));
+    response.send = (body) => {
+        if (response.statusCode === 200 && typeof body === "string") {
+            response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+            response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
+        }
+
+        return originalSend(prepararFichaCanonica(body));
+    };
 
     return tallerHandler(request, response);
 }
