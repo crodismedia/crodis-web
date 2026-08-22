@@ -1,6 +1,27 @@
+import fs from "node:fs";
+import path from "node:path";
 import municipioHandler from "./municipio.js";
 
+function archivoMunicipalValido(fileName) {
+    if (!/^[a-z0-9-]+-\d{5}\.html$/.test(fileName)) return false;
+
+    try {
+        return fs.existsSync(path.join(process.cwd(), "municipios", fileName));
+    } catch {
+        return false;
+    }
+}
+
 export default async function handler(request, response) {
+    const fileName = String(request.query?.archivo || "").trim().toLowerCase();
+
+    if (!archivoMunicipalValido(fileName)) {
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("X-Robots-Tag", "noindex, nofollow");
+        response.status(404).send("Municipio no encontrado.");
+        return;
+    }
+
     const originalSend = response.send.bind(response);
 
     response.send = (body) => {
@@ -21,15 +42,13 @@ export default async function handler(request, response) {
 
         const page = Number(request.query?.pagina || 1);
         const service = String(request.query?.servicio || "").trim();
-        const fileName = String(request.query?.archivo || "").trim().toLowerCase();
 
         if (
             typeof output === "string" &&
             response.statusCode === 200 &&
             Number.isInteger(page) &&
             page > 1 &&
-            !service &&
-            /^[a-z0-9-]+-\d{5}\.html$/.test(fileName)
+            !service
         ) {
             const baseCanonical = `https://www.tallermap.es/municipios/${fileName}`;
             const path = `/municipios/${fileName}?pagina=${page}`;
