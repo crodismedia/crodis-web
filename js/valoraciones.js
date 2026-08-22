@@ -141,6 +141,15 @@
     lista.innerHTML=filas.map(r=>`<article class="valoracion-card"><div class="valoracion-meta"><span class="valoracion-estrellas" aria-label="${Number(r.puntuacion)||0} de 5 estrellas">${estrellas(r.puntuacion)}</span><span>${esc(fecha(r.created_at))}</span></div>${r.titulo?`<h3>${esc(r.titulo)}</h3>`:""}<strong>${esc(r.nombre_cliente||"Cliente de TallerMap")}</strong><p>${esc(r.comentario||"")}</p></article>`).join("")||'<p class="valoraciones-vacio">Este taller todavía no tiene reseñas publicadas. Puedes ser la primera persona en valorarlo.</p>';
   }
 
+  function cargarDiferido(){
+    const run=function(){cargar();};
+    if(typeof window.requestIdleCallback==='function'){
+      window.requestIdleCallback(run,{timeout:1200});
+    }else{
+      window.setTimeout(run,200);
+    }
+  }
+
   async function enviar(e){
     e.preventDefault();
     if(!taller?.id){estado("No se ha podido identificar el taller.","error");return;}
@@ -169,7 +178,7 @@
     const seccion=construirInterfaz();if(!seccion)return;
     taller=await obtenerTaller();if(!taller?.id){seccion.hidden=true;return;}
     $("valoraciones-taller-nombre").textContent=taller.nombre||"este taller";
-    $("form-valoracion")?.addEventListener("submit",enviar);await cargar();
+    $("form-valoracion")?.addEventListener("submit",enviar);cargarDiferido();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",iniciar);else iniciar();
 }());
