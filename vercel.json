@@ -64,15 +64,15 @@
     },
     {
       "source": "/provincias/alicante.html",
-      "destination": "/api/provincia?provincia=alicante"
+      "destination": "/api/provincia-public?provincia=alicante"
     },
     {
       "source": "/provincias/castellon.html",
-      "destination": "/api/provincia?provincia=castellon"
+      "destination": "/api/provincia-public?provincia=castellon"
     },
     {
       "source": "/provincias/valencia.html",
-      "destination": "/api/provincia?provincia=valencia"
+      "destination": "/api/provincia-public?provincia=valencia"
     },
     {
       "source": "/talleres/:slug",
@@ -84,7 +84,7 @@
     },
     {
       "source": "/servicios/:servicio.html",
-      "destination": "/api/servicio?servicio=:servicio"
+      "destination": "/api/servicio-public?servicio=:servicio"
     },
     {
       "source": "/robots.txt",
