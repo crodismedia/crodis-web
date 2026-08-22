@@ -4,13 +4,14 @@
   const SUPABASE_KEY="sb_publishable_91-iI-ra1PfQhXraaU8B9Q_TZPzWfEh";
   const REST_BASE=`${SUPABASE_URL}/rest/v1`;
   const $=(id)=>document.getElementById(id);
-  let taller=null;
+  const slug=slugRuta();
+  let taller={id:"",nombre:""};
 
   function esc(v){return String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
   function fecha(v){try{return new Intl.DateTimeFormat("es-ES",{day:"numeric",month:"long",year:"numeric"}).format(new Date(v));}catch(_){return "";}}
   function estrellas(n){const p=Math.max(0,Math.min(5,Number(n)||0));return "★".repeat(p)+"☆".repeat(5-p);}
   function estado(texto,tipo=""){const el=$("valoraciones-estado");if(!el)return;el.textContent=texto;el.dataset.tipo=tipo;}
-  function slugRuta(){const pref="/talleres/";if(location.pathname.startsWith(pref))return decodeURIComponent(location.pathname.slice(pref.length).split("/")[0]||"");return new URLSearchParams(location.search).get("slug")||"";}
+  function slugRuta(){const pref="/talleres/";if(location.pathname.startsWith(pref))return decodeURIComponent(location.pathname.slice(pref.length).split("/")[0]||"").trim().toLowerCase();return String(new URLSearchParams(location.search).get("slug")||"").trim().toLowerCase();}
   function uuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||""));}
 
   async function rest(path,options={}){
@@ -100,29 +101,23 @@
     return seccion;
   }
 
-  async function obtenerTaller(){
-    const article=$("ficha-taller");
-    const ssrId=String(article?.dataset?.tallerId||"").trim();
-    if(uuid(ssrId)){
-      return {id:ssrId,nombre:String($("taller-nombre")?.textContent||"este taller").trim()};
-    }
-
-    const params=new URLSearchParams(location.search);
-    const id=params.get("id")||"";
-    const slug=slugRuta();
+  async function resolverTallerParaEnvio(){
+    if(uuid(taller?.id))return taller;
+    if(!slug)return null;
     const {data,error}=await rest("rpc/obtener_taller_publico",{
       method:"POST",
-      body:JSON.stringify({p_id:uuid(id)?id:null,p_slug:slug||null})
+      body:JSON.stringify({p_id:null,p_slug:slug})
     });
     if(error||!Array.isArray(data)||!data.length)return null;
-    return data[0];
+    taller={id:String(data[0]?.id||""),nombre:String(data[0]?.nombre||taller.nombre||"este taller")};
+    return uuid(taller.id)?taller:null;
   }
 
   async function cargar(){
-    if(!taller?.id)return;
+    if(!slug)return;
     const params=new URLSearchParams({
-      select:"id,nombre_cliente,puntuacion,titulo,comentario,created_at",
-      taller_id:`eq.${taller.id}`,
+      select:"id,nombre_cliente,puntuacion,titulo,comentario,created_at,talleres!inner(slug)",
+      "talleres.slug":`eq.${slug}`,
       aprobada:"eq.true",
       activa:"eq.true",
       order:"created_at.desc",
@@ -152,7 +147,8 @@
 
   async function enviar(e){
     e.preventDefault();
-    if(!taller?.id){estado("No se ha podido identificar el taller.","error");return;}
+    const resuelto=await resolverTallerParaEnvio();
+    if(!resuelto?.id){estado("No se ha podido identificar el taller.","error");return;}
     const form=e.currentTarget;
     if(form.elements.empresa?.value){estado("No se pudo enviar la reseña.","error");return;}
     const puntuacion=Number(new FormData(form).get("puntuacion"));
@@ -161,24 +157,26 @@
     const comentario=String(form.elements.comentario.value||"").trim().slice(0,1500);
     if(!Number.isInteger(puntuacion)||puntuacion<1||puntuacion>5){estado("Selecciona una valoración de 1 a 5 estrellas.","error");return;}
     if(comentario.length<20){estado("Escribe al menos 20 caracteres sobre tu experiencia.","error");return;}
-    const clave=`tm-review-${taller.id}`;
+    const clave=`tm-review-${resuelto.id}`;
     const ultima=Number(localStorage.getItem(clave)||0);
     if(Date.now()-ultima<60000){estado("Espera un minuto antes de enviar otra reseña.","error");return;}
     estado("Enviando reseña…");
     const {error}=await rest("valoraciones",{
       method:"POST",
       headers:{Prefer:"return=minimal"},
-      body:JSON.stringify({taller_id:taller.id,nombre_cliente:nombre||null,puntuacion,titulo:titulo||null,comentario,aprobada:false,activa:true})
+      body:JSON.stringify({taller_id:resuelto.id,nombre_cliente:nombre||null,puntuacion,titulo:titulo||null,comentario,aprobada:false,activa:true})
     });
     if(error){console.error("No se pudo enviar la valoración:",error);estado("No se pudo enviar la reseña. El sistema de moderación puede requerir configuración.","error");return;}
     localStorage.setItem(clave,String(Date.now()));form.reset();estado("Reseña recibida. Se publicará después de la revisión administrativa.","ok");$("valoracion-pendiente").hidden=false;
   }
 
-  async function iniciar(){
+  function iniciar(){
     const seccion=construirInterfaz();if(!seccion)return;
-    taller=await obtenerTaller();if(!taller?.id){seccion.hidden=true;return;}
+    if(!slug){seccion.hidden=true;return;}
+    taller.nombre=String($("taller-nombre")?.textContent||"este taller").trim();
     $("valoraciones-taller-nombre").textContent=taller.nombre||"este taller";
-    $("form-valoracion")?.addEventListener("submit",enviar);cargarDiferido();
+    $("form-valoracion")?.addEventListener("submit",enviar);
+    cargarDiferido();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",iniciar);else iniciar();
 }());
