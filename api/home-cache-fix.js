@@ -166,10 +166,19 @@ function actualizarVersiones(html) {
   return output;
 }
 
+function forzarNoindexBusqueda(html) {
+  if (typeof html !== "string") return html;
+  return html.replace(
+    /<meta name="robots" content="[^"]*">/i,
+    '<meta name="robots" content="noindex,follow,max-image-preview:large">'
+  );
+}
+
 export default async function handler(request, response) {
   const poblacion = String(request.query?.poblacion || "").trim();
   const codigoMunicipal = String(request.query?.codigo_municipal || "").trim();
   const servicio = String(request.query?.servicio || "").trim();
+  const pagina = String(request.query?.pagina || "").trim();
   const servicioSlug = slugify(servicio);
 
   if (!poblacion && !codigoMunicipal && servicioSlug) {
@@ -193,8 +202,16 @@ export default async function handler(request, response) {
     return;
   }
 
+  const esBusqueda = Boolean(poblacion || codigoMunicipal || servicio || pagina);
   const sendOriginal = response.send.bind(response);
-  response.send = (body) => sendOriginal(actualizarVersiones(body));
+  response.send = (body) => {
+    let output = actualizarVersiones(body);
+    if (esBusqueda) {
+      output = forzarNoindexBusqueda(output);
+      response.setHeader("X-Robots-Tag", "noindex, follow");
+    }
+    return sendOriginal(output);
+  };
 
   return homeHandler(request, response);
 }
