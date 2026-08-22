@@ -1,4 +1,4 @@
-import { SUPABASE_URL, SUPABASE_KEY } from '../lib/server-utils.js';
+import { SUPABASE_URL } from '../lib/server-utils.js';
 
 function clean(value, max = 300) {
   return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -10,9 +10,24 @@ function json(res, status, body) {
   res.status(status).send(JSON.stringify(body));
 }
 
+function serviceKey() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error('Falta SUPABASE_SERVICE_ROLE_KEY en Vercel');
+  return key;
+}
+
+function serviceHeaders(extra = {}) {
+  const key = serviceKey();
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    ...extra
+  };
+}
+
 async function supabaseGet(path) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { apikey: SUPABASE_KEY }
+    headers: serviceHeaders()
   });
   if (!r.ok) throw new Error(`Supabase GET ${r.status}`);
   return r.json();
@@ -21,11 +36,10 @@ async function supabaseGet(path) {
 async function supabaseInsert(table, payload) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
     method: 'POST',
-    headers: {
-      apikey: SUPABASE_KEY,
+    headers: serviceHeaders({
       'Content-Type': 'application/json',
       Prefer: 'return=representation'
-    },
+    }),
     body: JSON.stringify(payload)
   });
   if (!r.ok) {
