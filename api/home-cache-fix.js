@@ -36,6 +36,24 @@ const ROUTER_GLOBAL = `
 </script>
 `;
 
+const ENLACES_SERVICIO_LIMPIOS = `
+<script data-tm-enlaces-servicio="1">
+(function(){
+  function limpiar(){
+    document.querySelectorAll('[data-servicio]').forEach(function(enlace){
+      var slug = String(enlace.getAttribute('data-servicio') || '').trim().toLowerCase();
+      if (/^[a-z0-9-]+$/.test(slug)) enlace.setAttribute('href', '/servicios/' + slug + '.html');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(limpiar, 0); }, { once: true });
+  } else {
+    setTimeout(limpiar, 0);
+  }
+}());
+</script>
+`;
+
 function slugify(value) {
   return String(value || "")
     .normalize("NFD")
@@ -87,10 +105,16 @@ function buscarArchivoMunicipio(valor, codigoMunicipal = "") {
   return exactos.length === 1 ? exactos[0] : "";
 }
 
+function limpiarEnlacesServicioHTML(html) {
+  return String(html || "")
+    .replace(/href="\/?\?servicio=([a-z0-9-]+)#talleres"/gi, 'href="/servicios/$1.html"')
+    .replace(/href="\.\.\/\?servicio=([a-z0-9-]+)#talleres"/gi, 'href="/servicios/$1.html"');
+}
+
 function actualizarVersiones(html) {
   if (typeof html !== "string") return html;
 
-  let output = html
+  let output = limpiarEnlacesServicioHTML(html)
     .replace(
       /js\/busqueda-url\.js(?:\?[^\"']*)?/g,
       `js/busqueda-url.js?v=${BUSQUEDA_VERSION}`
@@ -102,6 +126,10 @@ function actualizarVersiones(html) {
 
   if (!output.includes("params.set('codigo_municipal'")) {
     output = output.replace(/<\/body>/i, `${ROUTER_GLOBAL}</body>`);
+  }
+
+  if (!output.includes('data-tm-enlaces-servicio="1"')) {
+    output = output.replace(/<\/body>/i, `${ENLACES_SERVICIO_LIMPIOS}</body>`);
   }
 
   if (!output.includes("fichas-publicas-alicante.js")) {
@@ -118,6 +146,17 @@ export default async function handler(request, response) {
   const poblacion = String(request.query?.poblacion || "").trim();
   const codigoMunicipal = String(request.query?.codigo_municipal || "").trim();
   const servicio = String(request.query?.servicio || "").trim();
+  const servicioSlug = slugify(servicio);
+
+  if (!poblacion && !codigoMunicipal && servicioSlug) {
+    const paginaServicio = path.join(process.cwd(), "servicios", `${servicioSlug}.html`);
+    if (fs.existsSync(paginaServicio)) {
+      response.setHeader("Cache-Control", "no-store");
+      response.redirect(301, `/servicios/${servicioSlug}.html`);
+      return;
+    }
+  }
+
   const archivoMunicipio = buscarArchivoMunicipio(poblacion, codigoMunicipal);
 
   if (archivoMunicipio) {
@@ -126,7 +165,7 @@ export default async function handler(request, response) {
     const query = params.toString();
     const destino = `/municipios/${archivoMunicipio}${query ? `?${query}` : ""}#talleres`;
     response.setHeader("Cache-Control", "no-store");
-    response.redirect(302, destino);
+    response.redirect(servicio ? 302 : 301, destino);
     return;
   }
 
