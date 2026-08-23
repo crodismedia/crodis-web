@@ -32,6 +32,8 @@ const DIRECTORY_STRUCTURED_DATA = JSON.stringify({
     }
 }).replace(/</g, "\\u003c");
 
+const DIRECTORY_PERFORMANCE_STYLE = '<style id="tm-municipios-render-diferido">#lista-municipios li{content-visibility:auto;contain-intrinsic-size:1px 52px}</style>';
+
 function renderMunicipalityList(items) {
     const unique = Array.from(
         new Map(
@@ -60,7 +62,7 @@ function injectList(template, rows) {
         throw new Error("No se encontró la lista municipal en la plantilla.");
     }
 
-    return template
+    let html = template
         .replace(
             list,
             `<ul class="lista-municipios" id="lista-municipios">\n${rows}\n                </ul>`
@@ -71,6 +73,12 @@ function injectList(template, rows) {
         )
         .replace('href="../index.html"', 'href="/"')
         .replace('href="../pages/registro.html"', 'href="/pages/registro.html"');
+
+    if (!html.includes('id="tm-municipios-render-diferido"')) {
+        html = html.replace("</head>", `${DIRECTORY_PERFORMANCE_STYLE}\n</head>`);
+    }
+
+    return html;
 }
 
 export default async function handler(_request, response) {
@@ -98,12 +106,16 @@ export default async function handler(_request, response) {
         const html = injectList(template, rows);
 
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+        response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+        response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
         response.setHeader("X-TallerMap-Municipios", String(total));
         response.status(200).send(html);
     } catch (error) {
         console.error("No se pudo construir el directorio municipal:", error);
+        response.setHeader("Content-Type", "text/plain; charset=utf-8");
+        response.setHeader("Cache-Control", "no-store");
         response.setHeader("Retry-After", "60");
+        response.setHeader("X-Robots-Tag", "noindex, follow");
         response.status(503).send("No se pudo cargar el directorio municipal en este momento.");
     }
 }
