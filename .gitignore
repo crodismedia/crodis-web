@@ -25,3 +25,5 @@ build/
 # Credenciales
 config.js
 .env
+.vercel
+.env*
