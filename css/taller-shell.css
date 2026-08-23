@@ -103,6 +103,36 @@ img.marca-icono-logo {
     font-size: 11px;
 }
 
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.menu a {
+    position: relative;
+    padding: 30px 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.menu a::after {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    left: 0;
+    height: 3px;
+    content: "";
+    background: var(--naranja);
+    border-radius: 10px;
+    transform: scaleX(0);
+    transition: 0.2s;
+}
+
+.menu a:hover::after {
+    transform: scaleX(1);
+}
+
 .boton {
     display: inline-flex;
     align-items: center;
@@ -164,6 +194,19 @@ img.marca-icono-logo {
         display: none;
     }
 
+    .menu {
+        gap: 14px;
+    }
+
+    .menu a {
+        padding: 24px 0;
+        font-size: 13px;
+    }
+
+    .menu a::after {
+        bottom: 15px;
+    }
+
     .boton-pequeno {
         padding: 10px 12px;
         font-size: 12px;
@@ -187,5 +230,13 @@ img.marca-icono-logo {
 
     .marca-texto strong {
         font-size: 19px;
+    }
+
+    .menu {
+        gap: 10px;
+    }
+
+    .menu a {
+        font-size: 12px;
     }
 }
