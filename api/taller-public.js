@@ -4,6 +4,7 @@ const TALLER_SHELL_VERSION = "20260823-1";
 const VALORACIONES_VERSION = "20260823-2";
 const RECLAMACION_VERSION = "20260823-2";
 const VALORACIONES_CSS_VERSION = "20260823-1";
+const RENDER_DIFERIDO = '<style id="tm-render-diferido">.ficha-contexto,.ficha-relacionados,.valoraciones-seccion{content-visibility:auto;contain-intrinsic-size:auto 500px}</style>';
 
 function usarCSSLigero(html) {
     return html.replace(
@@ -43,6 +44,11 @@ function versionarScripts(html) {
         );
 }
 
+function optimizarRenderDiferido(html) {
+    if (html.includes('id="tm-render-diferido"')) return html;
+    return html.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
+}
+
 function prepararFichaCanonica(html) {
     if (typeof html !== "string") return html;
 
@@ -56,10 +62,12 @@ function prepararFichaCanonica(html) {
             ""
         );
 
-    return versionarScripts(
-        diferirCSSSecundario(
-            versionarCSS(
-                usarCSSLigero(output)
+    return optimizarRenderDiferido(
+        versionarScripts(
+            diferirCSSSecundario(
+                versionarCSS(
+                    usarCSSLigero(output)
+                )
             )
         )
     );
