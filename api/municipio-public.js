@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import municipioHandler from "./municipio.js";
 
+const RENDER_DIFERIDO = '<style id="tm-municipio-render">.taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}</style>';
+
 function archivoMunicipalValido(fileName) {
     if (!/^[a-z0-9-]+-\d{5}\.html$/.test(fileName)) return false;
 
@@ -18,6 +20,11 @@ function paginaSolicitada(request) {
         : request.query?.pagina;
 
     return value === undefined ? null : String(value).trim();
+}
+
+function optimizarRender(output) {
+    if (typeof output !== "string" || output.includes('id="tm-municipio-render"')) return output;
+    return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
 export default async function handler(request, response) {
@@ -115,6 +122,13 @@ export default async function handler(request, response) {
 
             output = output.replace("</head>", `${links.join("\n")}\n</head>`);
             response.setHeader("X-TallerMap-Canonical-Page", String(page));
+        }
+
+        if (response.statusCode === 200 && typeof output === "string") {
+            output = optimizarRender(output);
+            response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+            response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
+            response.setHeader("X-TallerMap-Municipio-Render", "1");
         }
 
         return originalSend(output);
