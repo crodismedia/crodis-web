@@ -1,5 +1,7 @@
 import provinciaHandler from "./provincia.js";
 
+const RENDER_DIFERIDO = '<style id="tm-provincia-render">.taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}#lista-municipios-provincia li{content-visibility:auto;contain-intrinsic-size:auto 64px}</style>';
+
 function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -10,6 +12,11 @@ function paginaSolicitada(request) {
         : request.query?.pagina;
 
     return value === undefined ? null : String(value).trim();
+}
+
+function optimizarRender(output) {
+    if (typeof output !== "string" || output.includes('id="tm-provincia-render"')) return output;
+    return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
 export default async function handler(request, response) {
@@ -65,6 +72,13 @@ export default async function handler(request, response) {
                 );
 
             response.setHeader("X-TallerMap-Structured-Page", String(page));
+        }
+
+        if (response.statusCode === 200 && typeof output === "string") {
+            output = optimizarRender(output);
+            response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+            response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
+            response.setHeader("X-TallerMap-Province-Render", "1");
         }
 
         return originalSend(output);
