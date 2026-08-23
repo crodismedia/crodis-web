@@ -41,4 +41,12 @@ new MutationObserver(sincronizar).observe(publicado,{
   attributeFilter:['data-url','disabled']
 });
 sincronizar();
+
+if(!document.getElementById('v4-inspector-live-script')){
+  const script=document.createElement('script');
+  script.id='v4-inspector-live-script';
+  script.src='../js/admin-editor-v4-inspector.js?v=1';
+  script.defer=true;
+  document.body.appendChild(script);
+}
 })();
