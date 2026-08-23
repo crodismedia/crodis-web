@@ -3,7 +3,7 @@ import path from "node:path";
 import homeHandler from "./home.js";
 
 const BUSQUEDA_VERSION = "20260817-6";
-const AUTOCOMPLETE_VERSION = "20260823-1";
+const AUTOCOMPLETE_VERSION = "20260823-2";
 const HOME_PUBLIC_VERSION = "20260823-1";
 const FICHAS_ALICANTE_VERSION = "20260818-1";
 const SERVICIOS_SEO = new Set([
