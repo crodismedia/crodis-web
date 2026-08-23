@@ -37,7 +37,7 @@ async function fetchDesguaces() {
     const url = new URL(`${SUPABASE_URL}/rest/v1/desguaces`);
     url.searchParams.set(
         "select",
-        "id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion,activo,verificado,updated_at"
+        "id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion"
     );
     url.searchParams.set("activo", "eq.true");
     url.searchParams.set("verificado", "eq.true");
@@ -102,8 +102,8 @@ function renderCard(row) {
     if (phone) actions.push(`<a href="tel:${escapeHTML(phone)}">Llamar · ${escapeHTML(phoneDisplay || "Llamar")}</a>`);
     if (maps) actions.push(`<a href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);
     if (web) actions.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-    actions.push('<a href="/acceso-desguaces.html">Acceso profesional</a>');
-    if (accessURL) actions.push(`<a href="${escapeHTML(accessURL)}">Solicitar acceso</a>`);
+    actions.push('<a href="/acceso-desguaces.html" rel="nofollow">Acceso profesional</a>');
+    if (accessURL) actions.push(`<a href="${escapeHTML(accessURL)}" rel="nofollow">Solicitar acceso</a>`);
 
     return `<article class="desguace-card" data-desguace-slug="${escapeHTML(slug)}">
       <div class="desguace-card-cabecera">
@@ -149,6 +149,16 @@ function stripClientDirectoryRuntime(html) {
         .replace(/\s*<script src="js\/desguaces-publico\.js[^\"]*"><\/script>/i, "");
 }
 
+function injectPerformanceHints(html) {
+    const style = `<style data-tm-desguaces-rendimiento="1">
+.desguace-card{content-visibility:auto;contain-intrinsic-size:1px 340px}
+#castellon,#valencia{content-visibility:auto;contain-intrinsic-size:1px 1200px}
+</style>`;
+    return html.includes('data-tm-desguaces-rendimiento="1"')
+        ? html
+        : html.replace("</head>", `${style}\n</head>`);
+}
+
 function noindexOnFailure(html) {
     return String(html || "").replace(
         /<meta name="robots" content="[^"]*">/i,
@@ -177,7 +187,7 @@ function renderDirectory(template, rows) {
         (_match, open, close) => `${open}${rows.length} ${rows.length === 1 ? "desguace publicado" : "desguaces publicados"}${close}`
     );
 
-    return stripClientDirectoryRuntime(html);
+    return injectPerformanceHints(stripClientDirectoryRuntime(html));
 }
 
 export default async function handler(request, response) {
@@ -203,7 +213,8 @@ export default async function handler(request, response) {
         const html = renderDirectory(template, validRows);
 
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
+        response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+        response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
         response.setHeader("X-TallerMap-Desguaces-SSR", "1");
         response.setHeader("X-TallerMap-Desguaces", String(validRows.length));
         response.status(200).send(html);
