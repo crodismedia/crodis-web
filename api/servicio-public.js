@@ -3,6 +3,7 @@ import servicioHandler from "./servicio.js";
 const SERVICIOS_SEO = new Set([
     "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
 ]);
+const RENDER_DIFERIDO = '<style id="tm-servicio-render">#talleres-servicio .taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}</style>';
 
 function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -14,6 +15,11 @@ function paginaSolicitada(request) {
         : request.query?.pagina;
 
     return value === undefined ? null : String(value).trim();
+}
+
+function optimizarRender(output) {
+    if (typeof output !== "string" || output.includes('id="tm-servicio-render"')) return output;
+    return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
 export default async function handler(request, response) {
@@ -69,6 +75,13 @@ export default async function handler(request, response) {
                 );
 
             response.setHeader("X-TallerMap-Structured-Page", String(page));
+        }
+
+        if (response.statusCode === 200 && typeof output === "string") {
+            output = optimizarRender(output);
+            response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+            response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
+            response.setHeader("X-TallerMap-Service-Render", "1");
         }
 
         return originalSend(output);
