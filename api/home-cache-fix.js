@@ -3,7 +3,8 @@ import path from "node:path";
 import homeHandler from "./home.js";
 
 const BUSQUEDA_VERSION = "20260817-6";
-const AUTOCOMPLETE_VERSION = "20260817-6";
+const AUTOCOMPLETE_VERSION = "20260823-1";
+const HOME_PUBLIC_VERSION = "20260823-1";
 const FICHAS_ALICANTE_VERSION = "20260818-1";
 const SERVICIOS_SEO = new Set([
   "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
@@ -144,6 +145,12 @@ function actualizarVersiones(html) {
 
   let output = limpiarEnlacesServicioHTML(html)
     .replace(/<a href="\/coches\.html">Coches<\/a>/gi, "")
+    .replace(/\s*<link rel="preconnect" href="https:\/\/cdn\.jsdelivr\.net"[^>]*>/i, "")
+    .replace(/\s*<script defer src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
+    .replace(
+      /<script defer src="js\/supabase\.js(?:\?[^\"]*)?"><\/script>/i,
+      `<script defer src="js/home-public.js?v=${HOME_PUBLIC_VERSION}"></script>`
+    )
     .replace(
       /js\/busqueda-url\.js(?:\?[^\"']*)?/g,
       `js/busqueda-url.js?v=${BUSQUEDA_VERSION}`
@@ -169,6 +176,11 @@ function actualizarVersiones(html) {
   }
 
   return output;
+}
+
+function marcarBusquedaSSR(html) {
+  if (typeof html !== "string" || /\bdata-tm-search-ssr=/i.test(html)) return html;
+  return html.replace(/<body([^>]*)>/i, '<body$1 data-tm-search-ssr="1">');
 }
 
 function forzarNoindexBusqueda(html) {
@@ -217,6 +229,8 @@ export default async function handler(request, response) {
   const sendOriginal = response.send.bind(response);
   response.send = (body) => {
     let output = actualizarVersiones(body);
+    const busquedaSSR = String(response.getHeader?.("X-TallerMap-Search-SSR") || "") === "1";
+    if (busquedaSSR) output = marcarBusquedaSSR(output);
     if (esBusqueda) {
       output = forzarNoindexBusqueda(output);
       response.setHeader("X-Robots-Tag", "noindex, follow");
