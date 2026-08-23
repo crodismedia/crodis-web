@@ -1,6 +1,7 @@
 import { SUPABASE_URL, SUPABASE_KEY, escapeHTML, safeWeb, safePhone, formatPhoneDisplay } from '../lib/server-utils.js';
 
 const SITE_URL = 'https://www.tallermap.es';
+const SHELL_VERSION = '20260823-2';
 
 function clean(value, max = 500) {
   const text = String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -30,7 +31,7 @@ function scheduleHtml(schedule) {
 
 async function fetchDesguace(slug) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/desguaces`);
-  url.searchParams.set('select', 'id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,horarios,servicios,descripcion,activo,verificado');
+  url.searchParams.set('select', 'id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,horarios,servicios,descripcion');
   url.searchParams.set('slug', `eq.${slug}`);
   url.searchParams.set('activo', 'eq.true');
   url.searchParams.set('verificado', 'eq.true');
@@ -68,9 +69,9 @@ function render(d) {
 <title>${escapeHTML(name)} en ${escapeHTML(municipality)} | TallerMap</title>
 <meta name="description" content="${escapeHTML(description)}"><meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="${escapeHTML(canonical)}"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/css/estilo.css?v=20260809-5">
+<link rel="stylesheet" href="/css/taller-shell.css?v=${SHELL_VERSION}">
 <style>
-body{background:#f5f7fa;color:#172033}.dg-wrap{max-width:1050px;margin:0 auto;padding:28px 20px 60px}.dg-card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.dg-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.dg-local{color:#667085;font-size:.82rem;font-weight:700;text-transform:uppercase}.dg-card h1{margin:4px 0 0;font-size:2rem}.verify{background:#ecfdf3;color:#027a48;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.78rem}.dg-services{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.dg-services span{background:#f2f4f7;border-radius:999px;padding:6px 10px;font-size:.82rem}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 15px;border-radius:9px;background:#f2f4f7;color:#344054;text-decoration:none;font-weight:800}.btn.primary{background:#155eef;color:#fff}.grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px}.request{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px}.request .btn{width:100%;background:#101828;color:#fff;min-height:50px}.data p{margin:0;padding:10px 0;border-bottom:1px solid #eaecf0}.horario{padding-left:20px}.horario li{margin:7px 0}.back{display:inline-block;margin-top:20px;color:#155eef;font-weight:800;text-decoration:none}@media(max-width:760px){.grid{grid-template-columns:1fr}.dg-head{flex-direction:column}.dg-card h1{font-size:1.55rem}}
+body{background:#f5f7fa;color:#172033}.dg-wrap{max-width:1050px;margin:0 auto;padding:28px 20px 60px}.dg-card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(16,24,40,.06)}.dg-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.dg-local{color:#667085;font-size:.82rem;font-weight:700;text-transform:uppercase}.dg-card h1{margin:4px 0 0;font-size:2rem}.verify{background:#ecfdf3;color:#027a48;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.78rem}.dg-services{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.dg-services span{background:#f2f4f7;border-radius:999px;padding:6px 10px;font-size:.82rem}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 15px;border-radius:9px;background:#f2f4f7;color:#344054;text-decoration:none;font-weight:800}.btn.primary{background:#155eef;color:#fff}.grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px;content-visibility:auto;contain-intrinsic-size:1px 520px}.request{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px}.request .btn{width:100%;background:#101828;color:#fff;min-height:50px}.data p{margin:0;padding:10px 0;border-bottom:1px solid #eaecf0}.horario{padding-left:20px}.horario li{margin:7px 0}.back{display:inline-block;margin-top:20px;color:#155eef;font-weight:800;text-decoration:none}@media(max-width:760px){.grid{grid-template-columns:1fr}.dg-head{flex-direction:column}.dg-card h1{font-size:1.55rem}}
 </style><script type="application/ld+json">${structured}</script></head><body>
 <header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html">Desguaces</a></nav></div></header>
 <main class="dg-wrap"><article class="dg-card"><div class="dg-head"><div><div class="dg-local">${escapeHTML(municipality)} · ${escapeHTML(province)}</div><h1>${escapeHTML(name)}</h1></div><span class="verify">Verificado</span></div>
@@ -79,7 +80,7 @@ ${description ? `<p>${escapeHTML(description)}</p>` : ''}
 ${serviceHtml ? `<div class="dg-services">${serviceHtml}</div>` : ''}
 <div class="actions">${phoneButton}<a class="btn" href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>${webButton}</div></article>
 <div class="grid"><section class="dg-card data"><h2>Datos del desguace</h2><p><strong>Nombre:</strong> ${escapeHTML(name)}</p>${municipality?`<p><strong>Municipio:</strong> ${escapeHTML(municipality)}</p>`:''}${province?`<p><strong>Provincia:</strong> ${escapeHTML(province)}</p>`:''}${d.codigo_postal?`<p><strong>Código postal:</strong> ${escapeHTML(clean(d.codigo_postal,20))}</p>`:''}${phone?`<p><strong>Teléfono:</strong> ${escapeHTML(formatPhoneDisplay(phone))}</p>`:''}<h3>Horario</h3>${scheduleHtml(d.horarios)}</section>
-<aside class="request"><h2>¿Buscas una pieza?</h2><p>Envía una solicitud a este desguace indicando tu vehículo y la pieza que necesitas.</p><a class="btn" href="/solicitar-pieza.html?desguace=${encodeURIComponent(slug)}">Solicitar pieza</a></aside></div>
+<aside class="request"><h2>¿Buscas una pieza?</h2><p>Envía una solicitud a este desguace indicando tu vehículo y la pieza que necesitas.</p><a class="btn" href="/solicitar-pieza.html?desguace=${encodeURIComponent(slug)}" rel="nofollow">Solicitar pieza</a></aside></div>
 <a class="back" href="/desguaces.html#${encodeURIComponent(provinceSlug)}">← Volver a desguaces</a></main></body></html>`;
 }
 
@@ -96,10 +97,15 @@ export default async function handler(req, res) {
       return;
     }
     res.setHeader('Content-Type','text/html; charset=utf-8');
-    res.setHeader('Cache-Control','public, s-maxage=3600, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control','public, max-age=0, must-revalidate');
+    res.setHeader('Vercel-CDN-Cache-Control','public, max-age=3600, stale-while-revalidate=86400');
     res.status(200).send(render(d));
   } catch (error) {
     console.error(error);
-    res.status(500).setHeader('Content-Type','text/html; charset=utf-8').send('<h1>Error temporal</h1>');
+    res.setHeader('Content-Type','text/html; charset=utf-8');
+    res.setHeader('Cache-Control','no-store');
+    res.setHeader('Retry-After','60');
+    res.setHeader('X-Robots-Tag','noindex, follow');
+    res.status(503).send('<h1>Error temporal</h1>');
   }
 }
