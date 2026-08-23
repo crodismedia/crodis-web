@@ -170,8 +170,6 @@
         document.addEventListener("pointerdown", evento => {
             if (!contenedor.contains(evento.target)) cerrar();
         });
-
-        void cargarCatalogo();
     }
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void iniciar(), { once: true });
