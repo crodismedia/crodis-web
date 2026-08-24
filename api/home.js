@@ -16,6 +16,34 @@ const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
 const FRONTEND_VERSION = "20260813-2";
 const MAX_TERM = 80;
+const SERVICIOS_SEO = new Set([
+    "mecanica-general",
+    "frenos",
+    "embrague",
+    "cambio-aceite-filtros",
+    "correa-distribucion",
+    "cadena-distribucion",
+    "pre-itv",
+    "reparacion-motor",
+    "caja-cambios",
+    "sistema-refrigeracion",
+    "escape-catalizador",
+    "baterias",
+    "electricidad-automovil",
+    "alternador-motor-arranque",
+    "centralitas-electronica",
+    "suspension-amortiguadores",
+    "alineacion-direccion",
+    "equilibrado-ruedas",
+    "neumaticos",
+    "lunas-cristales",
+    "carroceria",
+    "chapa-pintura",
+    "diagnosis-electronica",
+    "aire-acondicionado",
+    "calefaccion-climatizacion",
+    "hibridos-electricos"
+]);
 
 function safeTerm(value) {
     return String(value || "")
@@ -539,6 +567,24 @@ export default async function handler(
     const page = requestedPage(
         request.query?.pagina
     );
+
+    if (!location && SERVICIOS_SEO.has(service)) {
+        const destination = `/servicios/${service}.html${
+            page > 1 ? `?pagina=${page}` : ""
+        }`;
+
+        response.setHeader(
+            "Cache-Control",
+            "no-store, max-age=0"
+        );
+
+        response.redirect(
+            301,
+            destination
+        );
+
+        return;
+    }
 
     const hasSearch = Boolean(
         location ||
