@@ -628,7 +628,9 @@ export default async function handler(
 
     response.setHeader(
         "Cache-Control",
-        "no-store, max-age=0"
+        hasSearch
+            ? "no-store, max-age=0"
+            : "public, max-age=0, s-maxage=300, stale-while-revalidate=86400"
     );
 
     response.setHeader(

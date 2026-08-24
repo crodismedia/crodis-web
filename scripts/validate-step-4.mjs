@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { formatPhoneDisplay, reviewStatusLabel, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
+import homeHandler from "../api/home.js";
 import municipalityHandler from "../api/municipio.js";
 import provinceHandler from "../api/provincia.js";
 import serviceHandler from "../api/servicio.js";
@@ -102,6 +103,20 @@ globalThis.fetch = async (url) => ({
         return [workshop];
     }
 });
+
+const homeResponse = createResponse();
+await homeHandler({ query: {} }, homeResponse);
+requireCondition(
+    homeResponse.headers["Cache-Control"] === "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+    "La portada pública debe almacenarse temporalmente en la caché de Vercel."
+);
+
+const searchHomeResponse = createResponse();
+await homeHandler({ query: { poblacion: "Teulada" } }, searchHomeResponse);
+requireCondition(
+    searchHomeResponse.headers["Cache-Control"] === "no-store, max-age=0",
+    "Las búsquedas de la portada no deben compartirse en caché."
+);
 
 const serviceResponse = createResponse();
 await serviceHandler({ query: { servicio: "mecanica-general", pagina: "1" } }, serviceResponse);
