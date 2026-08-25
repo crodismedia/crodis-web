@@ -89,6 +89,19 @@
 
         if (principal.getAttribute("href") !== destino) principal.href = destino;
         principal.classList.add("enlace-ficha-taller");
+
+        if (!principal.getAttribute("aria-label")) {
+            const nombreTaller =
+                principal.textContent.trim()
+                || tarjeta.querySelector(".taller-informacion h3")?.textContent.trim()
+                || "este taller";
+
+            principal.setAttribute(
+                "aria-label",
+                `Ver ficha de ${nombreTaller}`
+            );
+        }
+
         if (principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";
 
         enlaces.forEach((enlace) => {
