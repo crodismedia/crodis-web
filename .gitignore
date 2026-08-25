@@ -27,3 +27,8 @@ config.js
 .env
 .vercel
 .env*
+backup-html-antiguos/
+castellon_fichas.txt
+supabase/.temp/
+tallermap_talleres_estaticos_resultado.csv
+vercel-backup-antes-estaticos.json

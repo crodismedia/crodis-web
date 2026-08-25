@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
@@ -80,7 +80,7 @@
     },
     {
       "source": "/talleres/:slug",
-      "destination": "/api/taller-public?slug=:slug"
+      "destination": "/talleres/:slug/index.html"
     },
     {
       "source": "/desguace/:slug",
@@ -295,3 +295,4 @@
     }
   ]
 }
+

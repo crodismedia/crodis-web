@@ -1,4 +1,4 @@
-{
+﻿{
   "private": true,
   "type": "module",
   "scripts": {
@@ -6,8 +6,11 @@
     "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs && node scripts/validate-step-4.mjs && node scripts/validate-html-first-taller.mjs"
   },
   "dependencies": {
-    "@vercel/functions": "latest",
+    "@Vercel/functions": "latest",
     "pdf-lib": "^1.17.1",
     "sharp": "^0.34.3"
+  },
+  "devDependencies": {
+    "supabase": "^2.115.0"
   }
 }
