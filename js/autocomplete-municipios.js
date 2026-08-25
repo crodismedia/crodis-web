@@ -50,9 +50,7 @@
             lista.setAttribute("aria-label", "Sugerencias de población");
             contenedor.appendChild(lista);
         }
-        lista.hidden = true;
-
-        let catalogo = [];
+        lista.hidden = true;\n\n        let anunciador = document.getElementById("sugerencias-poblacion-estado");\n        if (!anunciador) {\n            anunciador = document.createElement("div");\n            anunciador.id = "sugerencias-poblacion-estado";\n            anunciador.className = "solo-lectores";\n            anunciador.setAttribute("role", "status");\n            anunciador.setAttribute("aria-live", "polite");\n            anunciador.setAttribute("aria-atomic", "true");\n            contenedor.appendChild(anunciador);\n        }\n\n        let catalogo = [];
         let cargando = null;
         let indiceActivo = -1;
 
@@ -85,20 +83,19 @@
         const seleccionar = item => {
             input.value = item.nombre || "";
             input.dataset.codigoMunicipal = item.codigo_municipal || "";
-            cerrar();
-            input.focus();
+            cerrar();\n            anunciador.textContent = `Población seleccionada: ${item.nombre || ""}`;\n            input.focus();
         };
 
         const mostrar = resultados => {
             lista.replaceChildren();
             indiceActivo = -1;
-            if (!resultados.length) return cerrar();
+            if (!resultados.length) {\n                anunciador.textContent = "No se encontraron poblaciones";\n                return cerrar();\n            }
             resultados.forEach((item, indice) => {
                 const boton = document.createElement("button");
                 boton.type = "button";
                 boton.className = "sugerencia-poblacion";
                 boton.setAttribute("role", "option");
-                boton.dataset.indice = String(indice);
+                boton.dataset.indice = String(indice);\n                boton.id = `sugerencia-poblacion-${indice}`;\n                boton.setAttribute("aria-selected", "false");
                 const nombre = document.createElement("strong");
                 nombre.textContent = item.nombre || "";
                 boton.appendChild(nombre);
@@ -112,7 +109,7 @@
                 lista.appendChild(boton);
             });
             lista.hidden = false;
-            input.setAttribute("aria-expanded", "true");
+            input.setAttribute("aria-expanded", "true");\n            anunciador.textContent = `${resultados.length} sugerencias disponibles. Usa la flecha abajo para recorrerlas.`;
         };
 
         const buscar = async () => {
@@ -133,8 +130,7 @@
         const moverFoco = direccion => {
             const botones = [...lista.querySelectorAll("button.sugerencia-poblacion")];
             if (!botones.length) return;
-            indiceActivo = Math.max(0, Math.min(botones.length - 1, indiceActivo + direccion));
-            botones[indiceActivo].focus();
+            indiceActivo = Math.max(0, Math.min(botones.length - 1, indiceActivo + direccion));\n            botones.forEach((boton, indice) => boton.setAttribute("aria-selected", indice === indiceActivo ? "true" : "false"));\n            botones[indiceActivo].focus();
         };
 
         input.addEventListener("input", evento => {
@@ -160,7 +156,7 @@
                 const botones = [...lista.querySelectorAll("button.sugerencia-poblacion")];
                 const actual = botones.indexOf(document.activeElement);
                 const siguiente = evento.key === "ArrowDown" ? Math.min(botones.length - 1, actual + 1) : Math.max(0, actual - 1);
-                botones[siguiente]?.focus();
+                botones.forEach((boton, indice) => boton.setAttribute("aria-selected", indice === siguiente ? "true" : "false"));\n                indiceActivo = siguiente;\n                botones[siguiente]?.focus();
             }
             if (evento.key === "Escape") {
                 cerrar();
