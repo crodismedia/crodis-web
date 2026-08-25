@@ -235,19 +235,19 @@
 
         if (telefono) {
             enlaces.push(
-                `<a href="tel:${escaparHTML(telefono)}">Llamar</a>`
+                `<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`
             );
         }
 
         if (web) {
             enlaces.push(
-                `<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`
+                `<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de ${nombre}">Web</a>`
             );
         }
 
         if (slug) {
             enlaces.push(
-                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">Ver ficha</a>`
+                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver ficha de ${nombre}">Ver ficha</a>`
             );
         }
 
