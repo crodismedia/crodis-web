@@ -87,7 +87,7 @@ async function descargarFicha(slugOriginal) {
 
   for (let intento = 1; intento <= REINTENTOS; intento++) {
     try {
-      const url = `${SITE_URL}/talleres/${encodeURIComponent(slugOriginal)}`;
+      const url = `${SITE_URL}/api/taller-public?slug=${encodeURIComponent(slugOriginal)}`;
       const respuesta = await fetch(url, {
         redirect: "follow",
         headers: {
