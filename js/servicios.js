@@ -143,7 +143,7 @@
     function cargarUrlsLimpiasTaller() {
         if (document.querySelector('script[data-tallermap-urls-taller]')) return;
         const script = document.createElement("script");
-        script.src = rutaDesdeRaiz("js/taller-urls.js");
+        script.src = rutaDesdeRaiz("js/taller-urls.js?v=20260825-1");
         script.defer = true;
         script.dataset.tallermapUrlsTaller = "true";
         document.head.appendChild(script);
