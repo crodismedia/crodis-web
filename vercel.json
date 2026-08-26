@@ -22,6 +22,11 @@
       "permanent": true
     },
     {
+      "source": "/talleres/:slug/index.html",
+      "destination": "https://www.tallermap.es/talleres/:slug",
+      "permanent": true
+    },
+    {
       "source": "/desguace/:slug/index.html",
       "destination": "https://www.tallermap.es/desguace/:slug",
       "permanent": true
@@ -295,4 +300,3 @@
     }
   ]
 }
-
