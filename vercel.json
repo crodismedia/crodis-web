@@ -50,13 +50,6 @@
   ],
   "routes": [
     {
-      "src": "/talleres/([^/]+)/index\\.html",
-      "status": 308,
-      "headers": {
-        "Location": "https://www.tallermap.es/talleres/$1"
-      }
-    },
-    {
       "src": "/municipios/?",
       "dest": "/api/municipios-index"
     },
@@ -120,6 +113,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/talleres/:slug/index.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
