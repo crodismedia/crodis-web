@@ -120,7 +120,7 @@
     function createBanner() {
         const wrapper = document.createElement('aside');
         wrapper.className = 'cookie-banner';
-        wrapper.setAttribute('role', 'dialog');
+        wrapper.setAttribute('role', 'region');
         wrapper.setAttribute('aria-labelledby', 'cookie-banner-title');
         wrapper.setAttribute('aria-describedby', 'cookie-banner-description');
 
