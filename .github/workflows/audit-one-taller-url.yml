@@ -1,0 +1,46 @@
+name: Auditar una ficha de taller
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/audit-taller-url-duplicates.mjs'
+      - 'package.json'
+      - '.github/workflows/audit-one-taller-url.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-one:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Auditar Talleres Espi
+        shell: bash
+        run: |
+          set +e
+          npm run audit:taller-urls -- --slug=talleres-espi-s-l-aspe-22250a97 --output=reports
+          code=$?
+          echo '--- DETALLE ---'
+          cat reports/taller-url-audit-*.csv
+          echo '--- UNA URL POR TALLER ---'
+          cat reports/taller-url-unicas-*.csv
+          echo '--- RESUMEN ---'
+          cat reports/taller-url-resumen-*.json
+          exit $code
+
+      - name: Subir informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-talleres-espi
+          path: reports/
