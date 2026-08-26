@@ -50,6 +50,13 @@
   ],
   "routes": [
     {
+      "src": "/talleres/([^/]+)/index\\.html",
+      "status": 308,
+      "headers": {
+        "Location": "https://www.tallermap.es/talleres/$1"
+      }
+    },
+    {
       "src": "/municipios/?",
       "dest": "/api/municipios-index"
     },
