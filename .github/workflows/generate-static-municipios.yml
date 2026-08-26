@@ -53,3 +53,5 @@ jobs:
             git commit -m 'Generar 542 municipios como HTML estático'
             git push
           fi
+
+# Regeneración Alicante 2026-08-26
