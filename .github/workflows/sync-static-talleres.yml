@@ -47,3 +47,5 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
+# Disparo manual de sincronización 2026-08-26
