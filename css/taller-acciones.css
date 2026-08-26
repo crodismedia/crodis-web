@@ -211,6 +211,18 @@
     }
 }
 
+/* En móvil la portada genérica debe mostrar el nombre real del taller. */
+@media (max-width: 600px) {
+    .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-contenido strong {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 1.08rem;
+        line-height: 1.12;
+    }
+}
+
 @media (max-width: 380px) {
     .taller-card .taller-contactos a,
     .taller-card .enlace-ficha-taller,
