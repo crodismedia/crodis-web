@@ -20,21 +20,33 @@ async function readState() {
 }
 
 async function listChanges(from, to) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/listar_cambios_talleres_estaticos`, {
-    method: 'POST',
-    headers: {
-      apikey: SUPABASE_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ p_desde: from, p_hasta: to })
-  });
+  const pageSize = 1000;
+  const maxRows = 5000;
+  const rows = [];
 
-  if (!response.ok) {
-    throw new Error(`Supabase respondió ${response.status}: ${(await response.text()).slice(0, 300)}`);
+  for (let offset = 0; offset < maxRows; offset += pageSize) {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/listar_cambios_talleres_estaticos`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        Range: `${offset}-${Math.min(offset + pageSize - 1, maxRows - 1)}`
+      },
+      body: JSON.stringify({ p_desde: from, p_hasta: to })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase respondió ${response.status}: ${(await response.text()).slice(0, 300)}`);
+    }
+
+    const page = await response.json();
+    const items = Array.isArray(page) ? page : [];
+    rows.push(...items);
+
+    if (items.length < pageSize) break;
   }
 
-  const rows = await response.json();
-  return Array.isArray(rows) ? rows : [];
+  return rows;
 }
 
 function fileFor(slug) {
