@@ -27,6 +27,16 @@ function optimizarRender(output) {
     return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
+function limpiarContenidoPublico(output) {
+    if (typeof output !== "string") return output;
+
+    return output
+        .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, "$1")
+        .replace(/(class="[^"]*tm-card-btn-map[^"]*"[^>]*>)\s*⌖\s*/gi, "$1")
+        .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, "")
+        .replace(/\s*<span[^>]*>\s*Última actualización:\s*[^<]*<\/span>/gi, "");
+}
+
 export default async function handler(request, response) {
     const fileName = String(request.query?.archivo || "").trim().toLowerCase();
 
@@ -60,7 +70,7 @@ export default async function handler(request, response) {
     const originalSend = response.send.bind(response);
 
     response.send = (body) => {
-        let output = body;
+        let output = limpiarContenidoPublico(body);
 
         if (
             typeof output === "string" &&
