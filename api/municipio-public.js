@@ -32,6 +32,7 @@ function limpiarContenidoPublico(output) {
 
     return output
         .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, "$1")
+        .replace(/(class="[^"]*tm-card-btn-profile[^"]*"[^>]*>)\s*▤\s*/gi, "$1")
         .replace(/(class="[^"]*tm-card-btn-map[^"]*"[^>]*>)\s*⌖\s*/gi, "$1")
         .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, "")
         .replace(/\s*<span[^>]*>\s*Última actualización:\s*[^<]*<\/span>/gi, "");
