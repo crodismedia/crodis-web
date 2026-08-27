@@ -125,6 +125,21 @@
             .join(", ");
     }
 
+    function descripcionPublica(valor) {
+        const texto = String(valor || "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        if (
+            !texto ||
+            /^Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?$/i.test(texto)
+        ) {
+            return "";
+        }
+
+        return escaparHTML(texto);
+    }
+
     function renderizarHorario(horarios) {
         if (!horarios || typeof horarios !== "object") {
             return "";
@@ -210,11 +225,7 @@
         const nombre = escaparHTML(nombreOriginal);
         const ubicacion = construirUbicacion(taller);
         const slug = slugTaller(taller);
-
-        const descripcion = escaparHTML(
-            taller?.descripcion ||
-            "Consulta la ficha del taller para conocer sus servicios y datos de contacto."
-        );
+        const descripcion = descripcionPublica(taller?.descripcion);
 
         const telefono =
             telefonoSeguro(taller?.telefono);
@@ -271,12 +282,10 @@
                     <h3>${nombre}</h3>
 
                     <p class="ubicacion">
-                        ⌖ ${ubicacion || "Ubicación no indicada"}
+                        ${ubicacion || "Ubicación no indicada"}
                     </p>
 
-                    <p class="taller-descripcion">
-                        ${descripcion}
-                    </p>
+                    ${descripcion ? `<p class="taller-descripcion">${descripcion}</p>` : ""}
 
                     <div class="especialidades">
                         ${etiquetasServicios}
