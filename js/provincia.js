@@ -83,15 +83,11 @@
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = urlSegura(taller.web);
         const servicios = Array.isArray(taller.servicios) ? taller.servicios.slice(0, 4) : [];
-        const imagen = Array.isArray(taller.fotos) ? taller.fotos.map(urlSegura).find(Boolean) : "";
         const distintivo = taller.verificado ? "✓ Información revisada" : "Información publicada";
 
         return `<article class="taller-card">
-            <div class="taller-imagen ${imagen ? "taller-imagen-real" : "taller-imagen-1"}"${imagen ? ' style="position:relative;width:100%;height:190px;overflow:hidden;background:#e5e7eb"' : ""}>
-                ${imagen ? `<img src="${escapar(imagen)}" alt="Imagen de ${nombre}" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover">` : ""}
-                <span class="verificado">${distintivo}</span>
-            </div>
             <div class="taller-informacion">
+                <span class="verificado verificado-en-contenido">${distintivo}</span>
                 <h3>${nombre}</h3>
                 <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
                 <div class="especialidades">${servicios.map((s) => `<span>${escapar(etiquetaServicio(s))}</span>`).join("")}</div>
