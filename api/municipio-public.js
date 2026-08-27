@@ -3,6 +3,7 @@ import path from "node:path";
 import municipioHandler from "./municipio.js";
 
 const RENDER_DIFERIDO = '<style id="tm-municipio-render">.taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}</style>';
+const PAGINACION_DIRECTA_STYLE = '<style id="tm-municipio-paginacion-directa">.tm-paginacion-directa{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}.tm-paginacion-directa a,.tm-paginacion-directa strong{display:inline-flex;min-width:34px;min-height:34px;align-items:center;justify-content:center;padding:4px 8px;border-radius:8px;text-decoration:none}.tm-paginacion-directa strong{background:#17223b;color:#fff}@media(max-width:640px){.municipio-paginacion{flex-wrap:wrap}.tm-paginacion-directa{width:100%;order:3}}</style>';
 
 function archivoMunicipalValido(fileName) {
     if (!/^[a-z0-9-]+-\d{5}\.html$/.test(fileName)) return false;
@@ -23,8 +24,19 @@ function paginaSolicitada(request) {
 }
 
 function optimizarRender(output) {
-    if (typeof output !== "string" || output.includes('id="tm-municipio-render"')) return output;
-    return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
+    if (typeof output !== "string") return output;
+
+    let result = output;
+
+    if (!result.includes('id="tm-municipio-render"')) {
+        result = result.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
+    }
+
+    if (result.includes('class="tm-paginacion-directa"') && !result.includes('id="tm-municipio-paginacion-directa"')) {
+        result = result.replace(/<\/head>/i, `${PAGINACION_DIRECTA_STYLE}\n</head>`);
+    }
+
+    return result;
 }
 
 function limpiarContenidoPublico(output) {
@@ -36,6 +48,41 @@ function limpiarContenidoPublico(output) {
         .replace(/(class="[^"]*tm-card-btn-map[^"]*"[^>]*>)\s*⌖\s*/gi, "$1")
         .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, "")
         .replace(/\s*<span[^>]*>\s*Última actualización:\s*[^<]*<\/span>/gi, "");
+}
+
+function mejorarPaginacionRastreo(output, fileName, service) {
+    if (typeof output !== "string" || service || output.includes('class="tm-paginacion-directa"')) {
+        return output;
+    }
+
+    const match = output.match(/<span>\s*Página\s+(\d+)\s+de\s+(\d+)\s*<\/span>/i);
+    if (!match) return output;
+
+    const currentPage = Number(match[1]);
+    const totalPages = Number(match[2]);
+
+    if (!Number.isInteger(currentPage) || !Number.isInteger(totalPages) || totalPages <= 1 || totalPages > 50) {
+        return output;
+    }
+
+    const directLinks = Array.from({ length: totalPages }, (_unused, index) => index + 1)
+        .map((page) => {
+            if (page === currentPage) {
+                return `<strong aria-current="page">${page}</strong>`;
+            }
+
+            const href = page === 1
+                ? `/municipios/${fileName}`
+                : `/municipios/${fileName}?pagina=${page}`;
+
+            return `<a href="${href}" aria-label="Ir a la página ${page}">${page}</a>`;
+        })
+        .join("");
+
+    return output.replace(
+        match[0],
+        `${match[0]}<span class="tm-paginacion-directa" aria-label="Páginas del municipio">${directLinks}</span>`
+    );
 }
 
 export default async function handler(request, response) {
@@ -136,6 +183,7 @@ export default async function handler(request, response) {
         }
 
         if (response.statusCode === 200 && typeof output === "string") {
+            output = mejorarPaginacionRastreo(output, fileName, service);
             output = optimizarRender(output);
             response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
             response.setHeader("Vercel-CDN-Cache-Control", "public, max-age=300, stale-while-revalidate=1800");
