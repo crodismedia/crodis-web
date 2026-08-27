@@ -22,16 +22,19 @@ async function readState() {
 
 async function listChanges(from, to) {
   const pageSize = 1000;
-  const maxRows = 5000;
+  const maxRows = 20000;
   const rows = [];
 
   for (let offset = 0; offset < maxRows; offset += pageSize) {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/listar_cambios_talleres_estaticos`, {
+    const url = new URL(`${SUPABASE_URL}/rest/v1/rpc/listar_cambios_talleres_estaticos`);
+    url.searchParams.set('limit', String(pageSize));
+    url.searchParams.set('offset', String(offset));
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         apikey: SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        Range: `${offset}-${Math.min(offset + pageSize - 1, maxRows - 1)}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ p_desde: from, p_hasta: to })
     });
@@ -44,10 +47,10 @@ async function listChanges(from, to) {
     const items = Array.isArray(page) ? page : [];
     rows.push(...items);
 
-    if (items.length < pageSize) break;
+    if (items.length < pageSize) return rows;
   }
 
-  return rows;
+  throw new Error(`La cola supera el límite seguro de ${maxRows} cambios.`);
 }
 
 function fileFor(slug) {
