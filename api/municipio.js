@@ -2,8 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import {
     escapeHTML,
-    renderWorkshopMedia,
-    reviewStatusLabel,
     safePhone,
     safeWeb,
     serviceLabel,
@@ -158,12 +156,7 @@ function renderWorkshop(workshop) {
 
     return `
         <article class="taller-card taller-card-unificada" data-taller-slug="${escapeHTML(slug)}">
-            ${renderWorkshopMedia(workshop, rawName)}
             <div class="taller-informacion">
-                <span class="verificado verificado-en-contenido">
-                    ${escapeHTML(reviewStatusLabel(Boolean(workshop?.verificado)))}
-                </span>
-
                 <h3>
                     ${slug
                         ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${escapeHTML(rawName)}</a>`
@@ -257,7 +250,6 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
     const title = page > 1
         ? `Página ${page} · Talleres mecánicos en ${name} | TallerMap`
         : `Talleres mecánicos en ${name} | TallerMap`;
-
     const description = `Encuentra talleres mecánicos publicados en ${name}. Consulta servicios, dirección, teléfono, ficha del taller y cómo llegar en TallerMap.`;
 
     const cards = workshops.length
@@ -327,7 +319,6 @@ function renderPage({ fileName, municipality, workshops, total, page, service })
     <script type="application/ld+json">${structuredData}</script>
     <style>
         .taller-card-unificada{display:flex;flex-direction:column;overflow:hidden}
-        .taller-card-unificada .taller-imagen{min-height:154px}
         .tm-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e4e9f0}
         .tm-card-btn{min-height:44px;display:flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:800;text-align:center}
         .tm-card-btn-call{border:1px solid #cfe0fb;background:#f3f8ff;color:#0d47a1}
