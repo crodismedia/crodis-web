@@ -66,7 +66,8 @@ function removeObsoleteLabels(html) {
     .replace(/\s*<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/gi, '')
     .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, '')
     .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, '$1')
-    .replace(/(class="[^"]*(?:accion-mapa|tm-card-btn-map)[^"]*"[^>]*>)\s*⌖\s*/gi, '$1');
+    .replace(/(class="[^"]*(?:accion-mapa|tm-card-btn-map)[^"]*"[^>]*>)\s*⌖\s*/gi, '$1')
+    .replace(/(<img\b[^>]*\bsrc=["']\/favicon\.svg["'][^>]*\balt=)["']\s*["']/gi, '$1"TallerMap"');
 }
 
 async function cleanExistingWorkshops() {
