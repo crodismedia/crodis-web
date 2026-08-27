@@ -59,10 +59,14 @@ function fileFor(slug) {
 }
 
 function removeObsoleteLabels(html) {
-  return html
-    .replace(/\s*<span class="etiqueta">\s*Ficha pública de TallerMap\s*<\/span>/i, '')
-    .replace(/\s*<span id="taller-verificacion" class="ficha-insignia(?: verificada)?">[\s\S]*?<\/span>/i, '')
-    .replace(/\s*<p>Servicios confirmados en esta ficha<\/p>/i, '');
+  return String(html || '')
+    .replace(/\s*<span class="etiqueta">\s*Ficha pública de TallerMap\s*<\/span>/gi, '')
+    .replace(/\s*<span id="taller-verificacion" class="ficha-insignia(?: verificada)?">[\s\S]*?<\/span>/gi, '')
+    .replace(/\s*<p>Servicios confirmados en esta ficha<\/p>/gi, '')
+    .replace(/\s*<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/gi, '')
+    .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, '')
+    .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, '$1')
+    .replace(/(class="[^"]*(?:accion-mapa|tm-card-btn-map)[^"]*"[^>]*>)\s*⌖\s*/gi, '$1');
 }
 
 async function cleanExistingWorkshops() {
@@ -87,7 +91,7 @@ async function cleanExistingWorkshops() {
     }
   }
 
-  console.log(`Etiquetas sobrantes retiradas: ${cleaned} ficha(s).`);
+  console.log(`Elementos sobrantes retirados: ${cleaned} ficha(s).`);
 }
 
 async function renderWorkshop(slug, cutoff) {
