@@ -262,21 +262,12 @@
                 )
                 .join("");
 
-        const estadoPublicacion =
-            taller?.verificado
-                ? "✓ Información revisada"
-                : "Información publicada";
-
         return `
             <article
                 class="taller-card"
                 data-taller-slug="${escaparHTML(slug)}"
             >
                 <div class="taller-informacion">
-                    <span class="verificado verificado-en-contenido">
-                        ${estadoPublicacion}
-                    </span>
-
                     <h3>${nombre}</h3>
 
                     <p class="ubicacion">
