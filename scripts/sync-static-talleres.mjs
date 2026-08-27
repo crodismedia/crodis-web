@@ -8,6 +8,7 @@ const STATE_PATH = path.join(ROOT, 'scripts', 'taller-static-sync.json');
 const TALLERES_DIR = path.join(ROOT, 'talleres');
 const PUBLIC_RENDER_URL = 'https://www.tallermap.es/api/taller-public';
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,180}$/;
+const SYNC_CONCURRENCY = 12;
 
 async function readState() {
   try {
@@ -135,6 +136,21 @@ async function upsertWorkshop(slug, cutoff) {
   console.log(`UPSERT ${slug}`);
 }
 
+async function processChange(change, cutoff) {
+  const slug = String(change.slug || '').trim();
+  const operation = String(change.operacion || '').trim();
+
+  if (!SLUG_RE.test(slug)) throw new Error(`Cambio con slug no válido: ${slug}`);
+
+  if (operation === 'delete') {
+    await removeWorkshop(slug);
+  } else if (operation === 'upsert') {
+    await upsertWorkshop(slug, cutoff);
+  } else {
+    throw new Error(`Operación no reconocida para ${slug}: ${operation}`);
+  }
+}
+
 async function main() {
   const state = await readState();
   const cutoff = new Date().toISOString();
@@ -147,19 +163,9 @@ async function main() {
 
   if (!changes.length) return;
 
-  for (const change of changes) {
-    const slug = String(change.slug || '').trim();
-    const operation = String(change.operacion || '').trim();
-
-    if (!SLUG_RE.test(slug)) throw new Error(`Cambio con slug no válido: ${slug}`);
-
-    if (operation === 'delete') {
-      await removeWorkshop(slug);
-    } else if (operation === 'upsert') {
-      await upsertWorkshop(slug, cutoff);
-    } else {
-      throw new Error(`Operación no reconocida para ${slug}: ${operation}`);
-    }
+  for (let offset = 0; offset < changes.length; offset += SYNC_CONCURRENCY) {
+    const batch = changes.slice(offset, offset + SYNC_CONCURRENCY);
+    await Promise.all(batch.map((change) => processChange(change, cutoff)));
   }
 
   await fs.writeFile(STATE_PATH, `${JSON.stringify({ last_sync: cutoff }, null, 2)}\n`, 'utf8');
