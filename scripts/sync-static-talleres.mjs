@@ -54,6 +54,37 @@ function fileFor(slug) {
   return path.join(TALLERES_DIR, slug, 'index.html');
 }
 
+function removeObsoleteLabels(html) {
+  return html
+    .replace(/\s*<span class="etiqueta">\s*Ficha pública de TallerMap\s*<\/span>/i, '')
+    .replace(/\s*<span id="taller-verificacion" class="ficha-insignia(?: verificada)?">[\s\S]*?<\/span>/i, '');
+}
+
+async function cleanExistingWorkshops() {
+  const entries = await fs.readdir(TALLERES_DIR, { withFileTypes: true });
+  let cleaned = 0;
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+
+    const file = path.join(TALLERES_DIR, entry.name, 'index.html');
+
+    try {
+      const current = await fs.readFile(file, 'utf8');
+      const clean = removeObsoleteLabels(current);
+
+      if (clean !== current) {
+        await fs.writeFile(file, clean, 'utf8');
+        cleaned++;
+      }
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+  }
+
+  console.log(`Etiquetas sobrantes retiradas: ${cleaned} ficha(s).`);
+}
+
 async function renderWorkshop(slug, cutoff) {
   const url = new URL(PUBLIC_RENDER_URL);
   url.searchParams.set('slug', slug);
@@ -79,7 +110,7 @@ async function renderWorkshop(slug, cutoff) {
     throw new Error(`Render inválido para ${slug}: canonical inesperado.`);
   }
 
-  return html;
+  return removeObsoleteLabels(html);
 }
 
 async function removeWorkshop(slug) {
@@ -110,6 +141,8 @@ async function main() {
 
   console.log(`Ventana: ${state.last_sync} -> ${cutoff}`);
   console.log(`Cambios detectados: ${changes.length}`);
+
+  await cleanExistingWorkshops();
 
   if (!changes.length) return;
 

@@ -4,7 +4,6 @@ import path from "node:path";
 import {
     escapeHTML,
     formatPhoneDisplay,
-    reviewStatusLabel,
     safePhone,
     safeWeb,
     serviceLabel,
@@ -460,7 +459,6 @@ function inject(template, workshop, canonicalSlug, relatedRows) {
     const address = workshopAddress(workshop);
     const phone = safePhone(workshop?.telefono);
     const updated = formatDate(workshop?.updated_at);
-    const verified = Boolean(workshop?.verificado);
     const related = renderRelated(relatedRows, workshop);
     const municipality = municipalityName(workshop);
 
@@ -484,7 +482,6 @@ function inject(template, workshop, canonicalSlug, relatedRows) {
         .replace(/<h1\s+id="taller-nombre">[\s\S]*?<\/h1>/i, `<h1 id="taller-nombre">${escapeHTML(name)}</h1>`)
         .replace(/<p\s+id="taller-direccion"\s+class="ficha-publica-direccion">[\s\S]*?<\/p>/i, `<p id="taller-direccion" class="ficha-publica-direccion">${escapeHTML(address || "Ubicación no indicada")}</p>`)
         .replace(/<div id="taller-foto" class="ficha-publica-foto" hidden><\/div>/i, renderGreenCover(workshop))
-        .replace(/<span id="taller-verificacion" class="ficha-insignia">[\s\S]*?<\/span>/i, `<span id="taller-verificacion" class="ficha-insignia${verified ? " verificada" : ""}">${escapeHTML(reviewStatusLabel(verified))}</span>`)
         .replace(/<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/i, `<span id="taller-actualizacion" class="ficha-fecha">${updated ? `Última actualización: ${escapeHTML(updated)}` : ""}</span>`)
         .replace(/<div id="taller-acciones" class="ficha-publica-acciones"><\/div>/i, `<div id="taller-acciones" class="ficha-publica-acciones ficha-publica-acciones-alicante">${renderActions(workshop, name, address, phone)}</div>`)
         .replace(/<p id="taller-descripcion"><\/p>/i, "")
