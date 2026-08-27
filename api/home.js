@@ -261,7 +261,7 @@ function renderWorkshopLinks(workshops, detailed = false) {
 
                     ${
                         location
-                            ? `<p class="ubicacion">⌖ ${escapeHTML(location)}</p>`
+                            ? `<p class="ubicacion">${escapeHTML(location)}</p>`
                             : ""
                     }
 
