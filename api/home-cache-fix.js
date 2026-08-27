@@ -5,6 +5,7 @@ import homeHandler from "./home.js";
 const BUSQUEDA_VERSION = "20260817-6";
 const AUTOCOMPLETE_VERSION = "20260823-2";
 const HOME_PUBLIC_VERSION = "20260823-1";
+const TALLER_UI_VERSION = "20260827-1";
 const FICHAS_ALICANTE_VERSION = "20260818-1";
 const SERVICIOS_SEO = new Set([
   "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
@@ -140,6 +141,14 @@ function limpiarEnlacesServicioHTML(html) {
     ));
 }
 
+function limpiarContenidoPublico(html) {
+  return String(html || "")
+    .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, "$1")
+    .replace(/(class="[^"]*(?:accion-mapa|tm-card-btn-map)[^"]*"[^>]*>)\s*⌖\s*/gi, "$1")
+    .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, "")
+    .replace(/\s*<span[^>]*>\s*Última actualización:\s*[^<]*<\/span>/gi, "");
+}
+
 function actualizarVersiones(html) {
   if (typeof html !== "string") return html;
 
@@ -150,6 +159,10 @@ function actualizarVersiones(html) {
     .replace(
       /<script defer src="js\/supabase\.js(?:\?[^\"]*)?"><\/script>/i,
       `<script defer src="js/home-public.js?v=${HOME_PUBLIC_VERSION}"></script>`
+    )
+    .replace(
+      /js\/taller-ui\.js(?:\?[^\"']*)?/g,
+      `js/taller-ui.js?v=${TALLER_UI_VERSION}`
     )
     .replace(
       /js\/busqueda-url\.js(?:\?[^\"']*)?/g,
@@ -175,7 +188,7 @@ function actualizarVersiones(html) {
     );
   }
 
-  return output;
+  return limpiarContenidoPublico(output);
 }
 
 function marcarBusquedaSSR(html) {
@@ -235,7 +248,7 @@ export default async function handler(request, response) {
       output = forzarNoindexBusqueda(output);
       response.setHeader("X-Robots-Tag", "noindex, follow");
     }
-    return sendOriginal(output);
+    return sendOriginal(limpiarContenidoPublico(output));
   };
 
   return homeHandler(request, response);
