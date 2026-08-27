@@ -96,10 +96,8 @@
 
         return `
             <article class="taller-card" data-taller-local="silla" data-taller-nombre="${escapar(normalizar(taller.nombre))}">
-                <div class="taller-imagen taller-imagen-1">
-                    <span class="verificado">Publicado</span>
-                </div>
                 <div class="taller-informacion">
+                    <span class="verificado verificado-en-contenido">Publicado</span>
                     <div class="valoracion">★ Nuevo <span>Ficha recopilada públicamente</span></div>
                     <h3>${nombre}</h3>
                     <p class="ubicacion">⌖ ${ubicacion || "Silla, Valencia"}</p>
