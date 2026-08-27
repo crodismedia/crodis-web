@@ -49,10 +49,20 @@ function optimizarRenderDiferido(html) {
     return html.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
+function limpiarContenidoPublico(html) {
+    if (typeof html !== "string") return html;
+
+    return html
+        .replace(/\s*<span id="taller-actualizacion" class="ficha-fecha">[\s\S]*?<\/span>/gi, "")
+        .replace(/\s*<p class="taller-descripcion">\s*Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?\s*<\/p>/gi, "")
+        .replace(/(<p class="ubicacion">)\s*⌖\s*/gi, "$1")
+        .replace(/(class="[^"]*(?:accion-mapa|tm-card-btn-map)[^"]*"[^>]*>)\s*⌖\s*/gi, "$1");
+}
+
 function prepararFichaCanonica(html) {
     if (typeof html !== "string") return html;
 
-    const output = html
+    const output = limpiarContenidoPublico(html)
         .replace(
             /\s*<script[^>]+src="[^"]*taller-legacy-redirect\.js[^"]*"[^>]*><\/script>/gi,
             ""
