@@ -57,7 +57,8 @@ function fileFor(slug) {
 function removeObsoleteLabels(html) {
   return html
     .replace(/\s*<span class="etiqueta">\s*Ficha pública de TallerMap\s*<\/span>/i, '')
-    .replace(/\s*<span id="taller-verificacion" class="ficha-insignia(?: verificada)?">[\s\S]*?<\/span>/i, '');
+    .replace(/\s*<span id="taller-verificacion" class="ficha-insignia(?: verificada)?">[\s\S]*?<\/span>/i, '')
+    .replace(/\s*<p>Servicios confirmados en esta ficha<\/p>/i, '');
 }
 
 async function cleanExistingWorkshops() {

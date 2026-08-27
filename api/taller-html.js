@@ -173,7 +173,7 @@ function renderGreenCover(workshop) {
 
 function renderServices(workshop) {
     const services = Array.isArray(workshop?.servicios)
-        ? workshop.servicios.map(serviceLabel).filter(Boolean).slice(0, 24)
+        ? [...new Set(workshop.servicios.map(serviceLabel).filter(Boolean))].slice(0, 24)
         : [];
 
     const items = (services.length ? services : ["Taller mecánico"])
@@ -183,7 +183,6 @@ function renderServices(workshop) {
     return `
         <section class="ficha-servicios-ofrecidos" aria-labelledby="servicios-ofrecidos-titulo">
             <h2 id="servicios-ofrecidos-titulo">Servicios que se ofrecen</h2>
-            <p>Servicios confirmados en esta ficha</p>
             <div id="taller-servicios" class="especialidades especialidades-destacadas">
                 ${items}
             </div>
