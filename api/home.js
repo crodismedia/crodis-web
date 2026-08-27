@@ -3,8 +3,6 @@ import path from "node:path";
 import {
     escapeHTML,
     formatPhoneDisplay,
-    renderWorkshopMedia,
-    reviewStatusLabel,
     safePhone,
     slugify,
     workshopSlug,
@@ -251,16 +249,7 @@ function renderWorkshopLinks(workshops, detailed = false) {
                 class="taller-card taller-card-inicial"
                 data-taller-slug="${escapeHTML(slug)}"
             >
-                ${renderWorkshopMedia(workshop, name)}
-
                 <div class="taller-informacion">
-
-                    <span class="verificado verificado-en-contenido">
-                        ${escapeHTML(
-                            reviewStatusLabel(Boolean(workshop.verificado))
-                        )}
-                    </span>
-
                     <h3>
                         <a
                             class="enlace-ficha-taller"
