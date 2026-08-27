@@ -3,8 +3,6 @@ import path from "node:path";
 import {
     escapeHTML,
     formatPhoneDisplay,
-    renderWorkshopMedia,
-    reviewStatusLabel,
     safePhone,
     serviceLabel,
     slugify,
@@ -62,7 +60,7 @@ function renderTalleres(rows) {
         const columnas = Math.max(1, contacts.length);
         const contactosStyle = `display:grid!important;grid-template-columns:repeat(${columnas},minmax(0,1fr))!important;gap:8px!important;width:100%!important;align-items:stretch!important;`;
 
-        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}">${renderWorkshopMedia(row, rawName)}<div class="taller-informacion"><span class="verificado verificado-en-contenido">${escapeHTML(reviewStatusLabel(Boolean(row.verificado)))}</span><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie" style="display:block!important;width:100%!important"><span class="taller-contactos taller-contactos-provincia" style="${contactosStyle}">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+        return `<article class="taller-card taller-card-inicial" data-taller-slug="${escapeHTML(slug)}"><div class="taller-informacion"><h3>${slug ? `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${nombre}</a>` : nombre}</h3><p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p><div class="especialidades">${serviceHTML}</div><div class="taller-pie" style="display:block!important;width:100%!important"><span class="taller-contactos taller-contactos-provincia" style="${contactosStyle}">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
     }).join("");
 }
 
