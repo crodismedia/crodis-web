@@ -121,24 +121,12 @@
     box-shadow: 0 10px 22px rgba(20, 87, 217, .25);
 }
 
-.taller-card .enlace-ficha-taller::before {
-    margin-right: 7px;
-    content: "▤";
-    font-size: 15px;
-}
-
 /* Google Maps: botón verde claramente diferenciado */
 .taller-card .enlace-google-maps {
     color: #fff !important;
     background: linear-gradient(135deg, #159957, #087443);
     border-color: #087443;
     box-shadow: 0 10px 22px rgba(8, 116, 67, .24);
-}
-
-.taller-card .enlace-google-maps::before {
-    margin-right: 7px;
-    content: "⌖";
-    font-size: 17px;
 }
 
 @media (hover: hover) {
