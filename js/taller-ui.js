@@ -225,9 +225,6 @@
         const servicios =
             normalizarServicios(taller?.servicios).slice(0, 4);
 
-        const foto =
-            webSegura(taller?.fotoFirmada);
-
         const horario =
             renderizarHorario(taller?.horarios);
 
@@ -275,14 +272,6 @@
                 class="taller-card"
                 data-taller-slug="${escaparHTML(slug)}"
             >
-                ${
-                    foto
-                        ? `<div class="taller-imagen taller-imagen-1">
-                            <img src="${escaparHTML(foto)}" alt="Fotografía de ${nombre}" loading="lazy" decoding="async">
-                        </div>`
-                        : ""
-                }
-
                 <div class="taller-informacion">
                     <span class="verificado verificado-en-contenido">
                         ${estadoPublicacion}
