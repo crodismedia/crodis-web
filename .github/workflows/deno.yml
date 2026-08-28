@@ -25,6 +25,9 @@ jobs:
       - name: Validate JavaScript, HTML and local links
         run: node scripts/validate-site.mjs
 
+      - name: Run TallerMap Quality Guard
+        run: npm run quality:ci
+
       - name: Check production image alt attributes
         run: npm run diagnostico-alt:prod
 
