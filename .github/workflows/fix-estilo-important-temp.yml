@@ -1,0 +1,39 @@
+name: Fix Estilo Important Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-estilo-important-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace unnecessary important rules safely
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'css/estilo.css';
+          let content = fs.readFileSync(file, 'utf8');
+          const replacements = [
+            ['.mapa-estado {\n    padding: 7px 11px;\n    color: var(--verde) !important;', '.mapa-cabecera .mapa-estado {\n    padding: 7px 11px;\n    color: var(--verde);'],
+            ['.campo-trampa { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }', '.campo-trampa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }']
+          ];
+          for (const [before, after] of replacements) {
+            if (!content.includes(before)) throw new Error(`Bloque esperado no encontrado: ${before.slice(0,60)}`);
+            content = content.replace(before, after);
+          }
+          fs.writeFileSync(file, content);
+          NODE
+      - name: Commit fix
+        run: |
+          git config user.name "TallerMap CSS Fix"
+          git config user.email "actions@users.noreply.github.com"
+          git add css/estilo.css
+          git commit -m "Eliminar important innecesarios de estilo"
+          git pull --rebase origin main
+          git push origin HEAD:main
