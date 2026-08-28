@@ -80,10 +80,10 @@
 }
 
 /* Buscador global de municipio: etiqueta arriba y controles amplios en una sola fila. */
-.municipio-buscador {
-    display: grid !important;
-    grid-template-columns: minmax(190px, 1fr) auto !important;
-    gap: 12px !important;
+body.pagina-municipio .municipio-buscador {
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) auto;
+    gap: 12px;
     align-items: end;
 }
 
@@ -117,16 +117,16 @@
     white-space: nowrap;
 }
 
-.select-nativo-oculto {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0 0 0 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+body.pagina-municipio .municipio-buscador select.select-nativo-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .servicio-personalizado {
@@ -210,7 +210,7 @@
 }
 
 .taller-card[hidden] {
-    display: none !important;
+    display: none;
 }
 
 .municipio-info-grid {
@@ -283,54 +283,54 @@
 
 /* Acciones de las tarjetas provinciales: teléfono, cómo llegar y ficha. */
 #lista-talleres-provincia .taller-pie {
-    display: block !important;
+    display: block;
     margin-top: 12px;
 }
 
 #lista-talleres-provincia .taller-contactos,
 #lista-talleres-provincia .taller-contactos-provincia {
-    display: grid !important;
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px !important;
+    gap: 8px;
     width: 100%;
     align-items: stretch;
 }
 
 #lista-talleres-provincia .taller-contactos > a,
 #lista-talleres-provincia .taller-contactos-provincia > a {
-    display: inline-flex !important;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 0;
     min-height: 40px;
-    padding: 9px 8px !important;
-    border: 0 !important;
-    border-radius: 10px !important;
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
-    font-size: .84rem !important;
-    font-weight: 800 !important;
+    padding: 9px 8px;
+    border: 0;
+    border-radius: 10px;
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    font-size: .84rem;
+    font-weight: 800;
     line-height: 1.15;
     text-align: center;
-    text-decoration: none !important;
+    text-decoration: none;
     white-space: nowrap;
     box-shadow: 0 5px 14px rgba(15,23,42,.15);
 }
 
 #lista-talleres-provincia .taller-contactos > a[href^="tel:"],
 #lista-talleres-provincia .taller-contactos-provincia .accion-telefono {
-    background: #159447 !important;
+    background: #159447;
 }
 
 #lista-talleres-provincia .taller-contactos .accion-mapa,
 #lista-talleres-provincia .taller-contactos .enlace-google-maps,
 #lista-talleres-provincia .taller-contactos-provincia .accion-mapa {
-    background: #145fd1 !important;
+    background: #145fd1;
 }
 
 #lista-talleres-provincia .taller-contactos .enlace-ficha-taller,
 #lista-talleres-provincia .taller-contactos-provincia .accion-ficha {
-    background: #e46f16 !important;
+    background: #e46f16;
 }
 
 #lista-talleres-provincia .taller-contactos > a:hover,
@@ -385,8 +385,8 @@
         padding: 22px 18px;
     }
 
-    .municipio-buscador {
-        grid-template-columns: 1fr !important;
+    body.pagina-municipio .municipio-buscador {
+        grid-template-columns: 1fr;
     }
 
     .municipio-buscador > label {
