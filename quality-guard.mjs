@@ -77,6 +77,10 @@ function altValue(tag) {
   return (match[1] ?? match[2] ?? match[3] ?? '').trim();
 }
 
+function isDecorativeImage(tag) {
+  return /\baria-hidden\s*=\s*["']true["']/i.test(tag) || /\brole\s*=\s*["'](?:presentation|none)["']/i.test(tag);
+}
+
 function analyzeProject() {
   const issues = [];
   const metrics = {
@@ -122,9 +126,9 @@ function analyzeProject() {
         if (alt === null) {
           metrics.imagesWithoutAlt += 1;
           addIssue(file, lineAt(content, match.index), 'error', 'image-seo', `Imagen sin atributo alt: ${tag.slice(0, 180)}`);
-        } else if (alt === '') {
+        } else if (alt === '' && !isDecorativeImage(tag)) {
           metrics.imagesWithEmptyAlt += 1;
-          addIssue(file, lineAt(content, match.index), 'warning', 'image-seo', `Imagen con alt vacío: ${tag.slice(0, 180)}`);
+          addIssue(file, lineAt(content, match.index), 'warning', 'image-seo', `Imagen informativa con alt vacío: ${tag.slice(0, 180)}`);
         }
       }
     }
