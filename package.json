@@ -9,12 +9,12 @@
     "diagnostico-alt:local": "node diagnostico-alt.js http://localhost:3000",
     "verify-alt": "node diagnostico-alt.js https://www.tallermap.es",
     "verify-alt:vercel": "bash vercel-verify.sh https://www.tallermap.es",
-    "quality": "node quality-guard.mjs",
-    "quality:watch": "node quality-guard.mjs --watch",
-    "quality:fix": "node quality-guard.mjs --fix",
-    "quality:ci": "node quality-guard.mjs --ci",
-    "quality:report": "node quality-guard.mjs --report",
-    "quality:help": "node quality-guard.mjs --help",
+    "quality": "node quality-guard.cjs",
+    "quality:watch": "node quality-guard.cjs --watch",
+    "quality:fix": "node quality-guard.cjs --fix",
+    "quality:ci": "node quality-guard.cjs --ci",
+    "quality:report": "node quality-guard.cjs --report",
+    "quality:help": "node quality-guard.cjs --help",
     "quality:full": "npm run quality && npm run quality:report && npm run quality:fix && npm run quality && npm run quality:ci"
   },
   "dependencies": {
