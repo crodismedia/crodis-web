@@ -440,9 +440,9 @@ select {
     font-size: 12px;
 }
 
-.mapa-estado {
+.mapa-cabecera .mapa-estado {
     padding: 7px 11px;
-    color: var(--verde) !important;
+    color: var(--verde);
     font-weight: 800;
     background: #e6f8f1;
     border-radius: 100px;
@@ -891,7 +891,7 @@ select {
 .resumen-privacidad { margin-bottom: 5px; padding: 13px; background: white; border: 1px solid var(--borde); border-radius: 9px; }
 .resumen-privacidad > strong { display: block; margin-bottom: 6px; color: var(--azul-oscuro); font-size: 13px; }
 .resumen-privacidad p { color: #40536f; }
-.campo-trampa { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
+.campo-trampa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .condiciones-principal { padding: 72px 0; }
 .condiciones-contenido { width: min(820px, calc(100% - 40px)); padding: 44px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 22px; box-shadow: var(--sombra); }
 .condiciones-contenido h1 { margin: 15px 0; color: var(--azul-oscuro); font-size: clamp(38px, 5vw, 56px); letter-spacing: -2.5px; }
