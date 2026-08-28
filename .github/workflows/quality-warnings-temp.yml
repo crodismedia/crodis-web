@@ -1,0 +1,24 @@
+name: Quality Warnings Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/quality-warnings-temp.yml'
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print warnings
+        run: |
+          node quality-guard.cjs >/dev/null 2>&1 || true
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = 'quality-reports';
+          const reports = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort();
+          const latest = JSON.parse(fs.readFileSync(path.join(dir, reports.at(-1)), 'utf8'));
+          const warnings = (latest.issues || []).filter(i => i.severity === 'warning');
+          console.log(JSON.stringify(warnings, null, 2));
+          NODE
