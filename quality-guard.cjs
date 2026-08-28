@@ -533,20 +533,41 @@ class StructureAnalyzer {
       }
     });
 
-    // 3. Verificar duplicación de archivos
+    // 3. Verificar duplicación real de archivos: mismo nombre y mismo contenido
     const allFiles = this.guard.getAllFiles();
-    const fileNames = allFiles.map(f => path.basename(f));
-    const duplicates = fileNames.filter((name, index) =>
-      fileNames.indexOf(name) !== index && !name.includes('test')
-    );
-    if (duplicates.length > 0) {
-      const uniqueDuplicates = [...new Set(duplicates)];
+    const byName = new Map();
+    allFiles.forEach(filePath => {
+      const name = path.basename(filePath);
+      if (name.includes('test')) return;
+      if (!byName.has(name)) byName.set(name, []);
+      byName.get(name).push(filePath);
+    });
+
+    const realDuplicates = [];
+    for (const [name, paths] of byName.entries()) {
+      if (paths.length < 2) continue;
+      const byHash = new Map();
+      for (const filePath of paths) {
+        try {
+          const hash = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');
+          if (!byHash.has(hash)) byHash.set(hash, []);
+          byHash.get(hash).push(filePath);
+        } catch (_) {}
+      }
+      for (const sameContentPaths of byHash.values()) {
+        if (sameContentPaths.length > 1) {
+          realDuplicates.push(`${name} [${sameContentPaths.join(' | ')}]`);
+        }
+      }
+    }
+
+    if (realDuplicates.length > 0) {
       issues.push({
         type: 'structure',
         severity: 'warning',
         file: 'project',
         line: 0,
-        message: `Archivos con nombres duplicados: ${uniqueDuplicates.join(', ')}`
+        message: `Archivos realmente duplicados: ${realDuplicates.slice(0, 10).join(', ')}`
       });
     }
 
