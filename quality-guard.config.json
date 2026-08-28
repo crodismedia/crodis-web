@@ -1,0 +1,46 @@
+{
+  "directories": {
+    "src": ["./api", "./lib", "./municipios", "./pages", "./provincias", "./servicios", "./talleres"],
+    "styles": ["./css"],
+    "scripts": ["./js", "./scripts"],
+    "public": ["./"]
+  },
+  "thresholds": {
+    "maxFileSize": 524288,
+    "maxLineLength": 120,
+    "maxComplexity": 15,
+    "maxDuplication": 10,
+    "minCoverage": 80,
+    "maxImagesWithoutAlt": 0,
+    "maxAccessibilityIssues": 0
+  },
+  "ignore": [
+    "node_modules/**",
+    ".next/**",
+    "out/**",
+    "dist/**",
+    "build/**",
+    ".vercel/**",
+    "*.min.js",
+    "*.min.css",
+    "*.bundle.js",
+    "coverage/**",
+    ".git/**",
+    "quality-reports/**"
+  ],
+  "accessibility": {
+    "checkAltText": true,
+    "checkAriaLabels": true,
+    "checkHeadingHierarchy": true
+  },
+  "seo": {
+    "checkMetaTags": true,
+    "checkTitleTags": true,
+    "checkCanonical": true
+  },
+  "performance": {
+    "checkFileSize": true,
+    "checkImageSize": true,
+    "checkBundleSize": true
+  }
+}
