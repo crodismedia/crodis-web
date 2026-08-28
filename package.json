@@ -7,7 +7,8 @@
     "diagnostico-alt": "node diagnostico-alt.js",
     "diagnostico-alt:prod": "node diagnostico-alt.js https://www.tallermap.es",
     "diagnostico-alt:local": "node diagnostico-alt.js http://localhost:3000",
-    "verify-alt": "node diagnostico-alt.js https://www.tallermap.es"
+    "verify-alt": "node diagnostico-alt.js https://www.tallermap.es",
+    "verify-alt:vercel": "bash vercel-verify.sh https://www.tallermap.es"
   },
   "dependencies": {
     "@vercel/functions": "latest",
