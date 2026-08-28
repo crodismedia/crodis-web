@@ -3,13 +3,12 @@
  * Código independiente para escritorio, tablet y Android.
  */
 
-/* El reloj se retira visualmente de la portada para dar prioridad al buscador. */
-.franja-reloj {
-    display: none;
-}
-
-/* Las tarjetas de especialidades se muestran sin iconos genéricos. */
-.servicio-card .servicio-icono {
+/* Elementos retirados visualmente en la experiencia pública. */
+.franja-reloj,
+.servicio-card .servicio-icono,
+.tm-desguaces-submenu a::after,
+.taller-card .taller-contactos a[href*="pages/taller.html"]:not(.enlace-ficha-taller),
+.taller-card .taller-contactos a[href*="/taller.html"]:not(.enlace-ficha-taller) {
     display: none;
 }
 
@@ -37,35 +36,30 @@
 
 /* Evita que el submenú de Desguaces herede la raya activa del menú principal. */
 .tm-desguaces-submenu a::after {
-    display: none;
     content: none;
 }
 
+.taller-card .taller-pie,
+.taller-card .taller-contactos {
+    display: grid;
+}
+
 .taller-card .taller-pie {
-    display: flex;
-    flex-direction: column;
     align-items: stretch;
     gap: 12px;
 }
 
 .taller-card .taller-contactos {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     width: 100%;
     min-width: 0;
 }
 
-/* Oculta únicamente el enlace antiguo de texto “Ver ficha”.
-   El botón nuevo .enlace-ficha-taller permanece visible. */
-.taller-card .taller-contactos a[href*="pages/taller.html"]:not(.enlace-ficha-taller),
-.taller-card .taller-contactos a[href*="/taller.html"]:not(.enlace-ficha-taller) {
-    display: none;
-}
-
 .taller-card .taller-contactos a,
 .taller-card .enlace-ficha-taller,
 .taller-card .enlace-google-maps {
+    --tm-action-font-size: 13px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -73,7 +67,7 @@
     min-height: 46px;
     padding: 12px 14px;
     overflow: hidden;
-    font-size: 13px;
+    font-size: var(--tm-action-font-size);
     font-weight: 900;
     line-height: 1.2;
     text-align: center;
@@ -114,7 +108,6 @@
 
 /* Ver ficha: botón azul principal */
 .taller-card .enlace-ficha-taller {
-    display: inline-flex;
     color: #fff !important;
     background: linear-gradient(135deg, #1457d9, #0b43ad);
     border-color: #0b43ad;
@@ -191,10 +184,10 @@
     .taller-card .taller-contactos a,
     .taller-card .enlace-ficha-taller,
     .taller-card .enlace-google-maps {
+        --tm-action-font-size: 14px;
         width: 100%;
         min-height: 48px;
         padding: 13px 15px;
-        font-size: 14px;
         border-radius: 13px;
     }
 }
@@ -215,6 +208,6 @@
     .taller-card .taller-contactos a,
     .taller-card .enlace-ficha-taller,
     .taller-card .enlace-google-maps {
-        font-size: 13px;
+        --tm-action-font-size: 13px;
     }
 }
