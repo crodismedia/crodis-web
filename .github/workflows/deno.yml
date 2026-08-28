@@ -28,6 +28,9 @@ jobs:
       - name: Check production image alt attributes
         run: npm run diagnostico-alt:prod
 
+      - name: Verify Vercel HTML alt attributes and cache headers
+        run: npm run verify-alt:vercel
+
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
