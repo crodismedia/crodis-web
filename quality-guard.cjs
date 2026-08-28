@@ -734,10 +734,10 @@ class QualityGuard {
     if (CONFIG.extensions.html.includes(ext)) {
       issues = this.htmlAnalyzer.analyze(content, filePath);
 
-      // Contar imágenes
-      const imgMatches = content.match(/<img/g) || [];
-      this.metrics.imagesTotal += imgMatches.length;
-      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];
+      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas
+      const imgTags = content.match(/<img\b[^>]*>/gis) || [];
+      this.metrics.imagesTotal += imgTags.length;
+      const imgWithoutAlt = imgTags.filter(tag => !/\balt\s*=/i.test(tag));
       this.metrics.imagesWithoutAlt += imgWithoutAlt.length;
     }
 
