@@ -262,22 +262,36 @@ class CSSAnalyzer {
     const issues = [];
     const lines = content.split('\n');
 
-    // 1. Verificar duplicación de propiedades
-    const propRegex = /([a-zA-Z-]+)\s*:/g;
-    const props = {};
-    let match;
-    while ((match = propRegex.exec(content)) !== null) {
-      const prop = match[1];
-      props[prop] = (props[prop] || 0) + 1;
+    // 1. Verificar propiedades realmente duplicadas dentro del mismo bloque CSS
+    const duplicatedDeclarations = [];
+    const blockRegex = /([^{}]+)\{([^{}]*)\}/g;
+    let blockMatch;
+    while ((blockMatch = blockRegex.exec(content)) !== null) {
+      const selector = blockMatch[1].trim().replace(/\s+/g, ' ');
+      const body = blockMatch[2];
+      const propRegex = /(?:^|;)\s*([a-zA-Z-]+)\s*:/g;
+      const props = {};
+      let propMatch;
+      while ((propMatch = propRegex.exec(body)) !== null) {
+        const prop = propMatch[1].toLowerCase();
+        props[prop] = (props[prop] || 0) + 1;
+      }
+      const repeated = Object.entries(props).filter(([_, count]) => count > 1);
+      if (repeated.length > 0) {
+        duplicatedDeclarations.push({ selector, repeated });
+      }
     }
 
-    const duplicatedProps = Object.entries(props).filter(([_, count]) => count > 5);
-    if (duplicatedProps.length > 0) {
+    if (duplicatedDeclarations.length > 0) {
+      const details = duplicatedDeclarations
+        .slice(0, 10)
+        .map(({ selector, repeated }) => `${selector}: ${repeated.map(([p, c]) => `${p}(${c})`).join(', ')}`)
+        .join(' | ');
       issues.push({
         type: 'css',
         severity: 'warning',
         line: 0,
-        message: `Propiedades CSS duplicadas: ${duplicatedProps.map(([p, c]) => `${p}(${c})`).join(', ')}`
+        message: `Propiedades CSS duplicadas dentro del mismo bloque: ${details}`
       });
     }
 
