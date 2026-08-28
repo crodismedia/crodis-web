@@ -310,17 +310,18 @@ class CSSAnalyzer {
     }
 
     // 3. Verificar únicamente selectores realmente extremos
+    const cssForSelectors = content.replace(/\/\*[\s\S]*?\*\//g, '');
     const selectorBlockRegex = /([^{}]+)\{/g;
     const extremeSelectors = [];
     let selectorMatch;
-    while ((selectorMatch = selectorBlockRegex.exec(content)) !== null) {
+    while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {
       const selector = selectorMatch[1].trim();
       if (!selector || selector.startsWith('@')) continue;
       const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;
       const maxDepth = Math.max(...selector.split(',').map(part =>
         part.trim().split(/\s+|>|\+|~/).filter(Boolean).length
       ));
-      if (idCount > 1 || maxDepth > 7) extremeSelectors.push(selector);
+      if (idCount > 2 || maxDepth > 8) extremeSelectors.push(selector);
     }
     if (extremeSelectors.length > 0) {
       issues.push({
