@@ -236,16 +236,19 @@ class HTMLAnalyzer {
       }
     }
 
-    // 7. Verificar scripts al final del body
-    const scriptMatches = [...content.matchAll(/<script/g)];
-    const bodyScripts = [...content.matchAll(/<script[^>]*>[\s\S]*?<\/script>/gi)];
-    if (scriptMatches.length > 10 && bodyScripts.length > 0) {
-      issues.push({
-        type: 'performance',
-        severity: 'info',
-        line: 0,
-        message: `${scriptMatches.length} scripts encontrados, considerar lazy-loading`
-      });
+    // 7. Verificar scripts externos realmente bloqueantes en <head>
+    const headMatch = content.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+    if (headMatch) {
+      const blockingScripts = [...headMatch[1].matchAll(/<script\b([^>]*)src=["'][^"']+["']([^>]*)><\/script>/gi)]
+        .filter(m => !/\b(defer|async)\b/i.test(`${m[1]} ${m[2]}`) && !/type=["']module["']/i.test(`${m[1]} ${m[2]}`));
+      if (blockingScripts.length > 2) {
+        issues.push({
+          type: 'performance',
+          severity: 'info',
+          line: 0,
+          message: `${blockingScripts.length} scripts externos bloqueantes en <head>`
+        });
+      }
     }
 
     return issues;
@@ -306,40 +309,25 @@ class CSSAnalyzer {
       });
     }
 
-    // 3. Verificar selectores muy específicos
-    const selectorRegex = /([#.][a-zA-Z-]+){2,}/g;
-    const complexSelectors = [...content.matchAll(selectorRegex)];
-    if (complexSelectors.length > 5) {
+    // 3. Verificar únicamente selectores realmente extremos
+    const selectorBlockRegex = /([^{}]+)\{/g;
+    const extremeSelectors = [];
+    let selectorMatch;
+    while ((selectorMatch = selectorBlockRegex.exec(content)) !== null) {
+      const selector = selectorMatch[1].trim();
+      if (!selector || selector.startsWith('@')) continue;
+      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;
+      const maxDepth = Math.max(...selector.split(',').map(part =>
+        part.trim().split(/\s+|>|\+|~/).filter(Boolean).length
+      ));
+      if (idCount > 1 || maxDepth > 7) extremeSelectors.push(selector);
+    }
+    if (extremeSelectors.length > 0) {
       issues.push({
         type: 'css',
         severity: 'info',
         line: 0,
-        message: `${complexSelectors.length} selectores muy específicos encontrados`
-      });
-    }
-
-    // 4. Verificar unidades relativas en media queries
-    if (/@media\s*\([^)]*px\)/i.test(content)) {
-      issues.push({
-        type: 'responsive',
-        severity: 'info',
-        line: 0,
-        message: 'Media query con unidades fijas (px), considerar unidades relativas'
-      });
-    }
-
-    // 5. Verificar colores repetidos
-    const colorRegex = /#[0-9a-f]{3,6}|rgba?\([^)]+\)/gi;
-    const colors = [...content.matchAll(colorRegex)].map(m => m[0]);
-    const colorCount = {};
-    colors.forEach(c => { colorCount[c] = (colorCount[c] || 0) + 1; });
-    const repeatedColors = Object.entries(colorCount).filter(([_, count]) => count > 10);
-    if (repeatedColors.length > 0) {
-      issues.push({
-        type: 'css',
-        severity: 'info',
-        line: 0,
-        message: `${repeatedColors.length} colores repetidos, considerar variables CSS`
+        message: `Selectores realmente extremos: ${extremeSelectors.slice(0, 5).join(' | ')}`
       });
     }
 
@@ -353,17 +341,6 @@ class CSSAnalyzer {
       });
     }
 
-    // 7. Verificar líneas muy largas
-    lines.forEach((line, index) => {
-      if (line.length > CONFIG.thresholds.maxLineLength && !line.match(/https?:\/\//)) {
-        issues.push({
-          type: 'style',
-          severity: 'info',
-          line: index + 1,
-          message: `Línea muy larga: ${line.length} caracteres`
-        });
-      }
-    });
 
     return issues;
   }
