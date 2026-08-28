@@ -10,7 +10,11 @@
     "verify-alt": "node diagnostico-alt.js https://www.tallermap.es",
     "verify-alt:vercel": "bash vercel-verify.sh https://www.tallermap.es",
     "quality": "node quality-guard.mjs",
-    "quality:ci": "node quality-guard.mjs --ci"
+    "quality:watch": "node quality-guard.mjs --watch",
+    "quality:fix": "node quality-guard.mjs --fix",
+    "quality:ci": "node quality-guard.mjs --ci",
+    "quality:report": "node quality-guard.mjs --report",
+    "quality:help": "node quality-guard.mjs --help"
   },
   "dependencies": {
     "@vercel/functions": "latest",
