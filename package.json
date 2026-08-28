@@ -3,7 +3,11 @@
   "type": "module",
   "scripts": {
     "generate:municipios": "node scripts/generate-static-municipios.mjs",
-    "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs && node scripts/validate-step-4.mjs && node scripts/validate-html-first-taller.mjs"
+    "validate": "node scripts/validate-site.mjs && node scripts/validate-step-1.mjs && node scripts/validate-step-2.mjs && node scripts/validate-step-3.mjs && node scripts/validate-step-4.mjs && node scripts/validate-html-first-taller.mjs",
+    "diagnostico-alt": "node diagnostico-alt.js",
+    "diagnostico-alt:prod": "node diagnostico-alt.js https://www.tallermap.es",
+    "diagnostico-alt:local": "node diagnostico-alt.js http://localhost:3000",
+    "verify-alt": "node diagnostico-alt.js https://www.tallermap.es"
   },
   "dependencies": {
     "@vercel/functions": "latest",
