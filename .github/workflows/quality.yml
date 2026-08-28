@@ -37,6 +37,14 @@ jobs:
             console.log('Quality Guard: detector de duplicación CSS autocorregido');
           }
 
+          const oldStructureBlock = `    // 3. Verificar duplicación de archivos\n    const allFiles = this.guard.getAllFiles();\n    const fileNames = allFiles.map(f => path.basename(f));\n    const duplicates = fileNames.filter((name, index) =>\n      fileNames.indexOf(name) !== index && !name.includes('test')\n    );\n    if (duplicates.length > 0) {\n      const uniqueDuplicates = [...new Set(duplicates)];\n      issues.push({\n        type: 'structure',\n        severity: 'warning',\n        file: 'project',\n        line: 0,\n        message: \`Archivos con nombres duplicados: \${uniqueDuplicates.join(', ')}\`\n      });\n    }`;
+          const newStructureBlock = `    // 3. Verificar duplicación real de archivos: mismo nombre y mismo contenido\n    const allFiles = this.guard.getAllFiles();\n    const byName = new Map();\n    allFiles.forEach(filePath => {\n      const name = path.basename(filePath);\n      if (name.includes('test')) return;\n      if (!byName.has(name)) byName.set(name, []);\n      byName.get(name).push(filePath);\n    });\n\n    const realDuplicates = [];\n    for (const [name, paths] of byName.entries()) {\n      if (paths.length < 2) continue;\n      const byHash = new Map();\n      for (const filePath of paths) {\n        try {\n          const hash = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');\n          if (!byHash.has(hash)) byHash.set(hash, []);\n          byHash.get(hash).push(filePath);\n        } catch (_) {}\n      }\n      for (const sameContentPaths of byHash.values()) {\n        if (sameContentPaths.length > 1) {\n          realDuplicates.push(\`\${name} [\${sameContentPaths.join(' | ')}]\`);\n        }\n      }\n    }\n\n    if (realDuplicates.length > 0) {\n      issues.push({\n        type: 'structure',\n        severity: 'warning',\n        file: 'project',\n        line: 0,\n        message: \`Archivos realmente duplicados: \${realDuplicates.slice(0, 10).join(', ')}\`\n      });\n    }`;
+          if (content.includes(oldStructureBlock)) {
+            content = content.replace(oldStructureBlock, newStructureBlock);
+            changed = true;
+            console.log('Quality Guard: detector de archivos duplicados autocorregido');
+          }
+
           if (changed) {
             fs.writeFileSync(file, content);
           } else {
