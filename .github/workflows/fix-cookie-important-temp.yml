@@ -1,0 +1,35 @@
+name: Fix Cookie Important Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-cookie-important-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove redundant max-width important
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'css/cookie-consent.css';
+          let content = fs.readFileSync(file, 'utf8');
+          const before = '.hero-texto { width: min(100%, 980px); max-width: 980px !important; margin-inline: auto; }';
+          const after = '.hero-texto { width: min(100%, 980px); max-width: 980px; margin-inline: auto; }';
+          if (!content.includes(before)) throw new Error('Regla esperada no encontrada');
+          content = content.replace(before, after);
+          fs.writeFileSync(file, content);
+          NODE
+      - name: Commit fix
+        run: |
+          git config user.name "TallerMap CSS Fix"
+          git config user.email "actions@users.noreply.github.com"
+          git add css/cookie-consent.css
+          git commit -m "Eliminar important redundante de hero texto"
+          git pull --rebase origin main
+          git push origin HEAD:main
