@@ -30,7 +30,7 @@ jobs:
           }
 
           const infoCssRegex = /    \/\/ 3\. Verificar selectores muy específicos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
-          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const cssForSelectors = content.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n      const maxDepth = Math.max(...selector.split(',').map(part =>\n        part.trim().split(/\\s+|>|\\+|~/).filter(Boolean).length\n      ));\n      if (idCount > 2 || maxDepth > 8) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
+          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const cssForSelectors = content.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const parts = selector.split(',').map(part => part.trim()).filter(Boolean);\n      const isExtreme = parts.some(part => {\n        const idCount = (part.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n        const depth = part.split(/\\s+|>|\\+|~/).filter(Boolean).length;\n        return idCount > 2 || depth > 8;\n      });\n      if (isExtreme) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
           if (infoCssRegex.test(content)) {
             content = content.replace(infoCssRegex, infoCssReplacement);
             changed = true;
@@ -38,10 +38,10 @@ jobs:
           }
 
           const currentExtremeRegex = /    \/\/ 3\. Verificar únicamente selectores realmente extremos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
-          if (currentExtremeRegex.test(content) && !content.includes('const cssForSelectors = content.replace')) {
+          if (currentExtremeRegex.test(content) && content.includes('const idCount = (selector.match')) {
             content = content.replace(currentExtremeRegex, infoCssReplacement);
             changed = true;
-            console.log('Quality Guard: parser de selectores corregido');
+            console.log('Quality Guard: conteo de IDs por selector corregido');
           }
 
           const longLineRegex = /\n    \/\/ 7\. Verificar líneas muy largas[\s\S]*?\n    return issues;/;
