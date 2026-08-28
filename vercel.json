@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/guardian.js": {
+      "maxDuration": 60,
+      "includeFiles": "{quality-guard.cjs,package.json,.gitignore,README.md,api/**,lib/**,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,templates/**,css/**,js/**,scripts/**}"
+    }
+  },
   "redirects": [
     {
       "source": "/municipios/index.html",
