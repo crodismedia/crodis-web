@@ -5,40 +5,40 @@
 
 /* El reloj se retira visualmente de la portada para dar prioridad al buscador. */
 .franja-reloj {
-    display: none !important;
+    display: none;
 }
 
 /* Las tarjetas de especialidades se muestran sin iconos genéricos. */
 .servicio-card .servicio-icono {
-    display: none !important;
+    display: none;
 }
 
 /* Especialidades: menos altura y menos espacio vacío. */
 #lista-servicios-publicos .servicio-card {
-    padding: 20px 22px !important;
+    padding: 20px 22px;
 }
 
 #lista-servicios-publicos .servicio-card h3 {
-    margin: 0 0 7px !important;
-    font-size: 18px !important;
-    line-height: 1.25 !important;
+    margin: 0 0 7px;
+    font-size: 18px;
+    line-height: 1.25;
 }
 
 #lista-servicios-publicos .servicio-card p {
-    min-height: 0 !important;
-    margin: 0 0 10px !important;
-    line-height: 1.4 !important;
+    min-height: 0;
+    margin: 0 0 10px;
+    line-height: 1.4;
 }
 
 #lista-servicios-publicos .servicio-card a {
     display: inline-block;
-    margin-top: 0 !important;
+    margin-top: 0;
 }
 
 /* Evita que el submenú de Desguaces herede la raya activa del menú principal. */
 .tm-desguaces-submenu a::after {
-    display: none !important;
-    content: none !important;
+    display: none;
+    content: none;
 }
 
 .taller-card .taller-pie {
@@ -60,7 +60,7 @@
    El botón nuevo .enlace-ficha-taller permanece visible. */
 .taller-card .taller-contactos a[href*="pages/taller.html"]:not(.enlace-ficha-taller),
 .taller-card .taller-contactos a[href*="/taller.html"]:not(.enlace-ficha-taller) {
-    display: none !important;
+    display: none;
 }
 
 .taller-card .taller-contactos a,
@@ -114,7 +114,7 @@
 
 /* Ver ficha: botón azul principal */
 .taller-card .enlace-ficha-taller {
-    display: inline-flex !important;
+    display: inline-flex;
     color: #fff !important;
     background: linear-gradient(135deg, #1457d9, #0b43ad);
     border-color: #0b43ad;
@@ -148,35 +148,35 @@
 /* Android y pantallas estrechas */
 @media (max-width: 768px) {
     #lista-servicios-publicos .servicio-card {
-        padding: 16px 18px !important;
+        padding: 16px 18px;
     }
 
     #lista-servicios-publicos .servicio-card h3 {
-        margin-bottom: 5px !important;
-        font-size: 17px !important;
+        margin-bottom: 5px;
+        font-size: 17px;
     }
 
     #lista-servicios-publicos .servicio-card p {
-        margin-bottom: 8px !important;
-        font-size: 13px !important;
+        margin-bottom: 8px;
+        font-size: 13px;
     }
 
     #formulario-buscador-publico {
-        gap: 6px !important;
-        padding: 8px !important;
+        gap: 6px;
+        padding: 8px;
     }
 
     #formulario-buscador-publico > .campo-busqueda {
-        padding-top: 8px !important;
-        padding-bottom: 10px !important;
+        padding-top: 8px;
+        padding-bottom: 10px;
     }
 
     #formulario-buscador-publico #usar-mi-ubicacion {
-        margin-top: 6px !important;
+        margin-top: 6px;
     }
 
     #formulario-buscador-publico #boton-buscar {
-        min-height: 48px !important;
+        min-height: 48px;
     }
 
     .taller-card .taller-pie {
@@ -202,7 +202,7 @@
 /* En móvil la portada genérica debe mostrar el nombre real del taller. */
 @media (max-width: 600px) {
     .taller-card .tm-auto-portada:not(.tm-auto-portada-grande) .tm-auto-contenido strong {
-        display: -webkit-box !important;
+        display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
