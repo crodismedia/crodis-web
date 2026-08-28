@@ -1,0 +1,33 @@
+name: SEO Audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/seo-audit.yml'
+      - 'seo-auditor.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Ejecutar auditor SEO completo
+        run: |
+          cp seo-auditor.js /tmp/seo-auditor.cjs
+          node /tmp/seo-auditor.cjs --prod --full
+      - name: Mostrar reportes
+        if: always()
+        run: |
+          echo '=== REPORTES GENERADOS ==='
+          find . -maxdepth 3 -type f \( -name '*seo*report*' -o -path './seo-reports/*' \) -print || true
+          for f in seo-reports/*.json seo-audit-report*.json; do
+            if [ -f "$f" ]; then
+              echo "=== $f ==="
+              cat "$f"
+            fi
+          done
