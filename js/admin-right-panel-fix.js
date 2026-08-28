@@ -1,11 +1,11 @@
-(function(){
+(()=>{
   'use strict';
 
   const $=id=>document.getElementById(id);
   const originalFetch=window.fetch.bind(window);
 
   // Evita búsquedas colgadas indefinidamente y muestra un error útil.
-  window.fetch=function(input,init={}){
+  window.fetch=(input,init={})=>{
     const url=typeof input==='string'?input:(input&&input.url)||'';
     if(!url.includes('/api/busqueda-web'))return originalFetch(input,init);
     const controller=new AbortController();
@@ -114,4 +114,4 @@
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();
-}());
+})();

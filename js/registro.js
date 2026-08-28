@@ -1,4 +1,4 @@
-(function () {
+(() => {
     "use strict";
 
     const formulario = document.getElementById("formulario-registro");
@@ -892,4 +892,4 @@
 
     mostrarPaso(1, false);
 
-}());
+})();

@@ -13,49 +13,49 @@ const SERVICIOS_SEO = new Set([
 
 const ROUTER_GLOBAL = `
 <script>
-(function(){
-  document.addEventListener('submit', function(event){
-    var form = event.target;
+(()=>{
+  document.addEventListener('submit', (event)=>{
+    let form = event.target;
     if (!form || form.id !== 'formulario-buscador-publico') return;
 
-    var poblacion = document.getElementById('poblacion');
-    var servicio = document.getElementById('servicio');
-    var nombre = String(poblacion && poblacion.value || '').trim();
+    let poblacion = document.getElementById('poblacion');
+    let servicio = document.getElementById('servicio');
+    let nombre = String(poblacion && poblacion.value || '').trim();
     if (!nombre) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    var params = new URLSearchParams();
+    let params = new URLSearchParams();
     params.set('poblacion', nombre);
 
-    var codigo = String(poblacion && poblacion.dataset.codigoMunicipal || '').trim();
+    let codigo = String(poblacion && poblacion.dataset.codigoMunicipal || '').trim();
     if (/^\d{5}$/.test(codigo)) params.set('codigo_municipal', codigo);
 
-    var servicioSeleccionado = String(servicio && servicio.value || '').trim();
+    let servicioSeleccionado = String(servicio && servicio.value || '').trim();
     if (servicioSeleccionado) params.set('servicio', servicioSeleccionado);
 
     window.location.assign('/?' + params.toString() + '#talleres');
   }, true);
-}());
+})();
 </script>
 `;
 
 const ENLACES_SERVICIO_LIMPIOS = `
 <script data-tm-enlaces-servicio="1">
-(function(){
-  var permitidos = new Set([
+(()=>{
+  let permitidos = new Set([
     'mecanica-general','frenos','embrague','cambio-aceite-filtros','correa-distribucion','cadena-distribucion','pre-itv','reparacion-motor','caja-cambios','sistema-refrigeracion','escape-catalizador','baterias','electricidad-automovil','alternador-motor-arranque','centralitas-electronica','suspension-amortiguadores','alineacion-direccion','equilibrado-ruedas','neumaticos','lunas-cristales','carroceria','chapa-pintura','diagnosis-electronica','aire-acondicionado','calefaccion-climatizacion','hibridos-electricos'
   ]);
   function limpiar(){
-    document.querySelectorAll('[data-servicio]').forEach(function(enlace){
-      var slug = String(enlace.getAttribute('data-servicio') || '').trim().toLowerCase();
+    document.querySelectorAll('[data-servicio]').forEach((enlace)=>{
+      let slug = String(enlace.getAttribute('data-servicio') || '').trim().toLowerCase();
       if (permitidos.has(slug)) enlace.setAttribute('href', '/servicios/' + slug + '.html');
     });
-    document.querySelectorAll('a[href^="/desguaces.html?provincia="]').forEach(function(enlace){
+    document.querySelectorAll('a[href^="/desguaces.html?provincia="]').forEach((enlace)=>{
       try {
-        var url = new URL(enlace.getAttribute('href'), window.location.origin);
-        var provincia = String(url.searchParams.get('provincia') || '').toLowerCase();
+        let url = new URL(enlace.getAttribute('href'), window.location.origin);
+        let provincia = String(url.searchParams.get('provincia') || '').toLowerCase();
         if (['alicante','castellon','valencia'].includes(provincia)) {
           enlace.setAttribute('href', '/desguaces.html#' + provincia);
         }
@@ -63,11 +63,11 @@ const ENLACES_SERVICIO_LIMPIOS = `
     });
   }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(limpiar, 0); }, { once: true });
+    document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(limpiar, 0); }, { once: true });
   } else {
     setTimeout(limpiar, 0);
   }
-}());
+})();
 </script>
 `;
 

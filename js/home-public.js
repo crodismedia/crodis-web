@@ -1,4 +1,4 @@
-(function () {
+(() => {
     "use strict";
 
     const SUPABASE_URL = "https://cnyptelvbsndpkzbrete.supabase.co";
@@ -297,4 +297,4 @@
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar, { once: true });
     else iniciar();
-}());
+})();

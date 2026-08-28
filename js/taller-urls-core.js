@@ -1,4 +1,4 @@
-(function () {
+(() => {
     "use strict";
 
     const SITE_URL = "https://www.tallermap.es";
@@ -364,4 +364,4 @@
     } else {
         iniciar();
     }
-}());
+})();

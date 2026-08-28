@@ -1,4 +1,4 @@
-(function () {
+(() => {
     'use strict';
 
     if (window.__tallerMapCookieConsentLoaded) {
@@ -15,9 +15,9 @@
     let banner = null;
 
     window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function () {
-        window.dataLayer.push(arguments);
-    };
+    window.gtag = window.gtag || ((...args) => {
+        window.dataLayer.push(args);
+    });
 
     window.gtag('consent', 'default', {
         analytics_storage: 'denied',
@@ -54,11 +54,11 @@
     }
 
     function clearAnalyticsCookies() {
-        document.cookie.split(';').forEach(function (cookie) {
+        document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
             if (name === '_ga' || name.indexOf('_ga_') === 0) {
                 const domains = ['', window.location.hostname, '.' + window.location.hostname];
-                domains.forEach(function (domain) {
+                domains.forEach((domain) => {
                     const domainPart = domain ? '; Domain=' + domain : '';
                     document.cookie = name + '=; Max-Age=0; Path=/' + domainPart + '; SameSite=Lax';
                 });
@@ -111,7 +111,7 @@
             });
             clearAnalyticsCookies();
             if (reloadWithoutAnalytics) {
-                window.setTimeout(function () { window.location.reload(); }, 50);
+                window.setTimeout(() => { window.location.reload(); }, 50);
             }
         }
         hideBanner();
@@ -152,13 +152,13 @@
         reject.type = 'button';
         reject.className = 'cookie-choice';
         reject.textContent = 'Rechazar';
-        reject.addEventListener('click', function () { choose(REJECTED); });
+        reject.addEventListener('click', () => { choose(REJECTED); });
 
         const accept = document.createElement('button');
         accept.type = 'button';
         accept.className = 'cookie-choice';
         accept.textContent = 'Aceptar analítica';
-        accept.addEventListener('click', function () { choose(ACCEPTED); });
+        accept.addEventListener('click', () => { choose(ACCEPTED); });
 
         actions.append(reject, accept);
         content.append(copy, actions);
@@ -185,7 +185,7 @@
     function init() {
         const choice = readChoice();
 
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', (event) => {
             const trigger = event.target.closest('[data-cookie-preferences]');
             if (trigger) {
                 event.preventDefault();
@@ -207,4 +207,4 @@
     } else {
         init();
     }
-}());
+})();
