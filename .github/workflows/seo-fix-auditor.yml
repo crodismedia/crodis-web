@@ -1,0 +1,62 @@
+name: SEO Fix Auditor
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Aplicar correcciones seguras
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          // 1) Contenido visible: incorporar términos útiles de forma natural.
+          const indexFile = 'index.html';
+          let index = fs.readFileSync(indexFile, 'utf8');
+          const oldHero = '<p class="hero-descripcion">Estamos ampliando progresivamente la cobertura a nuevas provincias.</p>';
+          const newHero = '<p class="hero-descripcion">Encuentra talleres para la reparación y el mantenimiento de tu automóvil. Estamos ampliando progresivamente la cobertura a nuevas provincias.</p>';
+          if (index.includes(oldHero)) {
+            index = index.replace(oldHero, newHero);
+            fs.writeFileSync(indexFile, index);
+            console.log('Portada: contenido útil actualizado');
+          }
+
+          // 2) Auditor: LocalBusiness, dirección y teléfono solo son obligatorios en fichas de taller.
+          const auditFile = 'seo-auditor.js';
+          let audit = fs.readFileSync(auditFile, 'utf8');
+
+          audit = audit.replace(
+            "else { const hasLocalBusiness = structuredData.some(sd => sd.type === 'LocalBusiness' || sd.type === 'AutomotiveBusiness'); if (!hasLocalBusiness) { this.addIssue('structured', 'Falta Schema LocalBusiness (recomendado para directorio de talleres)', 'warning', 'structured'); this.addRecommendation('Agregar Schema LocalBusiness para mejorar el SEO local', 'high'); } }",
+            "else { const hasLocalBusiness = structuredData.some(sd => sd.type === 'LocalBusiness' || sd.type === 'AutomotiveBusiness'); const requiresLocalBusiness = new URL(this.url).pathname.startsWith('/talleres/'); if (requiresLocalBusiness && !hasLocalBusiness) { this.addIssue('structured', 'Falta Schema LocalBusiness en ficha de taller', 'warning', 'structured'); this.addRecommendation('Agregar Schema LocalBusiness para mejorar el SEO local de la ficha', 'high'); } }"
+          );
+
+          audit = audit.replace(
+            "if (!localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección', 'warning', 'local'); this.addRecommendation('Agregar información de dirección para SEO local', 'high'); }\n    if (!localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono para contacto y SEO local', 'high'); }",
+            "const requiresLocalContact = new URL(this.url).pathname.startsWith('/talleres/');\n    if (requiresLocalContact && !localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar información de dirección a la ficha', 'high'); }\n    if (requiresLocalContact && !localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono a la ficha', 'high'); }"
+          );
+
+          fs.writeFileSync(auditFile, audit);
+          NODE
+
+      - name: Guardar correcciones
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "TallerMap SEO Auditor"
+            git config user.email "actions@users.noreply.github.com"
+            git add index.html seo-auditor.js
+            git commit -m "SEO Auditor: aplicar correcciones seguras"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Verificar auditor en producción
+        run: |
+          cp seo-auditor.js /tmp/seo-auditor.cjs
+          node /tmp/seo-auditor.cjs --prod --full
