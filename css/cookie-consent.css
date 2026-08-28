@@ -141,7 +141,7 @@
     .menu { gap: 24px; flex-wrap: nowrap; }
     .menu a { white-space: nowrap; }
     .hero-contenido { grid-template-columns: minmax(0, 1fr) !important; justify-items: center; }
-    .hero-texto { width: min(100%, 980px); max-width: 980px !important; margin-inline: auto; }
+    .hero-texto { width: min(100%, 980px); max-width: 980px; margin-inline: auto; }
     .hero-texto h1 { max-width: 900px; }
     .hero-descripcion { max-width: 820px; }
     #formulario-buscador-publico {
