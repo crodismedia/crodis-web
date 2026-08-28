@@ -5,8 +5,8 @@ import homeHandler from "./home.js";
 const BUSQUEDA_VERSION = "20260817-6";
 const AUTOCOMPLETE_VERSION = "20260823-2";
 const HOME_PUBLIC_VERSION = "20260823-1";
-const TALLER_UI_VERSION = "20260827-1";
-const FICHAS_ALICANTE_VERSION = "20260818-1";
+const TALLER_UI_VERSION = "20260828-1";
+const FICHAS_ALICANTE_VERSION = "20260828-1";
 const SERVICIOS_SEO = new Set([
   "mecanica-general","frenos","embrague","cambio-aceite-filtros","correa-distribucion","cadena-distribucion","pre-itv","reparacion-motor","caja-cambios","sistema-refrigeracion","escape-catalizador","baterias","electricidad-automovil","alternador-motor-arranque","centralitas-electronica","suspension-amortiguadores","alineacion-direccion","equilibrado-ruedas","neumaticos","lunas-cristales","carroceria","chapa-pintura","diagnosis-electronica","aire-acondicionado","calefaccion-climatizacion","hibridos-electricos"
 ]);

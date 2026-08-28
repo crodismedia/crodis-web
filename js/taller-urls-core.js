@@ -93,7 +93,7 @@
         if (!principal.getAttribute("aria-label")) {
             const nombreTaller =
                 principal.textContent.trim()
-                || tarjeta.querySelector(".taller-informacion h3")?.textContent.trim()
+                || tarjeta.querySelector(".taller-informacion .taller-titulo, .taller-informacion h3")?.textContent.trim()
                 || "este taller";
 
             principal.setAttribute(

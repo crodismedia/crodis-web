@@ -213,7 +213,7 @@
     function cargarMapaReal() {
         if (document.querySelector('script[data-tallermap-mapa="1"]')) return;
         const script = document.createElement("script");
-        script.src = "/js/mapa-talleres.js?v=20260817-1";
+        script.src = "/js/mapa-talleres.js?v=20260828-1";
         script.defer = true;
         script.dataset.tallermapMapa = "1";
         document.head.appendChild(script);

@@ -420,7 +420,7 @@
 
     const nombre =
       texto(
-        tarjeta.querySelector("h3")
+        tarjeta.querySelector(".taller-titulo, h3")
           ?.textContent
       ) ||
       "Taller sin nombre";

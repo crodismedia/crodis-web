@@ -46,7 +46,7 @@
   }
 
   function nombreTaller(tarjeta) {
-    return String(tarjeta.querySelector("h3")?.textContent || "").replace(/\s+/g, " ").trim();
+    return String(tarjeta.querySelector(".taller-titulo, h3")?.textContent || "").replace(/\s+/g, " ").trim();
   }
 
   function ubicacionTaller(tarjeta) {

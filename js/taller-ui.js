@@ -279,7 +279,7 @@
                 data-taller-slug="${escaparHTML(slug)}"
             >
                 <div class="taller-informacion">
-                    <h3>${nombre}</h3>
+                    <p class="taller-titulo">${nombre}</p>
 
                     <p class="ubicacion">
                         ${ubicacion || "Ubicación no indicada"}

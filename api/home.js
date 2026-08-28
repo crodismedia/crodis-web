@@ -12,7 +12,7 @@ import {
 const INITIAL_WORKSHOPS = 24;
 const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
-const FRONTEND_VERSION = "20260827-1";
+const FRONTEND_VERSION = "20260828-1";
 const MAX_TERM = 80;
 const SERVICIOS_SEO = new Set([
     "mecanica-general",
@@ -250,14 +250,14 @@ function renderWorkshopLinks(workshops, detailed = false) {
                 data-taller-slug="${escapeHTML(slug)}"
             >
                 <div class="taller-informacion">
-                    <h3>
+                    <p class="taller-titulo">
                         <a
                             class="enlace-ficha-taller"
                             href="/talleres/${encodeURIComponent(slug)}"
                         >
                             ${escapeHTML(name)}
                         </a>
-                    </h3>
+                    </p>
 
                     ${
                         location

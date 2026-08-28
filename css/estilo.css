@@ -1071,6 +1071,7 @@ select {
     margin-bottom: 6px;
 }
 
+.taller-informacion .verificado-en-contenido + .taller-titulo,
 .taller-informacion .verificado-en-contenido + h3 {
     margin-top: 4px;
 }
@@ -1104,10 +1105,12 @@ select {
     font-weight: 500;
 }
 
+.taller-informacion .taller-titulo,
 .taller-informacion h3 {
     margin: 10px 0 8px;
     color: var(--azul-oscuro);
     font-size: 21px;
+    font-weight: 700;
 }
 
 .ubicacion {

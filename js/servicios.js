@@ -269,7 +269,7 @@
     function prepararTarjetasPublicas() {
         document.querySelectorAll(".taller-card").forEach((tarjeta) => {
             if (tarjeta.dataset.enlacesPreparados === "true") return;
-            const nombre = textoLimpio(tarjeta.querySelector("h3"));
+            const nombre = textoLimpio(tarjeta.querySelector(".taller-titulo, h3"));
             const ubicacion = textoLimpio(tarjeta.querySelector("p.ubicacion"));
             if (!nombre) return;
 

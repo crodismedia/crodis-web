@@ -59,7 +59,7 @@
     }
     function leerTarjetas() {
         return [...document.querySelectorAll("#lista-talleres .taller-card")].slice(0, MAX_PINES).map(card => {
-            const nombre = card.querySelector("h3")?.textContent?.trim() || "Taller";
+            const nombre = card.querySelector(".taller-titulo, h3")?.textContent?.trim() || "Taller";
             const ubicacion = (card.querySelector(".ubicacion")?.textContent || "").replace(/^\s*⌖\s*/, "").trim();
             const ficha = card.querySelector(".enlace-ficha-taller")?.getAttribute("href") || "";
             return { nombre, ubicacion, ficha };
@@ -130,7 +130,7 @@
     function observarResultados() {
         const lista = document.getElementById("lista-talleres"); if (!lista) return;
         let temporizador = null, firmaAnterior = "";
-        const firmaTarjetas = () => [...lista.querySelectorAll(":scope > .taller-card")].map(card => card.dataset.tallerSlug || card.querySelector("h3")?.textContent || "").join("|");
+        const firmaTarjetas = () => [...lista.querySelectorAll(":scope > .taller-card")].map(card => card.dataset.tallerSlug || card.querySelector(".taller-titulo, h3")?.textContent || "").join("|");
         const programar = () => { const firma = firmaTarjetas(); if (firma === firmaAnterior) return; firmaAnterior = firma; clearTimeout(temporizador); temporizador = setTimeout(actualizarPines, 180); };
         new MutationObserver(programar).observe(lista, { childList: true, subtree: false }); programar();
     }

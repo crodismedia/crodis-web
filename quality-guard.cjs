@@ -1276,12 +1276,111 @@ class FixMode {
     this.guard = new QualityGuard();
   }
 
+  fixHomeHeadingDensity() {
+    const replacements = [
+      {
+        file: 'api/home.js',
+        replacements: [
+          ['const FRONTEND_VERSION = "20260827-1";', 'const FRONTEND_VERSION = "20260828-1";'],
+          ['                    <h3>\n', '                    <p class="taller-titulo">\n'],
+          ['                    </h3>\n', '                    </p>\n']
+        ]
+      },
+      {
+        file: 'api/home-cache-fix.js',
+        replacements: [
+          ['const TALLER_UI_VERSION = "20260827-1";', 'const TALLER_UI_VERSION = "20260828-1";'],
+          ['const FICHAS_ALICANTE_VERSION = "20260818-1";', 'const FICHAS_ALICANTE_VERSION = "20260828-1";']
+        ]
+      },
+      {
+        file: 'index.html',
+        replacements: [
+          ['css/estilo.css?v=20260809-5', 'css/estilo.css?v=20260828-1'],
+          ['js/servicios.js?v=20260825-1', 'js/servicios.js?v=20260828-1'],
+          ['js/imagenes-automaticas.js?v=20260810-2', 'js/imagenes-automaticas.js?v=20260828-1']
+        ]
+      },
+      {
+        file: 'js/taller-ui.js',
+        replacements: [
+          ['                    <h3>${nombre}</h3>', '                    <p class="taller-titulo">${nombre}</p>']
+        ]
+      },
+      {
+        file: 'css/estilo.css',
+        replacements: [
+          [
+            '.taller-informacion .verificado-en-contenido + h3 {',
+            '.taller-informacion .verificado-en-contenido + .taller-titulo,\n.taller-informacion .verificado-en-contenido + h3 {'
+          ],
+          [
+            '.taller-informacion h3 {',
+            '.taller-informacion .taller-titulo,\n.taller-informacion h3 {'
+          ],
+          [
+            '    font-size: 21px;\n}\n\n.ubicacion {',
+            '    font-size: 21px;\n    font-weight: 700;\n}\n\n.ubicacion {'
+          ]
+        ]
+      },
+      {
+        file: 'js/servicios.js',
+        replacements: [['tarjeta.querySelector("h3")', 'tarjeta.querySelector(".taller-titulo, h3")']]
+      },
+      {
+        file: 'js/imagenes-automaticas.js',
+        replacements: [['tarjeta.querySelector("h3")', 'tarjeta.querySelector(".taller-titulo, h3")']]
+      },
+      {
+        file: 'js/mapa-talleres.js',
+        replacements: [['card.querySelector("h3")', 'card.querySelector(".taller-titulo, h3")']]
+      },
+      {
+        file: 'js/fichas-publicas-alicante.js',
+        replacements: [['tarjeta.querySelector("h3")', 'tarjeta.querySelector(".taller-titulo, h3")']]
+      },
+      {
+        file: 'js/taller-urls-core.js',
+        replacements: [['tarjeta.querySelector(".taller-informacion h3")', 'tarjeta.querySelector(".taller-informacion .taller-titulo, .taller-informacion h3")']]
+      },
+      {
+        file: 'js/busqueda-url.js',
+        replacements: [['/js/mapa-talleres.js?v=20260817-1', '/js/mapa-talleres.js?v=20260828-1']]
+      },
+      {
+        file: 'js/taller-urls.js',
+        replacements: [['/js/taller-urls-core.js?v=20260825-1', '/js/taller-urls-core.js?v=20260828-1']]
+      }
+    ];
+
+    let modifiedFiles = 0;
+    for (const entry of replacements) {
+      const filePath = path.join(process.cwd(), entry.file);
+      if (!fs.existsSync(filePath)) continue;
+
+      const original = fs.readFileSync(filePath, 'utf8');
+      let updated = original;
+      for (const [from, to] of entry.replacements) {
+        if (!updated.includes(to)) updated = updated.replaceAll(from, to);
+      }
+
+      if (updated !== original) {
+        fs.writeFileSync(filePath, updated, 'utf8');
+        modifiedFiles++;
+        console.log(`✅ Densidad de headings corregida: ${entry.file}`);
+      }
+    }
+
+    return modifiedFiles;
+  }
+
   fix() {
     console.log('🔧 MODO CORRECCIÓN');
     console.log('Intentando corregir issues automáticamente...\n');
 
     const files = this.guard.getAllFiles();
-    let fixes = 0;
+    let fixes = this.fixHomeHeadingDensity();
 
     files.forEach(file => {
       try {
