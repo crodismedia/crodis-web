@@ -26,7 +26,8 @@
     "*.bundle.js",
     "coverage/**",
     ".git/**",
-    "quality-reports/**"
+    "quality-reports/**",
+    "quality-guard.mjs"
   ],
   "accessibility": {
     "checkAltText": true,
