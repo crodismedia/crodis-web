@@ -193,12 +193,12 @@
 }
 .valoraciones-estado[data-tipo="ok"]{color:#15803d}
 .valoraciones-estado[data-tipo="error"]{color:#b42318}
-.valoraciones-honeypot{
-    position:absolute!important;
-    left:-9999px!important;
-    width:1px!important;
-    height:1px!important;
-    overflow:hidden!important
+.valoraciones-form label.valoraciones-honeypot{
+    position:absolute;
+    left:-9999px;
+    width:1px;
+    height:1px;
+    overflow:hidden
 }
 .valoracion-pendiente{
     padding:12px;
