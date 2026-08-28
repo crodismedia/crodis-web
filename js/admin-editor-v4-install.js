@@ -89,6 +89,100 @@
     }
   }
 
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
+  }
+
+  function montarGuardian() {
+    if (document.getElementById("v4-guardian")) return;
+    const anchor = document.querySelector(".v4-csv-import") || document.querySelector(".v4-card.v4-pad");
+    if (!anchor) return;
+
+    const section = document.createElement("section");
+    section.id = "v4-guardian";
+    section.className = "v4-csv-import";
+    section.setAttribute("aria-labelledby", "v4-guardian-title");
+    section.innerHTML = `
+      <h2 id="v4-guardian-title">🛡️ Guardian</h2>
+      <div class="v4-csv-help">Ejecuta el <strong>Quality Guard real</strong> del proyecto. Solo funciona con una sesión administrativa válida y no modifica datos ni archivos.</div>
+      <div class="v4-actions">
+        <button id="v4-guardian-ejecutar" class="v4-btn v4-primary" type="button">Ejecutar Guardian</button>
+      </div>
+      <div id="v4-guardian-estado" class="v4-status">Preparado para analizar la versión desplegada.</div>
+      <div id="v4-guardian-kpis" class="v4-csv-kpis" hidden>
+        <div><strong id="v4-guardian-score">—</strong><span>Score</span></div>
+        <div><strong id="v4-guardian-errors">0</strong><span>Errores</span></div>
+        <div><strong id="v4-guardian-warnings">0</strong><span>Advertencias</span></div>
+        <div><strong id="v4-guardian-files">0</strong><span>Archivos</span></div>
+      </div>
+      <div id="v4-guardian-resultados" class="v4-csv-preview" aria-live="polite"></div>
+    `;
+
+    anchor.insertAdjacentElement("afterend", section);
+    document.getElementById("v4-guardian-ejecutar")?.addEventListener("click", ejecutarGuardian);
+  }
+
+  async function ejecutarGuardian() {
+    const runButton = document.getElementById("v4-guardian-ejecutar");
+    const estado = document.getElementById("v4-guardian-estado");
+    const resultados = document.getElementById("v4-guardian-resultados");
+    const kpis = document.getElementById("v4-guardian-kpis");
+    const sb = window.supabaseClient;
+
+    if (!runButton || !estado || !resultados || !kpis || !sb) return;
+    runButton.disabled = true;
+    estado.textContent = "Guardian está analizando el proyecto…";
+    estado.className = "v4-status";
+    resultados.innerHTML = "";
+
+    try {
+      const { data: { session }, error: sessionError } = await sb.auth.getSession();
+      if (sessionError || !session?.access_token) throw new Error("Sesión administrativa no disponible");
+
+      const response = await fetch("/api/guardian", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || data.error || `HTTP ${response.status}`);
+
+      const summary = data.summary || {};
+      const metrics = data.metrics || {};
+      document.getElementById("v4-guardian-score").textContent = `${summary.score ?? 0}/100`;
+      document.getElementById("v4-guardian-errors").textContent = summary.errors ?? 0;
+      document.getElementById("v4-guardian-warnings").textContent = summary.warnings ?? 0;
+      document.getElementById("v4-guardian-files").textContent = metrics.filesAnalyzed ?? metrics.totalFiles ?? 0;
+      kpis.hidden = false;
+
+      const commit = data.commit ? String(data.commit).slice(0, 7) : "sin SHA";
+      estado.textContent = `✓ Guardian ejecutado · ${summary.grade || "sin nota"} · ${data.branch || "main"} @ ${commit}`;
+      estado.className = "v4-status ok";
+
+      const issues = Array.isArray(data.issues) ? data.issues : [];
+      if (!issues.length) {
+        resultados.innerHTML = '<div class="v4-csv-row ok"><strong>Sin incidencias</strong><small>Guardian no ha detectado errores ni advertencias.</small></div>';
+        return;
+      }
+
+      resultados.innerHTML = issues.map(issue => {
+        const severity = issue.severity === "error" ? "error" : issue.severity === "warning" ? "duplicate" : "";
+        const line = issue.line ? ` · línea ${escapeHtml(issue.line)}` : "";
+        return `<div class="v4-csv-row ${severity}"><strong>${escapeHtml(issue.severity || "info").toUpperCase()} · ${escapeHtml(issue.file || "proyecto")}${line}</strong><small>${escapeHtml(issue.message || "")}</small></div>`;
+      }).join("") + (data.truncated ? '<div class="v4-csv-row"><strong>Resultado recortado</strong><small>Se muestran las primeras 500 incidencias.</small></div>' : "");
+    } catch (error) {
+      estado.textContent = `No se pudo ejecutar Guardian: ${error?.message || error}`;
+      estado.className = "v4-status error";
+    } finally {
+      runButton.disabled = false;
+    }
+  }
+
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     deferredPrompt = event;
@@ -110,6 +204,7 @@
       fallbackTimer = window.setTimeout(setManualFallback, 1800);
     }
 
+    montarGuardian();
     void registrarServiceWorkerEditor();
   }, { once: true });
 }());
