@@ -19,14 +19,28 @@ jobs:
           const fs = require('fs');
           const file = 'quality-guard.cjs';
           let content = fs.readFileSync(file, 'utf8');
-          const oldBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
-          const newBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
-          if (content.includes(oldBlock)) {
-            content = content.replace(oldBlock, newBlock);
-            fs.writeFileSync(file, content);
+          let changed = false;
+
+          const oldImageBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
+          const newImageBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
+          if (content.includes(oldImageBlock)) {
+            content = content.replace(oldImageBlock, newImageBlock);
+            changed = true;
             console.log('Quality Guard: contador de imágenes autocorregido');
+          }
+
+          const oldCssBlock = `    // 1. Verificar duplicación de propiedades\n    const propRegex = /([a-zA-Z-]+)\\s*:/g;\n    const props = {};\n    let match;\n    while ((match = propRegex.exec(content)) !== null) {\n      const prop = match[1];\n      props[prop] = (props[prop] || 0) + 1;\n    }\n\n    const duplicatedProps = Object.entries(props).filter(([_, count]) => count > 5);\n    if (duplicatedProps.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'warning',\n        line: 0,\n        message: \`Propiedades CSS duplicadas: \${duplicatedProps.map(([p, c]) => \`\${p}(\${c})\`).join(', ')}\`\n      });\n    }`;
+          const newCssBlock = `    // 1. Verificar propiedades realmente duplicadas dentro del mismo bloque CSS\n    const duplicatedDeclarations = [];\n    const blockRegex = /([^{}]+)\\{([^{}]*)\\}/g;\n    let blockMatch;\n    while ((blockMatch = blockRegex.exec(content)) !== null) {\n      const selector = blockMatch[1].trim().replace(/\\s+/g, ' ');\n      const body = blockMatch[2];\n      const propRegex = /(?:^|;)\\s*([a-zA-Z-]+)\\s*:/g;\n      const props = {};\n      let propMatch;\n      while ((propMatch = propRegex.exec(body)) !== null) {\n        const prop = propMatch[1].toLowerCase();\n        props[prop] = (props[prop] || 0) + 1;\n      }\n      const repeated = Object.entries(props).filter(([_, count]) => count > 1);\n      if (repeated.length > 0) {\n        duplicatedDeclarations.push({ selector, repeated });\n      }\n    }\n\n    if (duplicatedDeclarations.length > 0) {\n      const details = duplicatedDeclarations\n        .slice(0, 10)\n        .map(({ selector, repeated }) => \`\${selector}: \${repeated.map(([p, c]) => \`\${p}(\${c})\`).join(', ')}\`)\n        .join(' | ');\n      issues.push({\n        type: 'css',\n        severity: 'warning',\n        line: 0,\n        message: \`Propiedades CSS duplicadas dentro del mismo bloque: \${details}\`\n      });\n    }`;
+          if (content.includes(oldCssBlock)) {
+            content = content.replace(oldCssBlock, newCssBlock);
+            changed = true;
+            console.log('Quality Guard: detector de duplicación CSS autocorregido');
+          }
+
+          if (changed) {
+            fs.writeFileSync(file, content);
           } else {
-            console.log('Quality Guard: contador ya corregido o bloque no encontrado');
+            console.log('Quality Guard: reglas ya corregidas o bloques no encontrados');
           }
           NODE
       - name: Run Quality Guard fixes
