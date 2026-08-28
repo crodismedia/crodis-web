@@ -1,0 +1,35 @@
+name: Fix CSS Warning Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-css-warning-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Replace unnecessary important rules safely
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'css/admin-editor-v4.css';
+          let content = fs.readFileSync(file, 'utf8');
+          const before = '.v4-valid{background:#f0fdf4!important;border-color:#86efac!important}.v4-invalid{background:#fef2f2!important;border-color:#fca5a5!important}';
+          const after = 'input.v4-valid,select.v4-valid,textarea.v4-valid{background:#f0fdf4;border-color:#86efac}input.v4-invalid,select.v4-invalid,textarea.v4-invalid{background:#fef2f2;border-color:#fca5a5}';
+          if (!content.includes(before)) throw new Error('Bloque esperado no encontrado');
+          content = content.replace(before, after);
+          fs.writeFileSync(file, content);
+          NODE
+      - name: Commit fix
+        run: |
+          git config user.name "TallerMap CSS Fix"
+          git config user.email "actions@users.noreply.github.com"
+          git add css/admin-editor-v4.css
+          git commit -m "Eliminar important redundantes del editor V4"
+          git pull --rebase origin main
+          git push origin HEAD:main
