@@ -104,7 +104,7 @@
   repararMenuDesguacesMovil();
 
   cargar("/js/imagenes-automaticas.js?v=20260810-2", "data-tallermap-imagenes-auto");
-  cargar("/js/taller-urls-core.js?v=20260828-1", "data-tallermap-urls-core");
+  cargar("/js/taller-urls-core.js?v=20260828-2", "data-tallermap-urls-core");
 
   if (window.location.pathname === "/pages/taller.html" || window.location.pathname.startsWith("/talleres/")) {
     cargarEstilo("/css/valoraciones.css", "data-tallermap-valoraciones-css");

@@ -1300,6 +1300,7 @@ class FixMode {
           ['css/estilo.css?v=20260828-1', 'css/estilo.css?v=20260828-2'],
           ['js/servicios.js?v=20260825-1', 'js/servicios.js?v=20260828-1'],
           ['js/servicios.js?v=20260828-1', 'js/servicios.js?v=20260828-2'],
+          ['js/servicios.js?v=20260828-2', 'js/servicios.js?v=20260828-3'],
           ['js/imagenes-automaticas.js?v=20260810-2', 'js/imagenes-automaticas.js?v=20260828-1']
         ]
       },
@@ -1346,7 +1347,8 @@ class FixMode {
             '            const titulo = document.createElement("h3");\n            titulo.textContent = etiqueta;\n            const categoria = document.createElement("p");',
             '            const titulo = document.createElement("strong");\n            titulo.className = "servicio-titulo";\n            titulo.textContent = etiqueta;\n            const categoria = document.createElement("p");'
           ],
-          ['enlace.href = rutaDesdeRaiz("css/taller-acciones.css");', 'enlace.href = rutaDesdeRaiz("css/taller-acciones.css?v=20260828-2");']
+          ['enlace.href = rutaDesdeRaiz("css/taller-acciones.css");', 'enlace.href = rutaDesdeRaiz("css/taller-acciones.css?v=20260828-2");'],
+          ['js/taller-urls.js?v=20260825-1', 'js/taller-urls.js?v=20260828-2']
         ]
       },
       {
@@ -1376,7 +1378,13 @@ class FixMode {
       },
       {
         file: 'js/taller-urls-core.js',
-        replacements: [['tarjeta.querySelector(".taller-informacion h3")', 'tarjeta.querySelector(".taller-informacion .taller-titulo, .taller-informacion h3")']]
+        replacements: [
+          ['tarjeta.querySelector(".taller-informacion h3")', 'tarjeta.querySelector(".taller-informacion .taller-titulo, .taller-informacion h3")'],
+          [
+            '        if (principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";',
+            '        const esEnlaceTitulo = Boolean(principal.closest(".taller-titulo, h3"));\n        if (!esEnlaceTitulo && principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";'
+          ]
+        ]
       },
       {
         file: 'js/busqueda-url.js',
@@ -1384,7 +1392,10 @@ class FixMode {
       },
       {
         file: 'js/taller-urls.js',
-        replacements: [['/js/taller-urls-core.js?v=20260825-1', '/js/taller-urls-core.js?v=20260828-1']]
+        replacements: [
+          ['/js/taller-urls-core.js?v=20260825-1', '/js/taller-urls-core.js?v=20260828-1'],
+          ['/js/taller-urls-core.js?v=20260828-1', '/js/taller-urls-core.js?v=20260828-2']
+        ]
       }
     ];
 
