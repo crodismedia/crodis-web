@@ -1297,7 +1297,9 @@ class FixMode {
         file: 'index.html',
         replacements: [
           ['css/estilo.css?v=20260809-5', 'css/estilo.css?v=20260828-1'],
+          ['css/estilo.css?v=20260828-1', 'css/estilo.css?v=20260828-2'],
           ['js/servicios.js?v=20260825-1', 'js/servicios.js?v=20260828-1'],
+          ['js/servicios.js?v=20260828-1', 'js/servicios.js?v=20260828-2'],
           ['js/imagenes-automaticas.js?v=20260810-2', 'js/imagenes-automaticas.js?v=20260828-1']
         ]
       },
@@ -1319,6 +1321,18 @@ class FixMode {
             '.taller-informacion .taller-titulo,\n.taller-informacion h3 {'
           ],
           [
+            '.servicio-card h3 {',
+            '.servicio-card .servicio-titulo,\n.servicio-card h3 {'
+          ],
+          [
+            '.servicio-card .servicio-titulo,\n.servicio-card h3 {\n    margin: 21px 0 10px;',
+            '.servicio-card .servicio-titulo,\n.servicio-card h3 {\n    display: block;\n    margin: 21px 0 10px;'
+          ],
+          [
+            '    color: var(--azul-oscuro);\n    font-size: 20px;\n}\n\n.servicio-card p {',
+            '    color: var(--azul-oscuro);\n    font-size: 20px;\n    font-weight: 700;\n    line-height: 1.25;\n}\n\n.servicio-card p {'
+          ],
+          [
             '    font-size: 21px;\n}\n\n.ubicacion {',
             '    font-size: 21px;\n    font-weight: 700;\n}\n\n.ubicacion {'
           ]
@@ -1326,7 +1340,27 @@ class FixMode {
       },
       {
         file: 'js/servicios.js',
-        replacements: [['tarjeta.querySelector("h3")', 'tarjeta.querySelector(".taller-titulo, h3")']]
+        replacements: [
+          ['tarjeta.querySelector("h3")', 'tarjeta.querySelector(".taller-titulo, h3")'],
+          [
+            '            const titulo = document.createElement("h3");\n            titulo.textContent = etiqueta;\n            const categoria = document.createElement("p");',
+            '            const titulo = document.createElement("strong");\n            titulo.className = "servicio-titulo";\n            titulo.textContent = etiqueta;\n            const categoria = document.createElement("p");'
+          ],
+          ['enlace.href = rutaDesdeRaiz("css/taller-acciones.css");', 'enlace.href = rutaDesdeRaiz("css/taller-acciones.css?v=20260828-2");']
+        ]
+      },
+      {
+        file: 'css/taller-acciones.css',
+        replacements: [
+          [
+            '#lista-servicios-publicos .servicio-card h3 {',
+            '#lista-servicios-publicos .servicio-card .servicio-titulo,\n#lista-servicios-publicos .servicio-card h3 {'
+          ],
+          [
+            '    #lista-servicios-publicos .servicio-card .servicio-titulo,\n#lista-servicios-publicos .servicio-card h3 {',
+            '    #lista-servicios-publicos .servicio-card .servicio-titulo,\n    #lista-servicios-publicos .servicio-card h3 {'
+          ]
+        ]
       },
       {
         file: 'js/imagenes-automaticas.js',

@@ -96,7 +96,8 @@
             icono.className = "servicio-icono";
             icono.setAttribute("aria-hidden", "true");
             icono.textContent = iconos[grupo] || "+";
-            const titulo = document.createElement("h3");
+            const titulo = document.createElement("strong");
+            titulo.className = "servicio-titulo";
             titulo.textContent = etiqueta;
             const categoria = document.createElement("p");
             categoria.textContent = grupo;
@@ -135,7 +136,7 @@
         if (document.querySelector('link[data-tallermap-acciones]')) return;
         const enlace = document.createElement("link");
         enlace.rel = "stylesheet";
-        enlace.href = rutaDesdeRaiz("css/taller-acciones.css");
+        enlace.href = rutaDesdeRaiz("css/taller-acciones.css?v=20260828-2");
         enlace.dataset.tallermapAcciones = "true";
         document.head.appendChild(enlace);
     }

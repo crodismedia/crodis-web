@@ -735,10 +735,14 @@ select {
     border-radius: 15px;
 }
 
+.servicio-card .servicio-titulo,
 .servicio-card h3 {
+    display: block;
     margin: 21px 0 10px;
     color: var(--azul-oscuro);
     font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
 }
 
 .servicio-card p {
