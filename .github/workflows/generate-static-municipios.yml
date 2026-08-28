@@ -1,14 +1,8 @@
 name: Generar municipios estáticos
 
-# Regeneración solicitada tras corregir alias municipales en Supabase.
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - 'scripts/generate-static-municipios.mjs'
-      - 'package.json'
-      - '.github/workflows/generate-static-municipios.yml'
 
 permissions:
   contents: write
@@ -53,6 +47,3 @@ jobs:
             git commit -m 'Generar 542 municipios como HTML estático'
             git push
           fi
-
-# Regeneración Alicante 2026-08-26
-# Segunda pasada de regeneración Alicante 2026-08-26
