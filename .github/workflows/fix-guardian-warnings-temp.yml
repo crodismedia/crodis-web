@@ -1,0 +1,76 @@
+name: Fix Guardian Warnings Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-guardian-warnings-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Apply safe warning fixes
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          function update(file, transform) {
+            const before = fs.readFileSync(file, 'utf8');
+            const after = transform(before);
+            if (after !== before) {
+              fs.writeFileSync(file, after);
+              console.log(`updated ${file}`);
+            } else {
+              console.log(`unchanged ${file}`);
+            }
+          }
+
+          update('api/home-cache-fix.js', content => content
+            .replace(/\bvar\s+/g, 'let ')
+            .replace(/\(function\(\)\{/g, '(()=>{')
+            .replace(/\}\(\)\);/g, '})();')
+            .replace(/function\(event\)\{/g, '(event)=>{')
+            .replace(/function\(enlace\)\{/g, '(enlace)=>{')
+            .replace(/function\(\)\{ setTimeout\(limpiar, 0\); \}/g, '()=>{ setTimeout(limpiar, 0); }')
+          );
+
+          update('js/admin-right-panel-fix.js', content => content
+            .replace(/^\(function\(\)\{/, '(()=>{')
+            .replace(/window\.fetch=function\(input,init=\{\}\)\{/, 'window.fetch=(input,init={})=>{')
+            .replace(/\}\(\)\);\s*$/, '})();\n')
+          );
+
+          update('js/cookie-consent.js', content => content
+            .replace(/^\(function \(\) \{/, '(() => {')
+            .replace(/window\.gtag = window\.gtag \|\| function \(\) \{\n\s*window\.dataLayer\.push\(arguments\);\n\s*\};/, 'window.gtag = window.gtag || ((...args) => {\n        window.dataLayer.push(args);\n    });')
+            .replace(/\.forEach\(function \(cookie\) \{/g, '.forEach((cookie) => {')
+            .replace(/\.forEach\(function \(domain\) \{/g, '.forEach((domain) => {')
+            .replace(/window\.setTimeout\(function \(\) \{ window\.location\.reload\(\); \}, 50\);/, 'window.setTimeout(() => { window.location.reload(); }, 50);')
+            .replace(/addEventListener\('click', function \(\) \{ choose\(REJECTED\); \}\);/, "addEventListener('click', () => { choose(REJECTED); });")
+            .replace(/addEventListener\('click', function \(\) \{ choose\(ACCEPTED\); \}\);/, "addEventListener('click', () => { choose(ACCEPTED); });")
+            .replace(/document\.addEventListener\('click', function \(event\) \{/g, "document.addEventListener('click', (event) => {")
+            .replace(/\}\(\)\);\s*$/, '})();\n')
+          );
+
+          for (const file of ['js/home-public.js', 'js/registro.js', 'js/taller-urls-core.js']) {
+            update(file, content => content
+              .replace(/^\(function \(\) \{/, '(() => {')
+              .replace(/^\(function\(\)\{/, '(()=>{')
+              .replace(/\}\(\)\);\s*$/, '})();\n')
+            );
+          }
+          NODE
+      - name: Commit fixes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "TallerMap Warning Fix"
+            git config user.email "actions@users.noreply.github.com"
+            git add api/home-cache-fix.js js/admin-right-panel-fix.js js/cookie-consent.js js/home-public.js js/registro.js js/taller-urls-core.js
+            git commit -m "Corregir advertencias JavaScript del Guardián"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
