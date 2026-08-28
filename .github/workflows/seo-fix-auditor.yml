@@ -49,6 +49,11 @@ jobs:
             "const localRequired = new URL(this.url).pathname.startsWith('/talleres/'); console.log(`   Dirección: ${localRequired ? (this.results.localBusiness.hasAddress ? '✅' : '❌') : 'N/A'}`); console.log(`   Teléfono: ${localRequired ? (this.results.localBusiness.hasPhoneNumber ? '✅' : '❌') : 'N/A'}`);"
           );
 
+          audit = audit.replace(
+            "const missingKeywords = Object.entries(keywordAnalysis).filter(([_, data]) => data.status === 'missing').map(([keyword]) => keyword); if (missingKeywords.length > 0) { this.addIssue('keywords', `Faltan palabras clave: ${missingKeywords.slice(0, 3).join(', ')}`, 'warning', 'keywords'); this.addRecommendation(`Incluir palabras clave: ${missingKeywords.slice(0, 3).join(', ')}`, 'medium'); }",
+            "const coreKeywords = CONFIG.keywords.slice(0, 7); const missingKeywords = coreKeywords.filter(keyword => keywordAnalysis[keyword]?.status === 'missing'); if (missingKeywords.length > 0) { this.addIssue('keywords', `Faltan palabras clave núcleo: ${missingKeywords.slice(0, 3).join(', ')}`, 'warning', 'keywords'); this.addRecommendation(`Incluir de forma natural palabras clave núcleo: ${missingKeywords.slice(0, 3).join(', ')}`, 'medium'); }"
+          );
+
           fs.writeFileSync(auditFile, audit);
           NODE
 
