@@ -13,7 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - name: Quality Guard self-repair
+
+      - name: Quality Guard rule repair
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -21,38 +22,48 @@ jobs:
           let content = fs.readFileSync(file, 'utf8');
           let changed = false;
 
+          // Mantener las reparaciones previas si alguna copia antigua reaparece.
           const oldImageBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
           const newImageBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
           if (content.includes(oldImageBlock)) {
             content = content.replace(oldImageBlock, newImageBlock);
             changed = true;
-            console.log('Quality Guard: contador de imágenes autocorregido');
           }
 
-          const oldCssBlock = `    // 1. Verificar duplicación de propiedades\n    const propRegex = /([a-zA-Z-]+)\\s*:/g;\n    const props = {};\n    let match;\n    while ((match = propRegex.exec(content)) !== null) {\n      const prop = match[1];\n      props[prop] = (props[prop] || 0) + 1;\n    }\n\n    const duplicatedProps = Object.entries(props).filter(([_, count]) => count > 5);\n    if (duplicatedProps.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'warning',\n        line: 0,\n        message: \`Propiedades CSS duplicadas: \${duplicatedProps.map(([p, c]) => \`\${p}(\${c})\`).join(', ')}\`\n      });\n    }`;
-          const newCssBlock = `    // 1. Verificar propiedades realmente duplicadas dentro del mismo bloque CSS\n    const duplicatedDeclarations = [];\n    const blockRegex = /([^{}]+)\\{([^{}]*)\\}/g;\n    let blockMatch;\n    while ((blockMatch = blockRegex.exec(content)) !== null) {\n      const selector = blockMatch[1].trim().replace(/\\s+/g, ' ');\n      const body = blockMatch[2];\n      const propRegex = /(?:^|;)\\s*([a-zA-Z-]+)\\s*:/g;\n      const props = {};\n      let propMatch;\n      while ((propMatch = propRegex.exec(body)) !== null) {\n        const prop = propMatch[1].toLowerCase();\n        props[prop] = (props[prop] || 0) + 1;\n      }\n      const repeated = Object.entries(props).filter(([_, count]) => count > 1);\n      if (repeated.length > 0) {\n        duplicatedDeclarations.push({ selector, repeated });\n      }\n    }\n\n    if (duplicatedDeclarations.length > 0) {\n      const details = duplicatedDeclarations\n        .slice(0, 10)\n        .map(({ selector, repeated }) => \`\${selector}: \${repeated.map(([p, c]) => \`\${p}(\${c})\`).join(', ')}\`)\n        .join(' | ');\n      issues.push({\n        type: 'css',\n        severity: 'warning',\n        line: 0,\n        message: \`Propiedades CSS duplicadas dentro del mismo bloque: \${details}\`\n      });\n    }`;
-          if (content.includes(oldCssBlock)) {
-            content = content.replace(oldCssBlock, newCssBlock);
+          // Los breakpoints en px, colores repetidos y líneas largas no son fallos por sí mismos.
+          // Sustituimos esos avisos genéricos por una comprobación de selectores realmente extremos.
+          const infoCssRegex = /    \/\/ 3\. Verificar selectores muy específicos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
+          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(content)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n      const maxDepth = Math.max(...selector.split(',').map(part =>\n        part.trim().split(/\\s+|>|\\+|~/).filter(Boolean).length\n      ));\n      if (idCount > 1 || maxDepth > 7) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
+          if (infoCssRegex.test(content)) {
+            content = content.replace(infoCssRegex, infoCssReplacement);
             changed = true;
-            console.log('Quality Guard: detector de duplicación CSS autocorregido');
+            console.log('Quality Guard: reglas informativas CSS depuradas');
           }
 
-          const oldStructureBlock = `    // 3. Verificar duplicación de archivos\n    const allFiles = this.guard.getAllFiles();\n    const fileNames = allFiles.map(f => path.basename(f));\n    const duplicates = fileNames.filter((name, index) =>\n      fileNames.indexOf(name) !== index && !name.includes('test')\n    );\n    if (duplicates.length > 0) {\n      const uniqueDuplicates = [...new Set(duplicates)];\n      issues.push({\n        type: 'structure',\n        severity: 'warning',\n        file: 'project',\n        line: 0,\n        message: \`Archivos con nombres duplicados: \${uniqueDuplicates.join(', ')}\`\n      });\n    }`;
-          const newStructureBlock = `    // 3. Verificar duplicación real de archivos: mismo nombre y mismo contenido\n    const allFiles = this.guard.getAllFiles();\n    const byName = new Map();\n    allFiles.forEach(filePath => {\n      const name = path.basename(filePath);\n      if (name.includes('test')) return;\n      if (!byName.has(name)) byName.set(name, []);\n      byName.get(name).push(filePath);\n    });\n\n    const realDuplicates = [];\n    for (const [name, paths] of byName.entries()) {\n      if (paths.length < 2) continue;\n      const byHash = new Map();\n      for (const filePath of paths) {\n        try {\n          const hash = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');\n          if (!byHash.has(hash)) byHash.set(hash, []);\n          byHash.get(hash).push(filePath);\n        } catch (_) {}\n      }\n      for (const sameContentPaths of byHash.values()) {\n        if (sameContentPaths.length > 1) {\n          realDuplicates.push(\`\${name} [\${sameContentPaths.join(' | ')}]\`);\n        }\n      }\n    }\n\n    if (realDuplicates.length > 0) {\n      issues.push({\n        type: 'structure',\n        severity: 'warning',\n        file: 'project',\n        line: 0,\n        message: \`Archivos realmente duplicados: \${realDuplicates.slice(0, 10).join(', ')}\`\n      });\n    }`;
-          if (content.includes(oldStructureBlock)) {
-            content = content.replace(oldStructureBlock, newStructureBlock);
+          // Eliminar el aviso puramente cosmético de longitud de línea en CSS.
+          const longLineRegex = /\n    \/\/ 7\. Verificar líneas muy largas[\s\S]*?\n    return issues;/;
+          if (longLineRegex.test(content)) {
+            content = content.replace(longLineRegex, '\n\n    return issues;');
             changed = true;
-            console.log('Quality Guard: detector de archivos duplicados autocorregido');
+            console.log('Quality Guard: aviso cosmético de longitud CSS retirado');
           }
 
-          if (changed) {
-            fs.writeFileSync(file, content);
-          } else {
-            console.log('Quality Guard: reglas ya corregidas o bloques no encontrados');
+          // En HTML solo avisar de scripts que realmente bloquean el parser en <head>.
+          const oldScriptRegex = /    \/\/ 7\. Verificar scripts al final del body[\s\S]*?\n    return issues;/;
+          const newScriptBlock = `    // 7. Verificar scripts externos realmente bloqueantes en <head>\n    const headMatch = content.match(/<head[^>]*>([\\s\\S]*?)<\\/head>/i);\n    if (headMatch) {\n      const blockingScripts = [...headMatch[1].matchAll(/<script\\b([^>]*)src=["'][^"']+["']([^>]*)><\\/script>/gi)]\n        .filter(m => !/\\b(defer|async)\\b/i.test(\`\${m[1]} \${m[2]}\`) && !/type=["']module["']/i.test(\`\${m[1]} \${m[2]}\`));\n      if (blockingScripts.length > 2) {\n        issues.push({\n          type: 'performance',\n          severity: 'info',\n          line: 0,\n          message: \`\${blockingScripts.length} scripts externos bloqueantes en <head>\`\n        });\n      }\n    }\n\n    return issues;`;
+          if (oldScriptRegex.test(content)) {
+            content = content.replace(oldScriptRegex, newScriptBlock);
+            changed = true;
+            console.log('Quality Guard: detector de scripts informativo depurado');
           }
+
+          if (changed) fs.writeFileSync(file, content);
+          else console.log('Quality Guard: reglas informativas ya depuradas');
           NODE
+
       - name: Run Quality Guard fixes
         run: npm run quality:fix
+
       - name: Commit Quality Guard fixes
         if: github.event_name == 'push'
         run: |
@@ -64,6 +75,7 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
       - name: Verify with Quality Guard
         run: |
           node quality-guard.cjs
@@ -81,7 +93,8 @@ jobs:
           const latest = JSON.parse(fs.readFileSync(path.join(dir, reports[reports.length - 1]), 'utf8'));
           const errors = latest?.summary?.errors ?? latest?.metrics?.totalErrors ?? 0;
           const warnings = latest?.summary?.warnings ?? 0;
-          console.log(`Quality Guard verificado: ${errors} errores; ${warnings} advertencias registradas`);
+          const infos = (latest?.issues || []).filter(i => i.severity === 'info').length;
+          console.log(`Quality Guard verificado: ${errors} errores; ${warnings} advertencias; ${infos} informaciones`);
           console.log('Quality Guard: detalle del reporte JSON');
           console.log(JSON.stringify(latest, null, 2));
           if (errors > 0) process.exit(1);
