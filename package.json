@@ -14,7 +14,8 @@
     "quality:fix": "node quality-guard.mjs --fix",
     "quality:ci": "node quality-guard.mjs --ci",
     "quality:report": "node quality-guard.mjs --report",
-    "quality:help": "node quality-guard.mjs --help"
+    "quality:help": "node quality-guard.mjs --help",
+    "quality:full": "npm run quality && npm run quality:report && npm run quality:fix && npm run quality && npm run quality:ci"
   },
   "dependencies": {
     "@vercel/functions": "latest",
