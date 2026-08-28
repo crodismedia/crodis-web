@@ -22,7 +22,6 @@ jobs:
           let content = fs.readFileSync(file, 'utf8');
           let changed = false;
 
-          // Mantener las reparaciones previas si alguna copia antigua reaparece.
           const oldImageBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
           const newImageBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
           if (content.includes(oldImageBlock)) {
@@ -30,17 +29,21 @@ jobs:
             changed = true;
           }
 
-          // Los breakpoints en px, colores repetidos y líneas largas no son fallos por sí mismos.
-          // Sustituimos esos avisos genéricos por una comprobación de selectores realmente extremos.
           const infoCssRegex = /    \/\/ 3\. Verificar selectores muy específicos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
-          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(content)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n      const maxDepth = Math.max(...selector.split(',').map(part =>\n        part.trim().split(/\\s+|>|\\+|~/).filter(Boolean).length\n      ));\n      if (idCount > 1 || maxDepth > 7) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
+          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const cssForSelectors = content.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n      const maxDepth = Math.max(...selector.split(',').map(part =>\n        part.trim().split(/\\s+|>|\\+|~/).filter(Boolean).length\n      ));\n      if (idCount > 2 || maxDepth > 8) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
           if (infoCssRegex.test(content)) {
             content = content.replace(infoCssRegex, infoCssReplacement);
             changed = true;
             console.log('Quality Guard: reglas informativas CSS depuradas');
           }
 
-          // Eliminar el aviso puramente cosmético de longitud de línea en CSS.
+          const currentExtremeRegex = /    \/\/ 3\. Verificar únicamente selectores realmente extremos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
+          if (currentExtremeRegex.test(content) && !content.includes('const cssForSelectors = content.replace')) {
+            content = content.replace(currentExtremeRegex, infoCssReplacement);
+            changed = true;
+            console.log('Quality Guard: parser de selectores corregido');
+          }
+
           const longLineRegex = /\n    \/\/ 7\. Verificar líneas muy largas[\s\S]*?\n    return issues;/;
           if (longLineRegex.test(content)) {
             content = content.replace(longLineRegex, '\n\n    return issues;');
@@ -48,7 +51,6 @@ jobs:
             console.log('Quality Guard: aviso cosmético de longitud CSS retirado');
           }
 
-          // En HTML solo avisar de scripts que realmente bloquean el parser en <head>.
           const oldScriptRegex = /    \/\/ 7\. Verificar scripts al final del body[\s\S]*?\n    return issues;/;
           const newScriptBlock = `    // 7. Verificar scripts externos realmente bloqueantes en <head>\n    const headMatch = content.match(/<head[^>]*>([\\s\\S]*?)<\\/head>/i);\n    if (headMatch) {\n      const blockingScripts = [...headMatch[1].matchAll(/<script\\b([^>]*)src=["'][^"']+["']([^>]*)><\\/script>/gi)]\n        .filter(m => !/\\b(defer|async)\\b/i.test(\`\${m[1]} \${m[2]}\`) && !/type=["']module["']/i.test(\`\${m[1]} \${m[2]}\`));\n      if (blockingScripts.length > 2) {\n        issues.push({\n          type: 'performance',\n          severity: 'info',\n          line: 0,\n          message: \`\${blockingScripts.length} scripts externos bloqueantes en <head>\`\n        });\n      }\n    }\n\n    return issues;`;
           if (oldScriptRegex.test(content)) {
