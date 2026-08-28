@@ -13,11 +13,15 @@
     backdrop-filter: blur(5px);
 }
 
+.cookie-banner__content,
+.cookie-banner__actions {
+    display: grid;
+}
+
 .cookie-banner__content {
     width: min(1120px, 100%);
     margin: 0 auto;
     padding: 20px;
-    display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 22px;
     align-items: center;
@@ -48,14 +52,15 @@
 }
 
 .cookie-banner__actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    --cookie-action-columns: repeat(2, minmax(150px, 1fr));
+    grid-template-columns: var(--cookie-action-columns);
     gap: 10px;
 }
 
 .cookie-choice {
     min-height: 46px;
-    padding: 11px 16px;
+    padding-block: 11px;
+    padding-inline: 16px;
     color: #fff;
     background: #167a45;
     border: 2px solid #167a45;
@@ -78,7 +83,8 @@
     z-index: 9998;
     right: 14px;
     bottom: 14px;
-    padding: 8px 12px;
+    padding-block: 8px;
+    padding-inline: 12px;
     color: #fff;
     background: #17251d;
     border: 1px solid rgba(255, 255, 255, .35);
@@ -120,7 +126,7 @@
     }
 
     .cookie-banner__actions {
-        grid-template-columns: 1fr 1fr;
+        --cookie-action-columns: 1fr 1fr;
     }
 
     .cookie-choice {
@@ -137,8 +143,15 @@
 
 /* Portada: ajustes de escritorio agrupados aquí hasta extraer los overrides inline de index.html. */
 @media (min-width: 1051px) {
-    .cabecera-contenido { gap: 22px; }
-    .menu { gap: 24px; flex-wrap: nowrap; }
+    .cabecera-contenido {
+        --tm-header-gap: 22px;
+        gap: var(--tm-header-gap);
+    }
+    .menu {
+        --tm-menu-gap: 24px;
+        gap: var(--tm-menu-gap);
+        flex-wrap: nowrap;
+    }
     .menu a { white-space: nowrap; }
     .hero-contenido { grid-template-columns: minmax(0, 1fr); justify-items: center; }
     .hero-texto { width: min(100%, 980px); max-width: 980px; margin-inline: auto; }
@@ -159,7 +172,7 @@
 }
 
 @media (min-width: 1051px) and (max-width: 1250px) {
-    .menu { gap: 15px; }
-    .cabecera-contenido { gap: 14px; }
+    .menu { --tm-menu-gap: 15px; }
+    .cabecera-contenido { --tm-header-gap: 14px; }
     .acciones-cabecera .contador-altas-cabecera { display: none; }
 }
