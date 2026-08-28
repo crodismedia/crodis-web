@@ -1,0 +1,45 @@
+name: Fix Municipios Important Temp
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-municipios-important-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refactor CSS specificity
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'css/municipios.css';
+          let content = fs.readFileSync(file, 'utf8');
+
+          // Scope the search form rules so they beat the shared base stylesheet naturally.
+          content = content.replaceAll('.municipio-buscador {', 'body.pagina-municipio .municipio-buscador {');
+          content = content.replace('.select-nativo-oculto {', 'body.pagina-municipio .municipio-buscador select.select-nativo-oculto {');
+
+          // Keep only the two card-background overrides; the remaining selectors are already
+          // later in the cascade and/or carry an ID, so !important is unnecessary.
+          const protectedBlock = `.pagina-municipio .taller-card,\n.pagina-municipio .taller-card .taller-informacion {\n    background: #ffffff !important;\n}`;
+          if (!content.includes(protectedBlock)) throw new Error('Bloque de fondo esperado no encontrado');
+          const token = '__TM_KEEP_IMPORTANT__';
+          content = content.replace(protectedBlock, protectedBlock.replace('!important', token));
+          content = content.replace(/\s*!important/g, '');
+          content = content.replace(token, '!important');
+
+          fs.writeFileSync(file, content);
+          NODE
+      - name: Commit fix
+        run: |
+          git config user.name "TallerMap CSS Fix"
+          git config user.email "actions@users.noreply.github.com"
+          git add css/municipios.css
+          git commit -m "Reducir important con especificidad en municipios"
+          git pull --rebase origin main
+          git push origin HEAD:main
