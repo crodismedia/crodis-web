@@ -317,11 +317,13 @@ class CSSAnalyzer {
     while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {
       const selector = selectorMatch[1].trim();
       if (!selector || selector.startsWith('@')) continue;
-      const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;
-      const maxDepth = Math.max(...selector.split(',').map(part =>
-        part.trim().split(/\s+|>|\+|~/).filter(Boolean).length
-      ));
-      if (idCount > 2 || maxDepth > 8) extremeSelectors.push(selector);
+      const parts = selector.split(',').map(part => part.trim()).filter(Boolean);
+      const isExtreme = parts.some(part => {
+        const idCount = (part.match(/#[a-zA-Z0-9_-]+/g) || []).length;
+        const depth = part.split(/\s+|>|\+|~/).filter(Boolean).length;
+        return idCount > 2 || depth > 8;
+      });
+      if (isExtreme) extremeSelectors.push(selector);
     }
     if (extremeSelectors.length > 0) {
       issues.push({
