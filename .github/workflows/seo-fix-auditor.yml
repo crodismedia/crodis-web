@@ -17,7 +17,6 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
 
-          // 1) Contenido visible: incorporar términos útiles de forma natural.
           const indexFile = 'index.html';
           let index = fs.readFileSync(indexFile, 'utf8');
           const oldHero = '<p class="hero-descripcion">Estamos ampliando progresivamente la cobertura a nuevas provincias.</p>';
@@ -25,10 +24,8 @@ jobs:
           if (index.includes(oldHero)) {
             index = index.replace(oldHero, newHero);
             fs.writeFileSync(indexFile, index);
-            console.log('Portada: contenido útil actualizado');
           }
 
-          // 2) Auditor: LocalBusiness, dirección y teléfono solo son obligatorios en fichas de taller.
           const auditFile = 'seo-auditor.js';
           let audit = fs.readFileSync(auditFile, 'utf8');
 
@@ -40,6 +37,16 @@ jobs:
           audit = audit.replace(
             "if (!localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección', 'warning', 'local'); this.addRecommendation('Agregar información de dirección para SEO local', 'high'); }\n    if (!localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono para contacto y SEO local', 'high'); }",
             "const requiresLocalContact = new URL(this.url).pathname.startsWith('/talleres/');\n    if (requiresLocalContact && !localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar información de dirección a la ficha', 'high'); }\n    if (requiresLocalContact && !localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono a la ficha', 'high'); }"
+          );
+
+          audit = audit.replace(
+            "if (this.results.localBusiness && !this.results.localBusiness.hasAddress) recommendations.push({ priority: 'ALTO', message: 'Agregar dirección física para SEO local', details: 'Incluir dirección, ciudad y código postal para mejorar el SEO local de los talleres' });",
+            "const isWorkshopPage = new URL(this.url).pathname.startsWith('/talleres/'); if (isWorkshopPage && this.results.localBusiness && !this.results.localBusiness.hasAddress) recommendations.push({ priority: 'ALTO', message: 'Agregar dirección física a la ficha', details: 'Incluir dirección, ciudad y código postal del taller' });"
+          );
+
+          audit = audit.replace(
+            "console.log(`   Dirección: ${this.results.localBusiness.hasAddress ? '✅' : '❌'}`); console.log(`   Teléfono: ${this.results.localBusiness.hasPhoneNumber ? '✅' : '❌'}`);",
+            "const localRequired = new URL(this.url).pathname.startsWith('/talleres/'); console.log(`   Dirección: ${localRequired ? (this.results.localBusiness.hasAddress ? '✅' : '❌') : 'N/A'}`); console.log(`   Teléfono: ${localRequired ? (this.results.localBusiness.hasPhoneNumber ? '✅' : '❌') : 'N/A'}`);"
           );
 
           fs.writeFileSync(auditFile, audit);
