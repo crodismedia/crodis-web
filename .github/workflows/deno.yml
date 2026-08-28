@@ -25,6 +25,9 @@ jobs:
       - name: Validate JavaScript, HTML and local links
         run: node scripts/validate-site.mjs
 
+      - name: Check production image alt attributes
+        run: npm run diagnostico-alt:prod
+
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
