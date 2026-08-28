@@ -6,16 +6,18 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const args = new Set(process.argv.slice(2));
 const CI = args.has('--ci');
+const CONFIG_PATH = path.join(ROOT, 'quality-guard.config.json');
 
-const TARGET_DIRS = [
-  'api', 'css', 'js', 'lib', 'municipios', 'pages', 'provincias', 'servicios', 'talleres'
-];
+if (!fs.existsSync(CONFIG_PATH)) {
+  console.error('Falta quality-guard.config.json');
+  process.exit(2);
+}
 
-const IGNORE_PARTS = [
-  'node_modules', '.git', '.vercel', 'dist', 'build', 'coverage', 'quality-reports'
-];
-
+const CONFIG = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+const THRESHOLDS = CONFIG.thresholds || {};
+const MAX_FILE_SIZE = Number(THRESHOLDS.maxFileSize || 524288);
 const EXTENSIONS = new Set(['.html', '.htm', '.css', '.js', '.mjs', '.cjs']);
+const targetDirs = [...new Set(Object.values(CONFIG.directories || {}).flat())];
 
 const issues = [];
 const metrics = {
@@ -24,27 +26,39 @@ const metrics = {
   images: 0,
   imagesWithoutAlt: 0,
   imagesWithEmptyAlt: 0,
+  accessibilityIssues: 0,
   errors: 0,
   warnings: 0
 };
 
+function normalize(file) {
+  return file.split(path.sep).join('/');
+}
+
+function globToRegex(pattern) {
+  const escaped = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*/g, '§§DOUBLESTAR§§')
+    .replace(/\*/g, '[^/]*')
+    .replace(/§§DOUBLESTAR§§/g, '.*');
+  return new RegExp(`(^|/)${escaped}$|(^|/)${escaped.replace(/\/\.\*$/, '')}(/|$)`);
+}
+
+const ignoreRegexes = (CONFIG.ignore || []).map(globToRegex);
 function ignored(file) {
-  const normalized = file.split(path.sep).join('/');
-  return IGNORE_PARTS.some((part) => normalized.includes(`/${part}/`) || normalized.endsWith(`/${part}`));
+  const rel = normalize(path.relative(ROOT, file));
+  return ignoreRegexes.some((regex) => regex.test(rel));
 }
 
 function addIssue(file, line, severity, category, message) {
   issues.push({ file: path.relative(ROOT, file), line, severity, category, message });
   if (severity === 'error') metrics.errors += 1;
   if (severity === 'warning') metrics.warnings += 1;
+  if (category === 'accessibility' || category === 'image-seo') metrics.accessibilityIssues += 1;
 }
 
 function lineAt(content, index) {
   return content.slice(0, index).split('\n').length;
-}
-
-function imageTags(content) {
-  return [...content.matchAll(/<img\b[^>]*>/gi)];
 }
 
 function altValue(tag) {
@@ -53,55 +67,74 @@ function altValue(tag) {
   return (match[1] ?? match[2] ?? match[3] ?? '').trim();
 }
 
+function analyzeHeadingHierarchy(file, content) {
+  if (!CONFIG.accessibility?.checkHeadingHierarchy) return;
+  let previous = 0;
+  for (const match of content.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)) {
+    const level = Number(match[1]);
+    const text = match[2].replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, ' ').trim();
+    if (!text) addIssue(file, lineAt(content, match.index), 'warning', 'seo', 'Heading vacío.');
+    if (previous && level > previous + 1) {
+      addIssue(file, lineAt(content, match.index), 'warning', 'accessibility', `Salto de jerarquía H${previous} → H${level}.`);
+    }
+    previous = level;
+  }
+}
+
 function analyzeHTML(file, content) {
   metrics.htmlFiles += 1;
 
-  for (const match of imageTags(content)) {
-    metrics.images += 1;
-    const tag = match[0];
-    const alt = altValue(tag);
-
-    if (alt === null) {
-      metrics.imagesWithoutAlt += 1;
-      addIssue(file, lineAt(content, match.index), 'error', 'image-seo', `Imagen sin atributo alt: ${tag.slice(0, 180)}`);
-    } else if (alt === '') {
-      metrics.imagesWithEmptyAlt += 1;
-      addIssue(file, lineAt(content, match.index), 'warning', 'image-seo', `Imagen con alt vacío: ${tag.slice(0, 180)}`);
+  if (CONFIG.accessibility?.checkAltText !== false) {
+    for (const match of content.matchAll(/<img\b[^>]*>/gi)) {
+      metrics.images += 1;
+      const tag = match[0];
+      const alt = altValue(tag);
+      if (alt === null) {
+        metrics.imagesWithoutAlt += 1;
+        addIssue(file, lineAt(content, match.index), 'error', 'image-seo', `Imagen sin atributo alt: ${tag.slice(0, 180)}`);
+      } else if (alt === '') {
+        metrics.imagesWithEmptyAlt += 1;
+        addIssue(file, lineAt(content, match.index), 'warning', 'image-seo', `Imagen con alt vacío: ${tag.slice(0, 180)}`);
+      }
     }
   }
 
-  if (!/<!doctype\s+html>/i.test(content)) {
-    addIssue(file, 1, 'warning', 'html', 'Falta <!DOCTYPE html>.');
-  }
+  if (!/<!doctype\s+html>/i.test(content)) addIssue(file, 1, 'warning', 'html', 'Falta <!DOCTYPE html>.');
 
   const htmlTag = content.match(/<html\b[^>]*>/i)?.[0] || '';
-  if (htmlTag && !/\blang\s*=/.test(htmlTag)) {
-    addIssue(file, 1, 'warning', 'accessibility', 'Falta atributo lang en <html>.');
+  if (htmlTag && !/\blang\s*=/.test(htmlTag)) addIssue(file, 1, 'warning', 'accessibility', 'Falta atributo lang en <html>.');
+  if (!/<meta\b[^>]*name\s*=\s*["']viewport["']/i.test(content)) addIssue(file, 1, 'warning', 'responsive', 'Falta meta viewport.');
+
+  if (CONFIG.seo?.checkTitleTags && !/<title\b[^>]*>\s*[^<\s][\s\S]*?<\/title>/i.test(content)) {
+    addIssue(file, 1, 'warning', 'seo', 'Falta <title> válido.');
+  }
+  if (CONFIG.seo?.checkMetaTags && !/<meta\b[^>]*name\s*=\s*["']description["'][^>]*content\s*=\s*["'][^"']+["']/i.test(content)) {
+    addIssue(file, 1, 'warning', 'seo', 'Falta meta description válida.');
+  }
+  if (CONFIG.seo?.checkCanonical && !/<link\b[^>]*rel\s*=\s*["']canonical["'][^>]*href\s*=\s*["'][^"']+["']/i.test(content)) {
+    addIssue(file, 1, 'warning', 'seo', 'Falta canonical.');
   }
 
-  if (!/<meta\b[^>]*name\s*=\s*["']viewport["']/i.test(content)) {
-    addIssue(file, 1, 'warning', 'responsive', 'Falta meta viewport.');
-  }
-
-  for (const match of content.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)) {
-    const text = match[2].replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, ' ').trim();
-    if (!text) addIssue(file, lineAt(content, match.index), 'warning', 'seo', 'Heading vacío.');
-  }
+  analyzeHeadingHierarchy(file, content);
 }
 
 function analyzeCSS(file, content) {
   const important = (content.match(/!important\b/g) || []).length;
   if (important > 20) addIssue(file, 1, 'warning', 'css', `Uso elevado de !important: ${important}.`);
-  if (Buffer.byteLength(content, 'utf8') > 500 * 1024) addIssue(file, 1, 'warning', 'performance', 'Archivo CSS superior a 500 KB.');
+  if (CONFIG.performance?.checkFileSize && Buffer.byteLength(content, 'utf8') > MAX_FILE_SIZE) {
+    addIssue(file, 1, 'warning', 'performance', `Archivo CSS superior a ${(MAX_FILE_SIZE / 1024).toFixed(0)} KB.`);
+  }
 }
 
 function analyzeJS(file, content) {
   if (/\beval\s*\(/.test(content)) addIssue(file, 1, 'error', 'security', 'Uso de eval() detectado.');
-  if (Buffer.byteLength(content, 'utf8') > 500 * 1024) addIssue(file, 1, 'warning', 'performance', 'Archivo JS superior a 500 KB.');
+  if (CONFIG.performance?.checkFileSize && Buffer.byteLength(content, 'utf8') > MAX_FILE_SIZE) {
+    addIssue(file, 1, 'warning', 'performance', `Archivo JS superior a ${(MAX_FILE_SIZE / 1024).toFixed(0)} KB.`);
+  }
 }
 
 function walk(dir, out) {
-  if (!fs.existsSync(dir)) return;
+  if (!fs.existsSync(dir) || ignored(dir)) return;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (ignored(full)) continue;
@@ -111,12 +144,7 @@ function walk(dir, out) {
 }
 
 const files = [];
-for (const dir of TARGET_DIRS) walk(path.join(ROOT, dir), files);
-for (const entry of fs.readdirSync(ROOT, { withFileTypes: true })) {
-  if (!entry.isFile()) continue;
-  const ext = path.extname(entry.name).toLowerCase();
-  if (EXTENSIONS.has(ext)) files.push(path.join(ROOT, entry.name));
-}
+for (const configuredDir of targetDirs) walk(path.resolve(ROOT, configuredDir), files);
 
 for (const file of [...new Set(files)]) {
   const content = fs.readFileSync(file, 'utf8');
@@ -128,31 +156,44 @@ for (const file of [...new Set(files)]) {
 }
 
 const score = Math.max(0, 100 - metrics.errors * 2 - metrics.warnings * 0.25);
+const maxImagesWithoutAlt = Number(THRESHOLDS.maxImagesWithoutAlt ?? 0);
+const maxAccessibilityIssues = Number(THRESHOLDS.maxAccessibilityIssues ?? 0);
+const thresholdFailures = [];
+if (metrics.imagesWithoutAlt > maxImagesWithoutAlt) thresholdFailures.push(`Imágenes sin alt: ${metrics.imagesWithoutAlt} > ${maxImagesWithoutAlt}`);
+if (metrics.accessibilityIssues > maxAccessibilityIssues) thresholdFailures.push(`Issues de accesibilidad: ${metrics.accessibilityIssues} > ${maxAccessibilityIssues}`);
+
 console.log('QUALITY GUARD - TallerMap');
 console.log('=========================');
+console.log(`Configuración: ${path.relative(ROOT, CONFIG_PATH)}`);
 console.log(`Archivos analizados: ${metrics.files}`);
 console.log(`HTML analizados: ${metrics.htmlFiles}`);
 console.log(`Imágenes: ${metrics.images}`);
 console.log(`Sin alt: ${metrics.imagesWithoutAlt}`);
 console.log(`Alt vacío: ${metrics.imagesWithEmptyAlt}`);
+console.log(`Issues accesibilidad: ${metrics.accessibilityIssues}`);
 console.log(`Errores: ${metrics.errors}`);
 console.log(`Advertencias: ${metrics.warnings}`);
 console.log(`Score orientativo: ${score.toFixed(1)}/100`);
 
 if (issues.length) {
   console.log('\nIssues:');
-  for (const issue of issues.slice(0, 200)) {
+  for (const issue of issues.slice(0, 300)) {
     console.log(`[${issue.severity.toUpperCase()}] ${issue.file}:${issue.line} [${issue.category}] ${issue.message}`);
   }
-  if (issues.length > 200) console.log(`... y ${issues.length - 200} issues más.`);
+  if (issues.length > 300) console.log(`... y ${issues.length - 300} issues más.`);
+}
+
+if (thresholdFailures.length) {
+  console.log('\nUmbrales incumplidos:');
+  thresholdFailures.forEach((failure) => console.log(`- ${failure}`));
 }
 
 if (!CI) {
   const dir = path.join(ROOT, 'quality-reports');
   fs.mkdirSync(dir, { recursive: true });
   const reportPath = path.join(dir, 'latest.json');
-  fs.writeFileSync(reportPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), metrics, score, issues }, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(reportPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), config: CONFIG, metrics, score, thresholdFailures, issues }, null, 2)}\n`, 'utf8');
   console.log(`\nReporte: ${path.relative(ROOT, reportPath)}`);
 }
 
-if (CI && metrics.errors > 0) process.exit(1);
+if (CI && (metrics.errors > 0 || thresholdFailures.length > 0)) process.exit(1);
