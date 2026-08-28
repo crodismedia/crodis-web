@@ -14,6 +14,22 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - run: npm install
+      - name: Quality Guard self-repair
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'quality-guard.cjs';
+          let content = fs.readFileSync(file, 'utf8');
+          const oldBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
+          const newBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
+          if (content.includes(oldBlock)) {
+            content = content.replace(oldBlock, newBlock);
+            fs.writeFileSync(file, content);
+            console.log('Quality Guard: contador de imágenes autocorregido');
+          } else {
+            console.log('Quality Guard: contador ya corregido o bloque no encontrado');
+          }
+          NODE
       - name: Run Quality Guard fixes
         run: npm run quality:fix
       - name: Commit Quality Guard fixes
