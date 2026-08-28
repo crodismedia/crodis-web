@@ -40,7 +40,8 @@ jobs:
             git config user.email "actions@users.noreply.github.com"
             git add -A
             git commit -m "Quality Guard: aplicar correcciones automáticas"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
       - name: Verify with Quality Guard
         run: npm run quality:ci
