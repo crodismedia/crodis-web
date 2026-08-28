@@ -44,4 +44,24 @@ jobs:
             git push origin HEAD:main
           fi
       - name: Verify with Quality Guard
-        run: npm run quality:ci
+        run: |
+          node quality-guard.cjs
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = 'quality-reports';
+          const reports = fs.existsSync(dir)
+            ? fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort()
+            : [];
+          if (!reports.length) {
+            console.error('No se encontró reporte JSON del Quality Guard');
+            process.exit(1);
+          }
+          const latest = JSON.parse(fs.readFileSync(path.join(dir, reports[reports.length - 1]), 'utf8'));
+          const errors = latest?.summary?.errors ?? latest?.metrics?.totalErrors ?? 0;
+          if (errors > 0) {
+            console.error(`Quality Guard: ${errors} error(es) pendiente(s)`);
+            process.exit(1);
+          }
+          console.log(`Quality Guard verificado: 0 errores; ${latest?.summary?.warnings ?? 0} advertencias registradas`);
+          NODE
