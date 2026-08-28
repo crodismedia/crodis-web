@@ -237,8 +237,9 @@ class SEOAuditor {
     locationPatterns.forEach(pattern => { if (pattern.test(textContent)) { if (pattern.toString().includes('dirección|address')) localContent.hasAddress = true; if (pattern.toString().includes('teléfono|phone')) localContent.hasPhoneNumber = true; if (pattern.toString().includes('horario|horas')) localContent.hasWorkingHours = true; if (pattern.toString().includes('mapa|map')) localContent.hasMap = true; } });
     const cities = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Zaragoza', 'Málaga', 'Murcia', 'Palma', 'Bilbao', 'Alicante'];
     cities.forEach(city => { if (textContent.includes(city)) localContent.cityMentions.push(city); });
-    if (!localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección', 'warning', 'local'); this.addRecommendation('Agregar información de dirección para SEO local', 'high'); }
-    if (!localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono para contacto y SEO local', 'high'); }
+    const requiresLocalContact = new URL(this.url).pathname.startsWith('/talleres/');
+    if (requiresLocalContact && !localContent.hasAddress) { this.addIssue('local', 'No se encontró información de dirección en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar información de dirección a la ficha', 'high'); }
+    if (requiresLocalContact && !localContent.hasPhoneNumber) { this.addIssue('local', 'No se encontró número de teléfono en la ficha de taller', 'warning', 'local'); this.addRecommendation('Agregar número de teléfono a la ficha', 'high'); }
     if (localContent.cityMentions.length === 0) { this.addIssue('local', 'No se mencionan ciudades en el contenido', 'warning', 'local'); this.addRecommendation('Mencionar las ciudades donde operan los talleres', 'medium'); } else this.addIssue('local', `✅ Ciudades mencionadas: ${localContent.cityMentions.join(', ')}`, 'info', 'local');
     this.results.localBusiness = localContent; return localContent;
   }
@@ -280,7 +281,7 @@ class SEOAuditor {
     const structuredData = []; const ldJsonRegex = /<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/gi; let jsonMatch;
     while ((jsonMatch = ldJsonRegex.exec(html)) !== null) { try { const data = JSON.parse(jsonMatch[1]); const type = data['@type'] || data['@graph']?.[0]?.['@type'] || 'unknown'; structuredData.push({ type, data, isValid: true, error: null }); if (type === 'LocalBusiness' || type === 'AutomotiveBusiness') this.addIssue('structured', '✅ Schema LocalBusiness encontrado (crucial para talleres)', 'success', 'structured'); } catch (e) { structuredData.push({ type: 'invalid', data: null, isValid: false, error: e.message }); } }
     if (structuredData.length === 0) { this.addIssue('structured', 'No se encontraron datos estructurados (JSON-LD)', 'error', 'structured'); this.addRecommendation('Agregar JSON-LD con Schema.org LocalBusiness o AutomotiveBusiness', 'high'); }
-    else { const hasLocalBusiness = structuredData.some(sd => sd.type === 'LocalBusiness' || sd.type === 'AutomotiveBusiness'); if (!hasLocalBusiness) { this.addIssue('structured', 'Falta Schema LocalBusiness (recomendado para directorio de talleres)', 'warning', 'structured'); this.addRecommendation('Agregar Schema LocalBusiness para mejorar el SEO local', 'high'); } }
+    else { const hasLocalBusiness = structuredData.some(sd => sd.type === 'LocalBusiness' || sd.type === 'AutomotiveBusiness'); const requiresLocalBusiness = new URL(this.url).pathname.startsWith('/talleres/'); if (requiresLocalBusiness && !hasLocalBusiness) { this.addIssue('structured', 'Falta Schema LocalBusiness en ficha de taller', 'warning', 'structured'); this.addRecommendation('Agregar Schema LocalBusiness para mejorar el SEO local de la ficha', 'high'); } }
     this.results.structuredData = structuredData; return structuredData;
   }
 
