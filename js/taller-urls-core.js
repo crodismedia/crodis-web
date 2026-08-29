@@ -3,7 +3,7 @@
 
     const SITE_URL = "https://www.tallermap.es";
     const CLEAN_PREFIX = "/talleres/";
-    const LEGACY_PATH = "/pages/taller.html";
+    const LEGACY_PATH = "CLEAN_PREFIX";
 
     const NOMBRES_SERVICIOS = {
         "mecanica-general": "Mecánica general",
