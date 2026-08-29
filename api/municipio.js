@@ -39,7 +39,7 @@ function humanizeSlug(value) {
 }
 
 function readMunicipalityMeta(fileName) {
-    const fallbackCode = (fileName.match(/(\d{5})\.html$/) || [])[1] || "";
+   const fallbackCode = "";
     const fallbackName = humanizeSlug(fileName);
 
     try {
@@ -55,7 +55,7 @@ function readMunicipalityMeta(fileName) {
         if (match) {
             return {
                 name: String(match[1] || fallbackName).trim(),
-                code: String(match[2] || fallbackCode).replace(/\D/g, "").slice(0, 5)
+                code: String(fallbackCode).replace(/\D/g, "").slice(0, 5)
             };
         }
     } catch (_error) {
