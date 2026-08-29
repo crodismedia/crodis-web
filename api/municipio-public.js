@@ -5,8 +5,8 @@ import municipioHandler from "./municipio.js";
 const RENDER_DIFERIDO = '<style id="tm-municipio-render">.taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}</style>';
 const PAGINACION_DIRECTA_STYLE = '<style id="tm-municipio-paginacion-directa">.tm-paginacion-directa{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}.tm-paginacion-directa a,.tm-paginacion-directa strong{display:inline-flex;min-width:34px;min-height:34px;align-items:center;justify-content:center;padding:4px 8px;border-radius:8px;text-decoration:none}.tm-paginacion-directa strong{background:#17223b;color:#fff}@media(max-width:640px){.municipio-paginacion{flex-wrap:wrap}.tm-paginacion-directa{width:100%;order:3}}</style>';
 
-function archivoMunicipalValido(fileName) {
-    if (!/^[a-z0-9-]+-\d{5}\.html$/.test(fileName)) return false;
+function archivoMunicipioValido(fileName) {
+    if (!/^[a-z0-9-]+\.html$/i.test(fileName)) return false;
 
     try {
         return fs.existsSync(path.join(process.cwd(), "municipios", fileName));
