@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+    // Borrar archivos viejos
+const files = fs.readdirSync('./municipios');
+files.forEach(file => {
+    if (/\d{5}\.html$/.test(file)) {
+        fs.unlinkSync(`./municipios/${file}`);
+    }
+});
     escapeHTML,
     safePhone,
     safeWeb,
