@@ -14,7 +14,7 @@ const PAGE_SIZE = 30;
 
 function safeFileName(value) {
     const fileName = String(value || "").trim().toLowerCase();
-    return /^[a-z0-9-]+-\d{5}\.html$/.test(fileName) ? fileName : "";
+    return /^[a-z0-9-]+\.html$/i.test(fileName) ? fileName : "";
 }
 
 function safeService(value) {
@@ -31,7 +31,7 @@ function requestedPage(value) {
 
 function humanizeSlug(value) {
     return String(value || "")
-        .replace(/-\d{5}\.html$/i, "")
+        .replace(/\.html$/i, "")
         .split("-")
         .filter(Boolean)
         .map((part) => part.charAt(0).toLocaleUpperCase("es") + part.slice(1))
