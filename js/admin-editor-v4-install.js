@@ -99,6 +99,17 @@
     }[char]));
   }
 
+  function actualizarTextoSeoGlobal() {
+    const help = document.querySelector("#v4-seo-audit .v4-csv-help");
+    const estado = document.getElementById("v4-seo-estado");
+    if (help) {
+      help.innerHTML = 'Audita <strong>todo TallerMap de forma global</strong>: portada, provincias, municipios, servicios, talleres y desguaces. Revisa title, description, robots, canonical, H1, contenido, imágenes ALT, enlaces y JSON-LD. Es solo lectura.';
+    }
+    if (estado && !estado.classList.contains("ok") && !estado.classList.contains("error")) {
+      estado.textContent = "Preparado para auditar globalmente todo TallerMap.";
+    }
+  }
+
   function montarGuardian() {
     if (document.getElementById("v4-guardian")) return;
     const anchor = document.querySelector(".v4-csv-import") || document.querySelector(".v4-card.v4-pad");
@@ -205,6 +216,7 @@
     }
 
     montarGuardian();
+    actualizarTextoSeoGlobal();
     void registrarServiceWorkerEditor();
   }, { once: true });
 }());
