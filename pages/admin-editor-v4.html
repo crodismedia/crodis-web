@@ -89,14 +89,14 @@
 
     <section id="v4-seo-audit" class="v4-csv-import" aria-labelledby="v4-seo-title">
       <h2 id="v4-seo-title">🔎 Auditor SEO</h2>
-      <div class="v4-csv-help">Audita la <strong>portada pública real de TallerMap</strong>: title, description, robots, canonical, H1, contenido, imágenes ALT, enlaces, JSON-LD y palabras clave. Es solo lectura.</div>
-      <div class="v4-actions"><button id="v4-seo-ejecutar" class="v4-btn v4-primary" type="button">Ejecutar Auditor SEO</button></div>
-      <div id="v4-seo-estado" class="v4-status">Preparado para auditar https://www.tallermap.es.</div>
+      <div class="v4-csv-help">Audita <strong>todo TallerMap de forma global</strong>: portada, provincias, municipios, servicios, talleres y desguaces. Revisa title, description, robots, canonical, H1, contenido, imágenes ALT, enlaces y JSON-LD. La auditoría es solo lectura; “Corregir y guardar” aplica únicamente arreglos automáticos seguros.</div>
+      <div class="v4-actions"><button id="v4-seo-ejecutar" class="v4-btn v4-primary" type="button">Ejecutar Auditor SEO</button><button id="v4-seo-corregir" class="v4-btn v4-green" type="button">Corregir y guardar</button></div>
+      <div id="v4-seo-estado" class="v4-status">Preparado para auditar globalmente todo TallerMap.</div>
       <div id="v4-seo-kpis" class="v4-csv-kpis" hidden>
         <div><strong id="v4-seo-score">—</strong><span>Score SEO</span></div>
         <div><strong id="v4-seo-errors">0</strong><span>Fallos</span></div>
         <div><strong id="v4-seo-warnings">0</strong><span>Advertencias</span></div>
-        <div><strong id="v4-seo-passed">0</strong><span>Checks OK</span></div>
+        <div><strong id="v4-seo-passed">0</strong><span>Páginas OK</span></div>
       </div>
       <div id="v4-seo-resultados" class="v4-csv-preview" aria-live="polite"></div>
     </section>
@@ -184,7 +184,7 @@
     const sb=window.supabaseClient;
     if(!btn||!estado||!resultados||!kpis)return;
     if(!sb){estado.textContent='No se pudo ejecutar Auditor SEO: Supabase no disponible.';estado.className='v4-status error';return;}
-    btn.disabled=true;estado.textContent='Auditor SEO está analizando la portada pública…';estado.className='v4-status';resultados.innerHTML='';
+    btn.disabled=true;estado.textContent='Auditor SEO está analizando globalmente todo TallerMap…';estado.className='v4-status';resultados.innerHTML='';
     try{
       const token=await sessionToken(sb);
       const response=await fetch('/api/seo-audit',{method:'POST',headers:{Authorization:`Bearer ${token}`}});
@@ -197,14 +197,38 @@
       document.getElementById('v4-seo-passed').textContent=checks.passed??0;
       kpis.hidden=false;
       const commit=data.commit?String(data.commit).slice(0,7):'sin SHA';
-      estado.textContent=`✓ Auditor SEO ejecutado · ${data.grade||'sin nota'} · ${data.branch||'main'} @ ${commit}`;estado.className='v4-status ok';
+      estado.textContent=`✓ Auditor SEO global · ${data.grade||'sin nota'} · ${data.filesAnalyzed??0} páginas · ${data.branch||'main'} @ ${commit}`;estado.className='v4-status ok';
       const issues=Array.isArray(data.issues)?data.issues:[];
-      resultados.innerHTML=issues.length?issues.map(issue=>{const severity=issue.severity==='error'?'error':issue.severity==='warning'?'duplicate':'ok';return `<div class="v4-csv-row ${severity}"><strong>${esc(issue.severity||'info').toUpperCase()} · ${esc(issue.type||'seo')}${issue.element?` · ${esc(issue.element)}`:''}</strong><small>${esc(issue.message||'')}</small></div>`;}).join(''):'<div class="v4-csv-row ok"><strong>Sin incidencias SEO</strong><small>No se han detectado problemas en la portada.</small></div>';
+      resultados.innerHTML=issues.length?issues.map(issue=>{const severity=issue.severity==='error'?'error':issue.severity==='warning'?'duplicate':'ok';return `<div class="v4-csv-row ${severity}"><strong>${esc(issue.severity||'info').toUpperCase()} · ${esc(issue.type||'seo')}${issue.element?` · ${esc(issue.element)}`:''}</strong><small>${esc(issue.message||'')}</small></div>`;}).join(''):'<div class="v4-csv-row ok"><strong>Sin incidencias SEO</strong><small>No se han detectado problemas en las páginas analizadas.</small></div>';
     }catch(error){estado.textContent=`No se pudo ejecutar Auditor SEO: ${error?.message||error}`;estado.className='v4-status error';}
+    finally{btn.disabled=false;}
+  }
+  async function corregirYGuardarSeo(){
+    const btn=document.getElementById('v4-seo-corregir');
+    const estado=document.getElementById('v4-seo-estado');
+    const resultados=document.getElementById('v4-seo-resultados');
+    const sb=window.supabaseClient;
+    if(!btn||!estado||!resultados||!sb)return;
+    const ok=window.confirm('Se aplicarán únicamente correcciones SEO automáticas seguras y se guardarán en la rama main de GitHub. ¿Continuar?');
+    if(!ok)return;
+    btn.disabled=true;estado.textContent='Corrigiendo incidencias SEO seguras y preparando el commit…';estado.className='v4-status';
+    try{
+      const token=await sessionToken(sb);
+      const response=await fetch('/api/seo-fix-save',{method:'POST',headers:{Authorization:`Bearer ${token}`}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.detail||data.error||`HTTP ${response.status}`);
+      if(!data.saved){estado.textContent=data.message||'No hay correcciones automáticas seguras pendientes.';estado.className='v4-status ok';return;}
+      const commit=String(data.commit||'').slice(0,7)||'sin SHA';
+      estado.textContent=`✓ ${data.filesChanged||0} archivos corregidos y guardados · main @ ${commit}`;estado.className='v4-status ok';
+      const fixes=Object.entries(data.fixes||{}).map(([name,count])=>`${esc(name)}: ${esc(count)}`).join(' · ');
+      const remaining=Number(data.remaining||0);
+      resultados.innerHTML=`<div class="v4-csv-row ok"><strong>Commit creado: ${esc(commit)}</strong><small>${fixes||'Correcciones seguras aplicadas.'} Vercel iniciará el despliegue automáticamente.${remaining?` Quedan ${esc(remaining)} archivos seguros para otra tanda.`:''}</small></div>`;
+    }catch(error){estado.textContent=`No se pudieron guardar las correcciones: ${error?.message||error}`;estado.className='v4-status error';}
     finally{btn.disabled=false;}
   }
   document.getElementById('v4-guardian-ejecutar')?.addEventListener('click',ejecutarGuardian);
   document.getElementById('v4-seo-ejecutar')?.addEventListener('click',ejecutarSeoAudit);
+  document.getElementById('v4-seo-corregir')?.addEventListener('click',corregirYGuardarSeo);
 }());
 </script>
 </body>
