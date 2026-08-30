@@ -45,6 +45,10 @@ export default async function handler(request, response) {
     const auditor = new GlobalSEOAuditor(process.cwd());
     const result = auditor.audit();
     const summary = result.summary || {};
+    const pages = Array.isArray(result.pages) ? result.pages : [];
+    const preciseScore = pages.length
+      ? Math.round((pages.reduce((sum, page) => sum + Number(page.score || 0), 0) / pages.length) * 10) / 10
+      : 0;
     const pagesWithIssues = new Set((result.issues || []).filter(i => i.severity !== 'info').map(i => i.page)).size;
     const passedPages = Math.max(0, (result.filesAnalyzed || 0) - pagesWithIssues);
     const issues = (result.issues || []).map(issue => ({
@@ -64,15 +68,15 @@ export default async function handler(request, response) {
       generatedAt: result.generatedAt,
       durationMs: result.durationMs,
       filesAnalyzed: result.filesAnalyzed,
-      score: summary.score ?? 0,
-      grade: grade(summary.score ?? 0),
+      score: preciseScore,
+      grade: grade(preciseScore),
       checks: {
         passed: passedPages,
         failed: summary.errors ?? 0,
         warnings: summary.warnings ?? 0,
         total: result.filesAnalyzed ?? 0
       },
-      summary,
+      summary: { ...summary, score: preciseScore },
       issues,
       worstPages: result.worstPages || [],
       truncatedIssues: result.truncatedIssues || false
