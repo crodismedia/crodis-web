@@ -15,7 +15,12 @@
     "quality:ci": "node quality-guard.cjs --ci",
     "quality:report": "node quality-guard.cjs --report",
     "quality:help": "node quality-guard.cjs --help",
-    "quality:full": "npm run quality && npm run quality:report && npm run quality:fix && npm run quality && npm run quality:ci"
+    "quality:full": "npm run quality && npm run quality:report && npm run quality:fix && npm run quality && npm run quality:ci",
+    "guardian:v2": "node scripts/guardian-v2.mjs",
+    "guardian:v2:strict": "node scripts/guardian-v2.mjs --strict",
+    "audit:seo:v2": "node scripts/deep-seo-audit.mjs --url=https://www.tallermap.es --max-pages=6000 --concurrency=12",
+    "audit:seo:v2:strict": "node scripts/deep-seo-audit.mjs --url=https://www.tallermap.es --max-pages=6000 --concurrency=12 --strict",
+    "audit:deep": "npm run guardian:v2 && npm run audit:seo:v2"
   },
   "dependencies": {
     "@vercel/functions": "latest",
