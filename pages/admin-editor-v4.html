@@ -86,6 +86,20 @@
       </div>
       <div id="v4-guardian-resultados" class="v4-csv-preview" aria-live="polite"></div>
     </section>
+
+    <section id="v4-seo-audit" class="v4-csv-import" aria-labelledby="v4-seo-title">
+      <h2 id="v4-seo-title">🔎 Auditor SEO</h2>
+      <div class="v4-csv-help">Audita la <strong>portada pública real de TallerMap</strong>: title, description, robots, canonical, H1, contenido, imágenes ALT, enlaces, JSON-LD y palabras clave. Es solo lectura.</div>
+      <div class="v4-actions"><button id="v4-seo-ejecutar" class="v4-btn v4-primary" type="button">Ejecutar Auditor SEO</button></div>
+      <div id="v4-seo-estado" class="v4-status">Preparado para auditar https://www.tallermap.es.</div>
+      <div id="v4-seo-kpis" class="v4-csv-kpis" hidden>
+        <div><strong id="v4-seo-score">—</strong><span>Score SEO</span></div>
+        <div><strong id="v4-seo-errors">0</strong><span>Fallos</span></div>
+        <div><strong id="v4-seo-warnings">0</strong><span>Advertencias</span></div>
+        <div><strong id="v4-seo-passed">0</strong><span>Checks OK</span></div>
+      </div>
+      <div id="v4-seo-resultados" class="v4-csv-preview" aria-live="polite"></div>
+    </section>
   </aside>
 
   <section class="v4-card v4-pad">
@@ -130,6 +144,11 @@
 (function(){
   'use strict';
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  async function sessionToken(sb){
+    const {data:{session},error}=await sb.auth.getSession();
+    if(error||!session?.access_token)throw new Error('Sesión administrativa no disponible');
+    return session.access_token;
+  }
   async function ejecutarGuardian(){
     const btn=document.getElementById('v4-guardian-ejecutar');
     const estado=document.getElementById('v4-guardian-estado');
@@ -140,9 +159,8 @@
     if(!sb){estado.textContent='No se pudo ejecutar Guardian: Supabase no disponible.';estado.className='v4-status error';return;}
     btn.disabled=true;estado.textContent='Guardian está analizando el proyecto…';estado.className='v4-status';resultados.innerHTML='';
     try{
-      const {data:{session},error:sessionError}=await sb.auth.getSession();
-      if(sessionError||!session?.access_token)throw new Error('Sesión administrativa no disponible');
-      const response=await fetch('/api/guardian',{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`}});
+      const token=await sessionToken(sb);
+      const response=await fetch('/api/guardian',{method:'POST',headers:{Authorization:`Bearer ${token}`}});
       const data=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(data.detail||data.error||`HTTP ${response.status}`);
       const summary=data.summary||{},metrics=data.metrics||{};
@@ -158,7 +176,35 @@
     }catch(error){estado.textContent=`No se pudo ejecutar Guardian: ${error?.message||error}`;estado.className='v4-status error';}
     finally{btn.disabled=false;}
   }
+  async function ejecutarSeoAudit(){
+    const btn=document.getElementById('v4-seo-ejecutar');
+    const estado=document.getElementById('v4-seo-estado');
+    const resultados=document.getElementById('v4-seo-resultados');
+    const kpis=document.getElementById('v4-seo-kpis');
+    const sb=window.supabaseClient;
+    if(!btn||!estado||!resultados||!kpis)return;
+    if(!sb){estado.textContent='No se pudo ejecutar Auditor SEO: Supabase no disponible.';estado.className='v4-status error';return;}
+    btn.disabled=true;estado.textContent='Auditor SEO está analizando la portada pública…';estado.className='v4-status';resultados.innerHTML='';
+    try{
+      const token=await sessionToken(sb);
+      const response=await fetch('/api/seo-audit',{method:'POST',headers:{Authorization:`Bearer ${token}`}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.detail||data.error||`HTTP ${response.status}`);
+      const checks=data.checks||{};
+      document.getElementById('v4-seo-score').textContent=`${data.score??0}/100`;
+      document.getElementById('v4-seo-errors').textContent=checks.failed??0;
+      document.getElementById('v4-seo-warnings').textContent=checks.warnings??0;
+      document.getElementById('v4-seo-passed').textContent=checks.passed??0;
+      kpis.hidden=false;
+      const commit=data.commit?String(data.commit).slice(0,7):'sin SHA';
+      estado.textContent=`✓ Auditor SEO ejecutado · ${data.grade||'sin nota'} · ${data.branch||'main'} @ ${commit}`;estado.className='v4-status ok';
+      const issues=Array.isArray(data.issues)?data.issues:[];
+      resultados.innerHTML=issues.length?issues.map(issue=>{const severity=issue.severity==='error'?'error':issue.severity==='warning'?'duplicate':'ok';return `<div class="v4-csv-row ${severity}"><strong>${esc(issue.severity||'info').toUpperCase()} · ${esc(issue.type||'seo')}${issue.element?` · ${esc(issue.element)}`:''}</strong><small>${esc(issue.message||'')}</small></div>`;}).join(''):'<div class="v4-csv-row ok"><strong>Sin incidencias SEO</strong><small>No se han detectado problemas en la portada.</small></div>';
+    }catch(error){estado.textContent=`No se pudo ejecutar Auditor SEO: ${error?.message||error}`;estado.className='v4-status error';}
+    finally{btn.disabled=false;}
+  }
   document.getElementById('v4-guardian-ejecutar')?.addEventListener('click',ejecutarGuardian);
+  document.getElementById('v4-seo-ejecutar')?.addEventListener('click',ejecutarSeoAudit);
 }());
 </script>
 </body>
