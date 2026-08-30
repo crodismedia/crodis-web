@@ -4,13 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       max_pages:
-        description: 'Máximo de páginas a rastrear'
+        description: 'Máximo de páginas a rastrear (0 = todas)'
         required: false
-        default: '6000'
+        default: '0'
       concurrency:
         description: 'Concurrencia del crawler'
         required: false
         default: '12'
+      request_timeout:
+        description: 'Timeout por petición en ms (0 = sin timeout por petición)'
+        required: false
+        default: '30000'
   push:
     paths:
       - 'scripts/guardian-v2.mjs'
@@ -24,7 +28,6 @@ permissions:
 jobs:
   deep-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,13 +36,14 @@ jobs:
           cache: 'npm'
       - name: Instalar dependencias
         run: npm ci
-      - name: Ejecutar Guardian V2
+      - name: Ejecutar Guardian V2.2
         run: node scripts/guardian-v2.mjs
-      - name: Ejecutar SEO Audit V2 profundo
+      - name: Ejecutar SEO Audit V2.2 profundo
         env:
-          MAX_PAGES: ${{ github.event.inputs.max_pages || '6000' }}
+          MAX_PAGES: ${{ github.event.inputs.max_pages || '0' }}
           CONCURRENCY: ${{ github.event.inputs.concurrency || '12' }}
-        run: node scripts/deep-seo-audit.mjs --url=https://www.tallermap.es --max-pages=$MAX_PAGES --concurrency=$CONCURRENCY
+          REQUEST_TIMEOUT: ${{ github.event.inputs.request_timeout || '30000' }}
+        run: node scripts/deep-seo-audit.mjs --url=https://www.tallermap.es --max-pages=$MAX_PAGES --concurrency=$CONCURRENCY --request-timeout=$REQUEST_TIMEOUT
       - name: Resumen de resultados
         if: always()
         run: |
@@ -57,4 +61,4 @@ jobs:
         with:
           name: tallermap-deep-audit-v2
           path: audit-reports/
-          retention-days: 30
+          retention-days: 90
