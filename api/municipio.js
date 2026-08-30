@@ -1,13 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
-    // Borrar archivos viejos
-const files = fs.readdirSync('./municipios');
-files.forEach(file => {
-    if (/\d{5}\.html$/.test(file)) {
-        fs.unlinkSync(`./municipios/${file}`);
-    }
-});
     escapeHTML,
     safePhone,
     safeWeb,
@@ -21,7 +14,7 @@ const PAGE_SIZE = 30;
 
 function safeFileName(value) {
     const fileName = String(value || "").trim().toLowerCase();
-    return /^[a-z0-9-]+\.html$/i.test(fileName) ? fileName : "";
+    return /^[a-z0-9-]+-\d{5}\.html$/.test(fileName) ? fileName : "";
 }
 
 function safeService(value) {
@@ -38,7 +31,7 @@ function requestedPage(value) {
 
 function humanizeSlug(value) {
     return String(value || "")
-        .replace(/\.html$/i, "")
+        .replace(/-\d{5}\.html$/i, "")
         .split("-")
         .filter(Boolean)
         .map((part) => part.charAt(0).toLocaleUpperCase("es") + part.slice(1))
@@ -46,7 +39,7 @@ function humanizeSlug(value) {
 }
 
 function readMunicipalityMeta(fileName) {
-   const fallbackCode = "";
+    const fallbackCode = (fileName.match(/(\d{5})\.html$/) || [])[1] || "";
     const fallbackName = humanizeSlug(fileName);
 
     try {
@@ -62,7 +55,7 @@ function readMunicipalityMeta(fileName) {
         if (match) {
             return {
                 name: String(match[1] || fallbackName).trim(),
-                code: String(fallbackCode).replace(/\D/g, "").slice(0, 5)
+                code: String(match[2] || fallbackCode).replace(/\D/g, "").slice(0, 5)
             };
         }
     } catch (_error) {
