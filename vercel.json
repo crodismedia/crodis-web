@@ -4,6 +4,14 @@
     "api/guardian.js": {
       "maxDuration": 60,
       "includeFiles": "{quality-guard.cjs,package.json,.gitignore,README.md,api/**,lib/**,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,templates/**,css/**,js/**,scripts/**}"
+    },
+    "api/seo-audit.js": {
+      "maxDuration": 60,
+      "includeFiles": "{seo-auditor-global.cjs,index.html,desguaces.html,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,desguace/**}"
+    },
+    "api/seo-fix-save.js": {
+      "maxDuration": 60,
+      "includeFiles": "{seo-auditor-global.cjs,index.html,desguaces.html,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,desguace/**}"
     }
   },
   "redirects": [
