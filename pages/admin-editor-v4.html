@@ -72,6 +72,20 @@
       <div class="v4-csv-kpis"><div><strong id="v4-csv-total">0</strong><span>Filas</span></div><div><strong id="v4-csv-validas">0</strong><span>Existentes</span></div><div><strong id="v4-csv-duplicadas">0</strong><span>IDs repetidos</span></div><div><strong id="v4-csv-errores">0</strong><span>Errores</span></div></div>
       <div id="v4-csv-preview" class="v4-csv-preview" aria-live="polite"></div>
     </section>
+
+    <section id="v4-guardian" class="v4-csv-import" aria-labelledby="v4-guardian-title">
+      <h2 id="v4-guardian-title">🛡️ Guardian</h2>
+      <div class="v4-csv-help">Ejecuta el <strong>Quality Guard real</strong> del proyecto. Solo funciona con una sesión administrativa válida y no modifica datos ni archivos.</div>
+      <div class="v4-actions"><button id="v4-guardian-ejecutar" class="v4-btn v4-primary" type="button">Ejecutar Guardian</button></div>
+      <div id="v4-guardian-estado" class="v4-status">Preparado para analizar la versión desplegada.</div>
+      <div id="v4-guardian-kpis" class="v4-csv-kpis" hidden>
+        <div><strong id="v4-guardian-score">—</strong><span>Score</span></div>
+        <div><strong id="v4-guardian-errors">0</strong><span>Errores</span></div>
+        <div><strong id="v4-guardian-warnings">0</strong><span>Advertencias</span></div>
+        <div><strong id="v4-guardian-files">0</strong><span>Archivos</span></div>
+      </div>
+      <div id="v4-guardian-resultados" class="v4-csv-preview" aria-live="polite"></div>
+    </section>
   </aside>
 
   <section class="v4-card v4-pad">
@@ -112,5 +126,40 @@
 <script src="../js/admin-editor-v4-import-csv.js?v=2"></script>
 <script src="../js/admin-editor-v4-vaciar.js?v=1"></script>
 <script src="../js/admin-editor-v4-install.js?v=3"></script>
+<script>
+(function(){
+  'use strict';
+  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  async function ejecutarGuardian(){
+    const btn=document.getElementById('v4-guardian-ejecutar');
+    const estado=document.getElementById('v4-guardian-estado');
+    const resultados=document.getElementById('v4-guardian-resultados');
+    const kpis=document.getElementById('v4-guardian-kpis');
+    const sb=window.supabaseClient;
+    if(!btn||!estado||!resultados||!kpis)return;
+    if(!sb){estado.textContent='No se pudo ejecutar Guardian: Supabase no disponible.';estado.className='v4-status error';return;}
+    btn.disabled=true;estado.textContent='Guardian está analizando el proyecto…';estado.className='v4-status';resultados.innerHTML='';
+    try{
+      const {data:{session},error:sessionError}=await sb.auth.getSession();
+      if(sessionError||!session?.access_token)throw new Error('Sesión administrativa no disponible');
+      const response=await fetch('/api/guardian',{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.detail||data.error||`HTTP ${response.status}`);
+      const summary=data.summary||{},metrics=data.metrics||{};
+      document.getElementById('v4-guardian-score').textContent=`${summary.score??0}/100`;
+      document.getElementById('v4-guardian-errors').textContent=summary.errors??0;
+      document.getElementById('v4-guardian-warnings').textContent=summary.warnings??0;
+      document.getElementById('v4-guardian-files').textContent=metrics.filesAnalyzed??metrics.totalFiles??0;
+      kpis.hidden=false;
+      const commit=data.commit?String(data.commit).slice(0,7):'sin SHA';
+      estado.textContent=`✓ Guardian ejecutado · ${summary.grade||'sin nota'} · ${data.branch||'main'} @ ${commit}`;estado.className='v4-status ok';
+      const issues=Array.isArray(data.issues)?data.issues:[];
+      resultados.innerHTML=issues.length?issues.map(issue=>{const severity=issue.severity==='error'?'error':issue.severity==='warning'?'duplicate':'';const line=issue.line?` · línea ${esc(issue.line)}`:'';return `<div class="v4-csv-row ${severity}"><strong>${esc(issue.severity||'info').toUpperCase()} · ${esc(issue.file||'proyecto')}${line}</strong><small>${esc(issue.message||'')}</small></div>`;}).join(''):'<div class="v4-csv-row ok"><strong>Sin incidencias</strong><small>Guardian no ha detectado errores ni advertencias.</small></div>';
+    }catch(error){estado.textContent=`No se pudo ejecutar Guardian: ${error?.message||error}`;estado.className='v4-status error';}
+    finally{btn.disabled=false;}
+  }
+  document.getElementById('v4-guardian-ejecutar')?.addEventListener('click',ejecutarGuardian);
+}());
+</script>
 </body>
 </html>
