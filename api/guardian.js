@@ -26,6 +26,14 @@ async function requireAdmin(request) {
   return { ok: true };
 }
 
+function isVercelPackagingNoise(issue) {
+  if (!process.env.VERCEL) return false;
+  if (issue?.file !== 'project') return false;
+  const message = String(issue?.message || '');
+  return message === 'Archivo de configuración faltante: README.md' ||
+    message === 'Carpetas faltantes: scripts';
+}
+
 export default async function handler(request, response) {
   response.setHeader('Cache-Control', 'no-store');
   if (request.method !== 'POST') return response.status(405).json({ error: 'Método no permitido' });
@@ -49,8 +57,17 @@ export default async function handler(request, response) {
       guard.generateReport = () => {};
       guard.analyzeProject();
 
-      const issues = guard.issues || [];
+      const issues = (guard.issues || []).filter(issue => !isVercelPackagingNoise(issue));
+      const errors = issues.filter(issue => issue.severity === 'error').length;
+      const warnings = issues.filter(issue => issue.severity === 'warning').length;
       const infos = issues.filter(issue => issue.severity === 'info').length;
+      const metrics = {
+        ...guard.metrics,
+        totalErrors: errors,
+        totalWarnings: warnings,
+        score: Math.min(100, guard.metrics.score)
+      };
+
       return response.status(200).json({
         ok: true,
         source: 'quality-guard.cjs',
@@ -58,14 +75,14 @@ export default async function handler(request, response) {
         commit: process.env.VERCEL_GIT_COMMIT_SHA || null,
         generatedAt: new Date().toISOString(),
         summary: {
-          score: guard.metrics.score,
-          grade: guard.getGrade(guard.metrics.score),
-          errors: guard.metrics.totalErrors,
-          warnings: guard.metrics.totalWarnings,
+          score: metrics.score,
+          grade: guard.getGrade(metrics.score),
+          errors,
+          warnings,
           infos,
           totalIssues: issues.length
         },
-        metrics: guard.metrics,
+        metrics,
         issues: issues.slice(0, 500),
         truncated: issues.length > 500,
         output: output.slice(-80)
