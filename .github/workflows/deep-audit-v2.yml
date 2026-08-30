@@ -1,0 +1,60 @@
+name: Deep Audit V2
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_pages:
+        description: 'Máximo de páginas a rastrear'
+        required: false
+        default: '6000'
+      concurrency:
+        description: 'Concurrencia del crawler'
+        required: false
+        default: '12'
+  push:
+    paths:
+      - 'scripts/guardian-v2.mjs'
+      - 'scripts/deep-seo-audit.mjs'
+      - '.github/workflows/deep-audit-v2.yml'
+      - 'package.json'
+
+permissions:
+  contents: read
+
+jobs:
+  deep-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Ejecutar Guardian V2
+        run: node scripts/guardian-v2.mjs
+      - name: Ejecutar SEO Audit V2 profundo
+        env:
+          MAX_PAGES: ${{ github.event.inputs.max_pages || '6000' }}
+          CONCURRENCY: ${{ github.event.inputs.concurrency || '12' }}
+        run: node scripts/deep-seo-audit.mjs --url=https://www.tallermap.es --max-pages=$MAX_PAGES --concurrency=$CONCURRENCY
+      - name: Resumen de resultados
+        if: always()
+        run: |
+          echo '=== AUDIT REPORTS ==='
+          ls -lah audit-reports || true
+          for f in audit-reports/*.md; do
+            if [ -f "$f" ]; then
+              echo "=== $f ==="
+              cat "$f"
+            fi
+          done
+      - name: Guardar informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tallermap-deep-audit-v2
+          path: audit-reports/
+          retention-days: 30
