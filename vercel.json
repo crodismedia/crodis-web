@@ -58,8 +58,7 @@
     }
   ],
   "routes": [
-    {"src":"/municipios/?","dest":"/api/municipios-index"},
-    {"src":"/municipios/([^/]+-[0-9]{5})\\.html","dest":"/api/municipio-public?archivo=$1.html"}
+    {"src":"/municipios/?","dest":"/api/municipios-index"}
   ],
   "rewrites": [
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},
