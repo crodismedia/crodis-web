@@ -10,7 +10,12 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilo.css?v=20260809-5">
   <style>
-    .desguaces-resumen{margin-top:14px;font-weight:700;color:#155eef}
+    .desguaces-resumen{margin:14px 0 0;font-weight:800;color:#155eef;font-size:1.05rem}
+    .selector-provincias{margin-top:30px}
+    .selector-provincias h2{margin:0 0 14px;text-align:center;color:#101828;font-size:1.35rem}
+    .selector-provincias-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .selector-provincia{display:flex;align-items:center;justify-content:center;min-height:72px;padding:16px 18px;border:1px solid #d0d5dd;border-radius:14px;background:#fff;color:#155eef;text-decoration:none;font-weight:800;font-size:1rem;text-align:center;box-shadow:0 6px 18px rgba(16,24,40,.05);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+    .selector-provincia:hover,.selector-provincia:focus{transform:translateY(-2px);border-color:#84adff;box-shadow:0 10px 24px rgba(16,24,40,.09);outline:none}
     .desguaces-lista{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:22px}
     .desguace-card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:18px;box-shadow:0 8px 22px rgba(16,24,40,.06)}
     .seccion:not(.seccion-gris) .desguace-card{background:#fdfdfd}
@@ -27,8 +32,8 @@
     .desguace-acciones a:nth-child(n+2){background:#f2f4f7;color:#344054}
     .desguaces-estado{grid-column:1/-1;margin:0;padding:16px;border:1px dashed #d0d5dd;border-radius:12px;color:#667085;background:rgba(255,255,255,.75)}
     .desguaces-error{color:#b42318;border-color:#fda29b;background:#fff5f5}
-    @media(max-width:900px){.desguaces-lista{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:620px){.desguaces-lista{grid-template-columns:1fr}.desguace-card-cabecera{align-items:flex-start}.desguace-verificado{font-size:.68rem}}
+    @media(max-width:900px){.selector-provincias-grid,.desguaces-lista{grid-template-columns:repeat(2,minmax(0,1fr))}.selector-provincia:last-child{grid-column:1/-1}}
+    @media(max-width:620px){.selector-provincias-grid,.desguaces-lista{grid-template-columns:1fr}.selector-provincia:last-child{grid-column:auto}.selector-provincia{min-height:58px}.desguace-card-cabecera{align-items:flex-start}.desguace-verificado{font-size:.68rem}}
   </style>
 </head>
 <body>
@@ -37,17 +42,25 @@
 <main>
   <section class="seccion">
     <div class="contenedor">
-      <div class="titulo-seccion"><span>Departamento Desguaces</span><h1>Desguaces en la Comunidad Valenciana</h1><p>Directorio de desguaces y Centros Autorizados de Tratamiento de Vehículos. Las fichas activas y verificadas del Editor V4 se publican aquí automáticamente.</p><p id="contador-desguaces-publicados" class="desguaces-resumen">Cargando desguaces publicados…</p></div>
-      <div class="provincias-grid">
-        <a class="provincia-card" href="#alicante"><strong>Alicante / Alacant</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" href="#castellon"><strong>Castellón / Castelló</strong><span>Desguaces de la provincia</span></a>
-        <a class="provincia-card" href="#valencia"><strong>Valencia / València</strong><span>Desguaces de la provincia</span></a>
+      <div class="titulo-seccion">
+        <span>Departamento Desguaces</span>
+        <h1>Desguaces en la Comunidad Valenciana</h1>
+        <p>Encuentra Centros Autorizados de Tratamiento de Vehículos y desguaces publicados en TallerMap.</p>
+        <p id="contador-desguaces-publicados" class="desguaces-resumen">Cargando desguaces publicados…</p>
       </div>
+      <nav class="selector-provincias" aria-label="Desguaces por provincia">
+        <h2>Selecciona una provincia</h2>
+        <div class="selector-provincias-grid">
+          <a class="selector-provincia" href="#alicante">Alicante / Alacant</a>
+          <a class="selector-provincia" href="#castellon">Castellón / Castelló</a>
+          <a class="selector-provincia" href="#valencia">Valencia / València</a>
+        </div>
+      </nav>
     </div>
   </section>
-  <section id="alicante" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Alicante / Alacant</span><h2>Desguaces en Alicante</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-alicante" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
-  <section id="castellon" class="seccion"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Castellón / Castelló</span><h2>Desguaces en Castellón</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-castellon" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
-  <section id="valencia" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Valencia / València</span><h2>Desguaces en Valencia</h2><p>Fichas activas y verificadas publicadas desde TallerMap.</p></div><div id="lista-desguaces-valencia" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="alicante" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Alicante / Alacant</span><h2>Desguaces en Alicante</h2></div><div id="lista-desguaces-alicante" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="castellon" class="seccion"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Castellón / Castelló</span><h2>Desguaces en Castellón</h2></div><div id="lista-desguaces-castellon" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
+  <section id="valencia" class="seccion seccion-gris"><div class="contenedor"><div class="titulo-seccion alineado-izquierda"><span>Valencia / València</span><h2>Desguaces en Valencia</h2></div><div id="lista-desguaces-valencia" class="desguaces-lista"><p class="desguaces-estado">Cargando desguaces publicados…</p></div></div></section>
 </main>
 <footer class="pie"><div class="contenedor copyright"><span>© 2026 TallerMap. Todos los derechos reservados.</span><span>Una plataforma de CRODIS Media</span></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
