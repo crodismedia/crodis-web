@@ -1,0 +1,55 @@
+name: Guardian Folder
+
+on:
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: 'Carpeta del repositorio a analizar (ej. municipios, talleres, api)'
+        required: true
+        default: 'municipios'
+      strict:
+        description: 'Fallar si Guardian encuentra errores'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  guardian-folder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Analizar carpeta con Guardian
+        env:
+          FOLDER: ${{ github.event.inputs.folder }}
+          STRICT: ${{ github.event.inputs.strict }}
+        run: |
+          if [ "$STRICT" = "true" ]; then
+            node scripts/guardian-folder.mjs --folder="$FOLDER" --strict
+          else
+            node scripts/guardian-folder.mjs --folder="$FOLDER"
+          fi
+      - name: Mostrar informe
+        if: always()
+        run: |
+          echo "=== GUARDIAN FOLDER ==="
+          for f in audit-reports/guardian-folder-*.md; do
+            if [ -f "$f" ]; then
+              cat "$f"
+            fi
+          done
+      - name: Guardar informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-folder-${{ github.event.inputs.folder }}
+          path: audit-reports/guardian-folder-*
+          retention-days: 90
