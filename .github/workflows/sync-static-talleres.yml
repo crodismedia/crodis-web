@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/sync-static-talleres.mjs'
+      - 'scripts/generate-sitemap-talleres.mjs'
       - '.github/workflows/sync-static-talleres.yml'
 
 permissions:
@@ -34,16 +35,19 @@ jobs:
       - name: Regenerar solo talleres modificados
         run: node scripts/sync-static-talleres.mjs
 
-      - name: Guardar fichas actualizadas
+      - name: Regenerar sitemap real de talleres
+        run: node scripts/generate-sitemap-talleres.mjs
+
+      - name: Guardar fichas y sitemap actualizados
         shell: bash
         run: |
           git config user.name 'TallerMap Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add talleres scripts/taller-static-sync.json
+          git add talleres sitemap-talleres.xml scripts/taller-static-sync.json
           if git diff --cached --quiet; then
             echo 'No hay cambios que guardar.'
           else
-            git commit -m 'Sincronizar fichas estáticas modificadas desde V4'
+            git commit -m 'Sincronizar fichas estáticas y sitemap de talleres'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
