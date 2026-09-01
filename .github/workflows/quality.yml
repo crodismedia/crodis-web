@@ -1,11 +1,10 @@
-name: Quality Check
+name: Quality Guard (manual)
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   quality:
@@ -13,91 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-
-      - name: Quality Guard rule repair
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const file = 'quality-guard.cjs';
-          let content = fs.readFileSync(file, 'utf8');
-          let changed = false;
-
-          const oldImageBlock = `      // Contar imágenes\n      const imgMatches = content.match(/<img/g) || [];\n      this.metrics.imagesTotal += imgMatches.length;\n      const imgWithoutAlt = content.match(/<img(?!.*alt=)/gi) || [];\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
-          const newImageBlock = `      // Contar imágenes usando la etiqueta completa, también si ocupa varias líneas\n      const imgTags = content.match(/<img\\b[^>]*>/gis) || [];\n      this.metrics.imagesTotal += imgTags.length;\n      const imgWithoutAlt = imgTags.filter(tag => !/\\balt\\s*=/i.test(tag));\n      this.metrics.imagesWithoutAlt += imgWithoutAlt.length;`;
-          if (content.includes(oldImageBlock)) {
-            content = content.replace(oldImageBlock, newImageBlock);
-            changed = true;
-          }
-
-          const infoCssRegex = /    \/\/ 3\. Verificar selectores muy específicos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
-          const infoCssReplacement = `    // 3. Verificar únicamente selectores realmente extremos\n    const cssForSelectors = content.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');\n    const selectorBlockRegex = /([^{}]+)\\{/g;\n    const extremeSelectors = [];\n    let selectorMatch;\n    while ((selectorMatch = selectorBlockRegex.exec(cssForSelectors)) !== null) {\n      const selector = selectorMatch[1].trim();\n      if (!selector || selector.startsWith('@')) continue;\n      const parts = selector.split(',').map(part => part.trim()).filter(Boolean);\n      const isExtreme = parts.some(part => {\n        const idCount = (part.match(/#[a-zA-Z0-9_-]+/g) || []).length;\n        const depth = part.split(/\\s+|>|\\+|~/).filter(Boolean).length;\n        return idCount > 2 || depth > 8;\n      });\n      if (isExtreme) extremeSelectors.push(selector);\n    }\n    if (extremeSelectors.length > 0) {\n      issues.push({\n        type: 'css',\n        severity: 'info',\n        line: 0,\n        message: \`Selectores realmente extremos: \${extremeSelectors.slice(0, 5).join(' | ')}\`\n      });\n    }\n\n    // 6. Verificar archivo muy grande`;
-          if (infoCssRegex.test(content)) {
-            content = content.replace(infoCssRegex, infoCssReplacement);
-            changed = true;
-            console.log('Quality Guard: reglas informativas CSS depuradas');
-          }
-
-          const currentExtremeRegex = /    \/\/ 3\. Verificar únicamente selectores realmente extremos[\s\S]*?    \/\/ 6\. Verificar archivo muy grande/;
-          if (currentExtremeRegex.test(content) && content.includes('const idCount = (selector.match')) {
-            content = content.replace(currentExtremeRegex, infoCssReplacement);
-            changed = true;
-            console.log('Quality Guard: conteo de IDs por selector corregido');
-          }
-
-          const longLineRegex = /\n    \/\/ 7\. Verificar líneas muy largas[\s\S]*?\n    return issues;/;
-          if (longLineRegex.test(content)) {
-            content = content.replace(longLineRegex, '\n\n    return issues;');
-            changed = true;
-            console.log('Quality Guard: aviso cosmético de longitud CSS retirado');
-          }
-
-          const oldScriptRegex = /    \/\/ 7\. Verificar scripts al final del body[\s\S]*?\n    return issues;/;
-          const newScriptBlock = `    // 7. Verificar scripts externos realmente bloqueantes en <head>\n    const headMatch = content.match(/<head[^>]*>([\\s\\S]*?)<\\/head>/i);\n    if (headMatch) {\n      const blockingScripts = [...headMatch[1].matchAll(/<script\\b([^>]*)src=["'][^"']+["']([^>]*)><\\/script>/gi)]\n        .filter(m => !/\\b(defer|async)\\b/i.test(\`\${m[1]} \${m[2]}\`) && !/type=["']module["']/i.test(\`\${m[1]} \${m[2]}\`));\n      if (blockingScripts.length > 2) {\n        issues.push({\n          type: 'performance',\n          severity: 'info',\n          line: 0,\n          message: \`\${blockingScripts.length} scripts externos bloqueantes en <head>\`\n        });\n      }\n    }\n\n    return issues;`;
-          if (oldScriptRegex.test(content)) {
-            content = content.replace(oldScriptRegex, newScriptBlock);
-            changed = true;
-            console.log('Quality Guard: detector de scripts informativo depurado');
-          }
-
-          if (changed) fs.writeFileSync(file, content);
-          else console.log('Quality Guard: reglas informativas ya depuradas');
-          NODE
-
-      - name: Run Quality Guard fixes
-        run: npm run quality:fix
-
-      - name: Commit Quality Guard fixes
-        if: github.event_name == 'push'
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "TallerMap Quality Guard"
-            git config user.email "actions@users.noreply.github.com"
-            git add -A
-            git commit -m "Quality Guard: aplicar correcciones automáticas"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
-      - name: Verify with Quality Guard
-        run: |
-          node quality-guard.cjs
-          node - <<'NODE'
-          const fs = require('fs');
-          const path = require('path');
-          const dir = 'quality-reports';
-          const reports = fs.existsSync(dir)
-            ? fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort()
-            : [];
-          if (!reports.length) {
-            console.error('No se encontró reporte JSON del Quality Guard');
-            process.exit(1);
-          }
-          const latest = JSON.parse(fs.readFileSync(path.join(dir, reports[reports.length - 1]), 'utf8'));
-          const errors = latest?.summary?.errors ?? latest?.metrics?.totalErrors ?? 0;
-          const warnings = latest?.summary?.warnings ?? 0;
-          const infos = (latest?.issues || []).filter(i => i.severity === 'info').length;
-          console.log(`Quality Guard verificado: ${errors} errores; ${warnings} advertencias; ${infos} informaciones`);
-          console.log('Quality Guard: detalle del reporte JSON');
-          console.log(JSON.stringify(latest, null, 2));
-          if (errors > 0) process.exit(1);
-          NODE
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Ejecutar Quality Guard sin modificar archivos
+        run: node quality-guard.cjs
