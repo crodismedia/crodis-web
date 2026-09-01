@@ -109,7 +109,7 @@ async function googleSuggest(seed, timeoutMs = 4500) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const url = `${GOOGLE_SUGGEST_ENDPOINT}?client=firefox&hl=es&gl=es&q=${encodeURIComponent(seed)}`;
+    const url = `${GOOGLE_SUGGEST_ENDPOINT}?client=firefox&hl=es&gl=es&ie=utf-8&oe=utf-8&q=${encodeURIComponent(seed)}`;
     const response = await fetch(url, {
       signal: controller.signal,
       headers: { 'User-Agent': 'TallerMap-SEO-Auditor/1.0' }
@@ -241,7 +241,10 @@ function applySafeKeywordFixes(root, auditResult, externalResearch, options = {}
   const skipped = [];
   const pages = (auditResult?.pages || [])
     .filter(page => INDEXABLE_KINDS.has(page.kind))
-    .filter(page => (page.issues || []).some(issue => issue.type === 'keywords'));
+    .filter(page =>
+      (page.metrics?.automotiveTermsInTitle || 0) === 0 ||
+      (page.metrics?.automotiveTermsInDescription || 0) === 0
+    );
 
   for (const page of pages) {
     if (changes.length >= maxFiles) break;
