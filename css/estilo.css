@@ -1,33 +1,34 @@
 /* ============================================================
-   FOOTER CORREGIDO Y OPTIMIZADO (PIE)
+   FOOTER (Estilos base, sin parches)
    ============================================================ */
 
 .pie {
-    padding: 0 !important; /* ELIMINA el espacio gigante de 65px */
+    padding: 0;
     color: #adbbce;
     background: #050f20;
     min-height: auto;
     height: auto;
 }
 
-/* Ajuste del título "Busca talleres publicados" que está encima del footer */
-.pie h2, .pie .titulo-seccion {
+/* Título grande en la franja blanca */
+.pie > .titulo-seccion,
+.pie > h2 {
     margin: 0;
-    padding: 35px 0 25px; /* Espacio compacto y correcto */
+    padding: 40px 0 30px;
     color: #071a33;
+    background: #ffffff;
     text-align: center;
-    background: #ffffff; /* Fondo blanco para la franja superior */
 }
 
-/* Estructura de columnas del footer */
+/* Contenedor de columnas del footer */
 .pie-grid {
     display: grid;
     grid-template-columns: 2fr repeat(3, 1fr);
     gap: 55px;
-    padding-top: 40px; /* Un poco de aire limpio entre título y columnas */
+    padding-top: 40px;
 }
 
-/* Texto dentro del footer */
+/* Estilos de texto y enlaces */
 .pie-grid p {
     max-width: 330px;
     line-height: 1.7;
@@ -53,12 +54,34 @@
     color: white;
 }
 
-/* Franja oscura final (Copyright) */
+/* Franja final (Copyright) */
 .copyright {
     display: flex;
     justify-content: space-between;
-    margin-top: 45px;
+    margin-top: 40px;
     padding: 20px 0 25px;
     font-size: 12px;
     border-top: 1px solid rgba(255,255,255,.1);
+}
+
+@media (max-width: 750px) {
+    .pie-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding-top: 25px;
+    }
+
+    .pie > .titulo-seccion,
+    .pie > h2 {
+        padding: 25px 0 20px;
+        font-size: 28px;
+    }
+
+    .copyright {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 25px;
+        padding: 15px 0 20px;
+    }
 }
