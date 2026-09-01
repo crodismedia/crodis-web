@@ -1,12 +1,6 @@
 (function () {
   'use strict';
 
-  const sb = window.supabaseClient;
-  if (!sb) {
-    console.error('No se pudo iniciar Supabase para el directorio de desguaces.');
-    return;
-  }
-
   const grupos = {
     'Alicante/Alacant': document.getElementById('lista-desguaces-alicante'),
     'Castellón/Castelló': document.getElementById('lista-desguaces-castellon'),
@@ -58,11 +52,9 @@
   function provinciaCanonica(valor) {
     const p = normalizarTexto(valor);
     if (!p) return '';
-
     if (p.includes('alicante') || p.includes('alacant')) return 'Alicante/Alacant';
     if (p.includes('castellon') || p.includes('castello')) return 'Castellón/Castelló';
-    if (p.includes('valencia') || p.includes('valencia/valencia') || p.includes('valencia/valencia')) return 'Valencia/València';
-
+    if (p.includes('valencia')) return 'Valencia/València';
     return '';
   }
 
@@ -144,11 +136,27 @@
 
     const inicial = provinciaDesdeHash();
     if (inicial) aplicarFiltroProvincia(inicial, false);
+
+    window.addEventListener('hashchange', () => {
+      const provincia = provinciaDesdeHash();
+      if (provincia) aplicarFiltroProvincia(provincia, false);
+    });
   }
 
   async function cargar() {
-    estadoInicial();
     prepararSelectorProvincia();
+
+    // En producción el HTML puede llegar ya renderizado desde /api/desguaces-public.
+    // Si ya hay tarjetas, no las sustituimos: solo aplicamos el filtro de provincia.
+    if (document.querySelector('.desguace-card')) return;
+
+    const sb = window.supabaseClient;
+    if (!sb) {
+      console.error('No se pudo iniciar Supabase para el directorio de desguaces.');
+      return;
+    }
+
+    estadoInicial();
 
     const { data, error } = await sb
       .from('desguaces')
@@ -171,11 +179,8 @@
 
     (data || []).forEach(d => {
       const provincia = provinciaCanonica(d.provincia);
-      if (provincia && porProvincia.has(provincia)) {
-        porProvincia.get(provincia).push(d);
-      } else {
-        sinProvincia.push(d);
-      }
+      if (provincia && porProvincia.has(provincia)) porProvincia.get(provincia).push(d);
+      else sinProvincia.push(d);
     });
 
     Object.entries(grupos).forEach(([provincia, contenedor]) => {
