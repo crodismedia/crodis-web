@@ -21,6 +21,11 @@
       "permanent": true
     },
     {
+      "source": "/municipios/:slug.html",
+      "destination": "https://www.tallermap.es/municipios/:slug",
+      "permanent": true
+    },
+    {
       "source": "/servicios/index.html",
       "destination": "https://www.tallermap.es/servicios/",
       "permanent": true
@@ -65,6 +70,7 @@
   "rewrites": [
     {"source":"/municipios","destination":"/api/municipios-index"},
     {"source":"/municipios/","destination":"/api/municipios-index"},
+    {"source":"/municipios/:slug","destination":"/api/municipio?archivo=:slug.html"},
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},
     {"source":"/","destination":"/api/home-cache-fix"},
     {"source":"/desguaces","destination":"/api/desguaces-seo"},
