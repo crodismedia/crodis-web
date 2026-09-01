@@ -67,10 +67,13 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html desguaces.html municipios provincias servicios talleres desguace seo-reports/latest-keyword-summary.json seo-reports/latest-title-fixes.json 2>/dev/null || true
+          git add -u
+          git add -f seo-reports/latest-keyword-summary.json seo-reports/latest-title-fixes.json
           if git diff --cached --quiet; then
             echo 'No hay correcciones SEO persistentes que guardar.'
           else
+            echo '=== CAMBIOS QUE SE VAN A GUARDAR ==='
+            git diff --cached --stat
             git commit -m 'SEO Auditor: aplicar keywords y guardar verificación [skip ci]'
             git push origin HEAD:main
           fi
