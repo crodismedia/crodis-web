@@ -7,6 +7,7 @@ on:
       - 'seo-auditor-global.cjs'
       - 'scripts/seo-keyword-optimizer.cjs'
       - 'scripts/seo-keyword-title-fixer.cjs'
+      - 'scripts/seo-keyword-classifier.cjs'
       - 'api/seo-audit.js'
   workflow_dispatch:
   schedule:
@@ -47,11 +48,17 @@ jobs:
             --max=100 \
             --report=seo-reports/latest-title-fixes.json
 
+      - name: Clasificar avisos de keywords
+        run: |
+          node scripts/seo-keyword-classifier.cjs \
+            --report=seo-reports/latest-keyword-classification.json
+
       - name: Validar sintaxis y cambios
         run: |
           node --check seo-auditor-global.cjs
           node --check scripts/seo-keyword-optimizer.cjs
           node --check scripts/seo-keyword-title-fixer.cjs
+          node --check scripts/seo-keyword-classifier.cjs
           node --check api/seo-audit.js
           git diff --check
 
@@ -62,13 +69,15 @@ jobs:
           cat seo-reports/latest-keyword-summary.json 2>/dev/null || true
           echo '=== SEO TITLE FIXES ==='
           cat seo-reports/latest-title-fixes.json 2>/dev/null || true
+          echo '=== SEO KEYWORD CLASSIFICATION ==='
+          cat seo-reports/latest-keyword-classification.json 2>/dev/null || true
 
       - name: Guardar correcciones en la fuente
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -u
-          git add -f seo-reports/latest-keyword-summary.json seo-reports/latest-title-fixes.json
+          git add -f seo-reports/latest-keyword-summary.json seo-reports/latest-title-fixes.json seo-reports/latest-keyword-classification.json
           if git diff --cached --quiet; then
             echo 'No hay correcciones SEO persistentes que guardar.'
           else
@@ -86,4 +95,5 @@ jobs:
           path: |
             seo-reports/latest-keyword-summary.json
             seo-reports/latest-title-fixes.json
+            seo-reports/latest-keyword-classification.json
           if-no-files-found: warn
