@@ -6,6 +6,7 @@ on:
       - '.github/workflows/seo-audit.yml'
       - 'seo-auditor-global.cjs'
       - 'scripts/seo-keyword-optimizer.cjs'
+      - 'scripts/seo-keyword-title-fixer.cjs'
       - 'api/seo-audit.js'
   workflow_dispatch:
   schedule:
@@ -30,9 +31,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
-      - name: Ejecutar investigación externa, corrección y verificación
+      - name: Ejecutar investigación externa y correcciones seguras
         run: |
           node scripts/seo-keyword-optimizer.cjs \
             --external \
@@ -40,28 +41,33 @@ jobs:
             --max=100 \
             --report=seo-reports/latest-keyword-summary.json
 
+      - name: Corregir titles largos que bloquean la keyword
+        run: |
+          node scripts/seo-keyword-title-fixer.cjs \
+            --max=100 \
+            --report=seo-reports/latest-title-fixes.json
+
       - name: Validar sintaxis y cambios
         run: |
           node --check seo-auditor-global.cjs
           node --check scripts/seo-keyword-optimizer.cjs
+          node --check scripts/seo-keyword-title-fixer.cjs
           node --check api/seo-audit.js
           git diff --check
 
-      - name: Mostrar resumen SEO
+      - name: Mostrar resúmenes SEO
         if: always()
         run: |
           echo '=== SEO KEYWORD SUMMARY ==='
-          if [ -f seo-reports/latest-keyword-summary.json ]; then
-            cat seo-reports/latest-keyword-summary.json
-          else
-            echo 'No se generó el resumen.'
-          fi
+          cat seo-reports/latest-keyword-summary.json 2>/dev/null || true
+          echo '=== SEO TITLE FIXES ==='
+          cat seo-reports/latest-title-fixes.json 2>/dev/null || true
 
       - name: Guardar correcciones en la fuente
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html desguaces.html municipios provincias servicios talleres desguace seo-reports/latest-keyword-summary.json 2>/dev/null || true
+          git add index.html desguaces.html municipios provincias servicios talleres desguace seo-reports/latest-keyword-summary.json seo-reports/latest-title-fixes.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo 'No hay correcciones SEO persistentes que guardar.'
           else
@@ -69,10 +75,12 @@ jobs:
             git push origin HEAD:main
           fi
 
-      - name: Publicar reporte como artefacto
+      - name: Publicar reportes como artefacto
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: seo-keyword-report
-          path: seo-reports/latest-keyword-summary.json
+          path: |
+            seo-reports/latest-keyword-summary.json
+            seo-reports/latest-title-fixes.json
           if-no-files-found: warn
