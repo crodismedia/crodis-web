@@ -1,16 +1,9 @@
 {
-  "generatedAt": "2026-09-01T09:35:55.105Z",
-  "changedFiles": 1,
-  "changes": [
-    {
-      "page": "talleres/concesionario-mitsubishi-alicante-ms-dealer-alicante-s-a-elche-23194a52/index.html",
-      "keyword": "taller mecánico",
-      "before": "Concesionario Mitsubishi Alicante - MS Dealer Alicante S.A. | Talle…",
-      "after": "Concesionario Mitsubishi Alicante - MS Dealer | taller mecánico"
-    }
-  ],
+  "generatedAt": "2026-09-01T09:39:18.957Z",
+  "changedFiles": 0,
+  "changes": [],
   "skipped": [],
-  "keywordIssuesBefore": 1923,
+  "keywordIssuesBefore": 1922,
   "keywordIssuesAfter": 1922,
   "scoreBefore": 99,
   "scoreAfter": 99

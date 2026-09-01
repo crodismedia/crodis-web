@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-09-01T09:35:46.542Z",
+  "generatedAt": "2026-09-01T09:39:09.530Z",
   "audit": {
     "filesAnalyzed": 4809,
     "scoreBefore": 99,
     "errorsBefore": 0,
-    "warningsBefore": 2783,
-    "keywordIssuesBefore": 1923
+    "warningsBefore": 2781,
+    "keywordIssuesBefore": 1922
   },
   "externalResearch": {
     "source": "Google Autocomplete",
-    "generatedAt": "2026-09-01T09:35:42.337Z",
+    "generatedAt": "2026-09-01T09:39:04.878Z",
     "seeds": [
       "taller mecánico",
       "talleres mecánicos",
@@ -140,19 +140,13 @@
     "maxFiles": 100,
     "changedFiles": 0,
     "changes": [],
-    "skipped": [
-      {
-        "page": "talleres/concesionario-mitsubishi-alicante-ms-dealer-alicante-s-a-elche-23194a52/index.html",
-        "element": "title",
-        "reason": "title-too-long"
-      }
-    ]
+    "skipped": []
   },
   "verification": {
     "filesAnalyzed": 4809,
     "scoreAfter": 99,
     "errorsAfter": 0,
-    "warningsAfter": 2783,
-    "keywordIssuesAfter": 1923
+    "warningsAfter": 2781,
+    "keywordIssuesAfter": 1922
   }
 }
