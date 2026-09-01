@@ -1,110 +1,202 @@
-(function(){
-  "use strict";
-  const supabase=window.supabaseClient;
-  const params=new URLSearchParams(location.search);
-  const tallerParam=String(params.get('taller')||'').trim();
-  const slugParam=String(params.get('slug')||'').trim();
-  let taller=null;
+(function() {
+    "use strict";
 
-  const $=(id)=>document.getElementById(id);
-  const mensaje=(txt,tipo='')=>{const el=$('claim-message');el.textContent=txt;el.className=`claim-status ${tipo}`.trim();el.classList.remove('claim-hidden');};
-  const ocultarMensaje=()=>$('claim-message')?.classList.add('claim-hidden');
-  const uuidValido=(v)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-  const limpiar=(v,max=1500)=>String(v||'').trim().slice(0,max);
-
-  function renderTaller(){
-    const el=$('claim-workshop');
-    if(!taller){el.innerHTML='<strong>No se ha podido identificar el taller.</strong><span>Vuelve a su ficha pública e inicia la reclamación desde allí.</span>';return;}
-    const lugar=[taller.direccion,taller.codigo_postal,taller.ciudad,taller.provincia].filter(Boolean).join(', ');
-    const strong=document.createElement('strong');strong.textContent=taller.nombre||'Taller';
-    const span=document.createElement('span');span.textContent=lugar||'Ubicación no indicada';
-    el.replaceChildren(strong,span);
-  }
-
-  async function cargarTaller(){
-    if(!supabase){renderTaller();mensaje('No hay conexión con TallerMap.','error');return;}
-    if(!tallerParam&&!slugParam){renderTaller();mensaje('Falta identificar la ficha que quieres reclamar.','error');return;}
-    const {data,error}=await supabase.rpc('obtener_taller_publico',{p_id:uuidValido(tallerParam)?tallerParam:null,p_slug:slugParam||null});
-    if(error||!Array.isArray(data)||!data.length){renderTaller();mensaje('No se ha encontrado esta ficha pública.','error');return;}
-    taller=data[0];renderTaller();
-  }
-
-  function mostrarSesion(session){
-    const hay=Boolean(session?.user);
-    $('claim-login').classList.toggle('claim-hidden',hay);
-    $('claim-panel').classList.toggle('claim-hidden',!hay);
-    if(hay)$('claim-session-email').textContent=session.user.email||'';
-  }
-
-  async function comprobarEstado(session){
-    if(!session?.user||!taller?.id)return;
-    const {data,error}=await supabase.from('reclamaciones_taller')
-      .select('estado,created_at')
-      .eq('taller_id',taller.id)
-      .eq('usuario_id',session.user.id)
-      .order('created_at',{ascending:false})
-      .limit(1);
-    if(error)return;
-    const ultima=data?.[0];
-    if(!ultima)return;
-    if(ultima.estado==='pendiente')mensaje('Ya tienes una reclamación pendiente para este taller. La revisaremos desde administración.','ok');
-    if(ultima.estado==='aprobada')mensaje('Esta ficha ya está asociada a tu cuenta. Puedes gestionarla desde “Mi taller”.','ok');
-    if(ultima.estado==='rechazada')mensaje('Tu reclamación anterior fue rechazada. Puedes enviar una nueva aportando más información.','error');
-  }
-
-  async function iniciar(){
-    await cargarTaller();
-    if(!supabase)return;
-    const {data:{session}}=await supabase.auth.getSession();
-    mostrarSesion(session);
-    await comprobarEstado(session);
-  }
-
-  $('claim-send-link')?.addEventListener('click',async()=>{
-    ocultarMensaje();
-    const email=limpiar($('claim-email').value,254).toLowerCase();
-    if(!email||!$('claim-email').checkValidity()){mensaje('Escribe un correo electrónico válido.','error');$('claim-email').focus();return;}
-    const btn=$('claim-send-link');btn.disabled=true;btn.textContent='Enviando enlace…';
-    const regreso=`${location.pathname}${location.search}`;
-    const destino=new URL('/pages/auth-propietario.html',location.origin);
-    destino.searchParams.set('next',regreso);
-    const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:destino.href,shouldCreateUser:true}});
-    btn.disabled=false;btn.textContent='Recibir enlace de acceso';
-    if(error){mensaje('No se ha podido enviar el enlace. Inténtalo de nuevo dentro de un minuto.','error');return;}
-    mensaje('Te hemos enviado un enlace de acceso. Ábrelo desde tu correo. Verás una pantalla de confirmación y después podrás continuar con esta reclamación.','ok');
-  });
-
-  $('claim-logout')?.addEventListener('click',async()=>{await supabase.auth.signOut();location.reload();});
-
-  $('claim-form')?.addEventListener('submit',async(e)=>{
-    e.preventDefault();ocultarMensaje();
-    if(!taller?.id){mensaje('No se puede enviar la solicitud porque no se ha identificado el taller.','error');return;}
-    const form=e.currentTarget;if(!form.checkValidity()){form.reportValidity();return;}
-    const {data:{session}}=await supabase.auth.getSession();
-    if(!session?.user){mensaje('Tu sesión ha caducado. Verifica de nuevo el correo.','error');mostrarSesion(null);return;}
-    const payload={
-      taller_id:taller.id,
-      usuario_id:session.user.id,
-      email:session.user.email||'',
-      nombre_solicitante:limpiar($('claim-name').value,120),
-      telefono:limpiar($('claim-phone').value,30)||null,
-      relacion:$('claim-relation').value,
-      mensaje:limpiar($('claim-note').value,1500)||null,
-      estado:'pendiente'
+    // ============ MAPA COMPLETO DE SERVICIOS ============
+    const NOMBRES_SERVICIOS = {
+        // 🔧 Mecánica general
+        "mecanica-general": "Mecánica general",
+        "mantenimiento-programado": "Mantenimiento programado",
+        "cambio-aceite-filtros": "Cambio de aceite y filtros",
+        "pre-itv": "Pre-ITV",
+        "revision-completa": "Revisión completa del vehículo",
+        
+        // 🛞 Frenos y transmisión
+        "frenos": "Frenos",
+        "cambio-pastillas-frenos": "Cambio de pastillas de freno",
+        "cambio-discos-frenos": "Cambio de discos de freno",
+        "embrague": "Embrague",
+        "cambio-embrague": "Cambio de embrague",
+        "correa-distribucion": "Correa de distribución",
+        "cambio-correa-distribucion": "Cambio de correa de distribución",
+        "caja-cambios": "Caja de cambios",
+        "reparacion-caja-cambios": "Reparación de caja de cambios",
+        
+        // ⚙️ Motor y sistema
+        "sistema-refrigeracion": "Sistema de refrigeración",
+        "reparacion-refrigeracion": "Reparación del sistema de refrigeración",
+        "escape-catalizador": "Escape y catalizador",
+        "reparacion-escape": "Reparación del sistema de escape",
+        "cambio-catalizador": "Cambio de catalizador",
+        "filtro-particulas": "Filtro de partículas (DPF)",
+        "regeneracion-fap": "Regeneración de filtro de partículas",
+        "inyeccion-combustible": "Sistema de inyección",
+        "limpieza-inyectores": "Limpieza de inyectores",
+        
+        // 🚗 Neumáticos y suspensión
+        "neumaticos": "Neumáticos",
+        "cambio-neumaticos": "Cambio de neumáticos",
+        "alineacion-direccion": "Alineación y dirección",
+        "alineacion-ruedas": "Alineación de ruedas",
+        "equilibrado-ruedas": "Equilibrado de ruedas",
+        "suspension-amortiguadores": "Suspensión y amortiguadores",
+        "cambio-amortiguadores": "Cambio de amortiguadores",
+        "direccion": "Dirección",
+        "reparacion-direccion": "Reparación de la dirección",
+        
+        // 🔌 Electrónica y diagnóstico
+        "diagnosis-electronica": "Diagnosis electrónica",
+        "diagnosis-vehiculo": "Diagnosis del vehículo",
+        "electricidad-automovil": "Electricidad del automóvil",
+        "reparacion-electrica": "Reparación eléctrica",
+        "baterias": "Baterías",
+        "cambio-bateria": "Cambio de batería",
+        "alternador-motor-arranque": "Alternador y motor de arranque",
+        "reparacion-alternador": "Reparación de alternador",
+        "reparacion-motor-arranque": "Reparación de motor de arranque",
+        "centralitas-electronica": "Centralitas y electrónica",
+        "reprogramacion-centralitas": "Reprogramación de centralitas",
+        "sistemas-adas": "Sistemas ADAS",
+        "calibracion-adas": "Calibración de sistemas ADAS",
+        
+        // 🎨 Carrocería y confort
+        "tapiceria": "Tapicería",
+        "reparacion-tapiceria": "Reparación de tapicería",
+        "chapa-pintura": "Chapa y pintura",
+        "reparacion-chapa": "Reparación de chapa",
+        "pintura-automovil": "Pintura de automóviles",
+        "pulido-barnizado": "Pulido y barnizado",
+        "aire-acondicionado": "Aire acondicionado",
+        "recarga-gas-climatizacion": "Recarga de gas de climatización",
+        "reparacion-climatizacion": "Reparación de climatización",
+        
+        // ⚡ Especiales
+        "hibridos-electricos": "Híbridos y eléctricos",
+        "mantenimiento-hibrido": "Mantenimiento de vehículos híbridos",
+        "mantenimiento-electrico": "Mantenimiento de vehículos eléctricos",
+        "baterias-alto-voltaje": "Baterías de alto voltaje",
+        
+        // 🚛 Vehículos comerciales
+        "vehiculos-comerciales": "Vehículos comerciales",
+        "mantenimiento-furgonetas": "Mantenimiento de furgonetas",
+        "mantenimiento-camiones": "Mantenimiento de camiones",
+        
+        // 🏆 Servicios premium
+        "preparacion-competicion": "Preparación para competición",
+        "tuning-automovil": "Tuning automovilístico",
+        "personalizacion-vehiculos": "Personalización de vehículos"
     };
-    const btn=$('claim-submit');btn.disabled=true;btn.textContent='Enviando…';
-    const {error}=await supabase.from('reclamaciones_taller').insert(payload);
-    btn.disabled=false;btn.textContent='Enviar reclamación';
-    if(error){
-      if(error.code==='23505')mensaje('Ya existe una reclamación pendiente para esta ficha.','ok');
-      else if(error.code==='42P01')mensaje('La función de reclamaciones todavía no está activada en la base de datos.','error');
-      else mensaje(`No se pudo enviar la reclamación: ${error.message}`,'error');
-      return;
-    }
-    form.reset();
-    mensaje('Reclamación enviada correctamente. Queda pendiente de revisión administrativa.','ok');
-  });
 
-  supabase?.auth?.onAuthStateChange((_event,session)=>{mostrarSesion(session);if(session)comprobarEstado(session);});
-  iniciar();
-}());
+    // ============ SERVICIOS RELACIONADOS ============
+    const SERVICIOS_RELACIONADOS = {
+        "frenos": ["cambio-pastillas-frenos", "cambio-discos-frenos", "revision-frenos"],
+        "embrague": ["cambio-embrague", "reparacion-embrague"],
+        "correa-distribucion": ["cambio-correa-distribucion", "revision-distribucion"],
+        "neumaticos": ["cambio-neumaticos", "equilibrado-ruedas", "alineacion-ruedas"],
+        "diagnosis-electronica": ["diagnosis-vehiculo", "reprogramacion-centralitas"],
+        "aire-acondicionado": ["recarga-gas-climatizacion", "reparacion-climatizacion"],
+        "hibridos-electricos": ["mantenimiento-hibrido", "mantenimiento-electrico"]
+    };
+
+    // ============ FUNCIONES PRINCIPALES ============
+    function nombreServicio(clave) {
+        const limpio = slugSeguro(clave);
+        return NOMBRES_SERVICIOS[limpio] || formatearServicio(limpio);
+    }
+
+    function formatearServicio(texto) {
+        return texto
+            .replace(/[-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/^./, letra => letra.toUpperCase())
+            .replace(/\b\w/g, letra => letra.toUpperCase());
+    }
+
+    function slugSeguro(valor) {
+        return String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    function obtenerServiciosRelacionados(servicio) {
+        const clave = slugSeguro(servicio);
+        return SERVICIOS_RELACIONADOS[clave] || [];
+    }
+
+    function esServicioValido(servicio) {
+        const clave = slugSeguro(servicio);
+        return !!NOMBRES_SERVICIOS[clave];
+    }
+
+    function obtenerListaServicios() {
+        return Object.values(NOMBRES_SERVICIOS);
+    }
+
+    function obtenerCategoriasServicios() {
+        return Object.keys(NOMBRES_SERVICIOS);
+    }
+
+    // ============ EXPORTAR (si se usa como módulo) ============
+    if (typeof module !== "undefined" && module.exports) {
+        module.exports = {
+            NOMBRES_SERVICIOS,
+            SERVICIOS_RELACIONADOS,
+            nombreServicio,
+            obtenerServiciosRelacionados,
+            esServicioValido,
+            obtenerListaServicios,
+            obtenerCategoriasServicios,
+            slugSeguro
+        };
+    }
+
+    // ============ AUTO-EJECUCIÓN PARA CORREGIR HTML ============
+    function corregirServiciosEnPagina() {
+        // Corregir servicios en fichas de taller
+        document.querySelectorAll("#taller-servicios span, .taller-servicios span, .servicios-taller span").forEach(el => {
+            const original = el.textContent.trim();
+            if (original) {
+                const corregido = nombreServicio(original);
+                if (corregido && el.textContent.trim() !== corregido) {
+                    el.textContent = corregido;
+                    el.setAttribute("data-servicio-original", original);
+                    el.setAttribute("data-servicio-normalizado", slugSeguro(original));
+                }
+            }
+        });
+
+        // Corregir servicios en tarjetas
+        document.querySelectorAll(".card-servicio, .servicio-item").forEach(el => {
+            const nombre = el.querySelector(".servicio-nombre, .nombre-servicio");
+            if (nombre) {
+                const original = nombre.textContent.trim();
+                const corregido = nombreServicio(original);
+                if (corregido && nombre.textContent.trim() !== corregido) {
+                    nombre.textContent = corregido;
+                }
+            }
+        });
+    }
+
+    // Ejecutar al cargar
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", corregirServiciosEnPagina);
+    } else {
+        corregirServiciosEnPagina();
+    }
+
+    // Observar cambios dinámicos
+    if (document.body) {
+        const observer = new MutationObserver(() => {
+            corregirServiciosEnPagina();
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+})();
