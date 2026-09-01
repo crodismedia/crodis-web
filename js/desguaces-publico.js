@@ -144,6 +144,15 @@
     }
   }
 
+  function claveDesdeUbicacion() {
+    const hash = window.location.hash.replace('#', '').trim().toLowerCase();
+    if (provinciaPorClave[hash]) return hash;
+
+    const parametro = new URLSearchParams(window.location.search).get('provincia');
+    const claveParametro = String(parametro || '').trim().toLowerCase();
+    return provinciaPorClave[claveParametro] ? claveParametro : '';
+  }
+
   function activarBotones() {
     document.querySelectorAll('.selector-provincia').forEach(boton => {
       boton.addEventListener('click', evento => {
@@ -152,6 +161,11 @@
         evento.preventDefault();
         mostrarProvincia(clave, true);
       });
+    });
+
+    window.addEventListener('hashchange', () => {
+      const clave = claveDesdeUbicacion();
+      if (clave) mostrarProvincia(clave, true);
     });
   }
 
@@ -188,8 +202,7 @@
         : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
     });
 
-    const hashInicial = window.location.hash.replace('#', '').toLowerCase();
-    const claveInicial = provinciaPorClave[hashInicial] ? hashInicial : 'alicante';
+    const claveInicial = claveDesdeUbicacion() || 'alicante';
     mostrarProvincia(claveInicial, false);
   }
 
