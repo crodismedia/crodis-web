@@ -41,6 +41,11 @@
       "permanent": true
     },
     {
+      "source": "/desguaces.html",
+      "destination": "https://www.tallermap.es/desguaces",
+      "permanent": true
+    },
+    {
       "source": "/desguace/:slug/index.html",
       "destination": "https://www.tallermap.es/desguace/:slug",
       "permanent": true
@@ -62,7 +67,7 @@
     {"source":"/municipios/","destination":"/api/municipios-index"},
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},
     {"source":"/","destination":"/api/home-cache-fix"},
-    {"source":"/desguaces.html","destination":"/api/desguaces-seo"},
+    {"source":"/desguaces","destination":"/api/desguaces-seo"},
     {"source":"/provincias/alicante.html","destination":"/api/provincia-public?provincia=alicante"},
     {"source":"/provincias/castellon.html","destination":"/api/provincia-public?provincia=castellon"},
     {"source":"/provincias/valencia.html","destination":"/api/provincia-public?provincia=valencia"},
