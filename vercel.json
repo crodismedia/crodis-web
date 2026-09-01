@@ -57,10 +57,9 @@
       "permanent": true
     }
   ],
-  "routes": [
-    {"src":"/municipios/?","dest":"/api/municipios-index"}
-  ],
   "rewrites": [
+    {"source":"/municipios","destination":"/api/municipios-index"},
+    {"source":"/municipios/","destination":"/api/municipios-index"},
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},
     {"source":"/","destination":"/api/home-cache-fix"},
     {"source":"/desguaces.html","destination":"/api/desguaces-seo"},
