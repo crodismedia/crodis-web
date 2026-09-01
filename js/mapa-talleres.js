@@ -135,13 +135,43 @@
         new MutationObserver(programar).observe(lista, { childList: true, subtree: false }); programar();
     }
 
+    async function poblacionDesdeCoordenadas(latitud, longitud) {
+        const parametros = new URLSearchParams({
+            latitude: String(latitud),
+            longitude: String(longitud),
+            localityLanguage: "es"
+        });
+        const respuesta = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${parametros}`, { headers: { Accept: "application/json" } });
+        if (!respuesta.ok) throw new Error("No se pudo identificar la población");
+        const lugar = await respuesta.json();
+        return String(lugar.city || lugar.locality || lugar.principalSubdivision || "").trim();
+    }
+
     function observarUbicacion() {
         const boton = document.getElementById("usar-mi-ubicacion"); if (!boton || !navigator.geolocation) return;
-        boton.addEventListener("click", () => navigator.geolocation.getCurrentPosition(pos => {
-            if (!mapa) return; const coords = [pos.coords.latitude, pos.coords.longitude];
+        boton.addEventListener("click", () => navigator.geolocation.getCurrentPosition(async pos => {
+            if (!mapa) return;
+            const coords = [pos.coords.latitude, pos.coords.longitude];
             if (marcadorUsuario) marcadorUsuario.setLatLng(coords); else marcadorUsuario = window.L.circleMarker(coords, { radius: 8, weight: 3, fillOpacity: .85 }).addTo(mapa).bindPopup("Tu ubicación");
-            mapa.setView(coords, 13); ponerMensaje("Ubicación detectada. Buscando talleres cercanos…");
-        }, () => {}, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }), { passive: true });
+            mapa.setView(coords, 13);
+            ponerMensaje("Ubicación detectada. Buscando talleres cercanos…");
+
+            try {
+                const poblacion = await poblacionDesdeCoordenadas(coords[0], coords[1]);
+                if (!poblacion) throw new Error("Población no encontrada");
+                const campoPoblacion = document.getElementById("poblacion");
+                const formulario = document.getElementById("formulario-buscador-publico") || document.querySelector("form.buscador");
+                const estado = document.getElementById("estado-ubicacion");
+                if (campoPoblacion) campoPoblacion.value = poblacion;
+                if (estado) estado.textContent = `Ubicación detectada: ${poblacion}. Buscando talleres…`;
+                ponerMensaje(`Ubicación detectada: ${poblacion}. Cargando talleres…`);
+                if (formulario?.requestSubmit) formulario.requestSubmit();
+                else formulario?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+            } catch (error) {
+                console.error("No se pudo buscar por ubicación:", error);
+                ponerMensaje("Ubicación detectada, pero no se pudo identificar la población. Escribe tu localidad para buscar talleres.");
+            }
+        }, () => { ponerMensaje("No se pudo obtener tu ubicación. Revisa el permiso de ubicación del navegador."); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }), { passive: true });
     }
 
     async function iniciar() {
