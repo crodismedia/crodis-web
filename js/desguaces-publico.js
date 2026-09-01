@@ -47,6 +47,25 @@
     return /^[a-z0-9-]+$/.test(slug) ? slug : '';
   }
 
+  function normalizarTexto(valor) {
+    return String(valor || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function provinciaCanonica(valor) {
+    const p = normalizarTexto(valor);
+    if (!p) return '';
+
+    if (p.includes('alicante') || p.includes('alacant')) return 'Alicante/Alacant';
+    if (p.includes('castellon') || p.includes('castello')) return 'Castellón/Castelló';
+    if (p.includes('valencia') || p.includes('valencia/valencia') || p.includes('valencia/valencia')) return 'Valencia/València';
+
+    return '';
+  }
+
   function tarjeta(d) {
     const direccion = [d.direccion, d.codigo_postal, d.municipio].filter(Boolean).join(', ');
     const telefono = String(d.telefono || '').trim();
@@ -148,8 +167,15 @@
     }
 
     const porProvincia = new Map(Object.keys(grupos).map(p => [p, []]));
+    const sinProvincia = [];
+
     (data || []).forEach(d => {
-      if (porProvincia.has(d.provincia)) porProvincia.get(d.provincia).push(d);
+      const provincia = provinciaCanonica(d.provincia);
+      if (provincia && porProvincia.has(provincia)) {
+        porProvincia.get(provincia).push(d);
+      } else {
+        sinProvincia.push(d);
+      }
     });
 
     Object.entries(grupos).forEach(([provincia, contenedor]) => {
@@ -159,6 +185,10 @@
         ? filas.map(tarjeta).join('')
         : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
     });
+
+    if (sinProvincia.length) {
+      console.warn('Desguaces sin provincia reconocida:', sinProvincia.map(d => ({ id: d.id, nombre: d.nombre, provincia: d.provincia })));
+    }
 
     const total = (data || []).length;
     const contador = document.getElementById('contador-desguaces-publicados');
