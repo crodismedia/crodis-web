@@ -62,6 +62,7 @@
   ],
   "rewrites": [
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},
+    {"source":"/taller/:legacy","destination":"/api/taller-path-legacy?legacy=:legacy"},
     {"source":"/","destination":"/api/home-cache-fix"},
     {"source":"/desguaces.html","destination":"/api/desguaces-seo"},
     {"source":"/provincias/alicante.html","destination":"/api/provincia-public?provincia=alicante"},
