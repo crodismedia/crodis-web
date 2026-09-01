@@ -1,108 +1,44 @@
-/* =========================================
-   TallerMap - Estilos optimizados para el Footer de Municipios
-   ========================================= */
+/* ============================================================
+   TALLERMAP - ESTILOS OPTIMIZADOS DEL FOOTER (PIE)
+   Basado en la estructura HTML: footer.pie > .contenedor-copyright
+   ============================================================ */
 
-/* Contenedor principal de la lista de municipios (Tarjetas azules) */
-.municipality-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 20px 0 40px 0; /* Espacio compacto arriba y abajo */
-    margin-bottom: 0;
-}
-
-/* Estilos de cada tarjeta individual */
-.municipality-card {
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease;
-}
-
-.municipality-card:hover {
-    transform: translateY(-5px);
-}
-
-/* Título dentro de la tarjeta */
-.municipality-card h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #004a99;
-    margin-bottom: 10px;
-}
-
-/* Texto secundario (provincia, etc.) */
-.municipality-card p {
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin-bottom: 15px;
-}
-
-/* Botón "Ver horario semanal" */
-.municipality-card .schedule-btn {
-    display: inline-block;
-    font-weight: 600;
-    color: #004a99;
-    margin-bottom: 15px;
-    text-decoration: none;
-}
-
-/* Botón "Cómo llegar" */
-.municipality-card .directions-btn {
-    display: inline-block;
-    background-color: #004a99;
-    color: #ffffff;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-}
-
-.municipality-card .directions-btn:hover {
-    background-color: #003366;
-}
-
-/* Teléfono destacado */
-.municipality-card .phone-number {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-/* =========================================
-   BLOQUE DEL FOOTER (El que tiene el espacio gigante)
-   ========================================= */
-
-/* Sección "Busca talleres publicados" y el footer */
-.municipality-footer-section {
-    /* ELIMINADO: padding-top: 300px (o el valor que tuviera) */
-    padding-top: 40px;  /* Espacio compacto justo debajo de las tarjetas */
-    padding-bottom: 30px;
-    background-color: #ffffff; /* Asegura que no contraste mal */
-    text-align: center;
-}
-
-/* Título grande "Busca talleres publicados" */
-.municipality-footer-section h2 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin: 0 0 20px 0;
-}
-
-/* Contenedor oscuro del pie de página (Copyright y créditos) */
-.site-footer {
-    background-color: #1a1a1a;
+/* --- 1. Contenedor Principal del Footer --- */
+footer.pie {
+    background-color: #1a1a1a; /* Color oscuro base */
     color: #cccccc;
-    padding: 15px 20px;
+    width: 100%;
+    /* Eliminamos el espacio gigante que causaba el problema */
+    padding: 0;
+    margin: 0;
+    min-height: auto;
+    height: auto;
+    box-sizing: border-box;
+}
+
+/* --- 2. Título de la sección (Busca talleres publicados) --- */
+footer.pie h2,
+footer.pie .titulo-seccion {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    background-color: #ffffff; /* Fondo blanco para la franja superior */
+    color: #1a1a1a;
+    padding: 30px 15px;
+    margin: 0;
+    text-align: center;
+}
+
+/* --- 3. Contenedor del Copyright (La franja oscura de abajo) --- */
+footer.pie .contenedor-copyright {
+    background-color: #1a1a1a;
+    color: #a0a0a0;
     font-size: 0.85rem;
+    /* Espaciado compacto y correcto */
+    padding: 15px 20px;
+    margin: 0;
+    min-height: auto;
+    height: auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -110,108 +46,41 @@
     gap: 10px;
 }
 
-.site-footer a {
+/* --- 4. Enlaces dentro del footer --- */
+footer.pie a,
+footer.pie .contenedor-copyright a {
     color: #ffffff;
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-.site-footer a:hover {
+footer.pie a:hover {
+    color: #4da6ff;
     text-decoration: underline;
 }
 
-/* =========================================
-   RESPONSIVE (Ajuste para móviles)
-   ========================================= */
+/* --- 5. Ocultar elementos que generan espacio innecesario --- */
+/* Botón de instalación PWA que se veía en el inspector */
+#pwa-install-btn {
+    display: none;
+}
+
+/* Estado de carga que dejaba el hueco en blanco */
+body.is-loading {
+    min-height: auto;
+    height: auto;
+}
+
+/* --- 6. Responsive para móviles --- */
 @media (max-width: 768px) {
-    .municipality-list {
-        grid-template-columns: 1fr; /* Una sola columna en móvil */
-        padding: 15px 0 30px 0;
+    footer.pie h2 {
+        font-size: 1.5rem;
+        padding: 20px 15px;
     }
-
-    .municipality-footer-section h2 {
-        font-size: 1.8rem;
-    }
-
-    .site-footer {
+    
+    footer.pie .contenedor-copyright {
         flex-direction: column;
         text-align: center;
+        padding: 20px 15px;
     }
-
-/* ============================================================
-   CORRECCIÓN DEFINITIVA: ELIMINAR ESPACIO EN BLANCO POR CARGA
-   ============================================================ */
-
-/* 1. Ocultar el estado de carga que deja el hueco gigante */
-body.is-loading .main-content,
-body.is-loading main,
-body.is-loading {
-    min-height: auto !important;
-    height: auto !important;
 }
-
-/* 2. Ocultar el botón o contenedor de instalación PWA si genera hueco */
-#pwa-install-btn {
-    display: none !important;
-}
-
-/* 3. Forzar a que el contenido principal no tenga altura forzada */
-main, #main-content, .main-content {
-    height: auto !important;
-    min-height: auto !important;
-    padding-bottom: 20px !important; /* Un poco de aire, pero sin exagerar */
-}
-
-/* 4. Si el hueco lo genera un mapa o script externo que no carga */
-.mapa, #mapa, .map, #map {
-    display: none !important;
-   /* ============================================
-   CORRECCIÓN ESPECÍFICA DEL FOOTER (DOS FRANJAS)
-   ============================================ */
-
-/* 1. El contenedor principal del footer */
-footer {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    display: block;
-}
-
-/* 2. La PRIMERA franja (la blanca, donde estaba el espacio gigante y el título) */
-footer .franja-blanca, 
-footer section:first-of-type, 
-footer > div:first-child {
-    /* Eliminamos el espacio excesivo */
-    padding-top: 30px !important;
-    padding-bottom: 30px !important;
-    min-height: auto !important;
-    height: auto !important;
-}
-
-/* 3. La SEGUNDA franja (la oscura, con el copyright y créditos) */
-footer .franja-oscura, 
-footer section:last-of-type, 
-footer > div:last-child,
-footer .site-footer {
-    padding: 15px 20px !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-/* 4. El título grande "Busca talleres publicados" (que está en la franja blanca) */
-footer h2, 
-footer .titulo-seccion {
-    font-size: 1.8rem;
-    margin-bottom: 20px !important;
-    margin-top: 0 !important;
-}
-
-/* 5. Evitar el hueco del estado de carga */
-body.is-loading {
-    min-height: auto !important;
-    height: auto !important;
-}
-
-/* 6. Ocultar el botón PWA si sigue generando espacio */
-#pwa-install-btn {
-    display: none !important;
-}
-}}
