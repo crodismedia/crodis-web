@@ -238,14 +238,8 @@
             && provincia
         );
 
-        const robots = document.getElementById("robots-taller")
-            || document.querySelector('meta[name="robots"]');
-        if (robots) {
-            robots.content = esFichaReal
-                ? "index,follow,max-image-preview:large"
-                : "noindex,follow";
-        }
-
+        // El estado robots se decide en el HTML servido por el servidor/generador.
+        // JavaScript no debe poder convertir una ficha pública en noindex durante el render.
         if (!esFichaReal) return;
 
         const datos = {
