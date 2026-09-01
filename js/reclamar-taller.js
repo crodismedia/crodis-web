@@ -1,115 +1,18 @@
 (function() {
     "use strict";
 
-    // ============ MAPA COMPLETO DE SERVICIOS ============
-    const NOMBRES_SERVICIOS = {
-        // 🔧 Mecánica general
-        "mecanica-general": "Mecánica general",
-        "mantenimiento-programado": "Mantenimiento programado",
-        "cambio-aceite-filtros": "Cambio de aceite y filtros",
-        "pre-itv": "Pre-ITV",
-        "revision-completa": "Revisión completa del vehículo",
-        
-        // 🛞 Frenos y transmisión
-        "frenos": "Frenos",
-        "cambio-pastillas-frenos": "Cambio de pastillas de freno",
-        "cambio-discos-frenos": "Cambio de discos de freno",
-        "embrague": "Embrague",
-        "cambio-embrague": "Cambio de embrague",
-        "correa-distribucion": "Correa de distribución",
-        "cambio-correa-distribucion": "Cambio de correa de distribución",
-        "caja-cambios": "Caja de cambios",
-        "reparacion-caja-cambios": "Reparación de caja de cambios",
-        
-        // ⚙️ Motor y sistema
-        "sistema-refrigeracion": "Sistema de refrigeración",
-        "reparacion-refrigeracion": "Reparación del sistema de refrigeración",
-        "escape-catalizador": "Escape y catalizador",
-        "reparacion-escape": "Reparación del sistema de escape",
-        "cambio-catalizador": "Cambio de catalizador",
-        "filtro-particulas": "Filtro de partículas (DPF)",
-        "regeneracion-fap": "Regeneración de filtro de partículas",
-        "inyeccion-combustible": "Sistema de inyección",
-        "limpieza-inyectores": "Limpieza de inyectores",
-        
-        // 🚗 Neumáticos y suspensión
-        "neumaticos": "Neumáticos",
-        "cambio-neumaticos": "Cambio de neumáticos",
-        "alineacion-direccion": "Alineación y dirección",
-        "alineacion-ruedas": "Alineación de ruedas",
-        "equilibrado-ruedas": "Equilibrado de ruedas",
-        "suspension-amortiguadores": "Suspensión y amortiguadores",
-        "cambio-amortiguadores": "Cambio de amortiguadores",
-        "direccion": "Dirección",
-        "reparacion-direccion": "Reparación de la dirección",
-        
-        // 🔌 Electrónica y diagnóstico
-        "diagnosis-electronica": "Diagnosis electrónica",
-        "diagnosis-vehiculo": "Diagnosis del vehículo",
-        "electricidad-automovil": "Electricidad del automóvil",
-        "reparacion-electrica": "Reparación eléctrica",
-        "baterias": "Baterías",
-        "cambio-bateria": "Cambio de batería",
-        "alternador-motor-arranque": "Alternador y motor de arranque",
-        "reparacion-alternador": "Reparación de alternador",
-        "reparacion-motor-arranque": "Reparación de motor de arranque",
-        "centralitas-electronica": "Centralitas y electrónica",
-        "reprogramacion-centralitas": "Reprogramación de centralitas",
-        "sistemas-adas": "Sistemas ADAS",
-        "calibracion-adas": "Calibración de sistemas ADAS",
-        
-        // 🎨 Carrocería y confort
-        "tapiceria": "Tapicería",
-        "reparacion-tapiceria": "Reparación de tapicería",
-        "chapa-pintura": "Chapa y pintura",
-        "reparacion-chapa": "Reparación de chapa",
-        "pintura-automovil": "Pintura de automóviles",
-        "pulido-barnizado": "Pulido y barnizado",
-        "aire-acondicionado": "Aire acondicionado",
-        "recarga-gas-climatizacion": "Recarga de gas de climatización",
-        "reparacion-climatizacion": "Reparación de climatización",
-        
-        // ⚡ Especiales
-        "hibridos-electricos": "Híbridos y eléctricos",
-        "mantenimiento-hibrido": "Mantenimiento de vehículos híbridos",
-        "mantenimiento-electrico": "Mantenimiento de vehículos eléctricos",
-        "baterias-alto-voltaje": "Baterías de alto voltaje",
-        
-        // 🚛 Vehículos comerciales
-        "vehiculos-comerciales": "Vehículos comerciales",
-        "mantenimiento-furgonetas": "Mantenimiento de furgonetas",
-        "mantenimiento-camiones": "Mantenimiento de camiones",
-        
-        // 🏆 Servicios premium
-        "preparacion-competicion": "Preparación para competición",
-        "tuning-automovil": "Tuning automovilístico",
-        "personalizacion-vehiculos": "Personalización de vehículos"
+    // ============ CONFIGURACIÓN ============
+    const CONFIG = {
+        SITE_URL: "https://www.tallermap.es",
+        CLEAN_PREFIX: "/talleres/",
+        DEBUG: false
     };
 
-    // ============ SERVICIOS RELACIONADOS ============
-    const SERVICIOS_RELACIONADOS = {
-        "frenos": ["cambio-pastillas-frenos", "cambio-discos-frenos", "revision-frenos"],
-        "embrague": ["cambio-embrague", "reparacion-embrague"],
-        "correa-distribucion": ["cambio-correa-distribucion", "revision-distribucion"],
-        "neumaticos": ["cambio-neumaticos", "equilibrado-ruedas", "alineacion-ruedas"],
-        "diagnosis-electronica": ["diagnosis-vehiculo", "reprogramacion-centralitas"],
-        "aire-acondicionado": ["recarga-gas-climatizacion", "reparacion-climatizacion"],
-        "hibridos-electricos": ["mantenimiento-hibrido", "mantenimiento-electrico"]
-    };
-
-    // ============ FUNCIONES PRINCIPALES ============
-    function nombreServicio(clave) {
-        const limpio = slugSeguro(clave);
-        return NOMBRES_SERVICIOS[limpio] || formatearServicio(limpio);
-    }
-
-    function formatearServicio(texto) {
-        return texto
-            .replace(/[-_]+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim()
-            .replace(/^./, letra => letra.toUpperCase())
-            .replace(/\b\w/g, letra => letra.toUpperCase());
+    // ============ UTILIDADES ============
+    function log(...args) {
+        if (CONFIG.DEBUG) {
+            console.log("[Redirect]", ...args);
+        }
     }
 
     function slugSeguro(valor) {
@@ -121,82 +24,247 @@
             .replace(/^-+|-+$/g, "");
     }
 
-    function obtenerServiciosRelacionados(servicio) {
-        const clave = slugSeguro(servicio);
-        return SERVICIOS_RELACIONADOS[clave] || [];
+    function urlLimpia(slug) {
+        const limpio = slugSeguro(slug);
+        return limpio ? ${CONFIG.CLEAN_PREFIX}${limpio} : "";
     }
 
-    function esServicioValido(servicio) {
-        const clave = slugSeguro(servicio);
-        return !!NOMBRES_SERVICIOS[clave];
+    // ============ DETECTORES DE RUTAS LEGACY ============
+    function detectarTipoLegacy(path, params) {
+        // 1. Ruta de taller.php
+        if (path.includes("taller.php")) {
+            const id = params.get("id") || params.get("taller_id");
+            const nombre = params.get("nombre") || params.get("slug");
+            return { tipo: "php", id, nombre };
+        }
+
+        // 2. Ruta de /pages/taller.html
+        if (path === "/pages/taller.html" || path.includes("/pages/taller.html")) {
+            const slug = params.get("slug") || params.get("taller");
+            return { tipo: "pages", slug };
+        }
+
+        // 3. Ruta con ID numérico (/taller/123)
+        const matchId = path.match(/\/taller\/(\d+)/);
+        if (matchId) {
+            return { tipo: "id", id: matchId[1] };
+        }
+
+        // 4. Ruta con slug antiguo (/taller/mi-taller)
+        const matchSlug = path.match(/\/taller\/([a-z0-9-]+)/);
+        if (matchSlug) {
+            return { tipo: "slug", slug: matchSlug[1] };
+        }
+
+        // 5. Ruta con parámetro slug
+        if (params.has("slug")) {
+            return { tipo: "param", slug: params.get("slug") };
+        }
+
+        // 6. Ruta con nombre de taller en URL
+        const matchNombre = path.match(/\/taller\/(.+)/);
+        if (matchNombre) {
+            return { tipo: "nombre", nombre: matchNombre[1] };
+        }
+
+        // 7. Ruta con formato antiguo /taller.php?slug=xxx
+        if (path.includes("taller.php") && params.has("slug")) {
+            return { tipo: "php-slug", slug: params.get("slug") };
+        }
+
+        // 8. Ruta con ID y nombre /taller/123-mi-taller
+        const matchIdNombre = path.match(/\/taller\/(\d+)-(.+)/);
+        if (matchIdNombre) {
+            return { tipo: "id-nombre", id: matchIdNombre[1], nombre: matchIdNombre[2] };
+        }
+
+        return { tipo: "unknown" };
     }
 
-    function obtenerListaServicios() {
-        return Object.values(NOMBRES_SERVICIOS);
+    // ============ OBTENER SLUG CORRECTO ============
+    function obtenerSlugCorrecto(path, params) {
+        const deteccion = detectarTipoLegacy(path, params);
+        log("Detección:", deteccion);
+
+        switch (deteccion.tipo) {
+            case "php":
+            case "pages":
+            case "param":
+            case "php-slug":
+                return slugSeguro(deteccion.slug);
+
+            case "id":
+                // Intentar obtener nombre desde el DOM o API
+                const nombre = document.querySelector("#taller-nombre, .taller-nombre")?.textContent?.trim();
+                return nombre ? slugSeguro(nombre) : deteccion.id;
+
+            case "slug":
+                return slugSeguro(deteccion.slug);
+
+            case "nombre":
+                return slugSeguro(deteccion.nombre);
+
+            case "id-nombre":
+                return slugSeguro(deteccion.nombre) || deteccion.id;
+
+            case "unknown":
+                // Intentar extraer de la URL
+                const partes = path.split("/").filter(Boolean);
+                const ultimo = partes[partes.length - 1];
+                if (ultimo && ultimo !== "taller" && ultimo !== "pages") {
+                    return slugSeguro(ultimo);
+                }
+                return "";
+
+            default:
+                return "";
+        }
     }
 
-    function obtenerCategoriasServicios() {
-        return Object.keys(NOMBRES_SERVICIOS);
+    // ============ MANEJADORES DE REDIRECCIÓN ============
+    function manejarRedireccion(destino, permanente = true) {
+        if (!destino) return false;
+
+        // Verificar que no estamos ya en el destino correcto
+        const path = window.location.pathname;
+        if (path === destino || path === ${destino}/) {
+            log("Ya en el destino correcto");
+            return false;
+        }
+
+        const urlCompleta = ${window.location.origin}${destino};
+        log(Redirigiendo a: ${urlCompleta});
+
+        if (permanente) {
+            window.location.replace(urlCompleta);
+        } else {
+            window.location.href = urlCompleta;
+        }
+        return true;
     }
 
-    // ============ EXPORTAR (si se usa como módulo) ============
+    function manejarRedireccionesLegacy() {
+        const path = window.location.pathname;
+        const params = new URLSearchParams(window.location.search);
+        const esLegacy = detectarTipoLegacy(path, params).tipo !== "unknown";
+
+        log("Path:", path);
+        log("Es Legacy:", esLegacy);
+
+        // Si es una URL legacy, redirigir
+        if (esLegacy) {
+            const slug = obtenerSlugCorrecto(path, params);
+            if (slug) {
+                const destino = urlLimpia(slug);
+                if (destino) {
+                    manejarRedireccion(destino, true);
+                    return true;
+                }
+            }
+        }
+
+        // Caso especial: URL con caracteres codificados
+        if (path.includes("%") || decodeURIComponent(path) !== path) {
+            const slug = slugSeguro(decodeURIComponent(path));
+            if (slug) {
+                const destino = urlLimpia(slug);
+                if (destino && destino !== path) {
+                    manejarRedireccion(destino, true);
+                    return true;
+                }
+            }
+        }
+
+        // Caso especial: Redirigir /taller/ a /talleres/
+        if (path.startsWith("/taller/") && !path.startsWith(CONFIG.CLEAN_PREFIX)) {
+            const slug = slugSeguro(path.replace("/taller/", ""));
+            if (slug) {
+                const destino = urlLimpia(slug);
+                if (destino) {
+                    manejarRedireccion(destino, true);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // ============ GUARDAR HISTORIAL ============
+    function guardarHistorialRedireccion(origen, destino) {
+        try {
+            const historial = JSON.parse(sessionStorage.getItem("redirect-history") || "[]");
+            historial.push({
+                from: origen,
+                to: destino,
+                timestamp: new Date().toISOString()
+            });
+            // Mantener solo los últimos 50
+            if (historial.length > 50) {
+                historial.splice(0, historial.length - 50);
+            }
+            sessionStorage.setItem("redirect-history", JSON.stringify(historial));
+        } catch (_) {
+            // Ignorar errores de almacenamiento
+        }
+    }
+
+    // ============ NOTIFICAR A GOOGLE ============
+    function notificarGoogle(origen, destino) {
+        // Ping a Google Search Console si existe el endpoint
+        if (navigator.sendBeacon) {
+            try {
+                const data = new FormData();
+                data.append("from", origen);
+                data.append("to", destino);
+                data.append("type", "redirect");
+                navigator.sendBeacon("/api/analytics/redirect", data);
+            } catch (_) {
+                // Ignorar errores
+            }
+        }
+    }
+
+    // ============ INICIALIZACIÓN ============
+    function inicializar() {
+        const path = window.location.pathname;
+        const esPaginaTaller = path === "/pages/taller.html" || 
+                               path.startsWith("/talleres/") ||
+                               path.startsWith("/taller/") ||
+                               document.querySelector("#taller-nombre") !== null;
+
+        if (!esPaginaTaller) {
+            log("No es página de taller, omitiendo");
+            return;
+        }
+
+        // Intentar redirigir
+        const redirigido = manejarRedireccionesLegacy();
+
+        if (redirigido) {
+            const destino = window.location.pathname;
+            guardarHistorialRedireccion(path, destino);
+            notificarGoogle(path, destino);
+        } else {
+            log("No se requirió redirección");
+        }
+    }
+
+    // ============ EJECUCIÓN ============
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", inicializar, { once: true });
+    } else {
+        inicializar();
+    }
+
+    // ============ EXPORTAR (para pruebas) ============
     if (typeof module !== "undefined" && module.exports) {
         module.exports = {
-            NOMBRES_SERVICIOS,
-            SERVICIOS_RELACIONADOS,
-            nombreServicio,
-            obtenerServiciosRelacionados,
-            esServicioValido,
-            obtenerListaServicios,
-            obtenerCategoriasServicios,
-            slugSeguro
+            detectarTipoLegacy,
+            obtenerSlugCorrecto,
+            manejarRedireccionesLegacy,
+            CONFIG
         };
-    }
-
-    // ============ AUTO-EJECUCIÓN PARA CORREGIR HTML ============
-    function corregirServiciosEnPagina() {
-        // Corregir servicios en fichas de taller
-        document.querySelectorAll("#taller-servicios span, .taller-servicios span, .servicios-taller span").forEach(el => {
-            const original = el.textContent.trim();
-            if (original) {
-                const corregido = nombreServicio(original);
-                if (corregido && el.textContent.trim() !== corregido) {
-                    el.textContent = corregido;
-                    el.setAttribute("data-servicio-original", original);
-                    el.setAttribute("data-servicio-normalizado", slugSeguro(original));
-                }
-            }
-        });
-
-        // Corregir servicios en tarjetas
-        document.querySelectorAll(".card-servicio, .servicio-item").forEach(el => {
-            const nombre = el.querySelector(".servicio-nombre, .nombre-servicio");
-            if (nombre) {
-                const original = nombre.textContent.trim();
-                const corregido = nombreServicio(original);
-                if (corregido && nombre.textContent.trim() !== corregido) {
-                    nombre.textContent = corregido;
-                }
-            }
-        });
-    }
-
-    // Ejecutar al cargar
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", corregirServiciosEnPagina);
-    } else {
-        corregirServiciosEnPagina();
-    }
-
-    // Observar cambios dinámicos
-    if (document.body) {
-        const observer = new MutationObserver(() => {
-            corregirServiciosEnPagina();
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
     }
 
 })();
