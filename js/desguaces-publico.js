@@ -1,19 +1,26 @@
 (function () {
   'use strict';
 
-  const grupos = {
-    'Alicante/Alacant': document.getElementById('lista-desguaces-alicante'),
-    'Castellón/Castelló': document.getElementById('lista-desguaces-castellon'),
-    'Valencia/València': document.getElementById('lista-desguaces-valencia')
-  };
-
   const secciones = {
     alicante: document.getElementById('alicante'),
     castellon: document.getElementById('castellon'),
     valencia: document.getElementById('valencia')
   };
 
+  const contenedores = {
+    alicante: document.getElementById('lista-desguaces-alicante'),
+    castellon: document.getElementById('lista-desguaces-castellon'),
+    valencia: document.getElementById('lista-desguaces-valencia')
+  };
+
+  const nombresProvincia = {
+    alicante: 'Alicante',
+    castellon: 'Castellón',
+    valencia: 'Valencia'
+  };
+
   const botonesProvincia = Array.from(document.querySelectorAll('.selector-provincia'));
+  const cache = new Map();
 
   function esc(valor) {
     return String(valor ?? '').replace(/[&<>"']/g, c => ({
@@ -39,23 +46,6 @@
   function slugSeguro(valor) {
     const slug = String(valor || '').trim().toLowerCase();
     return /^[a-z0-9-]+$/.test(slug) ? slug : '';
-  }
-
-  function normalizarTexto(valor) {
-    return String(valor || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  }
-
-  function provinciaCanonica(valor) {
-    const p = normalizarTexto(valor);
-    if (!p) return '';
-    if (p.includes('alicante') || p.includes('alacant')) return 'Alicante/Alacant';
-    if (p.includes('castellon') || p.includes('castello')) return 'Castellón/Castelló';
-    if (p.includes('valencia')) return 'Valencia/València';
-    return '';
   }
 
   function tarjeta(d) {
@@ -94,71 +84,57 @@
     </article>`;
   }
 
-  function estadoInicial() {
-    Object.values(grupos).forEach(c => {
-      if (c) c.innerHTML = '<p class="desguaces-estado">Cargando desguaces publicados…</p>';
-    });
-  }
-
   function provinciaDesdeHash() {
     const hash = window.location.hash.replace('#', '').toLowerCase();
     return Object.prototype.hasOwnProperty.call(secciones, hash) ? hash : '';
   }
 
-  function aplicarFiltroProvincia(provincia, hacerScroll) {
-    if (!provincia || !secciones[provincia]) return;
-
+  function mostrarSoloProvincia(provincia) {
     Object.entries(secciones).forEach(([clave, seccion]) => {
       if (seccion) seccion.hidden = clave !== provincia;
     });
-
     botonesProvincia.forEach(boton => {
       const activa = boton.getAttribute('href') === `#${provincia}`;
       if (activa) boton.setAttribute('aria-current', 'true');
       else boton.removeAttribute('aria-current');
     });
+  }
 
-    if (hacerScroll) {
-      secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function aplicarFiltroConsulta(query, provincia) {
+    if (provincia === 'alicante') {
+      return query.or('provincia.ilike.%Alicante%,provincia.ilike.%Alacant%');
     }
+    if (provincia === 'castellon') {
+      return query.or('provincia.ilike.%Castellón%,provincia.ilike.%Castelló%,provincia.ilike.%Castellon%');
+    }
+    return query.or('provincia.ilike.%Valencia%,provincia.ilike.%València%');
   }
 
-  function prepararSelectorProvincia() {
-    botonesProvincia.forEach(boton => {
-      boton.addEventListener('click', evento => {
-        const provincia = boton.getAttribute('href').replace('#', '').toLowerCase();
-        if (!secciones[provincia]) return;
-        evento.preventDefault();
-        history.replaceState(null, '', `#${provincia}`);
-        aplicarFiltroProvincia(provincia, true);
-      });
-    });
+  async function cargarProvincia(provincia, hacerScroll) {
+    if (!provincia || !secciones[provincia]) return;
 
-    const inicial = provinciaDesdeHash();
-    if (inicial) aplicarFiltroProvincia(inicial, false);
+    mostrarSoloProvincia(provincia);
+    const contenedor = contenedores[provincia];
+    if (!contenedor) return;
 
-    window.addEventListener('hashchange', () => {
-      const provincia = provinciaDesdeHash();
-      if (provincia) aplicarFiltroProvincia(provincia, false);
-    });
-  }
-
-  async function cargar() {
-    prepararSelectorProvincia();
-
-    // En producción el HTML puede llegar ya renderizado desde /api/desguaces-public.
-    // Si ya hay tarjetas, no las sustituimos: solo aplicamos el filtro de provincia.
-    if (document.querySelector('.desguace-card')) return;
-
-    const sb = window.supabaseClient;
-    if (!sb) {
-      console.error('No se pudo iniciar Supabase para el directorio de desguaces.');
+    if (cache.has(provincia)) {
+      const filas = cache.get(provincia);
+      contenedor.innerHTML = filas.length
+        ? filas.map(tarjeta).join('')
+        : '<p class="desguaces-estado">No hay desguaces publicados en esta provincia.</p>';
+      if (hacerScroll) secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
 
-    estadoInicial();
+    const sb = window.supabaseClient;
+    if (!sb) {
+      contenedor.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudo conectar con el directorio de desguaces.</p>';
+      return;
+    }
 
-    const { data, error } = await sb
+    contenedor.innerHTML = `<p class="desguaces-estado">Buscando desguaces en ${esc(nombresProvincia[provincia])}…</p>`;
+
+    let query = sb
       .from('desguaces')
       .select('id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion,activo,verificado,updated_at')
       .eq('activo', true)
@@ -166,43 +142,50 @@
       .order('municipio', { ascending: true })
       .order('nombre', { ascending: true });
 
+    query = aplicarFiltroConsulta(query, provincia);
+    const { data, error } = await query;
+
     if (error) {
-      console.error('No se pudieron cargar los desguaces públicos:', error);
-      Object.values(grupos).forEach(c => {
-        if (c) c.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudieron cargar los desguaces. Vuelve a intentarlo.</p>';
-      });
+      console.error(`No se pudieron cargar los desguaces de ${provincia}:`, error);
+      contenedor.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudieron cargar los desguaces. Vuelve a intentarlo.</p>';
       return;
     }
 
-    const porProvincia = new Map(Object.keys(grupos).map(p => [p, []]));
-    const sinProvincia = [];
+    const filas = Array.isArray(data) ? data : [];
+    cache.set(provincia, filas);
+    contenedor.innerHTML = filas.length
+      ? filas.map(tarjeta).join('')
+      : '<p class="desguaces-estado">No hay desguaces publicados en esta provincia.</p>';
 
-    (data || []).forEach(d => {
-      const provincia = provinciaCanonica(d.provincia);
-      if (provincia && porProvincia.has(provincia)) porProvincia.get(provincia).push(d);
-      else sinProvincia.push(d);
-    });
-
-    Object.entries(grupos).forEach(([provincia, contenedor]) => {
-      if (!contenedor) return;
-      const filas = porProvincia.get(provincia) || [];
-      contenedor.innerHTML = filas.length
-        ? filas.map(tarjeta).join('')
-        : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
-    });
-
-    if (sinProvincia.length) {
-      console.warn('Desguaces sin provincia reconocida:', sinProvincia.map(d => ({ id: d.id, nombre: d.nombre, provincia: d.provincia })));
-    }
-
-    const total = (data || []).length;
     const contador = document.getElementById('contador-desguaces-publicados');
-    if (contador) contador.textContent = `${total.toLocaleString('es-ES')} ${total === 1 ? 'desguace publicado' : 'desguaces publicados'}`;
+    if (contador) contador.textContent = `${filas.length.toLocaleString('es-ES')} ${filas.length === 1 ? 'desguace' : 'desguaces'} en ${nombresProvincia[provincia]}`;
+
+    if (hacerScroll) secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function iniciar() {
+    botonesProvincia.forEach(boton => {
+      boton.addEventListener('click', evento => {
+        const provincia = boton.getAttribute('href').replace('#', '').toLowerCase();
+        if (!secciones[provincia]) return;
+        evento.preventDefault();
+        history.replaceState(null, '', `#${provincia}`);
+        cargarProvincia(provincia, true);
+      });
+    });
+
+    const inicial = provinciaDesdeHash();
+    if (inicial) cargarProvincia(inicial, false);
+
+    window.addEventListener('hashchange', () => {
+      const provincia = provinciaDesdeHash();
+      if (provincia) cargarProvincia(provincia, false);
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', cargar, { once: true });
+    document.addEventListener('DOMContentLoaded', iniciar, { once: true });
   } else {
-    cargar();
+    iniciar();
   }
 }());
