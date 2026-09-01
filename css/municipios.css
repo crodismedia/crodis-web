@@ -1,86 +1,121 @@
 /* ============================================================
-   TALLERMAP - ESTILOS OPTIMIZADOS DEL FOOTER (PIE)
-   Basado en la estructura HTML: footer.pie > .contenedor-copyright
+   TALLERMAP - CSS COMPLETO Y OPTIMIZADO PARA MUNICIPIOS
    ============================================================ */
 
-/* --- 1. Contenedor Principal del Footer --- */
-footer.pie {
-    background-color: #1a1a1a; /* Color oscuro base */
-    color: #cccccc;
-    width: 100%;
-    /* Eliminamos el espacio gigante que causaba el problema */
-    padding: 0;
+/* --- 1. Contenedor principal de las tarjetas (Lista de talleres) --- */
+.municipality-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0 0 0;
     margin: 0;
-    min-height: auto;
-    height: auto;
-    box-sizing: border-box;
 }
 
-/* --- 2. Título de la sección (Busca talleres publicados) --- */
-footer.pie h2,
-footer.pie .titulo-seccion {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ffffff;
-    background-color: #ffffff; /* Fondo blanco para la franja superior */
-    color: #1a1a1a;
-    padding: 30px 15px;
-    margin: 0;
-    text-align: center;
-}
-
-/* --- 3. Contenedor del Copyright (La franja oscura de abajo) --- */
-footer.pie .contenedor-copyright {
-    background-color: #1a1a1a;
-    color: #a0a0a0;
-    font-size: 0.85rem;
-    /* Espaciado compacto y correcto */
-    padding: 15px 20px;
-    margin: 0;
-    min-height: auto;
-    height: auto;
+/* --- 2. Estilos de cada tarjeta individual --- */
+.municipality-card {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    transition: transform 0.2s ease;
 }
 
-/* --- 4. Enlaces dentro del footer --- */
-footer.pie a,
-footer.pie .contenedor-copyright a {
-    color: #ffffff;
+.municipality-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Título dentro de la tarjeta */
+.municipality-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #004a99;
+    margin-bottom: 10px;
+}
+
+/* Texto secundario (provincia, etc.) */
+.municipality-card p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+/* Botón "Ver horario semanal" */
+.municipality-card .schedule-btn {
+    display: inline-block;
+    font-weight: 600;
+    color: #004a99;
+    margin-bottom: 15px;
     text-decoration: none;
-    transition: color 0.2s ease;
 }
 
-footer.pie a:hover {
-    color: #4da6ff;
-    text-decoration: underline;
+/* Botón "Cómo llegar" */
+.municipality-card .directions-btn {
+    display: inline-block;
+    background-color: #004a99;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
 }
 
-/* --- 5. Ocultar elementos que generan espacio innecesario --- */
-/* Botón de instalación PWA que se veía en el inspector */
+.municipality-card .directions-btn:hover {
+    background-color: #003366;
+}
+
+/* Teléfono destacado */
+.municipality-card .phone-number {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* --- 3. ELIMINACIÓN TOTAL DEL ESPACIO EN BLANCO DEL FOOTER --- */
+/* Anular el padding gigante heredado del archivo estilos.css */
+#main-content footer.pie,
+main#contenido-principal footer.pie,
+footer.pie {
+    padding: 0 20px 0 20px !important;
+    min-height: auto !important;
+    height: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Compactar el contenedor del copyright */
+footer.pie .contenedor-copyright {
+    padding: 15px 20px !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    height: auto !important;
+}
+
+/* Anular el espacio del estado de carga */
+body.is-loading,
+#main-content.is-loading {
+    min-height: auto !important;
+    height: auto !important;
+}
+
+/* Ocultar el botón PWA que genera elementos extra */
 #pwa-install-btn {
-    display: none;
+    display: none !important;
 }
 
-/* Estado de carga que dejaba el hueco en blanco */
-body.is-loading {
-    min-height: auto;
-    height: auto;
-}
-
-/* --- 6. Responsive para móviles --- */
+/* --- 4. RESPONSIVE (Ajuste para móviles) --- */
 @media (max-width: 768px) {
-    footer.pie h2 {
-        font-size: 1.5rem;
-        padding: 20px 15px;
+    .municipality-list {
+        grid-template-columns: 1fr; /* Una sola columna */
+        padding: 15px 0 0 0;
     }
-    
-    footer.pie .contenedor-copyright {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px 15px;
+
+    footer.pie {
+        padding: 0 15px 0 15px !important;
     }
 }
