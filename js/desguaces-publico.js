@@ -13,6 +13,14 @@
     'Valencia/València': document.getElementById('lista-desguaces-valencia')
   };
 
+  const secciones = {
+    alicante: document.getElementById('alicante'),
+    castellon: document.getElementById('castellon'),
+    valencia: document.getElementById('valencia')
+  };
+
+  const botonesProvincia = Array.from(document.querySelectorAll('.selector-provincia'));
+
   function esc(valor) {
     return String(valor ?? '').replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -81,8 +89,47 @@
     });
   }
 
+  function provinciaDesdeHash() {
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    return Object.prototype.hasOwnProperty.call(secciones, hash) ? hash : '';
+  }
+
+  function aplicarFiltroProvincia(provincia, hacerScroll) {
+    if (!provincia || !secciones[provincia]) return;
+
+    Object.entries(secciones).forEach(([clave, seccion]) => {
+      if (seccion) seccion.hidden = clave !== provincia;
+    });
+
+    botonesProvincia.forEach(boton => {
+      const activa = boton.getAttribute('href') === `#${provincia}`;
+      if (activa) boton.setAttribute('aria-current', 'true');
+      else boton.removeAttribute('aria-current');
+    });
+
+    if (hacerScroll) {
+      secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function prepararSelectorProvincia() {
+    botonesProvincia.forEach(boton => {
+      boton.addEventListener('click', evento => {
+        const provincia = boton.getAttribute('href').replace('#', '').toLowerCase();
+        if (!secciones[provincia]) return;
+        evento.preventDefault();
+        history.replaceState(null, '', `#${provincia}`);
+        aplicarFiltroProvincia(provincia, true);
+      });
+    });
+
+    const inicial = provinciaDesdeHash();
+    if (inicial) aplicarFiltroProvincia(inicial, false);
+  }
+
   async function cargar() {
     estadoInicial();
+    prepararSelectorProvincia();
 
     const { data, error } = await sb
       .from('desguaces')
