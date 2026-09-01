@@ -120,8 +120,6 @@
 
     function mejorarPortadaInicial() {
         document.querySelector(".franja-reloj")?.remove();
-        document.getElementById("usar-mi-ubicacion")?.remove();
-        document.getElementById("estado-ubicacion")?.remove();
         const titulo = document.querySelector(".hero-texto h1");
         if (titulo) titulo.innerHTML = "Encuentra talleres mecánicos <span>cerca de ti</span>";
         const ayuda = document.querySelector(".tarjeta-flotante span");
