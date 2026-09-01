@@ -164,4 +164,54 @@ main, #main-content, .main-content {
 /* 4. Si el hueco lo genera un mapa o script externo que no carga */
 .mapa, #mapa, .map, #map {
     display: none !important;
+   /* ============================================
+   CORRECCIÓN ESPECÍFICA DEL FOOTER (DOS FRANJAS)
+   ============================================ */
+
+/* 1. El contenedor principal del footer */
+footer {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    display: block;
+}
+
+/* 2. La PRIMERA franja (la blanca, donde estaba el espacio gigante y el título) */
+footer .franja-blanca, 
+footer section:first-of-type, 
+footer > div:first-child {
+    /* Eliminamos el espacio excesivo */
+    padding-top: 30px !important;
+    padding-bottom: 30px !important;
+    min-height: auto !important;
+    height: auto !important;
+}
+
+/* 3. La SEGUNDA franja (la oscura, con el copyright y créditos) */
+footer .franja-oscura, 
+footer section:last-of-type, 
+footer > div:last-child,
+footer .site-footer {
+    padding: 15px 20px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 4. El título grande "Busca talleres publicados" (que está en la franja blanca) */
+footer h2, 
+footer .titulo-seccion {
+    font-size: 1.8rem;
+    margin-bottom: 20px !important;
+    margin-top: 0 !important;
+}
+
+/* 5. Evitar el hueco del estado de carga */
+body.is-loading {
+    min-height: auto !important;
+    height: auto !important;
+}
+
+/* 6. Ocultar el botón PWA si sigue generando espacio */
+#pwa-install-btn {
+    display: none !important;
+}
 }}
