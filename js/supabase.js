@@ -9,7 +9,8 @@
         ["alicante", "03014"], ["alacant", "03014"], ["alacant alicante", "03014"],
         ["castellon", "12040"], ["castello", "12040"], ["castellon de la plana", "12040"],
         ["castello de la plana", "12040"], ["castello de la plana castellon de la plana", "12040"],
-        ["valencia", "46250"]
+        ["valencia", "46250"],
+        ["torrent", "46244"]
     ]);
 
     if (!window.supabase?.createClient) {
@@ -21,7 +22,6 @@
     window.supabaseClient = supabaseClient;
 
     if (!window.TallerMapTallerUI) {
-        // El área administrativa solo necesita el cliente de Supabase.
         return;
     }
 
@@ -46,15 +46,8 @@
     function ubicacionSegura(valor) {
         const termino = terminoSeguro(valor);
         if (!termino || /^\d{5}$/.test(termino)) return termino;
-
-        const partes = termino
-            .split("/")
-            .map(parte => parte.trim())
-            .filter(Boolean);
-
-        return partes.length > 1
-            ? partes[partes.length - 1].slice(0, LIMITE_TERMINO)
-            : termino;
+        const partes = termino.split("/").map(parte => parte.trim()).filter(Boolean);
+        return partes.length > 1 ? partes[partes.length - 1].slice(0, LIMITE_TERMINO) : termino;
     }
 
     function normalizarTexto(valor) {
@@ -72,8 +65,7 @@
         if (!solicitado) return "";
         const normalizado = normalizarTexto(solicitado);
         const opcion = [...(selector?.options || [])].find(elemento =>
-            normalizarTexto(elemento.value) === normalizado
-            || normalizarTexto(elemento.textContent) === normalizado
+            normalizarTexto(elemento.value) === normalizado || normalizarTexto(elemento.textContent) === normalizado
         );
         return opcion?.value || solicitado;
     }
@@ -92,9 +84,7 @@
         const indicador = document.querySelector(".mapa-estado");
         if (indicador) indicador.textContent = `${cantidad} ${cantidad === 1 ? "disponible" : "disponibles"}`;
         const titulo = document.querySelector("#talleres .titulo-seccion h2");
-        if (titulo) titulo.textContent = cantidad
-            ? `${cantidad.toLocaleString("es-ES")} talleres encontrados`
-            : "Talleres publicados";
+        if (titulo) titulo.textContent = cantidad ? `${cantidad.toLocaleString("es-ES")} talleres encontrados` : "Talleres publicados";
     }
 
     function actualizarBoton(hayMas, estaCargando = false) {
@@ -125,10 +115,7 @@
         return new Promise(resolve => {
             window.requestAnimationFrame(() => {
                 window.requestAnimationFrame(() => {
-                    document.getElementById("talleres")?.scrollIntoView({
-                        behavior: comportamiento,
-                        block: "start"
-                    });
+                    document.getElementById("talleres")?.scrollIntoView({ behavior: comportamiento, block: "start" });
                     resolve();
                 });
             });
@@ -136,17 +123,12 @@
     }
 
     async function adjuntarFotosFirmadas(talleres) {
-        const rutas = [...new Set(
-            talleres.map(taller => Array.isArray(taller.fotos) ? (taller.fotos[0] || "") : "").filter(Boolean)
-        )];
+        const rutas = [...new Set(talleres.map(taller => Array.isArray(taller.fotos) ? (taller.fotos[0] || "") : "").filter(Boolean))];
         if (!rutas.length) return talleres;
         const { data, error } = await supabaseClient.storage.from("fotos-talleres").createSignedUrls(rutas, 3600);
         if (error) return talleres;
         const porRuta = new Map((data || []).map(item => [item.path, item.signedUrl || item.signedURL || ""]));
-        return talleres.map(taller => ({
-            ...taller,
-            fotoFirmada: porRuta.get(Array.isArray(taller.fotos) ? taller.fotos[0] : "") || ""
-        }));
+        return talleres.map(taller => ({ ...taller, fotoFirmada: porRuta.get(Array.isArray(taller.fotos) ? taller.fotos[0] : "") || "" }));
     }
 
     function incorporarFotosEnSegundoPlano(talleres, version) {
@@ -174,12 +156,8 @@
         const selector = document.getElementById("servicio");
         if (!selector) return;
         const seleccionado = selector.value;
-        const { data, error } = await supabaseClient
-            .from("servicios").select("slug,nombre").eq("activo", true).order("nombre", { ascending: true });
-        if (error) {
-            console.error("No se pudo cargar el catálogo de servicios:", error);
-            return;
-        }
+        const { data, error } = await supabaseClient.from("servicios").select("slug,nombre").eq("activo", true).order("nombre", { ascending: true });
+        if (error) return console.error("No se pudo cargar el catálogo de servicios:", error);
         selector.replaceChildren(new Option("Todos los servicios", ""));
         (data || []).forEach(servicio => selector.appendChild(new Option(servicio.nombre || servicio.slug, servicio.slug || "")));
         if ([...selector.options].some(opcion => opcion.value === seleccionado)) selector.value = seleccionado;
@@ -223,7 +201,6 @@
     async function cargarTalleres(poblacion = "", servicio = "", reiniciar = true) {
         const contenedor = document.getElementById("lista-talleres");
         if (!contenedor || cargando) return;
-
         if (reiniciar) {
             versionBusqueda += 1;
             siguienteIndice = 0;
@@ -238,19 +215,12 @@
             actualizarBoton(false);
             actualizarUrlBusqueda(poblacionActual, servicioActual);
         }
-
         const versionActual = versionBusqueda;
         cargando = true;
         actualizarBotonBuscar(true);
         if (!reiniciar) actualizarBoton(true, true);
-
         try {
-            const { data, error } = await ejecutarBusquedaActual({
-                ubicacion: poblacionActual,
-                servicio: servicioActual,
-                desde: siguienteIndice,
-                limite: TAMANO_PAGINA
-            });
+            const { data, error } = await ejecutarBusquedaActual({ ubicacion: poblacionActual, servicio: servicioActual, desde: siguienteIndice, limite: TAMANO_PAGINA });
             if (error) {
                 console.error("No se pudieron cargar los talleres:", error);
                 if (reiniciar) mostrarEstado("No se pudieron cargar los talleres. Vuelve a intentarlo.");
@@ -258,7 +228,6 @@
                 actualizarBoton(false);
                 return;
             }
-
             const talleres = Array.isArray(data) ? data : [];
             if (!talleres.length) {
                 if (reiniciar) {
@@ -268,7 +237,6 @@
                 actualizarBoton(false);
                 return;
             }
-
             const html = talleres.map(ui.crearTarjeta).join("");
             if (reiniciar) contenedor.innerHTML = html; else contenedor.insertAdjacentHTML("beforeend", html);
             siguienteIndice += talleres.length;
@@ -316,11 +284,7 @@
         if (servicioUrl && promesaServicios) await promesaServicios.catch(() => undefined);
         const servicioResuelto = resolverServicio(servicio, servicioUrl);
         if (servicio && servicioResuelto && [...servicio.options].some(opcion => opcion.value === servicioResuelto)) servicio.value = servicioResuelto;
-        await cargarTalleres(
-            poblacion?.value || poblacionUrl,
-            servicio?.value || servicioResuelto,
-            true
-        );
+        await cargarTalleres(poblacion?.value || poblacionUrl, servicio?.value || servicioResuelto, true);
         await mostrarResultadosCuandoListos("auto");
     }
 
