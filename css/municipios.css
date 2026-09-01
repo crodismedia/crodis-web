@@ -136,4 +136,32 @@
         flex-direction: column;
         text-align: center;
     }
+
+/* ============================================================
+   CORRECCIÓN DEFINITIVA: ELIMINAR ESPACIO EN BLANCO POR CARGA
+   ============================================================ */
+
+/* 1. Ocultar el estado de carga que deja el hueco gigante */
+body.is-loading .main-content,
+body.is-loading main,
+body.is-loading {
+    min-height: auto !important;
+    height: auto !important;
 }
+
+/* 2. Ocultar el botón o contenedor de instalación PWA si genera hueco */
+#pwa-install-btn {
+    display: none !important;
+}
+
+/* 3. Forzar a que el contenido principal no tenga altura forzada */
+main, #main-content, .main-content {
+    height: auto !important;
+    min-height: auto !important;
+    padding-bottom: 20px !important; /* Un poco de aire, pero sin exagerar */
+}
+
+/* 4. Si el hueco lo genera un mapa o script externo que no carga */
+.mapa, #mapa, .map, #map {
+    display: none !important;
+}}
