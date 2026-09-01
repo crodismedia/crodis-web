@@ -1,473 +1,362 @@
-(function () {
+(() => {
     "use strict";
 
-    // ========== CONFIGURACIÓN ==========
-    const CONFIG = {
-        DEBUG: false,
-        BASE_URL: window.location.origin || "",
-        PATH_TALLER: "/taller",
-        PATH_BUSCADOR: "/buscador",
-        PATH_PERFIL: "/perfil",
-        PARAM_POBLACION: "poblacion",
-        PARAM_SERVICIO: "servicio",
-        PARAM_PAGINA: "pagina",
-        PARAM_ORDEN: "orden",
-        MAX_SLUG_LENGTH: 100,
-        DEFAULT_IMAGE: "/images/taller-default.jpg",
+    const SITE_URL = "https://www.tallermap.es";
+    const CLEAN_PREFIX = "/talleres/";
+    const LEGACY_PATH = "CLEAN_PREFIX";
+
+    const NOMBRES_SERVICIOS = {
+        "mecanica-general": "Mecánica general",
+        "mantenimiento-programado": "Mantenimiento programado",
+        "cambio-aceite-filtros": "Cambio de aceite y filtros",
+        "pre-itv": "Pre-ITV",
+        "frenos": "Frenos",
+        "embrague": "Embrague",
+        "correa-distribucion": "Correa de distribución",
+        "sistema-refrigeracion": "Sistema de refrigeración",
+        "escape-catalizador": "Escape y catalizador",
+        "caja-cambios": "Caja de cambios",
+        "neumaticos": "Neumáticos",
+        "alineacion-direccion": "Alineación y dirección",
+        "equilibrado-ruedas": "Equilibrado de ruedas",
+        "suspension-amortiguadores": "Suspensión y amortiguadores",
+        "direccion": "Dirección",
+        "diagnosis-electronica": "Diagnosis electrónica",
+        "electricidad-automovil": "Electricidad del automóvil",
+        "baterias": "Baterías",
+        "alternador-motor-arranque": "Alternador y motor de arranque",
+        "centralitas-electronica": "Centralitas y electrónica",
+        "sistemas-adas": "Sistemas ADAS",
+        "tapiceria": "Tapicería",
+        "chapa-pintura": "Chapa y pintura",
+        "aire-acondicionado": "Aire acondicionado",
+        "hibridos-electricos": "Híbridos y eléctricos"
     };
 
-    // ========== LOGGING ==========
-    function log(...args) {
-        if (CONFIG.DEBUG) {
-            console.log("[TallerURLs]", ...args);
-        }
-    }
-
-    // ========== UTILIDADES ==========
-    function escaparHTML(texto) {
-        if (!texto) return "";
-        const mapa = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-        };
-        return String(texto).replace(/[&<>"']/g, function(m) {
-            return mapa[m];
-        });
-    }
-
-    function slugSeguro(texto) {
-        if (!texto) return "";
-        
-        return String(texto)
+    function slugSeguro(valor) {
+        return String(valor || "")
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .slice(0, CONFIG.MAX_SLUG_LENGTH);
+            .replace(/^-+|-+$/g, "");
     }
 
-    function urlSegura(url) {
-        if (!url) return "";
+    function slugDesdeEnlace(enlace) {
         try {
-            const urlObj = new URL(url);
-            if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-                return "";
+            const url = new URL(enlace.href, window.location.origin);
+            const parametro = url.searchParams.get("slug");
+            if (parametro) return slugSeguro(parametro);
+            if (url.pathname.startsWith(CLEAN_PREFIX)) {
+                return slugSeguro(url.pathname.slice(CLEAN_PREFIX.length));
             }
-            return url;
-        } catch {
+        } catch (_error) {
             return "";
         }
+        return "";
     }
 
-    function codificarParametro(valor) {
-        if (!valor) return "";
-        return encodeURIComponent(String(valor));
+    function urlLimpia(slug) {
+        const limpio = slugSeguro(slug);
+        return limpio ? `${CLEAN_PREFIX}${limpio}` : "";
     }
 
-    function decodificarParametro(valor) {
-        if (!valor) return "";
-        try {
-            return decodeURIComponent(valor);
-        } catch {
-            return valor;
+    function enlacesDeFicha(tarjeta) {
+        return [...tarjeta.querySelectorAll("a")].filter((enlace) => {
+            try {
+                const url = new URL(enlace.href, window.location.origin);
+                return url.pathname === LEGACY_PATH
+                    || url.pathname.startsWith(CLEAN_PREFIX)
+                    || enlace.classList.contains("enlace-ficha-taller");
+            } catch (_error) {
+                return false;
+            }
+        });
+    }
+
+    function limpiarEnlacesTarjeta(tarjeta) {
+        if (!(tarjeta instanceof Element)) return;
+        const enlaces = enlacesDeFicha(tarjeta);
+        if (!enlaces.length) return;
+
+        const slug = enlaces.map(slugDesdeEnlace).find(Boolean);
+        if (!slug) return;
+
+        const principal = enlaces.find((enlace) =>
+            enlace.classList.contains("enlace-ficha-taller")
+        ) || enlaces[0];
+        const destino = urlLimpia(slug);
+
+        if (principal.getAttribute("href") !== destino) principal.href = destino;
+        principal.classList.add("enlace-ficha-taller");
+
+        if (!principal.getAttribute("aria-label")) {
+            const nombreTaller =
+                principal.textContent.trim()
+                || tarjeta.querySelector(".taller-informacion .taller-titulo, .taller-informacion h3")?.textContent.trim()
+                || "este taller";
+
+            principal.setAttribute(
+                "aria-label",
+                `Ver ficha de ${nombreTaller}`
+            );
+        }
+
+        const esEnlaceTitulo = Boolean(principal.closest(".taller-titulo, h3"));
+        if (!esEnlaceTitulo && principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";
+
+        enlaces.forEach((enlace) => {
+            if (enlace !== principal && enlace.isConnected) enlace.remove();
+        });
+    }
+
+    function procesarNodo(nodo) {
+        if (!(nodo instanceof Element)) return;
+        if (nodo.matches(".taller-card")) limpiarEnlacesTarjeta(nodo);
+        nodo.querySelectorAll?.(".taller-card").forEach(limpiarEnlacesTarjeta);
+
+        if (nodo.matches("a.taller-relacionado")) {
+            const slug = slugDesdeEnlace(nodo);
+            if (slug) nodo.href = urlLimpia(slug);
+        }
+        nodo.querySelectorAll?.("a.taller-relacionado").forEach((enlace) => {
+            const slug = slugDesdeEnlace(enlace);
+            if (slug) enlace.href = urlLimpia(slug);
+        });
+    }
+
+    function actualizarFichaUnaVez() {
+        const ruta = window.location.pathname;
+        const parametros = new URLSearchParams(window.location.search);
+        const slug = ruta.startsWith(CLEAN_PREFIX)
+            ? slugSeguro(ruta.slice(CLEAN_PREFIX.length))
+            : slugSeguro(parametros.get("slug") || "");
+
+        if (!slug) return;
+        const limpia = urlLimpia(slug);
+        const absoluta = `${SITE_URL}${limpia}`;
+
+        if (ruta === LEGACY_PATH) {
+            window.history.replaceState({}, "", limpia);
+        }
+
+        const canonical = document.getElementById("canonical-taller")
+            || document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.href = absoluta;
+    }
+
+    function asegurarMeta(selector, atributos) {
+        let elemento = document.head.querySelector(selector);
+        if (!elemento) {
+            elemento = document.createElement("meta");
+            Object.entries(atributos).forEach(([clave, valor]) => elemento.setAttribute(clave, valor));
+            document.head.appendChild(elemento);
+        }
+        return elemento;
+    }
+
+    function valorDato(etiqueta) {
+        const filas = document.querySelectorAll("#taller-datos p");
+        for (const fila of filas) {
+            const fuerte = fila.querySelector("strong");
+            if (!fuerte) continue;
+            if (fuerte.textContent.trim().toLowerCase() === `${etiqueta.toLowerCase()}:`) {
+                return fila.textContent.replace(fuerte.textContent, "").trim();
+            }
+        }
+        return "";
+    }
+
+    function nombreServicio(valor) {
+        const original = String(valor || "").trim();
+        if (!original) return "";
+        const clave = slugSeguro(original);
+        if (NOMBRES_SERVICIOS[clave]) return NOMBRES_SERVICIOS[clave];
+        return original
+            .replace(/[-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/^./, (letra) => letra.toUpperCase());
+    }
+
+    function corregirPresentacionFicha() {
+        const direccion = valorDato("Dirección");
+        const codigoPostal = valorDato("Código postal");
+        const ciudad = valorDato("Municipio");
+        const provincia = valorDato("Provincia");
+        const direccionVisible = [direccion, codigoPostal, ciudad, provincia]
+            .map((valor) => String(valor || "").trim())
+            .filter(Boolean)
+            .filter((valor, indice, lista) => lista.findIndex((otro) => otro.toLowerCase() === valor.toLowerCase()) === indice)
+            .join(", ");
+
+        const elementoDireccion = document.getElementById("taller-direccion");
+        if (elementoDireccion && direccionVisible && elementoDireccion.textContent.trim() !== direccionVisible) {
+            elementoDireccion.textContent = direccionVisible;
+        }
+
+        document.querySelectorAll("#taller-servicios span").forEach((elemento) => {
+            const legible = nombreServicio(elemento.textContent);
+            if (legible && elemento.textContent.trim() !== legible) elemento.textContent = legible;
+        });
+
+        const botonWeb = document.querySelector("#taller-acciones a.accion-web");
+        if (botonWeb) {
+            botonWeb.classList.add("boton");
+            botonWeb.classList.remove("boton-claro");
+            if (botonWeb.textContent.trim() !== "Página web") botonWeb.textContent = "Página web";
         }
     }
 
-    // ========== GENERACIÓN DE SLUGS ==========
-    function generarSlugTaller(taller) {
-        if (!taller || typeof taller !== 'object') {
-            log("Taller inválido para generar slug");
-            return "";
+    function actualizarDatosEstructurados() {
+        const ruta = window.location.pathname;
+        const esPaginaFicha = ruta === LEGACY_PATH
+            || ruta.startsWith(CLEAN_PREFIX)
+            || Boolean(document.getElementById("taller-nombre"));
+        if (!esPaginaFicha) return;
+
+        corregirPresentacionFicha();
+
+        const nombre = document.getElementById("taller-nombre")?.textContent.trim() || "";
+        const descripcion = document.getElementById("taller-descripcion")?.textContent.trim() || "";
+        const ciudad = valorDato("Municipio");
+        const provincia = valorDato("Provincia");
+        const codigoPostal = valorDato("Código postal");
+        const direccion = valorDato("Dirección");
+        const telefono = document.querySelector('#taller-datos a[href^="tel:"]')?.textContent.trim() || "";
+        const web = document.querySelector('#taller-acciones a.accion-web')?.href || "";
+        const canonical = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
+        const servicios = [...document.querySelectorAll("#taller-servicios span")]
+            .map((elemento) => elemento.textContent.trim())
+            .filter(Boolean);
+
+        const esFichaReal = Boolean(
+            nombre
+            && nombre !== "Ficha de taller"
+            && nombre !== "Taller publicado en TallerMap"
+            && ciudad
+            && provincia
+        );
+
+        const robots = document.getElementById("robots-taller")
+            || document.querySelector('meta[name="robots"]');
+        if (robots) {
+            robots.content = esFichaReal
+                ? "index,follow,max-image-preview:large"
+                : "noindex,follow";
         }
 
-        const nombre = taller.nombre || taller.empresa || "taller";
-        const id = taller.id || taller.uuid || taller.slug || "";
-        
-        // Si ya tiene un slug, usarlo
-        if (taller.slug && typeof taller.slug === 'string') {
-            return slugSeguro(taller.slug);
-        }
+        if (!esFichaReal) return;
 
-        // Generar slug combinando nombre e id
-        const slugBase = slugSeguro(nombre);
-        if (id) {
-            const idCorto = String(id).slice(-6);
-            return `${slugBase}-${idCorto}`;
-        }
-        
-        return slugBase;
-    }
+        const datos = {
+            "@context": "https://schema.org",
+            "@type": "AutoRepair",
+            "@id": `${canonical}#negocio`,
+            name: nombre,
+            url: canonical,
+            description: descripcion || `Información pública de ${nombre} en ${ciudad}.`,
+            address: {
+                "@type": "PostalAddress",
+                streetAddress: direccion || undefined,
+                postalCode: codigoPostal || undefined,
+                addressLocality: ciudad,
+                addressRegion: provincia,
+                addressCountry: "ES"
+            },
+            telephone: telefono || undefined,
+            sameAs: web ? [web] : undefined,
+            areaServed: {
+                "@type": "City",
+                name: ciudad
+            },
+            serviceType: servicios.length ? servicios : undefined
+        };
 
-    function generarSlugCategoria(categoria) {
-        if (!categoria) return "";
-        return slugSeguro(categoria.nombre || categoria);
-    }
-
-    function generarSlugServicio(servicio) {
-        if (!servicio) return "";
-        return slugSeguro(servicio.nombre || servicio.slug || servicio);
-    }
-
-    // ========== GENERACIÓN DE URLs ==========
-    function urlTaller(taller, opciones = {}) {
-        if (!taller) return "#";
-
-        const slug = opciones.slug || generarSlugTaller(taller);
-        const base = opciones.base || CONFIG.PATH_TALLER;
-        
-        if (!slug) {
-            log("No se pudo generar URL para taller:", taller);
-            return "#";
-        }
-
-        let url = `${base}/${slug}`;
-        
-        // Añadir parámetros
-        const params = new URLSearchParams();
-        if (opciones.utm) {
-            Object.entries(opciones.utm).forEach(([key, value]) => {
-                params.set(`utm_${key}`, String(value));
-            });
-        }
-        if (opciones.ref) {
-            params.set("ref", String(opciones.ref));
-        }
-        
-        const query = params.toString();
-        if (query) {
-            url += `?${query}`;
-        }
-        
-        return url;
-    }
-
-    function urlBusqueda(opciones = {}) {
-        const base = opciones.base || CONFIG.PATH_BUSCADOR;
-        const params = new URLSearchParams();
-
-        // Añadir parámetros de búsqueda
-        if (opciones.poblacion) {
-            params.set(CONFIG.PARAM_POBLACION, codificarParametro(opciones.poblacion));
-        }
-        if (opciones.servicio) {
-            params.set(CONFIG.PARAM_SERVICIO, codificarParametro(opciones.servicio));
-        }
-        if (opciones.pagina) {
-            params.set(CONFIG.PARAM_PAGINA, String(opciones.pagina));
-        }
-        if (opciones.orden) {
-            params.set(CONFIG.PARAM_ORDEN, String(opciones.orden));
-        }
-
-        // Añadir filtros adicionales
-        if (opciones.filtros) {
-            Object.entries(opciones.filtros).forEach(([key, value]) => {
-                if (value !== undefined && value !== null && value !== "") {
-                    params.set(key, String(value));
+        const limpiar = (objeto) => {
+            Object.keys(objeto).forEach((clave) => {
+                const valor = objeto[clave];
+                if (valor && typeof valor === "object" && !Array.isArray(valor)) limpiar(valor);
+                if (valor === undefined || valor === "" || (Array.isArray(valor) && !valor.length)) {
+                    delete objeto[clave];
                 }
             });
+            return objeto;
+        };
+
+        const scriptNegocio = document.getElementById("datos-estructurados-taller");
+        if (scriptNegocio) scriptNegocio.textContent = JSON.stringify(limpiar(datos));
+
+        const migas = [...document.querySelectorAll("#migas-pan a, #migas-pan span:not(.ficha-migas-separador)")]
+            .map((elemento, indice) => ({
+                "@type": "ListItem",
+                position: indice + 1,
+                name: elemento.textContent.trim(),
+                item: elemento.tagName === "A" ? elemento.href : canonical
+            }))
+            .filter((elemento) => elemento.name);
+
+        const scriptMigas = document.getElementById("datos-estructurados-migas");
+        if (scriptMigas) {
+            scriptMigas.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: migas
+            });
         }
 
-        const query = params.toString();
-        return query ? `${base}?${query}` : base;
+        const titulo = `${nombre} | Taller mecánico en ${ciudad}, ${provincia} | TallerMap`.slice(0, 68);
+        const resumen = `Consulta teléfono, dirección, servicios y cómo llegar a ${nombre} en ${ciudad}, ${provincia}. Ficha actualizada en TallerMap.`.slice(0, 158);
+        document.title = titulo;
+
+        const metaDescripcion = document.querySelector('meta[name="description"]');
+        if (metaDescripcion) metaDescripcion.content = resumen;
+
+        const ogTitle = asegurarMeta('meta[property="og:title"]', { property: "og:title" });
+        const ogDescription = asegurarMeta('meta[property="og:description"]', { property: "og:description" });
+        const ogUrl = asegurarMeta('meta[property="og:url"]', { property: "og:url" });
+        const ogType = asegurarMeta('meta[property="og:type"]', { property: "og:type" });
+        const ogSite = asegurarMeta('meta[property="og:site_name"]', { property: "og:site_name" });
+        const twitterCard = asegurarMeta('meta[name="twitter:card"]', { name: "twitter:card" });
+        const twitterTitle = asegurarMeta('meta[name="twitter:title"]', { name: "twitter:title" });
+        const twitterDescription = asegurarMeta('meta[name="twitter:description"]', { name: "twitter:description" });
+
+        ogTitle.content = titulo;
+        ogDescription.content = resumen;
+        ogUrl.content = canonical;
+        ogType.content = "website";
+        ogSite.content = "TallerMap";
+        twitterCard.content = "summary";
+        twitterTitle.content = titulo;
+        twitterDescription.content = resumen;
     }
 
-    function urlPerfil(tallerId, opciones = {}) {
-        if (!tallerId) return "#";
-        
-        const base = opciones.base || CONFIG.PATH_PERFIL;
-        const params = new URLSearchParams();
-        
-        params.set("id", String(tallerId));
-        
-        if (opciones.accion) {
-            params.set("accion", String(opciones.accion));
-        }
-        
-        return `${base}?${params.toString()}`;
+    function programarSEO() {
+        window.clearTimeout(programarSEO.temporizador);
+        programarSEO.temporizador = window.setTimeout(actualizarDatosEstructurados, 120);
     }
 
-    function urlImagen(ruta, opciones = {}) {
-        if (!ruta) return CONFIG.DEFAULT_IMAGE;
-
-        // Si es URL completa, validarla
-        if (ruta.startsWith('http://') || ruta.startsWith('https://')) {
-            return urlSegura(ruta) || CONFIG.DEFAULT_IMAGE;
-        }
-
-        // Si es ruta relativa, construir URL completa
-        const base = opciones.base || window.location.origin;
-        const path = ruta.startsWith('/') ? ruta : `/${ruta}`;
-        
-        const url = `${base}${path}`;
-        return urlSegura(url) || CONFIG.DEFAULT_IMAGE;
-    }
-
-    // ========== PARSING DE URLs ==========
-    function parsearUrlTaller(url) {
-        try {
-            const urlObj = new URL(url, window.location.origin);
-            const pathParts = urlObj.pathname.split('/').filter(Boolean);
-            
-            // Buscar slug en la URL
-            const slugIndex = pathParts.indexOf('taller');
-            if (slugIndex === -1 || slugIndex + 1 >= pathParts.length) {
-                return null;
-            }
-
-            const slug = pathParts[slugIndex + 1];
-            const params = Object.fromEntries(urlObj.searchParams);
-
-            return {
-                slug: slug,
-                params: params,
-                utm: {
-                    source: params.utm_source || null,
-                    medium: params.utm_medium || null,
-                    campaign: params.utm_campaign || null,
-                },
-                ref: params.ref || null,
-            };
-        } catch {
-            return null;
-        }
-    }
-
-    function parsearUrlBusqueda(url) {
-        try {
-            const urlObj = new URL(url, window.location.origin);
-            const params = urlObj.searchParams;
-
-            return {
-                poblacion: decodificarParametro(params.get(CONFIG.PARAM_POBLACION) || ""),
-                servicio: decodificarParametro(params.get(CONFIG.PARAM_SERVICIO) || ""),
-                pagina: parseInt(params.get(CONFIG.PARAM_PAGINA)) || 1,
-                orden: params.get(CONFIG.PARAM_ORDEN) || "relevancia",
-                filtros: Object.fromEntries(
-                    Array.from(params.entries())
-                        .filter(([key]) => ![
-                            CONFIG.PARAM_POBLACION,
-                            CONFIG.PARAM_SERVICIO,
-                            CONFIG.PARAM_PAGINA,
-                            CONFIG.PARAM_ORDEN
-                        ].includes(key))
-                ),
-            };
-        } catch {
-            return null;
-        }
-    }
-
-    // ========== CONSTRUCCIÓN DE URLs AMIGABLES ==========
-    function urlAmigable(texto, opciones = {}) {
-        const slug = slugSeguro(texto);
-        const prefijo = opciones.prefijo || "";
-        const sufijo = opciones.sufijo || "";
-        
-        return `${prefijo}${slug}${sufijo}`;
-    }
-
-    function urlCategoria(categoria, opciones = {}) {
-        const slug = generarSlugCategoria(categoria);
-        if (!slug) return "#";
-        
-        return `/categoria/${slug}`;
-    }
-
-    function urlServicio(servicio, opciones = {}) {
-        const slug = generarSlugServicio(servicio);
-        if (!slug) return "#";
-        
-        return `/servicio/${slug}`;
-    }
-
-    function urlCiudad(ciudad, provincia = "", opciones = {}) {
-        const ciudadSlug = slugSeguro(ciudad);
-        if (!ciudadSlug) return "#";
-        
-        let url = `/ciudad/${ciudadSlug}`;
-        if (provincia) {
-            url += `?provincia=${codificarParametro(provincia)}`;
-        }
-        
-        return url;
-    }
-
-    // ========== REDIRECCIONES ==========
-    function redirigir(url, opciones = {}) {
-        const { reemplazar = false, external = false } = opciones;
-        
-        if (!url || url === "#") {
-            log("URL inválida para redirección");
-            return false;
-        }
-
-        try {
-            const urlObj = new URL(url, window.location.origin);
-            
-            if (external && urlObj.origin !== window.location.origin) {
-                // Redirección externa
-                if (reemplazar) {
-                    window.location.replace(url);
-                } else {
-                    window.location.href = url;
-                }
-                return true;
-            }
-
-            // Redirección interna
-            const ruta = urlObj.pathname + urlObj.search + urlObj.hash;
-            if (reemplazar) {
-                window.location.replace(ruta);
-            } else {
-                window.location.href = ruta;
-            }
-            return true;
-        } catch {
-            log("Error al redirigir a:", url);
-            return false;
-        }
-    }
-
-    function redirigirTaller(taller, opciones = {}) {
-        const url = urlTaller(taller, opciones);
-        if (url && url !== "#") {
-            return redirigir(url, opciones);
-        }
-        return false;
-    }
-
-    // ========== MODIFICACIÓN DE URL ACTUAL ==========
-    function actualizarUrlBusqueda(opciones = {}, reemplazar = false) {
-        const url = urlBusqueda(opciones);
-        if (!url) return false;
-
-        try {
-            if (reemplazar) {
-                window.history.replaceState({}, "", url);
-            } else {
-                window.history.pushState({}, "", url);
-            }
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    function actualizarParametroUrl(key, value, reemplazar = false) {
-        try {
-            const url = new URL(window.location.href);
-            
-            if (value !== undefined && value !== null && value !== "") {
-                url.searchParams.set(key, String(value));
-            } else {
-                url.searchParams.delete(key);
-            }
-            
-            if (reemplazar) {
-                window.history.replaceState({}, "", url.toString());
-            } else {
-                window.history.pushState({}, "", url.toString());
-            }
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    function obtenerParametrosUrl() {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            return Object.fromEntries(params.entries());
-        } catch {
-            return {};
-        }
-    }
-
-    function obtenerParametroUrl(key) {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            return params.get(key);
-        } catch {
-            return null;
-        }
-    }
-
-    // ========== CANONICAL Y META URLs ==========
-    function urlCanonica(taller) {
-        if (!taller) return window.location.href;
-        
-        const slug = generarSlugTaller(taller);
-        return `${window.location.origin}${CONFIG.PATH_TALLER}/${slug}`;
-    }
-
-    function urlAmigableParaSEO(texto, opciones = {}) {
-        const slug = slugSeguro(texto);
-        const prefijo = opciones.prefijo || "";
-        const sufijo = opciones.sufijo || "";
-        const idioma = opciones.idioma || "es";
-        
-        return `/${idioma}${prefijo}${slug}${sufijo}`;
-    }
-
-    // ========== EXPOSICIÓN PÚBLICA ==========
-    window.TallerMapTallerUrls = {
-        // Constantes
-        CONFIG: CONFIG,
-        
-        // Utilidades
-        log: log,
-        escaparHTML: escaparHTML,
-        slugSeguro: slugSeguro,
-        urlSegura: urlSegura,
-        codificarParametro: codificarParametro,
-        decodificarParametro: decodificarParametro,
-        
-        // Generación de slugs
-        generarSlugTaller: generarSlugTaller,
-        generarSlugCategoria: generarSlugCategoria,
-        generarSlugServicio: generarSlugServicio,
-        
-        // Generación de URLs
-        urlTaller: urlTaller,
-        urlBusqueda: urlBusqueda,
-        urlPerfil: urlPerfil,
-        urlImagen: urlImagen,
-        urlAmigable: urlAmigable,
-        urlCategoria: urlCategoria,
-        urlServicio: urlServicio,
-        urlCiudad: urlCiudad,
-        
-        // Parsing de URLs
-        parsearUrlTaller: parsearUrlTaller,
-        parsearUrlBusqueda: parsearUrlBusqueda,
-        
-        // Redirecciones
-        redirigir: redirigir,
-        redirigirTaller: redirigirTaller,
-        
-        // Modificación de URL actual
-        actualizarUrlBusqueda: actualizarUrlBusqueda,
-        actualizarParametroUrl: actualizarParametroUrl,
-        obtenerParametrosUrl: obtenerParametrosUrl,
-        obtenerParametroUrl: obtenerParametroUrl,
-        
-        // Canonical y SEO
-        urlCanonica: urlCanonica,
-        urlAmigableParaSEO: urlAmigableParaSEO,
-    };
-
-    // ========== INICIALIZACIÓN ==========
     function iniciar() {
-        log("TallerURLs core inicializado");
-        
-        // Escuchar cambios en la URL (para SPA)
-        window.addEventListener('popstate', function(event) {
-            log("Cambio de estado detectado:", event.state);
+        document.querySelectorAll(".taller-card").forEach(limpiarEnlacesTarjeta);
+        document.querySelectorAll("a.taller-relacionado").forEach((enlace) => {
+            const slug = slugDesdeEnlace(enlace);
+            if (slug) enlace.href = urlLimpia(slug);
+        });
+        actualizarFichaUnaVez();
+        programarSEO();
+
+        const raiz = document.body;
+        if (!raiz) return;
+        new MutationObserver((cambios) => {
+            cambios.forEach((cambio) => {
+                cambio.addedNodes.forEach(procesarNodo);
+            });
+            programarSEO();
+        }).observe(raiz, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true,
+            attributeFilter: ["href", "content"]
         });
     }
 

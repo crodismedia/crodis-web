@@ -1,4 +1,4 @@
-name: Quality Guard (manual)
+name: Quality Check
 
 on:
   workflow_dispatch:
@@ -17,5 +17,5 @@ jobs:
           cache: 'npm'
       - name: Instalar dependencias
         run: npm ci
-      - name: Ejecutar Quality Guard sin modificar archivos
+      - name: Ejecutar Quality Guard en modo lectura
         run: node quality-guard.cjs

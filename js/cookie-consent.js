@@ -14,27 +14,6 @@
     let analyticsLoaded = false;
     let banner = null;
 
-    function loadVercelWebAnalytics() {
-        if (window.__tallerMapVercelAnalyticsLoaded || document.querySelector('script[data-tallermap-vercel-analytics]')) {
-            return;
-        }
-
-        window.__tallerMapVercelAnalyticsLoaded = true;
-        window.va = window.va || function () {
-            (window.vaq = window.vaq || []).push(arguments);
-        };
-
-        const script = document.createElement('script');
-        script.defer = true;
-        script.src = '/_vercel/insights/script.js';
-        script.dataset.tallermapVercelAnalytics = 'true';
-        document.head.appendChild(script);
-    }
-
-    // Vercel Web Analytics es anónimo y no usa cookies. Se carga de forma global
-    // desde el script común que ya utilizan las páginas públicas de TallerMap.
-    loadVercelWebAnalytics();
-
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || ((...args) => {
         window.dataLayer.push(args);

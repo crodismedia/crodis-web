@@ -1,41 +1,18 @@
-name: Corregir alt vacíos de logos
+name: Fix empty logo alt manual
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/fix-empty-logo-alt.mjs'
-      - '.github/workflows/fix-empty-logo-alt.yml'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  fix:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Corregir alt vacíos informativos
+      - name: Ejecutar corrección solo en el entorno temporal
         run: node scripts/fix-empty-logo-alt.mjs
-
-      - name: Guardar correcciones
-        shell: bash
-        run: |
-          git config user.name 'TallerMap Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add '*.html' pages provincias servicios templates coches 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo 'No hay cambios que guardar.'
-          else
-            git commit -m 'Corregir alt vacíos informativos de logos TallerMap'
-            git push
-          fi

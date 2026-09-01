@@ -2,28 +2,20 @@ name: Generar municipios estáticos
 
 on:
   workflow_dispatch:
-  push:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Generar 542 HTML municipales
+      - name: Generar 542 HTML municipales sin publicar
         run: npm run generate:municipios
-
       - name: Verificar cantidad y ausencia de noindex
         shell: bash
         run: |
@@ -33,17 +25,4 @@ jobs:
           if grep -RIl '<meta name="robots" content="noindex' municipios --include='*.html'; then
             echo 'ERROR: hay municipios con noindex'
             exit 1
-          fi
-
-      - name: Guardar HTML generados
-        shell: bash
-        run: |
-          git config user.name 'TallerMap Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add municipios
-          if git diff --cached --quiet; then
-            echo 'No hay cambios que guardar.'
-          else
-            git commit -m 'Generar 542 municipios como HTML estático'
-            git push
           fi

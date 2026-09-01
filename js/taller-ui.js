@@ -1,399 +1,312 @@
 (function () {
     "use strict";
 
-    // ========== CONFIGURACIÓN ==========
-    const CONFIG = {
-        DEBUG: false,
-        CACHE_DURATION: 3600000, // 1 hora
-        STORAGE_KEY: "tallermap_ui_cache",
-        MAX_DESCRIPCION: 150,
-        DEFAULT_IMAGE: "/images/taller-default.jpg",
-    };
-
-    // ========== LOGGING ==========
-    function log(...args) {
-        if (CONFIG.DEBUG) {
-            console.log("[TallerUI]", ...args);
-        }
+    function escaparHTML(valor) {
+        const elemento = document.createElement("div");
+        elemento.textContent = valor ?? "";
+        return elemento.innerHTML;
     }
 
-    // ========== UTILIDADES ==========
-    function escaparHTML(texto) {
-        if (!texto) return "";
-        const mapa = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-        };
-        return String(texto).replace(/[&<>"']/g, function(m) {
-            return mapa[m];
-        });
-    }
+    function webSegura(valor) {
+        if (!valor) return "";
 
-    function webSegura(url) {
-        if (!url) return "";
         try {
-            const urlObj = new URL(url);
-            if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-                return "";
-            }
-            return url;
-        } catch {
+            const url = new URL(String(valor));
+            return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+        } catch (_error) {
             return "";
         }
     }
 
-    function slugTaller(taller) {
-        if (!taller) return "";
-        const nombre = taller.nombre || taller.empresa || "";
-        const id = taller.id || taller.uuid || "";
-        return `${String(nombre).toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${id}`.replace(/^-+|-+$/g, "");
-    }
+    function telefonoSeguro(valor) {
+        const raw = String(valor || "").trim();
+        const digitos = raw.replace(/\D/g, "");
 
-    function formatearDireccion(taller) {
-        if (!taller) return "";
-        const partes = [];
-        if (taller.direccion) partes.push(taller.direccion);
-        if (taller.municipio) partes.push(taller.municipio);
-        if (taller.provincia) partes.push(taller.provincia);
-        return partes.join(", ");
-    }
-
-    function formatearPrecio(precio) {
-        if (!precio && precio !== 0) return "Consultar";
-        return new Intl.NumberFormat("es-ES", {
-            style: "currency",
-            currency: "EUR",
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2,
-        }).format(precio);
-    }
-
-    function truncarTexto(texto, limite = CONFIG.MAX_DESCRIPCION) {
-        if (!texto) return "";
-        if (texto.length <= limite) return texto;
-        return texto.substring(0, limite).trim() + "...";
-    }
-
-    function obtenerValoracion(taller) {
-        if (!taller) return null;
-        const valoracion = taller.valoracion || taller.puntuacion || taller.rating;
-        if (typeof valoracion === 'number' && valoracion > 0) {
-            return Math.min(5, Math.max(0, valoracion));
-        }
-        return null;
-    }
-
-    function obtenerNumeroValoraciones(taller) {
-        if (!taller) return 0;
-        return taller.num_valoraciones || taller.total_valoraciones || 0;
-    }
-
-    // ========== CACHE ==========
-    function guardarCache(key, data) {
-        try {
-            const item = {
-                data: data,
-                timestamp: Date.now(),
-                expiry: CONFIG.CACHE_DURATION,
-            };
-            localStorage.setItem(`${CONFIG.STORAGE_KEY}_${key}`, JSON.stringify(item));
-            log(`Cache guardado para ${key}`);
-        } catch (error) {
-            console.warn("[TallerUI] Error al guardar cache:", error);
-        }
-    }
-
-    function cargarCache(key) {
-        try {
-            const itemStr = localStorage.getItem(`${CONFIG.STORAGE_KEY}_${key}`);
-            if (!itemStr) return null;
-
-            const item = JSON.parse(itemStr);
-            const ahora = Date.now();
-
-            if (ahora - item.timestamp > item.expiry) {
-                localStorage.removeItem(`${CONFIG.STORAGE_KEY}_${key}`);
-                log(`Cache expirado para ${key}`);
-                return null;
-            }
-
-            log(`Cache cargado para ${key}`);
-            return item.data;
-        } catch (error) {
-            console.warn("[TallerUI] Error al cargar cache:", error);
-            return null;
-        }
-    }
-
-    function limpiarCache() {
-        try {
-            const keys = Object.keys(localStorage);
-            keys.forEach(key => {
-                if (key.startsWith(CONFIG.STORAGE_KEY)) {
-                    localStorage.removeItem(key);
-                }
-            });
-            log("Cache limpiado");
-        } catch (error) {
-            console.warn("[TallerUI] Error al limpiar cache:", error);
-        }
-    }
-
-    // ========== CREACIÓN DE TARJETAS ==========
-    function crearTarjeta(taller) {
-        if (!taller || typeof taller !== 'object') {
-            console.warn("[TallerUI] Taller inválido:", taller);
-            return '<div class="taller-card error">Datos de taller no disponibles</div>';
+        if (/^0034\d{9}$/.test(digitos)) {
+            return `+${digitos.slice(2)}`;
         }
 
-        const slug = slugTaller(taller);
-        const nombre = escaparHTML(taller.nombre || taller.empresa || "Taller sin nombre");
-        const direccion = escaparHTML(formatearDireccion(taller));
-        const descripcion = truncarTexto(escaparHTML(taller.descripcion || ""));
-        const precio = formatearPrecio(taller.precio || taller.precio_minimo);
-        const valoracion = obtenerValoracion(taller);
-        const numValoraciones = obtenerNumeroValoraciones(taller);
-        const foto = webSegura(taller.foto || taller.fotoFirmada || CONFIG.DEFAULT_IMAGE);
+        if (/^34\d{9}$/.test(digitos)) {
+            return `+${digitos}`;
+        }
 
-        // Servicios destacados
-        const servicios = Array.isArray(taller.servicios) 
-            ? taller.servicios.slice(0, 3).map(s => escaparHTML(s)).join(", ")
+        if (raw.startsWith("+") && digitos) {
+            return `+${digitos}`.slice(0, 20);
+        }
+
+        return digitos.slice(0, 20);
+    }
+
+    function etiquetaDesdeSlug(slug) {
+        const etiquetaConfigurada =
+            window.TallerMapServicios?.etiquetas?.[String(slug || "")];
+
+        if (etiquetaConfigurada) {
+            return etiquetaConfigurada;
+        }
+
+        const texto = String(slug || "")
+            .replace(/-/g, " ")
+            .replace(/_/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLocaleLowerCase("es");
+
+        return texto
+            ? texto[0].toLocaleUpperCase("es") + texto.slice(1)
             : "";
+    }
 
-        // Etiquetas
-        const etiquetas = [];
-        if (taller.destacado) etiquetas.push('<span class="etiqueta destacado">⭐ Destacado</span>');
-        if (taller.verificado) etiquetas.push('<span class="etiqueta verificado">✅ Verificado</span>');
-        if (taller.disponible === false) etiquetas.push('<span class="etiqueta no-disponible">⛔ No disponible</span>');
-        
-        // Estrellas de valoración
-        let estrellas = "";
-        if (valoracion !== null) {
-            const estrellasLlenas = Math.floor(valoracion);
-            const tieneMedia = valoracion % 1 >= 0.5;
-            let html = "";
-            for (let i = 0; i < 5; i++) {
-                if (i < estrellasLlenas) {
-                    html += '<span class="estrella llena">★</span>';
-                } else if (i === estrellasLlenas && tieneMedia) {
-                    html += '<span class="estrella media">★</span>';
-                } else {
-                    html += '<span class="estrella vacia">☆</span>';
-                }
-            }
-            estrellas = `<div class="valoracion">${html} <span class="puntuacion">${valoracion.toFixed(1)}</span> (${numValoraciones})</div>`;
+    function slugTaller(taller) {
+        if (taller?.slug) {
+            return String(taller.slug);
         }
 
-        // HTML de la tarjeta
+        const base = `${taller?.nombre || "taller"}-${taller?.ciudad || ""}`
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[’']/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        return taller?.id
+            ? `${base}-${String(taller.id).slice(0, 8)}`
+            : base;
+    }
+
+    function normalizarServicios(valor) {
+        if (Array.isArray(valor)) {
+            return valor
+                .map(servicio => {
+                    if (typeof servicio === "string") {
+                        return servicio;
+                    }
+
+                    if (servicio && typeof servicio === "object") {
+                        return (
+                            servicio.slug ||
+                            servicio.nombre ||
+                            servicio.servicio ||
+                            ""
+                        );
+                    }
+
+                    return "";
+                })
+                .filter(Boolean);
+        }
+
+        if (typeof valor === "string") {
+            return valor
+                .split(",")
+                .map(servicio => servicio.trim())
+                .filter(Boolean);
+        }
+
+        return [];
+    }
+
+    function construirUbicacion(taller) {
+        return [
+            taller?.direccion,
+            taller?.codigo_postal,
+            taller?.ciudad,
+            taller?.provincia
+        ]
+            .filter(Boolean)
+            .map(valor => String(valor).trim())
+            .filter(Boolean)
+            .filter(
+                (valor, indice, lista) =>
+                    lista.indexOf(valor) === indice
+            )
+            .map(escaparHTML)
+            .join(", ");
+    }
+
+    function descripcionPublica(valor) {
+        const texto = String(valor || "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        if (
+            !texto ||
+            /^Consulta la ficha del taller para conocer sus servicios y datos de contacto\.?$/i.test(texto)
+        ) {
+            return "";
+        }
+
+        return escaparHTML(texto);
+    }
+
+    function renderizarHorario(horarios) {
+        if (!horarios || typeof horarios !== "object") {
+            return "";
+        }
+
+        const dias = [
+            ["lunes", "Lunes"],
+            ["martes", "Martes"],
+            ["miercoles", "Miércoles"],
+            ["jueves", "Jueves"],
+            ["viernes", "Viernes"],
+            ["sabado", "Sábado"],
+            ["domingo", "Domingo"]
+        ];
+
+        const filas = dias
+            .map(([clave, etiqueta]) => {
+                const dia = horarios[clave];
+
+                if (!dia || typeof dia !== "object") {
+                    return "";
+                }
+
+                let texto = "";
+
+                if (dia.cerrado === true) {
+                    texto = "Cerrado";
+                } else {
+                    const turnos = Array.isArray(dia.turnos)
+                        ? dia.turnos
+                        : [];
+
+                    texto = turnos
+                        .map(turno => {
+                            const apertura = String(
+                                turno?.apertura || ""
+                            ).trim();
+
+                            const cierre = String(
+                                turno?.cierre || ""
+                            ).trim();
+
+                            if (!apertura || !cierre) {
+                                return "";
+                            }
+
+                            return `${apertura}–${cierre}`;
+                        })
+                        .filter(Boolean)
+                        .join(" y ");
+                }
+
+                if (!texto) {
+                    return "";
+                }
+
+                return `
+                    <div>
+                        <dt>${escaparHTML(etiqueta)}</dt>
+                        <dd>${escaparHTML(texto)}</dd>
+                    </div>
+                `;
+            })
+            .filter(Boolean)
+            .join("");
+
+        if (!filas) {
+            return "";
+        }
+
         return `
-            <div class="taller-card" data-taller-slug="${slug}" data-taller-id="${taller.id || ''}">
-                <div class="taller-imagen">
-                    <img src="${foto}" alt="${nombre}" loading="lazy" decoding="async" 
-                         onerror="this.src='${CONFIG.DEFAULT_IMAGE}'">
-                    ${etiquetas.join(' ')}
-                </div>
-                <div class="taller-info">
-                    <h3 class="taller-nombre">
-                        <a href="/taller/${slug}" title="${nombre}">${nombre}</a>
-                    </h3>
-                    ${direccion ? `<p class="taller-direccion">📍 ${direccion}</p>` : ''}
-                    ${descripcion ? `<p class="taller-descripcion">${descripcion}</p>` : ''}
-                    ${servicios ? `<p class="taller-servicios">🔧 ${servicios}</p>` : ''}
-                    ${estrellas}
-                    <div class="taller-precio">
-                        <span class="precio">${precio}</span>
-                        <a href="/taller/${slug}" class="btn-ver-mas">Ver taller →</a>
+            <details class="taller-horario">
+                <summary>Ver horario semanal</summary>
+                <dl>${filas}</dl>
+            </details>
+        `;
+    }
+
+    function crearTarjeta(taller) {
+        const nombreOriginal =
+            taller?.nombre || "Taller sin nombre";
+
+        const nombre = escaparHTML(nombreOriginal);
+        const ubicacion = construirUbicacion(taller);
+        const slug = slugTaller(taller);
+        const descripcion = descripcionPublica(taller?.descripcion);
+
+        const telefono =
+            telefonoSeguro(taller?.telefono);
+
+        const web =
+            webSegura(taller?.web);
+
+        const servicios =
+            normalizarServicios(taller?.servicios).slice(0, 4);
+
+        const horario =
+            renderizarHorario(taller?.horarios);
+
+        const enlaces = [];
+
+        if (telefono) {
+            enlaces.push(
+                `<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`
+            );
+        }
+
+        if (web) {
+            enlaces.push(
+                `<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de ${nombre}">Web</a>`
+            );
+        }
+
+        if (slug) {
+            enlaces.push(
+                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver ficha de ${nombre}">Ver ficha</a>`
+            );
+        }
+
+        const etiquetasServicios =
+            (
+                servicios.length
+                    ? servicios
+                    : ["taller-mecanico"]
+            )
+                .map(
+                    servicio =>
+                        `<span>${escaparHTML(
+                            etiquetaDesdeSlug(servicio)
+                        )}</span>`
+                )
+                .join("");
+
+        return `
+            <article
+                class="taller-card"
+                data-taller-slug="${escaparHTML(slug)}"
+            >
+                <div class="taller-informacion">
+                    <p class="taller-titulo">${nombre}</p>
+
+                    <p class="ubicacion">
+                        ${ubicacion || "Ubicación no indicada"}
+                    </p>
+
+                    ${descripcion ? `<p class="taller-descripcion">${descripcion}</p>` : ""}
+
+                    <div class="especialidades">
+                        ${etiquetasServicios}
+                    </div>
+
+                    ${horario}
+
+                    <div class="taller-pie">
+                        <span class="taller-contactos">
+                            ${enlaces.join("")}
+                        </span>
                     </div>
                 </div>
-            </div>
+            </article>
         `;
     }
 
-    function crearTarjetaMini(taller) {
-        if (!taller) return "";
-
-        const nombre = escaparHTML(taller.nombre || taller.empresa || "Taller");
-        const slug = slugTaller(taller);
-        const foto = webSegura(taller.foto || taller.fotoFirmada || CONFIG.DEFAULT_IMAGE);
-
-        return `
-            <div class="taller-card-mini" data-taller-slug="${slug}">
-                <img src="${foto}" alt="${nombre}" loading="lazy" decoding="async" 
-                     onerror="this.src='${CONFIG.DEFAULT_IMAGE}'">
-                <div class="mini-info">
-                    <h4><a href="/taller/${slug}">${nombre}</a></h4>
-                    <p>${escaparHTML(taller.municipio || taller.ciudad || "")}</p>
-                </div>
-            </div>
-        `;
-    }
-
-    function crearListaTalleres(talleres, opciones = {}) {
-        if (!Array.isArray(talleres) || !talleres.length) {
-            return '<p class="mensaje-vacio">No hay talleres disponibles</p>';
-        }
-
-        const { mini = false, grid = true } = opciones;
-        const claseGrid = grid ? 'grid-talleres' : 'lista-talleres';
-        
-        const html = talleres.map(taller => 
-            mini ? crearTarjetaMini(taller) : crearTarjeta(taller)
-        ).join('');
-
-        return `<div class="${claseGrid}">${html}</div>`;
-    }
-
-    // ========== MANIPULACIÓN DOM ==========
-    function renderizarTalleres(contenedorId, talleres, opciones = {}) {
-        const contenedor = document.getElementById(contenedorId);
-        if (!contenedor) {
-            console.error(`[TallerUI] Contenedor ${contenedorId} no encontrado`);
-            return;
-        }
-
-        const html = crearListaTalleres(talleres, opciones);
-        contenedor.innerHTML = html;
-        log(`Renderizados ${talleres.length} talleres en ${contenedorId}`);
-    }
-
-    function actualizarTalleres(contenedorId, talleres, opciones = {}) {
-        const contenedor = document.getElementById(contenedorId);
-        if (!contenedor) return;
-
-        const { agregar = false, mini = false } = opciones;
-        
-        if (agregar) {
-            const html = talleres.map(t => mini ? crearTarjetaMini(t) : crearTarjeta(t)).join('');
-            contenedor.insertAdjacentHTML('beforeend', html);
-        } else {
-            renderizarTalleres(contenedorId, talleres, opciones);
-        }
-    }
-
-    // ========== FILTROS Y ORDENACIÓN ==========
-    function filtrarTalleres(talleres, filtros = {}) {
-        if (!Array.isArray(talleres)) return [];
-
-        return talleres.filter(taller => {
-            // Filtrar por servicio
-            if (filtros.servicio) {
-                const servicios = Array.isArray(taller.servicios) 
-                    ? taller.servicios.map(s => s.toLowerCase())
-                    : [];
-                if (!servicios.includes(filtros.servicio.toLowerCase())) {
-                    return false;
-                }
-            }
-
-            // Filtrar por precio
-            if (filtros.precio_min && taller.precio < filtros.precio_min) return false;
-            if (filtros.precio_max && taller.precio > filtros.precio_max) return false;
-
-            // Filtrar por valoración
-            if (filtros.valoracion_min) {
-                const valoracion = obtenerValoracion(taller);
-                if (valoracion === null || valoracion < filtros.valoracion_min) return false;
-            }
-
-            // Filtrar por disponibilidad
-            if (filtros.disponible !== undefined && taller.disponible !== filtros.disponible) {
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    function ordenarTalleres(talleres, criterio = 'nombre', ascendente = true) {
-        if (!Array.isArray(talleres)) return [];
-
-        const copia = [...talleres];
-        
-        copia.sort((a, b) => {
-            let valorA, valorB;
-            
-            switch(criterio) {
-                case 'precio':
-                    valorA = a.precio || 0;
-                    valorB = b.precio || 0;
-                    break;
-                case 'valoracion':
-                    valorA = obtenerValoracion(a) || 0;
-                    valorB = obtenerValoracion(b) || 0;
-                    break;
-                case 'nombre':
-                default:
-                    valorA = (a.nombre || a.empresa || "").toLowerCase();
-                    valorB = (b.nombre || b.empresa || "").toLowerCase();
-                    break;
-            }
-
-            if (valorA < valorB) return ascendente ? -1 : 1;
-            if (valorA > valorB) return ascendente ? 1 : -1;
-            return 0;
-        });
-
-        return copia;
-    }
-
-    // ========== EXPOSICIÓN PÚBLICA ==========
-    window.TallerMapTallerUI = {
-        // Constantes
-        CONFIG: CONFIG,
-        
-        // Utilidades
-        escaparHTML: escaparHTML,
-        webSegura: webSegura,
-        slugTaller: slugTaller,
-        formatearDireccion: formatearDireccion,
-        formatearPrecio: formatearPrecio,
-        truncarTexto: truncarTexto,
-        obtenerValoracion: obtenerValoracion,
-        obtenerNumeroValoraciones: obtenerNumeroValoraciones,
-        
-        // Cache
-        guardarCache: guardarCache,
-        cargarCache: cargarCache,
-        limpiarCache: limpiarCache,
-        
-        // Creación de tarjetas
-        crearTarjeta: crearTarjeta,
-        crearTarjetaMini: crearTarjetaMini,
-        crearListaTalleres: crearListaTalleres,
-        
-        // Manipulación DOM
-        renderizarTalleres: renderizarTalleres,
-        actualizarTalleres: actualizarTalleres,
-        
-        // Filtros y ordenación
-        filtrarTalleres: filtrarTalleres,
-        ordenarTalleres: ordenarTalleres,
-        
-        // Logging
-        log: log,
-    };
-
-    // ========== INICIALIZACIÓN ==========
-    function iniciar() {
-        log("TallerUI inicializado");
-        
-        // Inicializar componentes si existen
-        const contenedores = document.querySelectorAll('[data-taller-ui]');
-        contenedores.forEach(contenedor => {
-            const tipo = contenedor.dataset.tallerUi;
-            log(`Inicializando UI tipo: ${tipo} para ${contenedor.id || 'sin-id'}`);
-            
-            // Aquí se pueden agregar inicializaciones específicas
-            // según el tipo de contenedor
-        });
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", iniciar, { once: true });
-    } else {
-        iniciar();
-    }
-})();
+    window.TallerMapTallerUI = Object.freeze({
+        escaparHTML,
+        webSegura,
+        slugTaller,
+        crearTarjeta
+    });
+}());

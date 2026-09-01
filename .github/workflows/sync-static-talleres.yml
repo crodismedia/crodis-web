@@ -2,61 +2,19 @@ name: Sincronizar talleres estáticos
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 * * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/sync-static-talleres.mjs'
-      - 'scripts/generate-sitemap-talleres.mjs'
-      - '.github/workflows/sync-static-talleres.yml'
 
 permissions:
-  contents: write
-
-concurrency:
-  group: sync-static-talleres
-  cancel-in-progress: true
+  contents: read
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Regenerar solo talleres modificados
+      - name: Regenerar talleres modificados sin publicar
         run: node scripts/sync-static-talleres.mjs
-
-      - name: Regenerar sitemap real de talleres
+      - name: Regenerar sitemap sin publicar
         run: node scripts/generate-sitemap-talleres.mjs
-
-      - name: Guardar fichas y sitemap actualizados
-        shell: bash
-        run: |
-          git config user.name 'TallerMap Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add talleres sitemap-talleres.xml scripts/taller-static-sync.json
-          if git diff --cached --quiet; then
-            echo 'No hay cambios que guardar.'
-          else
-            git commit -m 'Sincronizar fichas estáticas y sitemap de talleres'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
-# Disparo manual de sincronización 2026-08-26
-# Limpieza controlada de fichas inactivas 2026-08-26
-# Segunda pasada forzada tras cerrar la ventana anterior
-# Tercera pasada completa tras corregir paginación
-# Cierre final Alicante 2026-08-26
-# Segunda depuración final Alicante 2026-08-26
-# Cierre auditoría de incompletas Alicante 2026-08-26
-# Segunda pasada cierre auditoría Alicante 2026-08-26

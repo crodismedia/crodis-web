@@ -1,26 +1,17 @@
 (function () {
   'use strict';
 
-  const secciones = {
-    alicante: document.getElementById('alicante'),
-    castellon: document.getElementById('castellon'),
-    valencia: document.getElementById('valencia')
-  };
+  const sb = window.supabaseClient;
+  if (!sb) {
+    console.error('No se pudo iniciar Supabase para el directorio de desguaces.');
+    return;
+  }
 
-  const contenedores = {
-    alicante: document.getElementById('lista-desguaces-alicante'),
-    castellon: document.getElementById('lista-desguaces-castellon'),
-    valencia: document.getElementById('lista-desguaces-valencia')
+  const grupos = {
+    'Alicante/Alacant': document.getElementById('lista-desguaces-alicante'),
+    'Castellón/Castelló': document.getElementById('lista-desguaces-castellon'),
+    'Valencia/València': document.getElementById('lista-desguaces-valencia')
   };
-
-  const nombresProvincia = {
-    alicante: 'Alicante',
-    castellon: 'Castellón',
-    valencia: 'Valencia'
-  };
-
-  const botonesProvincia = Array.from(document.querySelectorAll('.selector-provincia'));
-  const cache = new Map();
 
   function esc(valor) {
     return String(valor ?? '').replace(/[&<>"']/g, c => ({
@@ -84,57 +75,16 @@
     </article>`;
   }
 
-  function provinciaDesdeHash() {
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    return Object.prototype.hasOwnProperty.call(secciones, hash) ? hash : '';
-  }
-
-  function mostrarSoloProvincia(provincia) {
-    Object.entries(secciones).forEach(([clave, seccion]) => {
-      if (seccion) seccion.hidden = clave !== provincia;
-    });
-    botonesProvincia.forEach(boton => {
-      const activa = boton.getAttribute('href') === `#${provincia}`;
-      if (activa) boton.setAttribute('aria-current', 'true');
-      else boton.removeAttribute('aria-current');
+  function estadoInicial() {
+    Object.values(grupos).forEach(c => {
+      if (c) c.innerHTML = '<p class="desguaces-estado">Cargando desguaces publicados…</p>';
     });
   }
 
-  function aplicarFiltroConsulta(query, provincia) {
-    if (provincia === 'alicante') {
-      return query.or('provincia.ilike.%Alicante%,provincia.ilike.%Alacant%');
-    }
-    if (provincia === 'castellon') {
-      return query.or('provincia.ilike.%Castellón%,provincia.ilike.%Castelló%,provincia.ilike.%Castellon%');
-    }
-    return query.or('provincia.ilike.%Valencia%,provincia.ilike.%València%');
-  }
+  async function cargar() {
+    estadoInicial();
 
-  async function cargarProvincia(provincia, hacerScroll) {
-    if (!provincia || !secciones[provincia]) return;
-
-    mostrarSoloProvincia(provincia);
-    const contenedor = contenedores[provincia];
-    if (!contenedor) return;
-
-    if (cache.has(provincia)) {
-      const filas = cache.get(provincia);
-      contenedor.innerHTML = filas.length
-        ? filas.map(tarjeta).join('')
-        : '<p class="desguaces-estado">No hay desguaces publicados en esta provincia.</p>';
-      if (hacerScroll) secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    const sb = window.supabaseClient;
-    if (!sb) {
-      contenedor.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudo conectar con el directorio de desguaces.</p>';
-      return;
-    }
-
-    contenedor.innerHTML = `<p class="desguaces-estado">Buscando desguaces en ${esc(nombresProvincia[provincia])}…</p>`;
-
-    let query = sb
+    const { data, error } = await sb
       .from('desguaces')
       .select('id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,servicios,descripcion,activo,verificado,updated_at')
       .eq('activo', true)
@@ -142,50 +92,35 @@
       .order('municipio', { ascending: true })
       .order('nombre', { ascending: true });
 
-    query = aplicarFiltroConsulta(query, provincia);
-    const { data, error } = await query;
-
     if (error) {
-      console.error(`No se pudieron cargar los desguaces de ${provincia}:`, error);
-      contenedor.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudieron cargar los desguaces. Vuelve a intentarlo.</p>';
+      console.error('No se pudieron cargar los desguaces públicos:', error);
+      Object.values(grupos).forEach(c => {
+        if (c) c.innerHTML = '<p class="desguaces-estado desguaces-error">No se pudieron cargar los desguaces. Vuelve a intentarlo.</p>';
+      });
       return;
     }
 
-    const filas = Array.isArray(data) ? data : [];
-    cache.set(provincia, filas);
-    contenedor.innerHTML = filas.length
-      ? filas.map(tarjeta).join('')
-      : '<p class="desguaces-estado">No hay desguaces publicados en esta provincia.</p>';
+    const porProvincia = new Map(Object.keys(grupos).map(p => [p, []]));
+    (data || []).forEach(d => {
+      if (porProvincia.has(d.provincia)) porProvincia.get(d.provincia).push(d);
+    });
 
+    Object.entries(grupos).forEach(([provincia, contenedor]) => {
+      if (!contenedor) return;
+      const filas = porProvincia.get(provincia) || [];
+      contenedor.innerHTML = filas.length
+        ? filas.map(tarjeta).join('')
+        : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
+    });
+
+    const total = (data || []).length;
     const contador = document.getElementById('contador-desguaces-publicados');
-    if (contador) contador.textContent = `${filas.length.toLocaleString('es-ES')} ${filas.length === 1 ? 'desguace' : 'desguaces'} en ${nombresProvincia[provincia]}`;
-
-    if (hacerScroll) secciones[provincia].scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function iniciar() {
-    botonesProvincia.forEach(boton => {
-      boton.addEventListener('click', evento => {
-        const provincia = boton.getAttribute('href').replace('#', '').toLowerCase();
-        if (!secciones[provincia]) return;
-        evento.preventDefault();
-        history.replaceState(null, '', `#${provincia}`);
-        cargarProvincia(provincia, true);
-      });
-    });
-
-    const inicial = provinciaDesdeHash();
-    if (inicial) cargarProvincia(inicial, false);
-
-    window.addEventListener('hashchange', () => {
-      const provincia = provinciaDesdeHash();
-      if (provincia) cargarProvincia(provincia, false);
-    });
+    if (contador) contador.textContent = `${total.toLocaleString('es-ES')} ${total === 1 ? 'desguace publicado' : 'desguaces publicados'}`;
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+    document.addEventListener('DOMContentLoaded', cargar, { once: true });
   } else {
-    iniciar();
+    cargar();
   }
 }());

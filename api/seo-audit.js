@@ -4,7 +4,6 @@ export const config = { maxDuration: 60 };
 
 const require = createRequire(import.meta.url);
 const { GlobalSEOAuditor } = require('../seo-auditor-global.cjs');
-const { researchExternalKeywords, buildPageKeywordPlan } = require('../scripts/seo-keyword-optimizer.cjs');
 
 async function requireAdmin(request) {
   const auth = String(request.headers.authorization || '');
@@ -60,30 +59,9 @@ export default async function handler(request, response) {
       page: issue.page || null
     }));
 
-    let externalResearch;
-    try {
-      externalResearch = await researchExternalKeywords(result, { limit: 12, timeoutMs: 3000 });
-    } catch (error) {
-      externalResearch = {
-        source: 'Google Autocomplete',
-        generatedAt: new Date().toISOString(),
-        seeds: [],
-        suggestions: [],
-        successfulSeeds: 0,
-        failedSeeds: 1,
-        error: error?.message || String(error)
-      };
-    }
-
-    const keywordPlans = pages
-      .filter(page => (page.issues || []).some(issue => issue.type === 'keywords'))
-      .slice(0, 250)
-      .map(page => buildPageKeywordPlan(page, externalResearch));
-
     return response.status(200).json({
       ok: true,
       source: 'seo-auditor-global.cjs',
-      keywordEngine: 'scripts/seo-keyword-optimizer.cjs',
       scope: 'global',
       branch: process.env.VERCEL_GIT_COMMIT_REF || 'main',
       commit: process.env.VERCEL_GIT_COMMIT_SHA || null,
@@ -99,22 +77,6 @@ export default async function handler(request, response) {
         total: result.filesAnalyzed ?? 0
       },
       summary: { ...summary, score: preciseScore },
-      keywordResearch: {
-        source: externalResearch.source,
-        generatedAt: externalResearch.generatedAt,
-        seeds: externalResearch.seeds,
-        successfulSeeds: externalResearch.successfulSeeds,
-        failedSeeds: externalResearch.failedSeeds,
-        suggestions: (externalResearch.suggestions || []).slice(0, 150),
-        error: externalResearch.error || null
-      },
-      keywordPlans,
-      automaticCorrection: {
-        persistentMode: 'GitHub Actions',
-        workflow: '.github/workflows/seo-audit.yml',
-        script: 'scripts/seo-keyword-optimizer.cjs',
-        note: 'Las correcciones persistentes se aplican en la fuente GitHub y se verifican con una segunda auditoría.'
-      },
       issues,
       worstPages: result.worstPages || [],
       truncatedIssues: result.truncatedIssues || false

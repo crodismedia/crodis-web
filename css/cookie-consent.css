@@ -176,9 +176,3 @@
     .cabecera-contenido { --tm-header-gap: 14px; }
     .acciones-cabecera .contador-altas-cabecera { display: none; }
 }
-
-/* El submenú de Desguaces no debe heredar la línea naranja del menú principal. */
-.tm-desguaces-submenu a::after {
-    display: none !important;
-    content: none !important;
-}
