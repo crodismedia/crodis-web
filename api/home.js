@@ -4,15 +4,17 @@ import {
     escapeHTML,
     formatPhoneDisplay,
     safePhone,
+    serviceLabel,
     slugify,
     workshopSlug,
-    supabaseRpc
+    supabaseRpc,
+    enrichWorkshopServices
 } from "../lib/server-utils.js";
 
 const INITIAL_WORKSHOPS = 24;
 const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
-const FRONTEND_VERSION = "20260902-1";
+const FRONTEND_VERSION = "20260902-2";
 const MAX_TERM = 80;
 const SERVICIOS_SEO = new Set([
     "mecanica-general",
@@ -229,6 +231,12 @@ function renderWorkshopLinks(workshops, detailed = false) {
         const phoneDisplay = formatPhoneDisplay(workshop.telefono);
         const map = mapsURL(workshop, name);
         const scheduleHTML = renderSchedule(workshop.horarios);
+        const services = Array.isArray(workshop.servicios)
+            ? [...new Set(workshop.servicios.map(serviceLabel).filter(Boolean))]
+            : [];
+        const servicesHTML = services.length
+            ? `<div class="especialidades">${services.map((service) => `<span>${escapeHTML(service)}</span>`).join("")}</div>`
+            : "";
 
         const contacts = [];
 
@@ -266,6 +274,7 @@ function renderWorkshopLinks(workshops, detailed = false) {
                     }
 
                     ${scheduleHTML}
+                    ${servicesHTML}
 
                     <div class="taller-pie">
                         <span class="taller-contactos">
@@ -587,13 +596,14 @@ export default async function handler(
     );
 
     try {
-        const workshops = hasSearch
+        const workshopResults = hasSearch
             ? await fetchSearchResults(
                 location,
                 service,
                 page
             )
             : await fetchInitialWorkshops();
+        const workshops = await enrichWorkshopServices(workshopResults);
 
         const total = hasSearch
             ? (

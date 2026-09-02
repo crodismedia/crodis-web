@@ -234,7 +234,7 @@
             webSegura(taller?.web);
 
         const servicios =
-            normalizarServicios(taller?.servicios).slice(0, 4);
+            normalizarServicios(taller?.servicios);
 
         const horario =
             renderizarHorario(taller?.horarios);

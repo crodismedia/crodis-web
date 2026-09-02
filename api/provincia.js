@@ -49,7 +49,7 @@ function renderTalleres(rows) {
         const phone = safePhone(row.telefono);
         const phoneDisplay = formatPhoneDisplay(row.telefono);
         const map = mapsURL(row, rawName);
-        const services = Array.isArray(row.servicios) ? row.servicios.slice(0, 4) : [];
+        const services = Array.isArray(row.servicios) ? row.servicios : [];
         const serviceHTML = services.length
             ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
             : "<span>Taller mecánico</span>";

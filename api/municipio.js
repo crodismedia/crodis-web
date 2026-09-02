@@ -121,7 +121,6 @@ function renderWorkshop(workshop) {
         ? workshop.servicios
             .map(serviceLabel)
             .filter(Boolean)
-            .slice(0, 4)
         : [];
 
     const serviceMarkup = (services.length ? services : ["Taller mecánico"])

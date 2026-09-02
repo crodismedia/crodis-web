@@ -80,7 +80,7 @@ function renderWorkshop(workshop, index) {
   const web = safeWeb(workshop.web);
   const map = mapsURL(workshop, rawName);
   const description = escapeHTML(workshop.descripcion || "Consulta servicios, datos de contacto y ubicación del taller.");
-  const services = Array.isArray(workshop.servicios) ? workshop.servicios.slice(0, 4) : [];
+  const services = Array.isArray(workshop.servicios) ? workshop.servicios : [];
   const serviceHTML = services.length ? services.map(s => `<span>${escapeHTML(serviceLabel(s))}</span>`).join("") : "<span>Taller mecánico</span>";
   const contacts = [];
   if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);

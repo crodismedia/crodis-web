@@ -88,7 +88,7 @@
         }
 
         const servicios = Array.isArray(taller.servicios) && taller.servicios.length
-            ? taller.servicios.slice(0, 4)
+            ? taller.servicios
             : ["mecanica-general"];
         const horario = taller.horario
             ? `<details class="taller-horario"><summary>Ver horario publicado</summary><p>${escapar(taller.horario)}</p></details>`

@@ -82,7 +82,7 @@
         const ubicacion = [taller.direccion, taller.ciudad, taller.provincia].filter(Boolean).map(escapar).join(", ");
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = urlSegura(taller.web);
-        const servicios = Array.isArray(taller.servicios) ? taller.servicios.slice(0, 4) : [];
+        const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const distintivo = taller.verificado ? "✓ Información revisada" : "Información publicada";
 
         return `<article class="taller-card">

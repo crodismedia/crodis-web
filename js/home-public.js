@@ -95,6 +95,23 @@
         });
     }
 
+    async function enriquecerServicios(talleres) {
+        const filas = Array.isArray(talleres) ? talleres : [];
+        const ids = [...new Set(filas.map(taller => String(taller?.id || "").trim()).filter(id => /^[0-9a-f-]{36}$/i.test(id)))];
+        if (!ids.length) return filas;
+
+        const query = new URLSearchParams({
+            select: "id,servicios",
+            id: `in.(${ids.join(",")})`,
+            limit: String(ids.length)
+        });
+        const { data, error } = await peticion(`${SUPABASE_URL}/rest/v1/talleres?${query.toString()}`);
+        if (error || !Array.isArray(data)) return filas;
+
+        const porId = new Map(data.map(taller => [String(taller.id), Array.isArray(taller.servicios) ? taller.servicios : []]));
+        return filas.map(taller => ({ ...taller, servicios: porId.get(String(taller.id)) || [] }));
+    }
+
     function mostrarEstado(mensaje) {
         const contenedor = document.getElementById("lista-talleres");
         if (contenedor) contenedor.innerHTML = `<p class="mensaje-talleres">${ui.escaparHTML(mensaje)}</p>`;
@@ -219,7 +236,7 @@
                 actualizarBoton(false);
                 return;
             }
-            const talleres = Array.isArray(data) ? data : [];
+            const talleres = await enriquecerServicios(Array.isArray(data) ? data : []);
             if (!talleres.length) {
                 if (reiniciar) {
                     mostrarEstado("No hemos encontrado talleres con esos criterios. Prueba otra población, código postal o servicio.");
