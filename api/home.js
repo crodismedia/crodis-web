@@ -14,7 +14,7 @@ import {
 const INITIAL_WORKSHOPS = 24;
 const SEARCH_PAGE_SIZE = 20;
 const COOKIE_SCRIPT_VERSION = "20260809-4";
-const FRONTEND_VERSION = "20260902-2";
+const FRONTEND_VERSION = "20260902-3";
 const MAX_TERM = 80;
 const SERVICIOS_SEO = new Set([
     "mecanica-general",
@@ -507,14 +507,16 @@ function injectNoScriptPagination(
 }
 
 function prepareFrontendScripts(html) {
-    let result = html.replace(
+    let result = html
+    .replace(/\s*<script defer src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
+    .replace(
         /js\/cookie-consent\.js(?:\?[^\"']*)?/g,
         `js/cookie-consent.js?v=${COOKIE_SCRIPT_VERSION}`
     );
 
     result = result.replace(
         /<script defer src="js\/supabase\.js(?:\?[^\"]*)?"><\/script>/i,
-        `<script defer src="js/taller-ui.js?v=${FRONTEND_VERSION}"></script><script defer src="js/supabase.js?v=${FRONTEND_VERSION}"></script>`
+        `<script defer src="js/taller-ui.js?v=${FRONTEND_VERSION}"></script><script defer src="js/home-public.js?v=${FRONTEND_VERSION}"></script>`
     );
 
     return result;
@@ -665,6 +667,9 @@ export default async function handler(
     }
 
     html = prepareFrontendScripts(html);
+    if (hasSearch && !/\bdata-tm-search-ssr=/i.test(html)) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1 data-tm-search-ssr="1">');
+    }
 
     response.setHeader(
         "Content-Type",
