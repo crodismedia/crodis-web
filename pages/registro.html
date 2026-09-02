@@ -75,6 +75,12 @@
                             <input id="telefono" name="telefono" type="tel" minlength="9" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="960 000 000" required>
                         </div>
 
+                        <div class="campo-formulario">
+                            <label for="email_propietario">Correo del propietario *</label>
+                            <input id="email_propietario" name="email_propietario" type="email" maxlength="255" autocomplete="email" inputmode="email" placeholder="propietario@taller.es" required>
+                            <small class="campo-ayuda">Este correo será el acceso seguro para gestionar esta ficha cuando se publique.</small>
+                        </div>
+
                         <div class="campo-formulario campo-ancho">
                             <label for="web">Página web <span class="campo-opcional">(opcional)</span></label>
                             <input id="web" name="web" type="url" maxlength="255" autocomplete="url" inputmode="url" placeholder="https://www.ejemplo.es">
@@ -222,6 +228,7 @@
     <script src="../js/provincias.js"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/municipios-formulario.js"></script>
+    <script src="../js/registro-propietario.js"></script>
     <script src="../js/registro.js"></script>
     <script defer src="../js/cookie-consent.js"></script>
 </body>
