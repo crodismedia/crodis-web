@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import {
     escapeHTML,
-    formatPhoneDisplay,
     safePhone,
     serviceLabel,
     slugify,
@@ -228,7 +227,6 @@ function renderWorkshopLinks(workshops, detailed = false) {
                 .join(", ");
 
         const phone = safePhone(workshop.telefono);
-        const phoneDisplay = formatPhoneDisplay(workshop.telefono);
         const map = mapsURL(workshop, name);
         const scheduleHTML = renderSchedule(workshop.horarios);
         const services = Array.isArray(workshop.servicios)
@@ -242,13 +240,19 @@ function renderWorkshopLinks(workshops, detailed = false) {
 
         if (phone) {
             contacts.push(
-                `<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${escapeHTML(name)}">${escapeHTML(phoneDisplay || "Llamar")}</a>`
+                `<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${escapeHTML(name)}">Llamar</a>`
+            );
+        }
+
+        if (slug) {
+            contacts.push(
+                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${escapeHTML(name)}">Ver servicios</a>`
             );
         }
 
         if (map) {
             contacts.push(
-                `<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${escapeHTML(name)}">Cómo llegar</a>`
+                `<a class="accion-mapa enlace-google-maps" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir en Google Maps la ubicación de ${escapeHTML(name)}">Abrir en Google Maps</a>`
             );
         }
 
