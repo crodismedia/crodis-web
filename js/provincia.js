@@ -96,7 +96,7 @@
                     <span class="taller-contactos">
                         ${telefono ? `<a href="tel:${escapar(telefono)}">Llamar</a>` : ""}
                         ${web ? `<a href="${escapar(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ""}
-                        <a class="enlace-ficha-taller" href="${escapar(urlFicha(taller))}">Ver ficha</a>
+                        <a class="enlace-ficha-taller" href="${escapar(urlFicha(taller))}">Ver servicios</a>
                     </span>
                 </div>
             </div>

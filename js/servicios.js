@@ -284,8 +284,8 @@
             if (enlacesFicha.length) {
                 const principal = enlacesFicha.find((enlace) => enlace.classList.contains("enlace-ficha-taller")) || enlacesFicha[0];
                 principal.classList.add("enlace-ficha-taller");
-                principal.textContent = "Ver ficha";
-                principal.setAttribute("aria-label", `Ver ficha pública de ${nombre}`);
+                principal.textContent = "Ver servicios";
+                principal.setAttribute("aria-label", `Ver servicios de ${nombre}`);
                 enlacesFicha.forEach((enlace) => {
                     if (enlace !== principal) enlace.remove();
                 });

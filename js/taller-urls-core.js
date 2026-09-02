@@ -98,12 +98,12 @@
 
             principal.setAttribute(
                 "aria-label",
-                `Ver ficha de ${nombreTaller}`
+                `Ver servicios de ${nombreTaller}`
             );
         }
 
         const esEnlaceTitulo = Boolean(principal.closest(".taller-titulo, h3"));
-        if (!esEnlaceTitulo && principal.textContent.trim() !== "Ver ficha") principal.textContent = "Ver ficha";
+        if (!esEnlaceTitulo && principal.textContent.trim() !== "Ver servicios") principal.textContent = "Ver servicios";
 
         enlaces.forEach((enlace) => {
             if (enlace !== principal && enlace.isConnected) enlace.remove();

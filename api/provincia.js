@@ -56,7 +56,7 @@ function renderTalleres(rows) {
         const contacts = [];
         if (phone) contacts.push(`<a class="accion-provincia accion-telefono" style="${actionStyle("#159447")}" href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">☎ ${escapeHTML(phoneDisplay || "Llamar")}</a>`);
         if (map) contacts.push(`<a class="accion-provincia accion-mapa enlace-google-maps" style="${actionStyle("#145fd1")}" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
-        if (slug) contacts.push(`<a class="accion-provincia accion-ficha" style="${actionStyle("#e46f16")}" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver ficha de ${nombre}">Ver ficha</a>`);
+        if (slug) contacts.push(`<a class="accion-provincia accion-ficha" style="${actionStyle("#e46f16")}" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${nombre}">Ver servicios</a>`);
         const columnas = Math.max(1, contacts.length);
         const contactosStyle = `display:grid!important;grid-template-columns:repeat(${columnas},minmax(0,1fr))!important;gap:8px!important;width:100%!important;align-items:stretch!important;`;
 

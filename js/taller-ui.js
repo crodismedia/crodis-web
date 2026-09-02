@@ -255,7 +255,7 @@
 
         if (slug) {
             enlaces.push(
-                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver ficha de ${nombre}">Ver ficha</a>`
+                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${nombre}">Ver servicios</a>`
             );
         }
 

@@ -138,7 +138,7 @@ function renderWorkshop(workshop) {
 
     if (slug) {
         buttons.push(
-            `<a class="tm-card-btn tm-card-btn-profile" href="/talleres/${encodeURIComponent(slug)}">▤ Ver ficha</a>`
+            `<a class="tm-card-btn tm-card-btn-profile" href="/talleres/${encodeURIComponent(slug)}">▤ Ver servicios</a>`
         );
     }
 
