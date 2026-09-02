@@ -83,6 +83,8 @@
         if (!slug) return;
 
         const principal = enlaces.find((enlace) =>
+            enlace.closest(".taller-contactos")
+        ) || enlaces.find((enlace) =>
             enlace.classList.contains("enlace-ficha-taller")
         ) || enlaces[0];
         const destino = urlLimpia(slug);
@@ -106,7 +108,8 @@
         if (!esEnlaceTitulo && principal.textContent.trim() !== "Ver servicios") principal.textContent = "Ver servicios";
 
         enlaces.forEach((enlace) => {
-            if (enlace !== principal && enlace.isConnected) enlace.remove();
+            const esTitulo = Boolean(enlace.closest(".taller-titulo, h3"));
+            if (enlace !== principal && !esTitulo && enlace.isConnected) enlace.remove();
         });
     }
 
