@@ -54,7 +54,7 @@ function renderTalleres(rows) {
             ? services.map((service) => `<span>${escapeHTML(serviceLabel(service))}</span>`).join("")
             : "<span>Taller mecánico</span>";
         const contacts = [];
-        if (phone) contacts.push(`<a class="accion-provincia accion-telefono" style="${actionStyle("#159447")}" href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">☎ ${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+        if (phone) contacts.push(`<a class="accion-provincia accion-telefono" style="${actionStyle("#159447")}" href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${nombre}">${escapeHTML(phoneDisplay || "Llamar")}</a>`);
         if (map) contacts.push(`<a class="accion-provincia accion-mapa enlace-google-maps" style="${actionStyle("#145fd1")}" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${nombre}">Cómo llegar</a>`);
         if (slug) contacts.push(`<a class="accion-provincia accion-ficha" style="${actionStyle("#e46f16")}" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${nombre}">Ver servicios</a>`);
         const columnas = Math.max(1, contacts.length);
