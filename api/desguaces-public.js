@@ -145,8 +145,7 @@ function replaceElementInnerHTML(html, id, innerHTML) {
 function stripClientDirectoryRuntime(html) {
     return html
         .replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, "")
-        .replace(/\s*<script src="js\/supabase\.js[^\"]*"><\/script>/i, "")
-        .replace(/\s*<script src="js\/desguaces-publico\.js[^\"]*"><\/script>/i, "");
+        .replace(/\s*<script src="js\/supabase\.js[^\"]*"><\/script>/i, "");
 }
 
 function injectPerformanceHints(html) {

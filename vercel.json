@@ -58,7 +58,8 @@
     }
   ],
   "routes": [
-    {"src":"/municipios/?","dest":"/api/municipios-index"}
+    {"src":"/municipios/?","dest":"/api/municipios-index"},
+    {"src":"/desguaces\\.html","dest":"/api/desguaces-seo"}
   ],
   "rewrites": [
     {"source":"/pages/taller.html","destination":"/api/taller-legacy"},

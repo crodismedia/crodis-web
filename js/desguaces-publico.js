@@ -2,10 +2,6 @@
   'use strict';
 
   const sb = window.supabaseClient;
-  if (!sb) {
-    console.error('No se pudo iniciar Supabase para el directorio de desguaces.');
-    return;
-  }
 
   const grupos = {
     'Alicante/Alacant': document.getElementById('lista-desguaces-alicante'),
@@ -206,9 +202,19 @@
     mostrarProvincia(claveInicial, false);
   }
 
+  function usarContenidoRenderizado() {
+    datosPorProvincia = new Map(Object.entries(grupos).map(([provincia, contenedor]) => [
+      provincia,
+      contenedor ? [...contenedor.querySelectorAll('.desguace-card')] : []
+    ]));
+    const claveInicial = claveDesdeUbicacion() || 'alicante';
+    mostrarProvincia(claveInicial, false);
+  }
+
   function iniciar() {
     activarBotones();
-    cargar();
+    if (sb) cargar();
+    else usarContenidoRenderizado();
   }
 
   if (document.readyState === 'loading') {
