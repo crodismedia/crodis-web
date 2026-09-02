@@ -176,7 +176,7 @@ function renderDirectory(template, rows) {
     for (const key of Object.keys(groups)) {
         const cards = groups[key].length
             ? groups[key].map(renderCard).join("")
-            : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
+            : '<p class="desguaces-estado">Todavía no hay desguaces publicados en esta provincia.</p>';
         html = replaceElementInnerHTML(html, `lista-desguaces-${key}`, cards);
     }
 
