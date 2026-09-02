@@ -194,7 +194,7 @@
       const filas = datosPorProvincia.get(provincia) || [];
       contenedor.innerHTML = filas.length
         ? filas.map(tarjeta).join('')
-        : '<p class="desguaces-estado">Todavía no hay desguaces verificados publicados en esta provincia.</p>';
+        : '<p class="desguaces-estado">Todavía no hay desguaces publicados en esta provincia.</p>';
     });
 
     const claveInicial = claveDesdeUbicacion() || 'alicante';
