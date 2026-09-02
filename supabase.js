@@ -82,7 +82,6 @@
         const web = webSegura(taller.web);
         const fotoPrincipal = webSegura(taller.fotoFirmada);
         const cantidadFotos = Array.isArray(taller.fotos) ? taller.fotos.length : 0;
-        const distintivo = taller.verificado ? "✓ Verificado" : "Publicado";
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
         const etiquetas = servicios.length ? servicios.slice(0, 4) : ["Taller mecánico"];
         const horario = horarioHtml(taller.horarios);
@@ -101,7 +100,6 @@
             <article class="taller-card">
                 <div class="taller-imagen taller-imagen-1">
                     ${fotoPrincipal ? `<img src="${escaparHTML(fotoPrincipal)}" alt="Fotografía de ${nombre}" loading="lazy">` : ""}
-                    <span class="verificado">${distintivo}</span>
                     ${cantidadFotos ? `<span class="numero-fotos">${cantidadFotos} ${cantidadFotos === 1 ? "foto" : "fotos"}</span>` : ""}
                 </div>
                 <div class="taller-informacion">

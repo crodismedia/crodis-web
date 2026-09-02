@@ -18,7 +18,6 @@ function crearTarjetaTaller(taller) {
     );
     const ubicacion = [ciudad, provincia].filter(Boolean).join(", ");
     const telefono = (taller.telefono || "").replace(/[^\d+]/g, "");
-    const distintivo = taller.verificado ? "✓ Verificado" : "Nuevo";
     const botonContacto = telefono
         ? `<a href="tel:${telefono}">Llamar</a>`
         : '<a href="#">Ver taller</a>';
@@ -26,7 +25,6 @@ function crearTarjetaTaller(taller) {
     return `
         <article class="taller-card">
             <div class="taller-imagen taller-imagen-1">
-                <span class="verificado">${distintivo}</span>
                 <span class="favorito">♡</span>
             </div>
             <div class="taller-informacion">

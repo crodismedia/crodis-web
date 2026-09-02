@@ -330,12 +330,6 @@
         texto("taller-descripcion", descripcion);
         texto("taller-actualizacion", taller.updated_at ? `Última actualización: ${fechaLegible(taller.updated_at)}` : "");
 
-        const insignia = document.getElementById("taller-verificacion");
-        if (insignia) {
-            insignia.textContent = taller.verificado ? "✓ Información revisada" : "Información publicada";
-            insignia.classList.toggle("verificada", Boolean(taller.verificado));
-        }
-
         const contenedorFoto = document.getElementById("taller-foto");
         let imagen = document.getElementById("taller-foto-imagen");
         if (contenedorFoto && foto) {

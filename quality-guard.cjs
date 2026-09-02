@@ -1314,10 +1314,6 @@ class FixMode {
         file: 'css/estilo.css',
         replacements: [
           [
-            '.taller-informacion .verificado-en-contenido + h3 {',
-            '.taller-informacion .verificado-en-contenido + .taller-titulo,\n.taller-informacion .verificado-en-contenido + h3 {'
-          ],
-          [
             '.taller-informacion h3 {',
             '.taller-informacion .taller-titulo,\n.taller-informacion h3 {'
           ],

@@ -92,7 +92,6 @@
           <p class="desguace-localidad">${esc(d.municipio || '')}</p>
           <h3>${nombreHtml}</h3>
         </div>
-        <span class="desguace-verificado">Verificado</span>
       </div>
       ${direccion ? `<p class="desguace-direccion">${esc(direccion)}</p>` : ''}
       ${d.descripcion ? `<p class="desguace-descripcion">${esc(d.descripcion)}</p>` : ''}

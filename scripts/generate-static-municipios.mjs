@@ -84,9 +84,10 @@ function renderWorkshop(workshop, index) {
   const serviceHTML = services.length ? services.map(s => `<span>${escapeHTML(serviceLabel(s))}</span>`).join("") : "<span>Taller mecánico</span>";
   const contacts = [];
   if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
-  if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Cómo llegar a ${name}">Cómo llegar</a>`);
+  contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${name}">Ver servicios</a>`);
+  if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${name} en Google Maps">Abrir en Google Maps</a>`);
   if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-  return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-informacion"><span class="verificado verificado-en-contenido">${workshop.verificado ? "Verificado" : "Ficha publicada"}</span><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a></h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+  return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a></h3><p class="ubicacion">⌖ ${address || "Ubicación no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
 function readMunicipalityData(html, fileName) {

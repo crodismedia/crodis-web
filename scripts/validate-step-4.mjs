@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { formatPhoneDisplay, reviewStatusLabel, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
+import { formatPhoneDisplay, serviceLabel, workshopPhotoSource } from "../lib/server-utils.js";
 import homeHandler from "../api/home.js";
 import municipalityHandler from "../api/municipio.js";
 import provinceHandler from "../api/provincia.js";
@@ -22,8 +22,6 @@ const publicFiles = [
 
 requireCondition(serviceLabel("mecanica-general") === "Mecánica general", "Debe traducir los identificadores de servicio.");
 requireCondition(serviceLabel("suspension-amortiguadores") === "Suspensión y amortiguadores", "Debe conservar acentos en los servicios.");
-requireCondition(reviewStatusLabel(true) === "✓ Información revisada", "La etiqueta revisada debe ser clara y prudente.");
-requireCondition(reviewStatusLabel(false) === "Información publicada", "La etiqueta no revisada no debe insinuar verificación.");
 requireCondition(formatPhoneDisplay("963782395") === "963 782 395", "Los teléfonos españoles deben mostrarse en grupos legibles.");
 requireCondition(formatPhoneDisplay("+34963782395") === "963 782 395", "Los teléfonos deben mostrarse sin el prefijo +34.");
 requireCondition(formatPhoneDisplay("0034963782395") === "963 782 395", "Los teléfonos deben mostrarse sin el prefijo 0034.");
@@ -47,7 +45,7 @@ requireCondition(
 );
 
 const cardRuntime = read("js/taller-ui.js");
-requireCondition(/<div class="taller-imagen[\s\S]*?<\/div>\s*<div class="taller-informacion">\s*<span class="verificado verificado-en-contenido">/.test(cardRuntime), "Las tarjetas dinámicas deben colocar la insignia fuera de la imagen.");
+requireCondition(!/verificado-en-contenido/.test(cardRuntime), "Las tarjetas dinámicas no deben mostrar una insignia genérica de verificación.");
 requireCondition(cardRuntime.includes('toLocaleLowerCase("es")'), "Las tarjetas dinámicas deben normalizar correctamente las mayúsculas acentuadas.");
 
 const workshopTemplate = read("pages/taller.html");
@@ -121,8 +119,7 @@ requireCondition(
 const serviceResponse = createResponse();
 await serviceHandler({ query: { servicio: "mecanica-general", pagina: "1" } }, serviceResponse);
 requireCondition(serviceResponse.statusCode === 200, "La página de servicio debe renderizar correctamente.");
-requireCondition(serviceResponse.body.includes("✓ Información revisada") && serviceResponse.body.includes("Suspensión y amortiguadores"), "La página de servicio debe mostrar etiquetas públicas legibles.");
-requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div><div class="taller-informacion"><span class="verificado verificado-en-contenido">✓ Información revisada<\/span><h3>/s.test(serviceResponse.body), "La insignia de servicio debe aparecer en el contenido y no superponerse a la imagen.");
+requireCondition(serviceResponse.body.includes("Suspensión y amortiguadores") && !serviceResponse.body.includes("verificado-en-contenido"), "La página de servicio debe mostrar servicios sin insignias genéricas.");
 requireCondition(serviceResponse.body.includes('class="taller-imagen taller-imagen-1"') && serviceResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página de servicio debe preparar la foto autorizada o su placeholder.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(serviceResponse.body), "La paginación de servicio no debe crear enlaces deshabilitados.");
 
@@ -142,7 +139,7 @@ requireCondition(
 const municipalityResponse = createResponse();
 await municipalityHandler({ query: { archivo: "teulada-03128.html", pagina: "1" } }, municipalityResponse);
 requireCondition(municipalityResponse.statusCode === 200 && municipalityResponse.body.includes("Mecánica general") && municipalityResponse.body.includes('data-foto-ruta="solicitudes/demo/fachada.webp"'), "La página municipal debe traducir servicios y preparar fotos autorizadas.");
-requireCondition(/<div class="taller-imagen[^>]*>.*?<\/div>\s*<div class="taller-informacion">\s*<span class="verificado verificado-en-contenido">\s*✓ Información revisada\s*<\/span>\s*<h3>/s.test(municipalityResponse.body), "La insignia municipal debe aparecer en el contenido y no superponerse a la imagen.");
+requireCondition(!municipalityResponse.body.includes("verificado-en-contenido"), "La página municipal no debe mostrar insignias genéricas.");
 requireCondition(!/<a[^>]+aria-disabled="true"/i.test(municipalityResponse.body), "La paginación municipal no debe crear enlaces deshabilitados.");
 
 const provinceResponse = createResponse();

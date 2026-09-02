@@ -111,7 +111,6 @@ function renderCard(row) {
           <p class="desguace-localidad">${escapeHTML(municipality)}</p>
           <h3>${nameHTML}</h3>
         </div>
-        <span class="desguace-verificado">Verificado</span>
       </div>
       ${address ? `<p class="desguace-direccion">${escapeHTML(address)}</p>` : ""}
       ${description ? `<p class="desguace-descripcion">${escapeHTML(description)}</p>` : ""}

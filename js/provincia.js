@@ -83,11 +83,8 @@
         const telefono = String(taller.telefono || "").replace(/[^\d+]/g, "");
         const web = urlSegura(taller.web);
         const servicios = Array.isArray(taller.servicios) ? taller.servicios : [];
-        const distintivo = taller.verificado ? "✓ Información revisada" : "Información publicada";
-
         return `<article class="taller-card">
             <div class="taller-informacion">
-                <span class="verificado verificado-en-contenido">${distintivo}</span>
                 <h3>${nombre}</h3>
                 <p class="ubicacion">⌖ ${ubicacion || "Ubicación no indicada"}</p>
                 <div class="especialidades">${servicios.map((s) => `<span>${escapar(etiquetaServicio(s))}</span>`).join("")}</div>
