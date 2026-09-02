@@ -305,7 +305,31 @@
         }));
     }
 
+    function asegurarRegistroMovil() {
+        const cabecera = document.querySelector(".cabecera-contenido");
+        const botonMenu = document.querySelector(".menu-movil-label");
+        if (!cabecera || !botonMenu || cabecera.querySelector(".tm-registro-movil")) return;
+
+        const enlace = document.createElement("a");
+        enlace.className = "tm-registro-movil";
+        enlace.href = "/pages/registro.html";
+        enlace.textContent = "Registrar taller";
+        enlace.setAttribute("aria-label", "Registrar taller en TallerMap");
+        enlace.style.cssText = "display:none;align-items:center;justify-content:center;min-height:42px;padding:9px 12px;border-radius:10px;background:#1457d9;color:#fff;text-decoration:none;font-size:13px;font-weight:800;line-height:1;white-space:nowrap;box-shadow:0 6px 16px rgba(20,87,217,.18);";
+        botonMenu.before(enlace);
+
+        const media = window.matchMedia("(max-width: 750px)");
+        const actualizar = () => {
+            enlace.style.display = media.matches ? "inline-flex" : "none";
+            if (media.matches) botonMenu.style.setProperty("margin-left", "0", "important");
+            else botonMenu.style.removeProperty("margin-left");
+        };
+        actualizar();
+        media.addEventListener?.("change", actualizar);
+    }
+
     function iniciar() {
+        asegurarRegistroMovil();
         iniciarFormulario();
         void cargarServicios();
         void cargarEstadisticas();
