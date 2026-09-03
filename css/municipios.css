@@ -431,7 +431,8 @@ body.pagina-municipio > .pie {
 
 body.pagina-municipio > .pie > .copyright {
     margin-top: 0;
-    padding-top: 18px;
+    padding-top: 0;
+    border-top: 0;
 }
 
 @media (max-width: 750px) {
@@ -442,6 +443,6 @@ body.pagina-municipio > .pie > .copyright {
     body.pagina-municipio > .pie > .copyright {
         gap: 8px;
         margin-top: 0;
-        padding-top: 14px;
+        padding-top: 0;
     }
 }
