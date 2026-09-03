@@ -72,7 +72,7 @@
     {"source":"/provincias/alicante.html","destination":"/api/provincia-public?provincia=alicante"},
     {"source":"/provincias/castellon.html","destination":"/api/provincia-public?provincia=castellon"},
     {"source":"/provincias/valencia.html","destination":"/api/provincia-public?provincia=valencia"},
-    {"source":"/talleres/:slug","destination":"/talleres/:slug/index.html"},
+    {"source":"/talleres/:slug","destination":"/api/taller-html?slug=:slug"},
     {"source":"/desguace/:slug","destination":"/api/desguace-public?slug=:slug"},
     {"source":"/servicios/:servicio.html","destination":"/api/servicio-public?servicio=:servicio"},
     {"source":"/robots.txt","destination":"/api/robots"},
