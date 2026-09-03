@@ -1,6 +1,7 @@
 import provinciaHandler from "./provincia.js";
 
 const RENDER_DIFERIDO = '<style id="tm-provincia-render">.taller-card{content-visibility:auto;contain-intrinsic-size:auto 520px}#lista-municipios-provincia li{content-visibility:auto;contain-intrinsic-size:auto 64px}</style>';
+const ESTILO_VERSION = "20260903-1";
 
 function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -16,7 +17,12 @@ function paginaSolicitada(request) {
 
 function optimizarRender(output) {
     if (typeof output !== "string" || output.includes('id="tm-provincia-render"')) return output;
-    return output.replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
+    return output
+        .replace(
+            /href="(?:\.\.\/|\/)css\/estilo\.css(?:\?[^\"]*)?"/i,
+            `href="/css/estilo.css?v=${ESTILO_VERSION}"`
+        )
+        .replace(/<\/head>/i, `${RENDER_DIFERIDO}\n</head>`);
 }
 
 function limpiarContenidoPublico(output) {
