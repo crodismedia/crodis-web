@@ -9,8 +9,8 @@ export default function handler(_request, response) {
         "Disallow: /api/",
         "Disallow: /lib/",
         "",
-       "Sitemap: https://www.tallermap.es/sitemap-desguaces.xml",
+        "Sitemap: https://www.tallermap.es/sitemap-index.xml",
         "",
-        "# TallerMap robots actualizado 2026-08-17"
+        "# TallerMap robots actualizado 2026-09-03"
     ].join("\n"));
 }
