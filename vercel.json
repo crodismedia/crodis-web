@@ -61,6 +61,7 @@
     }
   ],
   "routes": [
+    {"src":"/pages/taller\\.html","dest":"/api/taller-legacy"},
     {"src":"/municipios/?","dest":"/api/municipios-index"},
     {"src":"/desguaces\\.html","dest":"/api/desguaces-seo"}
   ],
