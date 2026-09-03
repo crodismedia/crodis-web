@@ -167,9 +167,18 @@ function stripRuntime(html) {
     .replace(/\s*<script\s+src="\.\.\/js\/municipio\.js"><\/script>/i, "");
 }
 
-function ensureMunicipioUI(html) {
-  if (html.includes('../js/municipio-ui.js')) return html;
-  return html.replace(/<\/body>/i, '    <script src="../js/municipio-ui.js" defer></script>\n</body>');
+function ensurePublicAssets(html) {
+  let out = html;
+  if (!out.includes('cookie-consent.css')) {
+    out = out.replace(/<\/head>/i, '    <link rel="stylesheet" href="../css/cookie-consent.css?v=20260809-5">\n</head>');
+  }
+  if (!out.includes('cookie-consent.js')) {
+    out = out.replace(/<\/body>/i, '    <script src="../js/cookie-consent.js?v=20260903-1" defer></script>\n</body>');
+  }
+  if (!out.includes('../js/municipio-ui.js')) {
+    out = out.replace(/<\/body>/i, '    <script src="../js/municipio-ui.js" defer></script>\n</body>');
+  }
+  return out;
 }
 
 function inject(html, municipality, workshops, serviceCatalog) {
@@ -182,7 +191,7 @@ function inject(html, municipality, workshops, serviceCatalog) {
   out = out.replace(/(<select\s+id="servicio"\s+name="servicio"[^>]*>)[\s\S]*?(<\/select>)/i, `$1\n${renderServiceOptions(serviceCatalog)}\n                            $2`);
   out = out.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="index,follow,max-image-preview:large">');
   out = stripRuntime(out);
-  out = ensureMunicipioUI(out);
+  out = ensurePublicAssets(out);
   return out;
 }
 

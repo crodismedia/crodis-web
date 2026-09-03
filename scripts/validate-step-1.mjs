@@ -1,9 +1,18 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (relativePath) => readFileSync(resolve(root, relativePath), "utf8");
 const errors = [];
+
+function listHtmlFiles(directory = root) {
+    return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+        if (entry.name === ".git" || entry.name === "node_modules") return [];
+        const absolutePath = resolve(directory, entry.name);
+        if (entry.isDirectory()) return listHtmlFiles(absolutePath);
+        return entry.name.endsWith(".html") ? [absolutePath] : [];
+    });
+}
 
 function requireMatch(source, pattern, message) {
     if (!pattern.test(source)) errors.push(message);
@@ -32,6 +41,33 @@ requireMatch(
     /return\s+['"]\/pages\/cookies\.html['"]/,
     "La política de cookies debe usar una ruta absoluta válida."
 );
+requireMatch(
+    cookies,
+    /TAG_MANAGER_ID\s*=\s*['"]GTM-KCZJZT7T['"]/,
+    "Falta el contenedor oficial de Google Tag Manager."
+);
+requireMatch(
+    cookies,
+    /gtag\(['"]consent['"],\s*['"]default['"][\s\S]*?loadTagManager\(\)/,
+    "Tag Manager debe cargarse después de establecer el consentimiento denegado por defecto."
+);
+
+const municipioUi = read("js/municipio-ui.js");
+requireMatch(
+    municipioUi,
+    /asegurarConsentimiento[\s\S]*?cookie-consent\.js/,
+    "Las páginas municipales deben cargar el consentimiento y Tag Manager."
+);
+
+const publicPagesWithoutConsent = listHtmlFiles()
+    .filter(filePath => !/\/pages\/admin(?:-|\.)/.test(filePath))
+    .filter(filePath => {
+        const html = readFileSync(filePath, "utf8");
+        return !html.includes("cookie-consent.js") && !html.includes("municipio-ui.js");
+    });
+if (publicPagesWithoutConsent.length) {
+    errors.push(`Páginas públicas sin consentimiento/Tag Manager: ${publicPagesWithoutConsent.length}`);
+}
 
 const services = read("js/servicios.js");
 requireMatch(

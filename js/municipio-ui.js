@@ -1,4 +1,14 @@
 (() => {
+  const asegurarConsentimiento = () => {
+    if (window.__tallerMapCookieConsentLoaded || document.querySelector('script[src*="cookie-consent.js"]')) return;
+    const script = document.createElement('script');
+    script.src = '/js/cookie-consent.js?v=20260903-1';
+    script.defer = true;
+    document.head.appendChild(script);
+  };
+
+  asegurarConsentimiento();
+
   const form = document.getElementById('buscador-municipio');
   const select = document.getElementById('servicio');
   const list = document.getElementById('lista-talleres');

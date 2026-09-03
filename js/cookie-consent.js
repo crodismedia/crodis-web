@@ -8,6 +8,7 @@
 
     const STORAGE_KEY = 'tallermap_cookie_consent_v1';
     const POLICY_VERSION = '1.0';
+    const TAG_MANAGER_ID = 'GTM-KCZJZT7T';
     const ANALYTICS_ID = 'G-PHB5F28R3L';
     const ACCEPTED = 'accepted';
     const REJECTED = 'rejected';
@@ -28,6 +29,37 @@
         security_storage: 'granted',
         wait_for_update: 500
     });
+
+    function ensureConsentStyles() {
+        if (document.querySelector('link[href*="cookie-consent.css"]')) {
+            return;
+        }
+
+        const stylesheet = document.createElement('link');
+        stylesheet.rel = 'stylesheet';
+        stylesheet.href = '/css/cookie-consent.css?v=20260809-5';
+        document.head.appendChild(stylesheet);
+    }
+
+    function loadTagManager() {
+        if (document.querySelector('script[data-tallermap-tag-manager]')) {
+            return;
+        }
+
+        window.dataLayer.push({
+            'gtm.start': Date.now(),
+            event: 'gtm.js'
+        });
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(TAG_MANAGER_ID);
+        script.dataset.tallermapTagManager = 'true';
+        document.head.appendChild(script);
+    }
+
+    ensureConsentStyles();
+    loadTagManager();
 
     function readChoice() {
         try {

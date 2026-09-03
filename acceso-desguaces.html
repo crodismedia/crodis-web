@@ -19,4 +19,5 @@
  const previo=localStorage.getItem('tm_desguace_access_token'); if(previo) location.replace('/panel-desguace.html');
  form.addEventListener('submit',async e=>{e.preventDefault();estado.className='status';estado.textContent='Comprobando…';const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;try{const r=await fetch(`${SB}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token)throw new Error('Correo o contraseña incorrectos.');localStorage.setItem('tm_desguace_access_token',d.access_token);if(d.refresh_token)localStorage.setItem('tm_desguace_refresh_token',d.refresh_token);location.replace('/panel-desguace.html');}catch(err){estado.className='status err';estado.textContent=err.message||'No se pudo iniciar sesión.';}});
 })();
-</script></body></html>
+</script><script defer src="/js/cookie-consent.js?v=20260903-1"></script>
+</body></html>
