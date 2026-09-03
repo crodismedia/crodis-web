@@ -1,0 +1,41 @@
+name: Normalizar enlaces internos de municipios
+
+on:
+  push:
+    paths:
+      - 'scripts/normalize-municipio-links.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Normalizar enlaces públicos
+        run: node scripts/normalize-municipio-links.mjs
+      - name: Verificar que no quedan rutas index.html internas
+        shell: bash
+        run: |
+          if grep -RInE 'href="\.\./(index|municipios/index|provincias/index|servicios/index)\.html' municipios --include='*.html'; then
+            echo 'ERROR: quedan enlaces internos antiguos en municipios'
+            exit 1
+          fi
+      - name: Publicar HTML normalizados
+        shell: bash
+        run: |
+          if git diff --quiet -- municipios; then
+            echo 'No hay cambios que publicar'
+            exit 0
+          fi
+          git config user.name 'TallerMap SEO Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add municipios
+          git commit -m 'Normalize municipality internal links'
+          git push origin HEAD:main
