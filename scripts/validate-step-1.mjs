@@ -51,6 +51,14 @@ requireMatch(
     /gtag\(['"]consent['"],\s*['"]default['"][\s\S]*?loadTagManager\(\)/,
     "Tag Manager debe cargarse después de establecer el consentimiento denegado por defecto."
 );
+requireMatch(
+    cookies,
+    /ANALYTICS_CONSENT_EVENT\s*=\s*['"]tallermap_analytics_consent['"][\s\S]*?dataLayer\.push\(\{[\s\S]*?event:\s*ANALYTICS_CONSENT_EVENT/,
+    "Aceptar analítica debe enviar el evento de consentimiento a Tag Manager."
+);
+if (/googletagmanager\.com\/gtag\/js|data-tallermap-analytics/.test(cookies)) {
+    errors.push("Analytics no debe cargarse directamente fuera de Tag Manager.");
+}
 
 const municipioUi = read("js/municipio-ui.js");
 requireMatch(

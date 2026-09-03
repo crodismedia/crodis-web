@@ -9,7 +9,7 @@
     const STORAGE_KEY = 'tallermap_cookie_consent_v1';
     const POLICY_VERSION = '1.0';
     const TAG_MANAGER_ID = 'GTM-KCZJZT7T';
-    const ANALYTICS_ID = 'G-PHB5F28R3L';
+    const ANALYTICS_CONSENT_EVENT = 'tallermap_analytics_consent';
     const ACCEPTED = 'accepted';
     const REJECTED = 'rejected';
     let analyticsLoaded = false;
@@ -99,7 +99,7 @@
     }
 
     function loadAnalytics() {
-        if (analyticsLoaded || document.querySelector('script[data-tallermap-analytics]')) {
+        if (analyticsLoaded) {
             return;
         }
 
@@ -110,17 +110,9 @@
             ad_user_data: 'denied',
             ad_personalization: 'denied'
         });
-        window.gtag('js', new Date());
-        window.gtag('config', ANALYTICS_ID, {
-            allow_google_signals: false,
-            allow_ad_personalization_signals: false
+        window.dataLayer.push({
+            event: ANALYTICS_CONSENT_EVENT
         });
-
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ANALYTICS_ID);
-        script.dataset.tallermapAnalytics = 'true';
-        document.head.appendChild(script);
     }
 
     function hideBanner() {
