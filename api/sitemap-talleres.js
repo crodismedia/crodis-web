@@ -93,7 +93,7 @@ export default async function handler(_request, response) {
     }).join("");
 
     response.setHeader("Content-Type", "application/xml; charset=utf-8");
-    response.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+    response.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=300");
     response.setHeader("X-TallerMap-Sitemap-Urls", String(uniqueWorkshops.length));
     response.status(200).send(
         `<?xml version="1.0" encoding="UTF-8"?>\n` +
