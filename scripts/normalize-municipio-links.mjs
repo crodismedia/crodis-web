@@ -7,6 +7,7 @@ const MUNICIPIOS_DIR = path.join(ROOT, 'municipios');
 const replacements = [
   ['href="../index.html#', 'href="/#'],
   ['href="../index.html"', 'href="/"'],
+  ['href="index.html"', 'href="/municipios/"'],
   ['href="../municipios/index.html"', 'href="/municipios/"'],
   ['href="../provincias/index.html"', 'href="/provincias/"'],
   ['href="../servicios/index.html"', 'href="/servicios/"']
