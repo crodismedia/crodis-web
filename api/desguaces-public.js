@@ -99,7 +99,7 @@ function renderCard(row) {
 
     const actions = [];
     if (fichaURL) actions.push(`<a href="${escapeHTML(fichaURL)}">Ver ficha</a>`);
-    if (phone) actions.push(`<a href="tel:${escapeHTML(phone)}">Llamar · ${escapeHTML(phoneDisplay || "Llamar")}</a>`);
+    if (phone) actions.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar al ${escapeHTML(phoneDisplay || phone)}">${escapeHTML(phoneDisplay || phone)}</a>`);
     if (maps) actions.push(`<a href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);
     if (web) actions.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
     actions.push('<a href="/acceso-desguaces.html" rel="nofollow">Acceso profesional</a>');
