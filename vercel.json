@@ -92,7 +92,7 @@
     {"source":"/sitemap.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
     {"source":"/sitemap-index.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
     {"source":"/sitemap-provincias.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
-    {"source":"/sitemap-talleres.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=0, s-maxage=300, stale-while-revalidate=300"}]},
+    {"source":"/sitemap-talleres.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=0, s-maxage=300, stale-while-revalidate=60"}]},
     {"source":"/sitemap-municipios.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
     {"source":"/sitemap-desguaces.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
     {"source":"/servicios/sitemap.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600, stale-while-revalidate=86400"}]},
