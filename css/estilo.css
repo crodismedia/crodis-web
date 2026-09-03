@@ -1250,7 +1250,8 @@ select {
 .boton-whatsapp:hover { background: #138c48; }
 
 .pie {
-    padding: 65px 0 25px;
+    min-height: 0;
+    padding: 28px 0 22px;
     color: #adbbce;
     background: #050f20;
 }
@@ -1293,10 +1294,10 @@ select {
 .copyright {
     display: flex;
     justify-content: space-between;
-    margin-top: 50px;
-    padding-top: 24px;
+    margin-top: 0;
+    padding-top: 0;
     font-size: 12px;
-    border-top: 1px solid rgba(255,255,255,.1);
+    border-top: 0;
 }
 
 @media (max-width: 1050px) {
