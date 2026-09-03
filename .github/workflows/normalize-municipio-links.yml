@@ -23,7 +23,7 @@ jobs:
       - name: Verificar que no quedan rutas index.html internas
         shell: bash
         run: |
-          if grep -RInE 'href="\.\./(index|municipios/index|provincias/index|servicios/index)\.html' municipios --include='*.html'; then
+          if grep -RInE 'href="(\.\./|/)?(index|municipios/index|provincias/index|servicios/index)\.html' municipios --include='*.html'; then
             echo 'ERROR: quedan enlaces internos antiguos en municipios'
             exit 1
           fi
