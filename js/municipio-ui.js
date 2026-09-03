@@ -119,7 +119,15 @@
   const iniciar = async () => {
     await cargarCatalogoServicios();
 
-    const options = Array.from(select.options);
+    const options = Array.from(select.options).sort((a, b) => {
+      if (!a.value) return -1;
+      if (!b.value) return 1;
+      return String(a.textContent || '').localeCompare(
+        String(b.textContent || ''),
+        'es',
+        { sensitivity: 'base' }
+      );
+    });
     const wrapper = document.createElement('div');
     wrapper.className = 'servicio-personalizado';
 
