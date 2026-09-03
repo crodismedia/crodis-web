@@ -56,7 +56,7 @@ function render(d) {
   const description = clean(d.descripcion || `Desguace en ${municipality}. Consulta teléfono, dirección, horario, servicios y solicita una pieza.`, 155);
   const services = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0,20) : [];
   const serviceHtml = services.map(s => `<span>${escapeHTML(clean(s,80))}</span>`).join('');
-  const phoneButton = phone ? `<a class="btn primary" href="tel:${escapeHTML(phone)}">Llamar · ${escapeHTML(formatPhoneDisplay(phone))}</a>` : '';
+  const phoneButton = phone ? `<a class="btn primary" href="tel:${escapeHTML(phone)}" aria-label="Llamar al ${escapeHTML(formatPhoneDisplay(phone))}">${escapeHTML(formatPhoneDisplay(phone))}</a>` : '';
   const webButton = web ? `<a class="btn" href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : '';
   const structured = JSON.stringify({
     '@context':'https://schema.org', '@type':'AutoPartsStore', name, url:canonical,
