@@ -446,3 +446,19 @@ body.pagina-municipio > .pie > .copyright {
         padding-top: 0;
     }
 }
+
+/* Prueba visual solo en Requena: el nombre del taller es la acción principal. */
+#lista-talleres[data-municipio="Requena"] .taller-pie {
+    display: none;
+}
+
+#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller {
+    color: #145fd1;
+    -webkit-text-fill-color: #145fd1;
+    text-decoration: none;
+}
+
+#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller:hover,
+#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller:focus-visible {
+    text-decoration: underline;
+}
