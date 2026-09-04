@@ -58,17 +58,19 @@
       "permanent": true
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/index.html"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
-      "src": "/municipios/?",
-      "dest": "/api/municipios-index"
-    }
-  ],
-  "rewrites": [
+      "source": "/municipios",
+      "destination": "/api/municipios-index"
+    },
+    {
+      "source": "/municipios/",
+      "destination": "/api/municipios-index"
+    },
     {
       "source": "/talleres/:slug",
       "destination": "/talleres/:slug/index.html"
