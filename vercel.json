@@ -64,36 +64,12 @@
       "destination": "/index.html"
     },
     {
-      "source": "/municipios",
-      "destination": "/api/municipios-index"
-    },
-    {
-      "source": "/municipios/",
-      "destination": "/api/municipios-index"
-    },
-    {
       "source": "/talleres/:slug",
       "destination": "/talleres/:slug/index.html"
     },
     {
       "source": "/desguace/:slug",
       "destination": "/desguace/:slug/index.html"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/api/robots"
-    },
-    {
-      "source": "/sitemap-talleres.xml",
-      "destination": "/api/sitemap-talleres"
-    },
-    {
-      "source": "/sitemap-municipios.xml",
-      "destination": "/api/sitemap-municipios"
-    },
-    {
-      "source": "/sitemap-desguaces.xml",
-      "destination": "/api/sitemap-desguaces"
     }
   ],
   "headers": [
