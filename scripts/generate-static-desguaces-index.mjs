@@ -42,16 +42,18 @@ function renderCard(d) {
   const phoneDisplay = formatPhoneDisplay(d.telefono);
   const web = safeWeb(d.web);
   const maps = safeWeb(d.google_maps_url);
+  const links = [
+    phone ? `<a href="tel:${escapeHTML(phone)}">${escapeHTML(phoneDisplay || phone)}</a>` : '',
+    maps ? `<a href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>` : '',
+    web ? `<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ''
+  ].filter(Boolean).join(' · ');
   return `<article class="desguace-card" data-desguace-slug="${escapeHTML(slug)}">` +
     `<p class="desguace-localidad">${escapeHTML(municipality)}</p>` +
     `<h3><a href="/desguace/${escapeHTML(slug)}">${escapeHTML(name)}</a></h3>` +
     (address ? `<p class="desguace-direccion">${escapeHTML(address)}</p>` : '') +
     (services.length ? `<p class="desguace-servicios">${services.map(s => `<span>${escapeHTML(clean(s,80))}</span>`).join('')}</p>` : '') +
-    `<p class="desguace-acciones"><a href="/desguace/${escapeHTML(slug)}">Ver ficha</a>` +
-    (phone ? `<a href="tel:${escapeHTML(phone)}">${escapeHTML(phoneDisplay || phone)}</a>` : '') +
-    (maps ? `<a href="${escapeHTML(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>` : '') +
-    (web ? `<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>` : '') +
-    `</p></article>`;
+    (links ? `<p class="desguace-acciones">${links}</p>` : '') +
+    `</article>`;
 }
 
 function replaceList(html, key, cards) {
@@ -76,6 +78,10 @@ for (const key of Object.keys(groups)) {
 
 html = html.replace(/(<p id="contador-desguaces-publicados"[^>]*>)[\s\S]*?(<\/p>)/i, `$1${rows.length} desguaces publicados$2`);
 html = html
+  .replace(/\.desguace-card h3\{[^}]*\}/, '.desguace-card h3{margin:3px 0 0;font-size:1.08rem;line-height:1.3}.desguace-card h3 a{color:#155eef;text-decoration:none;font-weight:800}.desguace-card h3 a:hover,.desguace-card h3 a:focus{text-decoration:underline}')
+  .replace(/\.desguace-acciones\{[^}]*\}/, '.desguace-acciones{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;color:#667085}')
+  .replace(/\.desguace-acciones a\{[^}]*\}/, '.desguace-acciones a{display:inline;color:#155eef;text-decoration:none;font-weight:700;font-size:.9rem}')
+  .replace(/\.desguace-acciones a:nth-child\(n\+2\)\{[^}]*\}/, '.desguace-acciones a:hover,.desguace-acciones a:focus{text-decoration:underline}')
   .replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+"><\/script>/i, '')
   .replace(/\s*<script src="js\/supabase\.js[^\"]*"><\/script>/i, '')
   .replace(/\s*<script src="js\/desguaces-publico\.js[^\"]*"><\/script>/i, '');
