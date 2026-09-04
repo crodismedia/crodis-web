@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/generate-static-desguaces.yml'
       - 'scripts/generate-static-desguaces.mjs'
+      - 'scripts/generate-static-desguaces-index.mjs'
   workflow_dispatch:
 
 permissions:
@@ -22,6 +23,8 @@ jobs:
           node-version: '22'
       - name: Generar fichas estáticas de desguaces
         run: node scripts/generate-static-desguaces.mjs
+      - name: Generar directorio estático de desguaces
+        run: node scripts/generate-static-desguaces-index.mjs
       - name: Verificar 79 fichas e indexabilidad
         shell: bash
         run: |
@@ -32,15 +35,20 @@ jobs:
             echo 'ERROR: hay fichas de desguace con noindex'
             exit 1
           fi
-      - name: Depositar fichas en el repositorio
+          if grep -Eq 'desguaces-publico\.js|supabase-js@|js/supabase\.js' desguaces.html; then
+            echo 'ERROR: quedan restos de carga dinámica en desguaces.html'
+            exit 1
+          fi
+          grep -q '79 desguaces publicados' desguaces.html
+      - name: Depositar contenido estático en el repositorio
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add desguace/
+          git add desguace/ desguaces.html
           if git diff --cached --quiet; then
-            echo 'Las fichas estáticas ya están actualizadas.'
+            echo 'El contenido estático ya está actualizado.'
             exit 0
           fi
-          git commit -m 'Generate 79 static scrapyard pages'
+          git commit -m 'Generate static scrapyard directory and 79 pages'
           git push
