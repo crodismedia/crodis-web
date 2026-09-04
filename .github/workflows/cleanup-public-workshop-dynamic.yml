@@ -1,0 +1,41 @@
+name: Limpiar stack público dinámico de talleres
+
+on:
+  push:
+    paths:
+      - 'scripts/cleanup-public-workshop-dynamic.mjs'
+      - '.github/workflows/cleanup-public-workshop-dynamic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Limpiar constructores JS y APIs públicas de talleres
+        run: node scripts/cleanup-public-workshop-dynamic.mjs
+      - name: Verificar directorio temporal intacto
+        shell: bash
+        run: |
+          test -d talleres-temporal
+          count=$(find talleres-temporal -mindepth 2 -maxdepth 2 -type f -name 'index.html' | wc -l)
+          echo "Fichas temporales intactas: $count"
+          test "$count" -gt 0
+      - name: Depositar limpieza y retirar herramienta temporal
+        shell: bash
+        run: |
+          rm -f scripts/cleanup-public-workshop-dynamic.mjs
+          rm -f .github/workflows/cleanup-public-workshop-dynamic.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Remove dynamic public workshop JS and API stack'
+          git push
