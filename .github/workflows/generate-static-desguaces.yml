@@ -52,3 +52,5 @@ jobs:
           fi
           git commit -m 'Generate static scrapyard directory and 79 pages'
           git push
+
+# Regeneración solicitada: enlaces de texto en fichas de desguaces.
