@@ -3,7 +3,9 @@
   "type": "module",
   "scripts": {
     "generate:municipios": "node scripts/generate-static-municipios.mjs",
-    "postgenerate:municipios": "node scripts/normalize-municipio-links.mjs",
+    "postgenerate:municipios": "node scripts/normalize-municipio-links.mjs && node scripts/generate-static-home-search.mjs",
+    "generate:home-search": "node scripts/generate-static-home-search.mjs",
+    "validate:home-static": "node scripts/validate-static-home.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-step-2.mjs && node scripts/validate-html-first-taller.mjs",
     "diagnostico-alt": "node diagnostico-alt.js",
     "diagnostico-alt:prod": "node diagnostico-alt.js https://www.tallermap.es",
