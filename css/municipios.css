@@ -447,18 +447,18 @@ body.pagina-municipio > .pie > .copyright {
     }
 }
 
-/* Prueba visual solo en Requena: el nombre del taller es la acción principal. */
-#lista-talleres[data-municipio="Requena"] .taller-pie {
+/* Provincia de Valencia: mismo diseño limpio aprobado en Requena. */
+#lista-talleres[data-codigo-municipal^="46"] .taller-pie {
     display: none;
 }
 
-#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller {
+#lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller {
     color: #145fd1;
     -webkit-text-fill-color: #145fd1;
     text-decoration: none;
 }
 
-#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller:hover,
-#lista-talleres[data-municipio="Requena"] .enlace-ficha-taller:focus-visible {
+#lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller:hover,
+#lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller:focus-visible {
     text-decoration: underline;
 }
