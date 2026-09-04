@@ -447,14 +447,16 @@ body.pagina-municipio > .pie > .copyright {
     }
 }
 
-/* Provincias de Valencia y Alicante: mismo diseño limpio aprobado en Requena. */
+/* Comunidad Valenciana: mismo diseño limpio aprobado en Requena. */
 #lista-talleres[data-codigo-municipal^="46"] .taller-pie,
-#lista-talleres[data-codigo-municipal^="03"] .taller-pie {
+#lista-talleres[data-codigo-municipal^="03"] .taller-pie,
+#lista-talleres[data-codigo-municipal^="12"] .taller-pie {
     display: none;
 }
 
 #lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller,
-#lista-talleres[data-codigo-municipal^="03"] .enlace-ficha-taller {
+#lista-talleres[data-codigo-municipal^="03"] .enlace-ficha-taller,
+#lista-talleres[data-codigo-municipal^="12"] .enlace-ficha-taller {
     color: #145fd1;
     -webkit-text-fill-color: #145fd1;
     text-decoration: none;
@@ -463,6 +465,8 @@ body.pagina-municipio > .pie > .copyright {
 #lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller:hover,
 #lista-talleres[data-codigo-municipal^="46"] .enlace-ficha-taller:focus-visible,
 #lista-talleres[data-codigo-municipal^="03"] .enlace-ficha-taller:hover,
-#lista-talleres[data-codigo-municipal^="03"] .enlace-ficha-taller:focus-visible {
+#lista-talleres[data-codigo-municipal^="03"] .enlace-ficha-taller:focus-visible,
+#lista-talleres[data-codigo-municipal^="12"] .enlace-ficha-taller:hover,
+#lista-talleres[data-codigo-municipal^="12"] .enlace-ficha-taller:focus-visible {
     text-decoration: underline;
 }
