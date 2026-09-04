@@ -42,11 +42,6 @@
       "permanent": true
     },
     {
-      "source": "/index.html",
-      "destination": "https://www.tallermap.es/",
-      "permanent": true
-    },
-    {
       "source": "/:path*",
       "has": [
         {
@@ -59,10 +54,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
     {
       "source": "/talleres/:slug",
       "destination": "/talleres/:slug/index.html"
