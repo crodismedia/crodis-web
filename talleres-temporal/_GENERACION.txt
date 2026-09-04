@@ -1,0 +1,4 @@
+Generadas: 1000
+Omitidas: 0
+Origen directo: Supabase tabla talleres
+Sin API pública ni constructor en tiempo de visita.
