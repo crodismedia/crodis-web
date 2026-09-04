@@ -1,10 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/guardian.js": {
-      "maxDuration": 60,
-      "includeFiles": "{quality-guard.cjs,package.json,.gitignore,README.md,api/**,lib/**,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,templates/**,css/**,js/**,scripts/**}"
-    },
     "api/seo-audit.js": {
       "maxDuration": 60,
       "includeFiles": "{seo-auditor-global.cjs,index.html,desguaces.html,municipios/**,pages/**,provincias/**,servicios/**,talleres/**,desguace/**}"
@@ -69,10 +65,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/taller/:legacy",
-      "destination": "/api/taller-path-legacy?legacy=:legacy"
-    },
     {
       "source": "/talleres/:slug",
       "destination": "/talleres/:slug/index.html"
