@@ -1,0 +1,46 @@
+name: Generar desguaces estáticos
+
+on:
+  push:
+    paths:
+      - '.github/workflows/generate-static-desguaces.yml'
+      - 'scripts/generate-static-desguaces.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generar fichas estáticas de desguaces
+        run: node scripts/generate-static-desguaces.mjs
+      - name: Verificar 79 fichas e indexabilidad
+        shell: bash
+        run: |
+          count=$(find desguace -mindepth 2 -maxdepth 2 -type f -name 'index.html' | wc -l)
+          echo "Fichas estáticas encontradas: $count"
+          test "$count" -eq 79
+          if grep -RIl '<meta name="robots" content="noindex' desguace --include='index.html'; then
+            echo 'ERROR: hay fichas de desguace con noindex'
+            exit 1
+          fi
+      - name: Depositar fichas en el repositorio
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add desguace/
+          if git diff --cached --quiet; then
+            echo 'Las fichas estáticas ya están actualizadas.'
+            exit 0
+          fi
+          git commit -m 'Generate 79 static scrapyard pages'
+          git push
