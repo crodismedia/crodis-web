@@ -226,38 +226,8 @@
         const ubicacion = construirUbicacion(taller);
         const slug = slugTaller(taller);
         const descripcion = descripcionPublica(taller?.descripcion);
-
-        const telefono =
-            telefonoSeguro(taller?.telefono);
-
-        const web =
-            webSegura(taller?.web);
-
-        const servicios =
-            normalizarServicios(taller?.servicios);
-
-        const horario =
-            renderizarHorario(taller?.horarios);
-
-        const enlaces = [];
-
-        if (telefono) {
-            enlaces.push(
-                `<a href="tel:${escaparHTML(telefono)}" aria-label="Llamar a ${nombre}">Llamar</a>`
-            );
-        }
-
-        if (web) {
-            enlaces.push(
-                `<a href="${escaparHTML(web)}" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de ${nombre}">Web</a>`
-            );
-        }
-
-        if (slug) {
-            enlaces.push(
-                `<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${nombre}">Ver servicios</a>`
-            );
-        }
+        const servicios = normalizarServicios(taller?.servicios);
+        const horario = renderizarHorario(taller?.horarios);
 
         const etiquetasServicios =
             (
@@ -279,10 +249,15 @@
                 data-taller-slug="${escaparHTML(slug)}"
             >
                 <div class="taller-informacion">
-                    <p class="taller-titulo">${nombre}</p>
+                    <h3 class="taller-titulo">
+                        <a
+                            class="enlace-ficha-taller"
+                            href="/talleres/${encodeURIComponent(slug)}"
+                        >${nombre}</a>
+                    </h3>
 
                     <p class="ubicacion">
-                        ${ubicacion || "Ubicación no indicada"}
+                        ⌖ ${ubicacion || "Ubicación no indicada"}
                     </p>
 
                     ${descripcion ? `<p class="taller-descripcion">${descripcion}</p>` : ""}
@@ -292,12 +267,6 @@
                     </div>
 
                     ${horario}
-
-                    <div class="taller-pie">
-                        <span class="taller-contactos">
-                            ${enlaces.join("")}
-                        </span>
-                    </div>
                 </div>
             </article>
         `;
