@@ -60,6 +60,10 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
       "src": "/municipios/?",
       "dest": "/api/municipios-index"
     }
