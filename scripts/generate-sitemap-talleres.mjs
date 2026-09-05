@@ -34,7 +34,9 @@ function collectWorkshopUrls() {
     const indexFile = path.join(TALLERES_DIR, slug, 'index.html');
     if (!fs.existsSync(indexFile)) continue;
 
-    urls.push(`${BASE_URL}/talleres/${encodeURIComponent(slug)}/`);
+    // Debe coincidir exactamente con el canonical de cada ficha pública.
+    // La URL canónica de talleres no lleva barra final.
+    urls.push(`${BASE_URL}/talleres/${encodeURIComponent(slug)}`);
   }
 
   return [...new Set(urls)].sort((a, b) => a.localeCompare(b, 'es'));
