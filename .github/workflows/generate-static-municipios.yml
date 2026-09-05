@@ -27,7 +27,7 @@ jobs:
       - name: Publicar sitemap municipal si cambia
         shell: bash
         run: |
-          if git diff --quiet -- sitemap-municipios.xml; then
+          if [ -z "$(git status --porcelain -- sitemap-municipios.xml)" ]; then
             echo 'sitemap-municipios.xml ya está actualizado.'
             exit 0
           fi
