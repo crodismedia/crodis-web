@@ -2,9 +2,15 @@ name: Sincronizar talleres estáticos
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/generate-sitemap-talleres.mjs'
+      - '.github/workflows/sync-static-talleres.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sync:
@@ -14,7 +20,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Regenerar talleres modificados sin publicar
-        run: node scripts/sync-static-talleres.mjs
-      - name: Regenerar sitemap sin publicar
+      - name: Regenerar sitemap de talleres
         run: node scripts/generate-sitemap-talleres.mjs
+      - name: Publicar sitemap si cambia
+        run: |
+          if git diff --quiet -- sitemap-talleres.xml; then
+            echo "sitemap-talleres.xml ya estaba actualizado"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sitemap-talleres.xml
+          git commit -m "SEO: regenerate workshop sitemap"
+          git push
