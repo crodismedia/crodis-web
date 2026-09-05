@@ -1,0 +1,41 @@
+name: Generate static province pages
+
+on:
+  push:
+    paths:
+      - 'scripts/generate-static-provincias.mjs'
+      - '.github/workflows/generate-static-provincias.yml'
+      - 'municipios/index.html'
+      - 'municipios/**.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate static province pages
+        run: node scripts/generate-static-provincias.mjs
+
+      - name: Commit generated province pages
+        shell: bash
+        run: |
+          if git diff --quiet -- provincias/alicante.html provincias/castellon.html provincias/valencia.html; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add provincias/alicante.html provincias/castellon.html provincias/valencia.html
+          git commit -m 'Generate static province pages'
+          git push
