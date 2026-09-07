@@ -43,6 +43,24 @@
     controls.appendChild(suggestions);
   }
 
+  let locationButton = document.getElementById("usar-mi-ubicacion");
+  if (!locationButton) {
+    locationButton = document.createElement("button");
+    locationButton.type = "button";
+    locationButton.id = "usar-mi-ubicacion";
+    locationButton.className = "boton";
+    locationButton.textContent = "Usar mi ubicación";
+    controls.appendChild(locationButton);
+  }
+
+  let locationStatus = document.getElementById("estado-ubicacion");
+  if (!locationStatus) {
+    locationStatus = document.createElement("small");
+    locationStatus.id = "estado-ubicacion";
+    locationStatus.setAttribute("aria-live", "polite");
+    controls.appendChild(locationStatus);
+  }
+
   const setStatus = (message, showDirectoryLink = false) => {
     if (!status) return;
     status.replaceChildren(document.createTextNode(message));
@@ -128,6 +146,67 @@
     suggestions.hidden = false;
     input.setAttribute("aria-expanded", "true");
   };
+
+  const locateMunicipality = () => {
+    if (!navigator.geolocation) {
+      locationStatus.textContent = "Este navegador no permite obtener la ubicación.";
+      return;
+    }
+
+    locationButton.disabled = true;
+    locationButton.textContent = "Localizando…";
+    locationStatus.textContent = "Buscando tu ubicación…";
+
+    navigator.geolocation.getCurrentPosition(async position => {
+      try {
+        const params = new URLSearchParams({
+          latitude: String(position.coords.latitude),
+          longitude: String(position.coords.longitude),
+          localityLanguage: "es"
+        });
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${params}`, {
+          headers: { Accept: "application/json" }
+        });
+        if (!response.ok) throw new Error("No se pudo identificar la población");
+        const place = await response.json();
+        const locality = String(place.city || place.locality || "").trim();
+        const postcode = String(place.postcode || "").match(/\b\d{5}\b/)?.[0] || "";
+        const candidates = locality ? exactMatching(locality) : [];
+        const postcodeCandidates = postcode ? exactMatching(postcode) : [];
+        const matches = candidates.length === 1 ? candidates : postcodeCandidates;
+
+        if (matches.length !== 1) {
+          if (locality) {
+            input.value = locality;
+            renderSuggestions(matching(locality));
+          }
+          throw new Error("La ubicación se obtuvo, pero no se pudo asociar a un único municipio de TallerMap");
+        }
+
+        input.value = matches[0].nombre;
+        input.dataset.rutaMunicipio = matches[0].ruta;
+        locationStatus.textContent = `Ubicación detectada: ${matches[0].nombre}.`;
+        setStatus(`Abriendo talleres de ${matches[0].nombre}.`);
+        window.location.assign(destination(matches[0]));
+      } catch (error) {
+        console.error("Ubicación TallerMap:", error);
+        locationStatus.textContent = "No se pudo identificar tu municipio. Puedes escribir la población o el código postal.";
+      } finally {
+        locationButton.disabled = false;
+        locationButton.textContent = "Usar mi ubicación";
+      }
+    }, () => {
+      locationButton.disabled = false;
+      locationButton.textContent = "Usar mi ubicación";
+      locationStatus.textContent = "No se pudo obtener tu ubicación. Revisa el permiso de ubicación del navegador.";
+    }, {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 60000
+    });
+  };
+
+  locationButton.addEventListener("click", locateMunicipality);
 
   input.addEventListener("input", () => {
     delete input.dataset.rutaMunicipio;
