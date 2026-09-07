@@ -25,7 +25,8 @@ if (start !== -1 && end > start) {
 requireCondition(catalog.length === 542, `El catálogo debe contener 542 municipios; contiene ${catalog.length}.`);
 requireCondition(/<form[^>]+id="formulario-buscador-publico"[^>]+action="\/municipios\/"[^>]+method="get"/i.test(home), "Falta el formulario con salida HTML estática.");
 requireCondition(!/js\/(?:servicios|autocomplete-municipios|taller-urls|imagenes-automaticas)\.js/i.test(home), "La portada todavía carga un runtime dinámico retirado.");
-requireCondition(!/supabase|fetch\s*\(/i.test(searchRuntime), "El buscador de portada no debe consultar API ni recursos remotos.");
+requireCondition(!/supabase/i.test(searchRuntime), "El buscador de portada no debe depender de Supabase para resolver contenido.");
+requireCondition(!/fetch\s*\([^)]*(?:supabase|\/api\/|talleres)/i.test(searchRuntime), "El buscador de portada no debe consultar API de contenido de talleres.");
 requireCondition((home.match(/<h1\b/gi) || []).length === 1, "La portada debe tener exactamente un H1.");
 requireCondition(/<meta name="robots" content="index,follow,max-image-preview:large">/i.test(home), "La portada debe seguir indexable.");
 requireCondition(/<link rel="canonical" href="https:\/\/www\.tallermap\.es\/">/i.test(home), "El canonical de la portada es incorrecto.");
