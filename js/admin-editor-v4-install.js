@@ -194,6 +194,15 @@
     }
   }
 
+  function iniciarVigilanciaAcceso() {
+    window.setTimeout(() => {
+      if (document.body?.dataset?.authState !== "checking") return;
+      const estado = document.getElementById("v4-auth-check");
+      if (estado) estado.textContent = "La sesión no respondió. Volviendo al acceso de administración…";
+      window.location.replace("admin-login.html?next=admin-editor-v4.html");
+    }, 8000);
+  }
+
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     deferredPrompt = event;
@@ -207,6 +216,8 @@
   });
 
   document.addEventListener("DOMContentLoaded", () => {
+    iniciarVigilanciaAcceso();
+
     if (isStandalone()) {
       hideBanner();
     } else {
