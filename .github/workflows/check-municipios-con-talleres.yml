@@ -1,0 +1,15 @@
+name: Comprobar municipios con talleres
+
+on:
+  push:
+    paths:
+      - 'scripts/filtrar-municipios-con-talleres.mjs'
+      - '.github/workflows/check-municipios-con-talleres.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobar municipios sin modificar archivos
+        run: node scripts/filtrar-municipios-con-talleres.mjs
