@@ -12,6 +12,118 @@
 
   if (!form || !input || !service || !controls || !catalog.length) return;
 
+  const serviceGroups = [
+    ["Mecánica y mantenimiento", [
+      ["mecanica-general", "Mecánica general"],
+      ["mantenimiento-programado", "Revisión y mantenimiento programado"],
+      ["cambio-aceite-filtros", "Cambio de aceite y filtros"],
+      ["pre-itv", "Revisión Pre-ITV"],
+      ["frenos", "Frenos"],
+      ["embrague", "Embrague"],
+      ["correa-distribucion", "Correa de distribución"],
+      ["cadena-distribucion", "Cadena de distribución"],
+      ["reparacion-motor", "Reparación de motor"],
+      ["sistema-refrigeracion", "Sistema de refrigeración"],
+      ["escape-catalizador", "Escape y catalizador"],
+      ["caja-cambios", "Caja de cambios"],
+      ["filtro-particulas-dpf-fap", "Filtro de partículas DPF/FAP"],
+      ["turbo", "Turbo"],
+      ["inyeccion-diesel", "Inyección diésel"],
+      ["inyeccion-gasolina", "Inyección gasolina"],
+      ["descarbonizacion-motor", "Descarbonización de motor"],
+      ["caja-cambios-automatica-dsg", "Caja de cambios automática / DSG"],
+      ["sistema-scr-adblue", "Sistema SCR / AdBlue"],
+      ["mantenimiento-flotas", "Mantenimiento de flotas"],
+      ["mecanica-rapida", "Mecánica rápida"]
+    ]],
+    ["Neumáticos, dirección y suspensión", [
+      ["neumaticos", "Neumáticos"],
+      ["alineacion-direccion", "Alineación y dirección"],
+      ["equilibrado-ruedas", "Equilibrado de ruedas"],
+      ["suspension-amortiguadores", "Suspensión y amortiguadores"],
+      ["direccion", "Sistema de dirección"],
+      ["reparacion-llantas", "Reparación de llantas"]
+    ]],
+    ["Electricidad y diagnosis", [
+      ["diagnosis-electronica", "Diagnosis electrónica"],
+      ["electricidad-automovil", "Electricidad del automóvil"],
+      ["baterias", "Baterías"],
+      ["alternador-motor-arranque", "Alternador y motor de arranque"],
+      ["centralitas-electronica", "Centralitas y electrónica"],
+      ["sistemas-adas", "Sistemas ADAS y ayudas a la conducción"],
+      ["llaves-codificacion", "Llaves y codificación"],
+      ["reprogramacion-centralita", "Reprogramación de centralita"],
+      ["tacografo", "Tacógrafo"]
+    ]],
+    ["Carrocería y cristales", [
+      ["chapa-pintura", "Chapa y pintura"],
+      ["carroceria", "Reparación de carrocería"],
+      ["lunas-cristales", "Lunas y cristales"],
+      ["desabollado-sin-pintura", "Desabollado sin pintura"],
+      ["tapiceria", "Tapicería"],
+      ["tintado-lunas", "Tintado de lunas"],
+      ["pulido-restauracion-faros", "Pulido y restauración de faros"]
+    ]],
+    ["Climatización", [
+      ["aire-acondicionado", "Aire acondicionado"],
+      ["calefaccion-climatizacion", "Calefacción y climatización"]
+    ]],
+    ["Híbridos y eléctricos", [
+      ["hibridos-electricos", "Vehículos híbridos y eléctricos"],
+      ["baterias-alta-tension", "Baterías de alta tensión"],
+      ["cargadores-vehiculo-electrico", "Cargadores para vehículo eléctrico"]
+    ]],
+    ["Vehículos especiales", [
+      ["furgonetas", "Furgonetas"],
+      ["vehiculos-industriales", "Vehículos industriales"],
+      ["autocaravanas", "Autocaravanas"],
+      ["vehiculos-4x4", "Vehículos 4x4"],
+      ["motocicletas", "Motocicletas"],
+      ["vehiculos-clasicos", "Vehículos clásicos"]
+    ]],
+    ["Personalización y multimedia", [
+      ["equipos-sonido", "Equipos de sonido y audio para automóvil"],
+      ["multimedia-navegacion", "Pantallas, multimedia y navegación"],
+      ["vinilos-rotulacion", "Vinilos y rotulación"],
+      ["wrapping", "Wrapping integral y cambio de color"],
+      ["tuning-personalizacion", "Tuning y personalización"],
+      ["iluminacion-automovil", "Iluminación y sistemas LED"]
+    ]],
+    ["Otros servicios", [
+      ["grua-asistencia", "Grúa y asistencia en carretera"],
+      ["lavado-detailing", "Lavado y detailing"],
+      ["montaje-accesorios", "Montaje de accesorios"],
+      ["homologaciones", "Homologaciones"],
+      ["instalacion-glp", "Instalación y mantenimiento GLP"],
+      ["recogida-entrega", "Recogida y entrega del vehículo"],
+      ["gestion-traslado-itv", "Gestión y traslado a ITV"]
+    ]],
+    ["Concesionario y compraventa", [
+      ["venta-vehiculos-nuevos", "Venta de vehículos nuevos"],
+      ["venta-vehiculos-ocasion", "Venta de vehículos de ocasión"],
+      ["recambios-originales", "Recambios originales"],
+      ["garantia-oficial", "Garantía oficial y campañas de marca"],
+      ["vehiculo-sustitucion", "Vehículo de sustitución"],
+      ["tasacion-vehiculos", "Tasación de vehículos"]
+    ]]
+  ];
+
+  const populateServiceSelect = () => {
+    const previous = service.value;
+    service.replaceChildren(new Option("Todos los servicios", ""));
+    serviceGroups.forEach(([label, items]) => {
+      const group = document.createElement("optgroup");
+      group.label = label;
+      items.forEach(([value, text]) => group.appendChild(new Option(text, value)));
+      service.appendChild(group);
+    });
+    if (previous && [...service.options].some(option => option.value === previous)) {
+      service.value = previous;
+    }
+  };
+
+  populateServiceSelect();
+
   const normalize = value => String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
