@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - 'scripts/sync-editor-v4-static.mjs'
+      - 'scripts/sync-editor-v4-static-runner.mjs'
       - 'scripts/filtrar-municipios-con-talleres.mjs'
       - 'scripts/generate-static-municipios.mjs'
       - 'scripts/generate-sitemap-talleres.mjs'
@@ -35,7 +36,7 @@ jobs:
 
       - name: Sincronizar fichas cambiadas desde Editor V4
         id: editor_sync
-        run: node scripts/sync-editor-v4-static.mjs
+        run: node scripts/sync-editor-v4-static-runner.mjs
 
       - name: Actualizar páginas municipales estáticas
         if: steps.editor_sync.outputs.changed == 'true'
