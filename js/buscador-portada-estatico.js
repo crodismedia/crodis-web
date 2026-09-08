@@ -169,7 +169,7 @@
         });
         if (!response.ok) throw new Error("No se pudo identificar la población");
         const place = await response.json();
-        const locality = String(place.city || place.locality || "").trim();
+        const locality = String(place.locality || place.city || "").trim();
         const postcode = String(place.postcode || "").match(/\b\d{5}\b/)?.[0] || "";
         const candidates = locality ? exactMatching(locality) : [];
         const postcodeCandidates = postcode ? exactMatching(postcode) : [];
