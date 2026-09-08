@@ -18,7 +18,7 @@ function fix(file) {
   const before = fs.readFileSync(file, 'utf8');
   const after = before.replace(
     /(<div\s+id=["']taller-servicios["'][^>]*>[\s\S]*?<\/div>)/gi,
-    block => block.replace(/<\/span>\s*(?:·\s*)?<span>/g, '</span>. <span>')
+    block => block.replace(/<\/span>\s*(?:[·.]\s*)?<span>/g, '</span> · <span>')
   );
   if (after !== before) {
     fs.writeFileSync(file, after, 'utf8');
