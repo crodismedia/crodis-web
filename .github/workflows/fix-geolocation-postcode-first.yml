@@ -1,0 +1,36 @@
+name: Corregir geolocalización por código postal
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-geolocation-postcode-first.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Priorizar código postal frente a localidad del geocoder
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('js/buscador-portada-estatico.js')
+          s = p.read_text(encoding='utf-8')
+          old = '        const matches = candidates.length === 1 ? candidates : postcodeCandidates;'
+          new = '        const matches = postcodeCandidates.length === 1 ? postcodeCandidates : candidates;'
+          if old not in s:
+              raise SystemExit('No se encontró la lógica esperada de geolocalización')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Comprobar sintaxis
+        run: node --check js/buscador-portada-estatico.js
+      - name: Guardar corrección
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/buscador-portada-estatico.js
+          git commit -m "Priorizar código postal al usar mi ubicación"
+          git push
