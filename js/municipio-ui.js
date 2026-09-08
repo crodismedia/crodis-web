@@ -73,8 +73,16 @@
 
   const cardMatchesService = (card, service) => {
     if (!service) return true;
+
+    const completeServices = String(card.dataset.servicios || "")
+      .split(/\s+/)
+      .map(value => value.trim())
+      .filter(Boolean);
+    if (completeServices.includes(service)) return true;
+
     const visibleServices = Array.from(card.querySelectorAll(".especialidades span")).map(span => slugify(span.textContent));
     if (visibleServices.includes(service)) return true;
+
     const description = String(card.querySelector(".taller-descripcion")?.textContent || "").toLocaleLowerCase("es");
     return description.includes(service.toLocaleLowerCase("es"));
   };
