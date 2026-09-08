@@ -6,15 +6,6 @@ const MUNICIPIOS_DIR = path.join(ROOT, "municipios");
 const DATA_FILE = path.join(ROOT, "datos", "servicios-fichas.json");
 const WRITE = process.argv.includes("--write");
 
-function escapeHTML(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 if (!fs.existsSync(DATA_FILE)) {
   throw new Error("Falta datos/servicios-fichas.json. Ejecuta antes npm run recopilar:servicios-fichas");
 }
@@ -34,6 +25,21 @@ let tarjetasSinFicha = 0;
 let tarjetasSinServicios = 0;
 const ejemplosSinFicha = [];
 
+function serviceSlugs(items) {
+  return [...new Set((Array.isArray(items) ? items : [])
+    .map(item => String(item?.slug || "").trim())
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "es"));
+}
+
+function withServiceData(attrs, slugs) {
+  const value = slugs.join(" ");
+  if (/\bdata-servicios=["'][^"']*["']/i.test(attrs)) {
+    return attrs.replace(/\bdata-servicios=["'][^"']*["']/i, `data-servicios="${value}"`);
+  }
+  return `${attrs} data-servicios="${value}"`;
+}
+
 for (const fileName of files) {
   const filePath = path.join(MUNICIPIOS_DIR, fileName);
   const original = fs.readFileSync(filePath, "utf8");
@@ -50,35 +56,18 @@ for (const fileName of files) {
         return articleFull;
       }
 
-      const services = Array.isArray(talleres[slug]) ? talleres[slug] : [];
-      if (!services.length) {
+      const slugs = serviceSlugs(talleres[slug]);
+      if (!slugs.length) {
         tarjetasSinServicios += 1;
         return articleFull;
       }
 
-      const serviceHTML = services
-        .filter(item => item && item.label)
-        .map(item => `<span data-servicio="${escapeHTML(item.slug || "")}">${escapeHTML(item.label)}</span>`)
-        .join("");
+      const newAttrs = withServiceData(attrs, slugs);
+      if (newAttrs === attrs) return articleFull;
 
-      if (!serviceHTML) {
-        tarjetasSinServicios += 1;
-        return articleFull;
-      }
-
-      let replaced = false;
-      const newBody = body.replace(
-        /<div\b([^>]*\bclass=["'][^"']*\bespecialidades\b[^"']*["'][^>]*)>[\s\S]*?<\/div>/i,
-        (_old, divAttrs) => {
-          replaced = true;
-          return `<div${divAttrs}>${serviceHTML}</div>`;
-        }
-      );
-
-      if (!replaced || newBody === body) return articleFull;
       changedInFile += 1;
       tarjetasCambiadas += 1;
-      return `<article${attrs}>${newBody}</article>`;
+      return `<article${newAttrs}>${body}</article>`;
     }
   );
 
@@ -90,11 +79,11 @@ for (const fileName of files) {
 
 console.log(`Municipios revisados: ${files.length}`);
 console.log(`Tarjetas revisadas: ${tarjetasRevisadas}`);
-console.log(`Tarjetas con servicios distintos: ${tarjetasCambiadas}`);
+console.log(`Tarjetas que necesitan data-servicios: ${tarjetasCambiadas}`);
 console.log(`Municipios con cambios: ${municipiosConCambios}`);
 console.log(`Tarjetas sin ficha individual asociada: ${tarjetasSinFicha}`);
 console.log(`Tarjetas cuya ficha no publica servicios: ${tarjetasSinServicios}`);
-console.log(WRITE ? "MODO ESCRITURA: cambios aplicados." : "MODO COMPROBACIÓN: no se ha modificado ningún HTML.");
+console.log(WRITE ? "MODO ESCRITURA: data-servicios aplicado sin cambiar las etiquetas visibles." : "MODO COMPROBACIÓN: no se ha modificado ningún HTML.");
 
 if (ejemplosSinFicha.length) {
   console.log("Ejemplos sin ficha asociada:");
