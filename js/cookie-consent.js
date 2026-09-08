@@ -224,7 +224,33 @@
         }
     }
 
+    function initMunicipioAccentInsensitiveFilter() {
+        const input = document.getElementById('buscar-municipio');
+        const items = [...document.querySelectorAll('#lista-municipios li')];
+        const empty = document.getElementById('sin-resultados-municipios');
+        if (!input || !items.length) return;
+
+        const normalize = (value) => String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase('es')
+            .trim();
+
+        input.addEventListener('input', () => {
+            const term = normalize(input.value);
+            let visible = 0;
+            items.forEach((item) => {
+                const show = !term || normalize(item.dataset.nombre).includes(term);
+                item.hidden = !show;
+                if (show) visible += 1;
+            });
+            if (empty) empty.hidden = visible !== 0;
+        });
+    }
+
     window.TallerMapCookies = { open: openPreferences };
+
+    initMunicipioAccentInsensitiveFilter();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });
