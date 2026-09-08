@@ -6,6 +6,8 @@
     "postgenerate:municipios": "node scripts/normalize-municipio-links.mjs && node scripts/generate-static-home-search.mjs",
     "generate:home-search": "node scripts/generate-static-home-search.mjs",
     "recopilar:servicios-fichas": "node scripts/recopilar-servicios-fichas.mjs",
+    "comprobar:servicios-municipios": "npm run recopilar:servicios-fichas && node scripts/sincronizar-servicios-municipios-desde-fichas.mjs",
+    "sincronizar:servicios-municipios": "npm run recopilar:servicios-fichas && node scripts/sincronizar-servicios-municipios-desde-fichas.mjs --write",
     "validate:home-static": "node scripts/validate-static-home.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-step-2.mjs && node scripts/validate-html-first-taller.mjs",
     "diagnostico-alt": "node diagnostico-alt.js",
