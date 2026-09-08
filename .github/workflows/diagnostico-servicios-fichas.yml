@@ -1,0 +1,24 @@
+name: Diagnostico servicios desde fichas
+
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnostico-servicios-fichas.yml'
+      - 'scripts/recopilar-servicios-fichas.mjs'
+      - 'scripts/sincronizar-servicios-municipios-desde-fichas.mjs'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Comprobar servicios de fichas y municipios
+        run: npm run comprobar:servicios-municipios
