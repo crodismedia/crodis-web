@@ -1,0 +1,37 @@
+name: Corregir separadores de servicios en fichas estáticas
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fix-static-service-separators.mjs'
+      - '.github/workflows/fix-static-service-separators.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Corregir servicios en HTML estático
+        run: node scripts/fix-static-service-separators.mjs
+      - name: Publicar cambios si existen
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- talleres)" ]; then
+            echo 'No hay fichas que corregir.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add talleres
+          git commit -m 'Fix static workshop service separators'
+          git push
