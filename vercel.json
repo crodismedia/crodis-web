@@ -1,3 +1,10 @@
 {
-  "buildCommand": null
+  "buildCommand": null,
+  "redirects": [
+    {
+      "source": "/talleres/taller-mecanico-pascual-glover-valencia-d0149a54",
+      "destination": "/talleres/pascual-glover-s-c-valencia-597d2183",
+      "permanent": true
+    }
+  ]
 }
