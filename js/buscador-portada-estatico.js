@@ -285,7 +285,7 @@
         const postcode = String(place.postcode || "").match(/\b\d{5}\b/)?.[0] || "";
         const candidates = locality ? exactMatching(locality) : [];
         const postcodeCandidates = postcode ? exactMatching(postcode) : [];
-        const matches = postcodeCandidates.length === 1 ? postcodeCandidates : candidates;
+        const matches = candidates.length === 1 ? candidates : postcodeCandidates;
 
         if (matches.length !== 1) {
           if (locality) {
