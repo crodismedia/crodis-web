@@ -275,7 +275,6 @@
 
         if (!Number.isFinite(accuracy) || accuracy > 1000) {
           locationStatus.textContent = "Tu ubicación es aproximada. Selecciona tu población o escribe el código postal.";
-          setStatus("No podemos determinar tu municipio con suficiente precisión.");
           return;
         }
 
