@@ -18,6 +18,10 @@ function escapeXml(value) {
     .replaceAll("'", '&apos;');
 }
 
+function workshopCount(html) {
+  return (html.match(/<article\b[^>]*class=["'][^"']*\btaller-card\b[^"']*["']/gi) || []).length;
+}
+
 function collectMunicipalityUrls() {
   if (!fs.existsSync(MUNICIPIOS_DIR)) {
     throw new Error(`No existe el directorio: ${MUNICIPIOS_DIR}`);
@@ -33,12 +37,19 @@ function collectMunicipalityUrls() {
   }
 
   const urls = [];
+  let skipped = 0;
+
   for (const file of files) {
     const fullPath = path.join(MUNICIPIOS_DIR, file);
     const html = fs.readFileSync(fullPath, 'utf8');
 
+    if (workshopCount(html) === 0) {
+      skipped += 1;
+      continue;
+    }
+
     if (/name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) {
-      throw new Error(`Página municipal noindex: ${path.relative(ROOT, fullPath)}`);
+      throw new Error(`Página municipal con talleres pero noindex: ${path.relative(ROOT, fullPath)}`);
     }
 
     const canonical = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["']/i)?.[1]
@@ -52,6 +63,7 @@ function collectMunicipalityUrls() {
     urls.push(expected);
   }
 
+  console.log(`Municipios excluidos por tener 0 talleres: ${skipped}`);
   return urls;
 }
 
@@ -65,5 +77,5 @@ function buildSitemap(urls) {
 
 const urls = collectMunicipalityUrls();
 fs.writeFileSync(OUTPUT, buildSitemap(urls), 'utf8');
-console.log(`✅ sitemap-municipios.xml regenerado con ${urls.length} municipios canónicos e indexables.`);
+console.log(`✅ sitemap-municipios.xml regenerado con ${urls.length} municipios con al menos 1 taller.`);
 console.log(`📄 ${path.relative(ROOT, OUTPUT)}`);
