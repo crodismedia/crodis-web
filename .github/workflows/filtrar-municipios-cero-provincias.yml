@@ -1,0 +1,52 @@
+name: Filtrar municipios sin talleres en provincias
+
+on:
+  push:
+    paths:
+      - '.github/workflows/filtrar-municipios-cero-provincias.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  filtrar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Eliminar municipios con 0 talleres de las listas provinciales
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const files = [
+            'provincias/alicante.html',
+            'provincias/castellon.html',
+            'provincias/valencia.html'
+          ];
+          for (const file of files) {
+            const before = fs.readFileSync(file, 'utf8');
+            const lines = before.split(/\r?\n/);
+            const removed = lines.filter(line => /<li\b[^>]*>[\s\S]*<span>0 talleres<\/span>[\s\S]*<\/li>/.test(line)).length;
+            const after = lines.filter(line => !/<li\b[^>]*>[\s\S]*<span>0 talleres<\/span>[\s\S]*<\/li>/.test(line)).join('\n');
+            if (!before.endsWith('\n') && after.endsWith('\n')) {
+              fs.writeFileSync(file, after.slice(0, -1), 'utf8');
+            } else {
+              fs.writeFileSync(file, after, 'utf8');
+            }
+            console.log(`${file}: eliminados ${removed} municipios con 0 talleres`);
+          }
+          NODE
+      - name: Guardar cambios
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add provincias/alicante.html provincias/castellon.html provincias/valencia.html
+          if git diff --cached --quiet; then
+            echo "No hay cambios que guardar"
+            exit 0
+          fi
+          git commit -m "Ocultar municipios sin talleres en provincias"
+          git push
