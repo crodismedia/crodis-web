@@ -80,8 +80,11 @@ const municipios = readMunicipios();
 let changed = 0;
 
 for (const [prefix, provincia] of Object.entries(PROVINCIAS)) {
-  const rows = municipios.filter(row => row.codigo.startsWith(prefix));
-  if (!rows.length) throw new Error(`No hay municipios para ${provincia.nombre}`);
+  const provinceRows = municipios.filter(row => row.codigo.startsWith(prefix));
+  if (!provinceRows.length) throw new Error(`No hay municipios para ${provincia.nombre}`);
+
+  const rows = provinceRows.filter(row => workshopCount(row.href) > 0);
+  if (!rows.length) throw new Error(`No hay municipios con talleres para ${provincia.nombre}`);
 
   const counts = rows.map(row => workshopCount(row.href));
   const totalTalleres = counts.reduce((a, b) => a + b, 0);
@@ -97,7 +100,7 @@ for (const [prefix, provincia] of Object.entries(PROVINCIAS)) {
 
   fs.writeFileSync(filePath, html, "utf8");
   changed += 1;
-  console.log(`${provincia.nombre}: ${rows.length} municipios · ${totalTalleres} talleres`);
+  console.log(`${provincia.nombre}: ${rows.length} municipios con talleres · ${totalTalleres} talleres`);
 }
 
-console.log(`OK: ${changed} páginas provinciales convertidas a directorios HTML estáticos.`);
+console.log(`OK: ${changed} páginas provinciales convertidas a directorios HTML estáticos sin municipios vacíos.`);
