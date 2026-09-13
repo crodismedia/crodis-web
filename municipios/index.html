@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -9,29 +9,315 @@
   <meta name="description" content="Encuentra talleres mecánicos por municipio en Alicante, Castellón y Valencia. Consulta servicios, teléfonos, horarios y ubicación en TallerMap.">
 
   <link rel="canonical" href="https://www.tallermap.es/municipios/">
-
   <meta name="robots" content="index,follow">
 
   <link rel="stylesheet" href="/css/estilo.css">
   <link rel="stylesheet" href="/css/cookie-consent.css">
+
+  <style>
+    .pie {
+      content-visibility: visible !important;
+      contain-intrinsic-size: auto !important;
+      padding: 16px 0 !important;
+    }
+
+    .pie .copyright {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    .pie a {
+      text-decoration: underline;
+    }
+
+    .cookie-preferences-button {
+      display: none !important;
+    }
+
+    .menu-movil-control,
+    .menu-movil-label,
+    .menu-movil-panel {
+      display: none;
+    }
+
+    .cabecera-contenido {
+      min-height: 70px !important;
+      gap: 20px !important;
+    }
+
+    .marca {
+      gap: 10px !important;
+    }
+
+    .marca-icono {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 11px !important;
+      box-shadow: none !important;
+    }
+
+    .marca-texto strong {
+      font-size: 21px !important;
+    }
+
+    .marca-texto small {
+      display: none !important;
+    }
+
+    .menu {
+      gap: 22px !important;
+    }
+
+    .menu a {
+      padding: 24px 0 !important;
+      font-size: 14px !important;
+    }
+
+    .menu a::after {
+      bottom: 14px !important;
+      height: 2px !important;
+    }
+
+    .acciones-cabecera {
+      gap: 0 !important;
+    }
+
+    .acciones-cabecera .boton {
+      padding: 10px 16px !important;
+      border-radius: 10px !important;
+      box-shadow: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .cabecera-contenido {
+        position: relative;
+      }
+
+      .menu {
+        display: none !important;
+      }
+
+      .menu-movil-control {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .menu-movil-control:focus-visible + .menu-movil-label {
+        outline: 3px solid #1457d9;
+        outline-offset: 3px;
+      }
+
+      .menu-movil-label {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        margin-left: auto;
+        place-items: center;
+        flex: 0 0 auto;
+        color: #071a33;
+        background: #fff;
+        border: 1px solid #dfe6ef;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(20,36,64,.08);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        z-index: 2147483647;
+        position: relative;
+        pointer-events: auto !important;
+      }
+
+      .menu-movil-icono,
+      .menu-movil-icono::before,
+      .menu-movil-icono::after {
+        display: block;
+        width: 23px;
+        height: 3px;
+        background: #071a33;
+        border-radius: 5px;
+        content: "";
+      }
+
+      .menu-movil-icono {
+        position: relative;
+      }
+
+      .menu-movil-icono::before {
+        position: absolute;
+        top: -7px;
+        left: 0;
+      }
+
+      .menu-movil-icono::after {
+        position: absolute;
+        top: 7px;
+        left: 0;
+      }
+
+      .menu-movil-panel {
+        position: fixed;
+        top: 68px;
+        right: 0;
+        left: 0;
+        z-index: 2147483646;
+        gap: 4px;
+        padding: 12px 18px 20px;
+        background: #fff;
+        border-top: 1px solid #dfe6ef;
+        border-bottom: 1px solid #dfe6ef;
+        box-shadow: 0 18px 30px rgba(20,36,64,.15);
+        pointer-events: auto !important;
+        isolation: isolate;
+      }
+
+      .menu-movil-control:checked ~ .menu-movil-panel {
+        display: grid !important;
+      }
+
+      .menu-movil-control:checked + .menu-movil-label .menu-movil-icono {
+        background: transparent;
+      }
+
+      .menu-movil-control:checked + .menu-movil-label .menu-movil-icono::before {
+        top: 0;
+        transform: rotate(45deg);
+      }
+
+      .menu-movil-control:checked + .menu-movil-label .menu-movil-icono::after {
+        top: 0;
+        transform: rotate(-45deg);
+      }
+
+      .menu-movil-panel a {
+        display: block;
+        position: relative;
+        z-index: 1;
+        padding: 14px 15px;
+        color: #071a33;
+        font-weight: 800;
+        border-radius: 10px;
+        pointer-events: auto !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(20,87,217,.12);
+      }
+
+      .menu-movil-panel a:active,
+      .menu-movil-panel a:focus-visible {
+        background: #eaf2ff;
+        outline: none;
+      }
+
+      .menu-movil-panel .menu-movil-registro {
+        margin-top: 6px;
+        color: #fff;
+        text-align: center;
+        background: linear-gradient(135deg,#1457d9,#0b43ad);
+      }
+    }
+
+    @media (max-width: 750px) {
+      .cabecera-contenido {
+        min-height: 64px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      .acciones-cabecera {
+        display: none !important;
+      }
+
+      .marca {
+        min-width: 0;
+      }
+
+      .marca-icono {
+        width: 38px !important;
+        height: 38px !important;
+      }
+
+      .marca-texto strong {
+        font-size: 20px !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header class="cabecera">
-  <div class="contenedor">
-    <a href="/" aria-label="Ir a TallerMap">
+  <div class="contenedor cabecera-contenido">
+
+    <a href="/" class="marca">
       <img
         class="marca-icono marca-icono-logo"
         src="/favicon.svg"
         alt="TallerMap"
         width="40"
         height="40">
+
+      <span class="marca-texto">
+        <strong>TallerMap</strong>
+        <small>Talleres cerca de ti</small>
+      </span>
     </a>
+
+    <nav class="menu" aria-label="Navegación principal">
+      <a href="/">Inicio</a>
+      <a href="/#talleres">Talleres</a>
+      <a href="/servicios/">Servicios</a>
+      <a href="/#provincias">Provincias</a>
+      <a href="/desguaces.html">Desguaces</a>
+    </nav>
+
+    <input
+      class="menu-movil-control"
+      type="checkbox"
+      id="menu-movil-control"
+      aria-label="Abrir o cerrar menú de navegación"
+      aria-controls="menu-movil-panel"
+      aria-expanded="false">
+
+    <label
+      class="menu-movil-label"
+      for="menu-movil-control"
+      aria-label="Abrir o cerrar menú">
+      <span class="menu-movil-icono"></span>
+    </label>
+
+    <nav
+      class="menu-movil-panel"
+      id="menu-movil-panel"
+      aria-label="Navegación móvil">
+
+      <a href="/">Inicio</a>
+      <a href="/#talleres">Talleres</a>
+      <a href="/servicios/">Servicios</a>
+      <a href="/#provincias">Provincias</a>
+      <a href="/desguaces.html">Desguaces</a>
+      <a class="menu-movil-registro" href="/pages/registro.html">Registrar taller</a>
+    </nav>
+
+    <div class="acciones-cabecera">
+      <a href="/pages/registro.html" class="boton boton-pequeno">Registrar taller</a>
+    </div>
+
   </div>
 </header>
 
-<main class="contenedor">
+<main id="contenido-principal" class="contenedor" tabindex="-1">
 
   <article>
 
@@ -128,16 +414,40 @@
     <span>© 2026 TallerMap. Todos los derechos reservados.</span>
   </div>
 
-  <div class="contenedor tallermap-enlaces-legales" style="padding-top:8px;padding-bottom:8px;text-align:center">
+  <div
+    class="contenedor tallermap-enlaces-legales"
+    style="padding-top:8px;padding-bottom:8px;text-align:center">
+
     <a href="/pages/aviso-legal.html">Aviso legal</a> &middot;
     <a href="/pages/privacidad.html">Privacidad</a> &middot;
     <a href="/pages/cookies.html">Cookies</a> &middot;
     <a href="/pages/accesibilidad.html">Accesibilidad</a>
+
   </div>
 
 </footer>
 
 <script src="/js/cookie-consent.js"></script>
+
+<script>
+(function () {
+  const control = document.getElementById('menu-movil-control');
+
+  if (!control) {
+    return;
+  }
+
+  function actualizarEstadoMenu() {
+    control.setAttribute(
+      'aria-expanded',
+      control.checked ? 'true' : 'false'
+    );
+  }
+
+  control.addEventListener('change', actualizarEstadoMenu);
+  actualizarEstadoMenu();
+})();
+</script>
 
 </body>
 </html>
