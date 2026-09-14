@@ -113,8 +113,10 @@
     service.replaceChildren(new Option("Todos los servicios", ""));
     serviceGroups.forEach(([label, items]) => {
       const group = document.createElement("optgroup");
-      group.label = label;
-      items.forEach(([value, text]) => group.appendChild(new Option(text, value)));
+      group.label = label.toLocaleUpperCase("es");
+      [...items]
+        .sort((a, b) => a[1].localeCompare(b[1], "es", { sensitivity: "base" }))
+        .forEach(([value, text]) => group.appendChild(new Option(text, value)));
       service.appendChild(group);
     });
     if (previous && [...service.options].some(option => option.value === previous)) {
