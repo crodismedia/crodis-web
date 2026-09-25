@@ -5,6 +5,16 @@
       "source": "/talleres/taller-mecanico-pascual-glover-valencia-d0149a54",
       "destination": "/talleres/pascual-glover-s-c-valencia-597d2183",
       "permanent": true
+    },
+    {
+      "source": "/sobre-nosotros.html",
+      "destination": "/pages/sobre-nosotros.html",
+      "permanent": true
+    },
+    {
+      "source": "/contacto.html",
+      "destination": "/pages/contacto.html",
+      "permanent": true
     }
   ]
 }
