@@ -34,6 +34,7 @@
     .solo-lectores{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
     .saltar-contenido{position:fixed;top:10px;left:10px;z-index:2147483647;padding:10px 14px;color:#fff;background:#071a33;border-radius:8px;transform:translateY(-160%);transition:transform .15s ease;text-decoration:none;font-weight:800}
     .saltar-contenido:focus{transform:translateY(0);outline:3px solid #ffb000;outline-offset:3px}
+    .hero{padding:52px 0 64px!important}
     .hero-texto,.buscador,.campo-busqueda,.poblacion-controles{position:relative;z-index:20}
     .buscador{pointer-events:auto!important;isolation:isolate}
     #poblacion,#servicio,#boton-buscar{pointer-events:auto!important;position:relative;z-index:30;opacity:1!important}
@@ -322,11 +323,7 @@
         <h1>Encuentra talleres mecánicos <span>cerca de ti</span></h1>
 
         <p class="hero-descripcion">
-            Busca talleres mecánicos en la Comunidad Valenciana por población, servicio o código postal.
-        </p>
-
-        <p class="hero-descripcion">
-            Encuentra talleres para la reparación y el mantenimiento de tu automóvil. Estamos ampliando progresivamente la cobertura a nuevas provincias.
+            Busca talleres mecánicos por población, código postal o servicio en Alicante, Castellón y Valencia.
         </p>
 
         <form class="buscador" id="formulario-buscador-publico" role="search" action="/municipios/" method="get" autocomplete="off">
@@ -376,10 +373,6 @@
 
             <p id="estado-buscador-portada" role="status" aria-live="polite" hidden></p>
         </form>
-
-        <a href="/pages/registro.html" class="boton boton-pequeno" style="margin-top:12px">
-            Registrar taller
-        </a>
 
         <div class="busquedas-populares">
             <strong>Búsquedas populares:</strong>
