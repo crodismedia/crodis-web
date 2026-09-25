@@ -96,6 +96,19 @@ function readMunicipalityData(html, fileName) {
   return { name: match[1], code: match[2] };
 }
 
+function provinceFromCode(code) {
+  const prefix = String(code || "").slice(0, 2);
+  if (prefix === "03") return "Alicante";
+  if (prefix === "12") return "Castellón";
+  if (prefix === "46") return "Valencia";
+  return "Comunidad Valenciana";
+}
+
+function seoDescription(municipality) {
+  const province = provinceFromCode(municipality.code);
+  return `Encuentra talleres mecánicos en ${municipality.name}, ${province}. Consulta servicios, teléfonos, horarios, ubicación y fichas de talleres en TallerMap.`;
+}
+
 async function rpcMunicipality(code, from = 0) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/buscar_talleres_municipio`, {
     method: "POST",
@@ -189,7 +202,12 @@ function inject(html, municipality, workshops, serviceCatalog) {
   let out = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1${workshopHTML}$2`);
   out = out.replace(/<span class="orden-talleres mapa-estado"[^>]*>[\s\S]*?<\/span>/i, `<span class="orden-talleres mapa-estado" aria-live="polite">${workshops.length} ${workshops.length === 1 ? "taller publicado" : "talleres publicados"}</span>`);
   out = out.replace(/(<select\s+id="servicio"\s+name="servicio"[^>]*>)[\s\S]*?(<\/select>)/i, `$1\n${renderServiceOptions(serviceCatalog)}\n                            $2`);
-  out = out.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="index,follow,max-image-preview:large">');
+  const description = seoDescription(municipality);
+  out = out.replace(/<meta name="description" content="[^"]*">/i, `<meta name="description" content="${escapeHTML(description)}">`);
+  out = out.replace(/("description"\s*:\s*)"[^"]*"/i, `$1"${description.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`);
+  out = out.replace(/<meta name="robots" content="[^"]*">/i, workshops.length
+    ? '<meta name="robots" content="index,follow,max-image-preview:large">'
+    : '<meta name="robots" content="noindex,follow">');
   out = stripRuntime(out);
   out = ensurePublicAssets(out);
   return out;
