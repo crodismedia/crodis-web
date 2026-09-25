@@ -242,19 +242,34 @@
     overflow:visible!important;
   }
 
+  #formulario-buscador-publico > .campo-busqueda:first-child{
+    position:relative!important;
+    z-index:1000002!important;
+    overflow:visible!important;
+  }
+
+  #sugerencias-poblacion{
+    z-index:1000003!important;
+    background:#fff!important;
+  }
+
   #formulario-buscador-publico > .campo-busqueda:nth-child(2){
     position:relative!important;
-    z-index:999999!important;
+    z-index:10!important;
     overflow:visible!important;
+  }
+
+  #formulario-buscador-publico:has(#sugerencias-poblacion:not([hidden])) > .campo-busqueda:nth-child(2){
+    visibility:hidden!important;
   }
 
   .servicio-movil-wrapper{
     position:relative!important;
-    z-index:1000000!important;
+    z-index:20!important;
   }
 
   .servicio-movil-panel{
-    z-index:1000001!important;
+    z-index:21!important;
   }
 
   #formulario-buscador-publico #boton-buscar{
