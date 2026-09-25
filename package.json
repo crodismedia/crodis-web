@@ -19,7 +19,7 @@
     "quality:watch": "node quality-guard.cjs --watch",
     "quality:encoding": "node scripts/html-encoding-guard.mjs",
     "quality:fix": "node quality-guard.cjs --fix && node scripts/html-encoding-guard.mjs --fix",
-    "quality:ci": "node scripts/guardian-folder.mjs --folder=. --strict && node scripts/html-encoding-guard.mjs --ci",
+    "quality:ci": "node quality-guard.cjs --ci && node scripts/html-encoding-guard.mjs --ci",
     "quality:report": "node quality-guard.cjs --report",
     "quality:help": "node quality-guard.cjs --help",
     "quality:full": "npm run quality && npm run quality:report && npm run quality:fix && npm run quality && npm run quality:ci",
