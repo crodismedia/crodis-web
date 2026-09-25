@@ -23,6 +23,8 @@ jobs:
           node-version: '22'
       - name: Actualizar metadescripciones de municipios indexables
         run: node scripts/update-municipio-meta-seo.mjs
+      - name: Validar carpeta municipios
+        run: node scripts/guardian-folder.mjs --folder=municipios --strict
       - name: Guardar cambios en la rama
         shell: bash
         run: |
