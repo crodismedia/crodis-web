@@ -49,4 +49,16 @@
         <priority>0.7</priority>
     </url>
 
+    <url>
+        <loc>https://www.tallermap.es/pages/sobre-nosotros.html</loc>
+        <lastmod>2026-09-25</lastmod>
+        <priority>0.6</priority>
+    </url>
+
+    <url>
+        <loc>https://www.tallermap.es/pages/contacto.html</loc>
+        <lastmod>2026-09-25</lastmod>
+        <priority>0.6</priority>
+    </url>
+
 </urlset>
