@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <title>Desguace | TallerMap</title>
+  <meta name="description" content="Ficha pública de desguace en TallerMap: dirección, teléfono, horarios, servicios, web y cómo llegar.">
+  <link rel="stylesheet" href="../css/estilo.css">
+  <link id="canonical-link" rel="canonical" href="https://www.tallermap.es/desguaces/">
+  <style>
+    body{background:#f6f7f8;color:#17202a;font-family:Arial,sans-serif;margin:0}
+    .dm-wrap{max-width:900px;margin:0 auto;padding:18px}
+    .dm-card{background:#fff;border:1px solid #dfe3e7;border-radius:12px;padding:20px;margin-bottom:14px}
+    .dm-title{margin:0 0 8px;font-size:1.8rem}
+    .dm-muted{color:#5d6670}
+    .dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .dm-row{padding:10px 0;border-bottom:1px solid #edf0f2}
+    .dm-row:last-child{border-bottom:0}
+    .dm-label{display:block;font-size:.82rem;color:#66717c;margin-bottom:3px}
+    .dm-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .dm-btn{display:inline-block;padding:11px 15px;border-radius:9px;text-decoration:none;font-weight:700;border:1px solid #cbd2d8;color:#17202a;background:#fff}
+    .dm-btn-primary{background:#16794a;color:#fff;border-color:#16794a}
+    .dm-services{display:flex;flex-wrap:wrap;gap:8px}
+    .dm-service{border:1px solid #d9dfe4;border-radius:999px;padding:7px 10px;background:#fafbfc}
+    .dm-status{padding:16px;border:1px solid #e0e4e7;border-radius:10px;background:#fff}
+    .dm-hidden{display:none!important}
+    @media(max-width:640px){.dm-grid{grid-template-columns:1fr}.dm-wrap{padding:12px}.dm-title{font-size:1.5rem}.dm-card{padding:16px}}
+  </style>
+</head>
+<body>
+  <main class="dm-wrap">
+    <div id="dm-status" class="dm-status">Cargando ficha del desguace…</div>
+
+    <article id="dm-ficha" class="dm-hidden" itemscope itemtype="https://schema.org/AutoPartsStore">
+      <section class="dm-card">
+        <h1 id="dm-nombre" class="dm-title" itemprop="name"></h1>
+        <div id="dm-ubicacion" class="dm-muted"></div>
+
+        <div class="dm-actions">
+          <a id="dm-llamar" class="dm-btn dm-btn-primary dm-hidden" href="#">Llamar</a>
+          <a id="dm-web" class="dm-btn dm-hidden" href="#" target="_blank" rel="noopener">Web</a>
+          <a id="dm-maps" class="dm-btn dm-hidden" href="#" target="_blank" rel="noopener">Cómo llegar</a>
+        </div>
+      </section>
+
+      <section class="dm-card">
+        <h2>Datos del desguace</h2>
+        <div class="dm-grid">
+          <div class="dm-row"><span class="dm-label">Dirección</span><span id="dm-direccion" itemprop="streetAddress">—</span></div>
+          <div class="dm-row"><span class="dm-label">Código postal</span><span id="dm-cp" itemprop="postalCode">—</span></div>
+          <div class="dm-row"><span class="dm-label">Municipio</span><span id="dm-municipio" itemprop="addressLocality">—</span></div>
+          <div class="dm-row"><span class="dm-label">Provincia</span><span id="dm-provincia" itemprop="addressRegion">—</span></div>
+          <div class="dm-row"><span class="dm-label">Teléfono</span><span id="dm-telefono" itemprop="telephone">—</span></div>
+          <div class="dm-row"><span class="dm-label">Horario</span><span id="dm-horario">—</span></div>
+        </div>
+      </section>
+
+      <section id="dm-servicios-card" class="dm-card dm-hidden">
+        <h2>Servicios</h2>
+        <div id="dm-servicios" class="dm-services"></div>
+      </section>
+
+      <section id="dm-descripcion-card" class="dm-card dm-hidden">
+        <h2>Sobre este desguace</h2>
+        <p id="dm-descripcion" itemprop="description"></p>
+      </section>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+  <script src="../js/supabase.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    var $ = function(id){ return document.getElementById(id); };
+
+    function text(id,value){ $(id).textContent = value || '—'; }
+
+    function normalizePhone(value){ return String(value || '').replace(/[^+\d]/g,''); }
+
+    function safeExternalUrl(value){
+      if(!value) return '';
+      var v=String(value).trim();
+      if(!/^https?:\/\//i.test(v)) v='https://'+v;
+      try{ var u=new URL(v); return (u.protocol==='http:'||u.protocol==='https:') ? u.href : ''; }
+      catch(e){ return ''; }
+    }
+
+    function formatHorario(h){
+      if(!h) return 'No disponible';
+      if(typeof h==='string') return h;
+      if(Array.isArray(h)) return h.join(' · ');
+      if(typeof h==='object'){
+        var dias=['lunes','martes','miercoles','miércoles','jueves','viernes','sabado','sábado','domingo'];
+        var salida=[];
+        dias.forEach(function(d){
+          if(Object.prototype.hasOwnProperty.call(h,d) && h[d]){
+            var valor=h[d];
+            if(Array.isArray(valor)) valor=valor.join(' / ');
+            salida.push(d.charAt(0).toUpperCase()+d.slice(1)+': '+valor);
+          }
+        });
+        if(salida.length) return salida.join(' · ');
+        try{return JSON.stringify(h);}catch(e){return 'No disponible';}
+      }
+      return String(h);
+    }
+
+    function getSlug(){
+      var p=new URLSearchParams(location.search);
+      if(p.get('slug')) return p.get('slug').trim();
+      var path=location.pathname.split('/').filter(Boolean);
+      var last=path[path.length-1] || '';
+      if(last && last!=='desguace.html') return last.replace(/\.html$/,'');
+      return '';
+    }
+
+    function fail(message){
+      $('dm-status').textContent=message;
+      $('dm-ficha').classList.add('dm-hidden');
+    }
+
+    async function load(){
+      var slug=getSlug();
+      if(!slug){ fail('No se ha indicado ningún desguace.'); return; }
+      if(!window.supabaseClient){ fail('No se ha podido conectar con los datos.'); return; }
+
+      var result=await window.supabaseClient
+        .from('fichas_desguaces')
+        .select('id,desguace_id,nombre,slug,direccion,codigo_postal,municipio,provincia,telefono,web,google_maps_url,horarios,servicios,descripcion,habilitada')
+        .eq('slug',slug)
+        .maybeSingle();
+
+      if(result.error){ fail('No se ha podido cargar la ficha.'); return; }
+      var d=result.data;
+      if(!d){ fail('Desguace no encontrado.'); return; }
+
+      document.title=(d.nombre || 'Desguace')+' | TallerMap';
+      var canonical='https://www.tallermap.es/desguaces/'+encodeURIComponent(d.slug);
+      $('canonical-link').setAttribute('href',canonical);
+
+      text('dm-nombre',d.nombre);
+      text('dm-direccion',d.direccion);
+      text('dm-cp',d.codigo_postal);
+      text('dm-municipio',d.municipio);
+      text('dm-provincia',d.provincia);
+      text('dm-telefono',d.telefono);
+      text('dm-horario',formatHorario(d.horarios));
+      $('dm-ubicacion').textContent=[d.direccion,d.codigo_postal,d.municipio,d.provincia].filter(Boolean).join(' · ');
+
+      var phone=normalizePhone(d.telefono);
+      if(phone){ $('dm-llamar').href='tel:'+phone; $('dm-llamar').classList.remove('dm-hidden'); }
+
+      var web=safeExternalUrl(d.web);
+      if(web){ $('dm-web').href=web; $('dm-web').classList.remove('dm-hidden'); }
+
+      var maps=safeExternalUrl(d.google_maps_url);
+      if(!maps && d.direccion){ maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.direccion,d.codigo_postal,d.municipio,d.provincia].filter(Boolean).join(', ')); }
+      if(maps){ $('dm-maps').href=maps; $('dm-maps').classList.remove('dm-hidden'); }
+
+      var servicios=Array.isArray(d.servicios) ? d.servicios : [];
+      if(servicios.length){
+        $('dm-servicios').innerHTML='';
+        servicios.forEach(function(s){ var span=document.createElement('span'); span.className='dm-service'; span.textContent=s; $('dm-servicios').appendChild(span); });
+        $('dm-servicios-card').classList.remove('dm-hidden');
+      }
+
+      if(d.descripcion){ $('dm-descripcion').textContent=d.descripcion; $('dm-descripcion-card').classList.remove('dm-hidden'); }
+
+      $('dm-status').classList.add('dm-hidden');
+      $('dm-ficha').classList.remove('dm-hidden');
+    }
+
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',load); else load();
+  })();
+  </script>
+</body>
+</html>

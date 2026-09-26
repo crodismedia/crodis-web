@@ -64,7 +64,7 @@
         <div class="v4-field"><label for="v4d-activo">Estado</label><select id="v4d-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div><div class="v4-field"><label for="v4d-verificado">Verificación</label><select id="v4d-verificado"><option value="false">No verificado</option><option value="true">Verificado</option></select></div>
       </div>
       <div id="v4d-estado" class="v4-status">Ficha preparada.</div>
-      <div class="v4-savebar"><div class="v4-actions"><button id="v4d-maps" class="v4-btn v4-soft" type="button">Google Maps</button><button id="v4d-eliminar" class="v4-btn v4-danger" type="button">Eliminar ficha</button></div><div class="v4-actions"><button class="v4-btn v4-primary" type="submit">Guardar ficha</button></div></div>
+      <div class="v4-savebar"><div class="v4-actions"><button id="v4d-ficha-publica" class="v4-btn v4-green" type="button">Ver ficha pública</button><button id="v4d-maps" class="v4-btn v4-soft" type="button">Google Maps</button><button id="v4d-eliminar" class="v4-btn v4-danger" type="button">Eliminar ficha</button></div><div class="v4-actions"><button class="v4-btn v4-primary" type="submit">Guardar ficha</button></div></div>
     </form>
   </section>
 </main>
@@ -88,11 +88,23 @@
     var estado=document.getElementById('v4d-csv-estado');
     if(estado){estado.textContent='Selecciona un archivo CSV. La comprobación empezará automáticamente.';estado.className='v4-status';}
   }
+  function abrirFichaPublica(){
+    var slug=document.getElementById('v4d-slug');
+    var valor=slug&&slug.value?slug.value.trim():'';
+    if(!valor){
+      var estado=document.getElementById('v4d-estado');
+      if(estado)estado.textContent='Guarda primero la ficha para generar su slug público.';
+      return;
+    }
+    window.open('/pages/desguace.html?slug='+encodeURIComponent(valor),'_blank','noopener');
+  }
   document.addEventListener('DOMContentLoaded',function(){
     vaciarVista();
     var input=document.getElementById('v4d-csv');
     var check=document.getElementById('v4d-comprobar-csv');
+    var ficha=document.getElementById('v4d-ficha-publica');
     if(input&&check){input.addEventListener('change',function(){if(input.files&&input.files.length){setTimeout(function(){check.click();},50);}});}
+    if(ficha)ficha.addEventListener('click',abrirFichaPublica);
   });
   window.addEventListener('pageshow',function(){vaciarVista();});
 })();
