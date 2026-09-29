@@ -88,6 +88,42 @@
       box-shadow: none !important;
     }
 
+    .selector-provincias {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin: 28px 0 38px;
+    }
+
+    .tarjeta-provincia {
+      display: block;
+      padding: 24px;
+      color: #071a33;
+      text-decoration: none !important;
+      background: #fff;
+      border: 1px solid #dfe6ef;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(20,36,64,.07);
+    }
+
+    .tarjeta-provincia strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 22px;
+    }
+
+    .tarjeta-provincia span {
+      color: #657287;
+      font-size: 16px;
+    }
+
+    .tarjeta-provincia:hover,
+    .tarjeta-provincia:focus-visible {
+      border-color: #1457d9;
+      outline: none;
+      box-shadow: 0 12px 30px rgba(20,87,217,.12);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -228,6 +264,16 @@
     }
 
     @media (max-width: 750px) {
+      .selector-provincias {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      .tarjeta-provincia {
+        padding: 20px;
+      }
+
       .cabecera-contenido {
         min-height: 64px !important;
         flex-direction: row !important;
@@ -334,43 +380,26 @@
       horarios, servicios disponibles y enlaces para llegar al establecimiento.
     </p>
 
-    <section>
-      <h2>Talleres en la provincia de Alicante</h2>
+    <section aria-labelledby="titulo-provincias">
+      <h2 id="titulo-provincias">Elige una provincia</h2>
+      <p>Selecciona una provincia para ver sus municipios y encontrar talleres mecánicos publicados.</p>
 
-      <p>
-        Busca talleres mecánicos en municipios de Alicante y consulta los servicios
-        publicados de cada establecimiento.
-      </p>
+      <div class="selector-provincias">
+        <a class="tarjeta-provincia" href="/provincias/alicante.html">
+          <strong>Alicante</strong>
+          <span>Ver municipios de Alicante</span>
+        </a>
 
-      <p>
-        <a href="/provincias/alicante.html">Ver talleres de Alicante</a>
-      </p>
-    </section>
+        <a class="tarjeta-provincia" href="/provincias/castellon.html">
+          <strong>Castellón</strong>
+          <span>Ver municipios de Castellón</span>
+        </a>
 
-    <section>
-      <h2>Talleres en la provincia de Castellón</h2>
-
-      <p>
-        Encuentra talleres mecánicos en municipios de Castellón y revisa sus datos
-        de contacto, servicios y ubicación.
-      </p>
-
-      <p>
-        <a href="/provincias/castellon.html">Ver talleres de Castellón</a>
-      </p>
-    </section>
-
-    <section>
-      <h2>Talleres en la provincia de Valencia</h2>
-
-      <p>
-        Consulta talleres mecánicos en municipios de Valencia y compara servicios,
-        teléfonos, horarios y ubicación.
-      </p>
-
-      <p>
-        <a href="/provincias/valencia.html">Ver talleres de Valencia</a>
-      </p>
+        <a class="tarjeta-provincia" href="/provincias/valencia.html">
+          <strong>Valencia</strong>
+          <span>Ver municipios de Valencia</span>
+        </a>
+      </div>
     </section>
 
     <section>
