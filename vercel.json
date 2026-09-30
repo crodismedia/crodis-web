@@ -415,6 +415,11 @@
       "source": "/talleres/auto-bot-elda-elda-fd93212b",
       "destination": "/talleres/auto-bot-elda-15767110",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ismael-les-coves-les-coves-de-vinroma-43c11591",
+      "destination": "/talleres/talleres-ismael-les-coves-de-vinroma-80c4a100",
+      "permanent": true
     }
   ]
 }
