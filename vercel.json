@@ -905,6 +905,21 @@
       "source": "/talleres/talleres-viaducto-s-l-alcoy-b449e131",
       "destination": "/talleres/talleres-viaducto-alcoi-764ee365",
       "permanent": true
+    },
+    {
+      "source": "/talleres/taller-renault-el-romeral-requena-a106a64b",
+      "destination": "/talleres/talleres-el-romeral-requena-requena-0b542143",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tallers-gumbau-les-alqueries-0031f99a",
+      "destination": "/talleres/electromecanica-m-gumbau-s-l-les-alqueries-alquerias-del-nino-perdido-9c3ea378",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-puig-alzira-alzira-139b50e5",
+      "destination": "/talleres/automobils-puig-taller-y-neumaticos-alzira-alzira-d927234b",
+      "permanent": true
     }
   ]
 }
