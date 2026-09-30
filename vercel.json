@@ -635,6 +635,11 @@
       "source": "/talleres/tu-taller-mecanico-gata-gata-de-gorgos-71e40529",
       "destination": "/talleres/david-font-jose-gata-de-gorgos-6eab61b4",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-marina-baixa-la-nucia-2fd8cbd1",
+      "destination": "/talleres/talleres-marina-baixa-polop-d8eafaf5",
+      "permanent": true
     }
   ]
 }
