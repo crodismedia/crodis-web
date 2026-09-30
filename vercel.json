@@ -25,6 +25,56 @@
       "source": "/desguace.html",
       "destination": "/desguaces/",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autodesan-onda-c54aaf91",
+      "destination": "/talleres/talleres-autodesan-s-l-onda-a5fbced4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-auto-salva-s-l-pedreguer-6ea9a68a",
+      "destination": "/talleres/auto-salva-pedreguer-112da6ad",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/j-puchol-s-l-castello-de-la-plana-2caff69c",
+      "destination": "/talleres/j-puchol-castello-de-la-plana-7f200864",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/roscos-dos-s-l-benifaio-aa70e091",
+      "destination": "/talleres/roscos-dos-benifaio-49175410",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/galbis-xativa-xativa-e05f4bfe",
+      "destination": "/talleres/talleres-galbis-xativa-e26db96e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/jumicar-rapid-s-l-riba-roja-de-turia-fd5be797",
+      "destination": "/talleres/bosch-car-service-jumicar-rapid-riba-roja-de-turia-691d35c7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/opel-automoviles-l-horta-sud-paiporta-bac96963",
+      "destination": "/talleres/automoviles-l-horta-sud-s-l-paiporta-61529316",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/quadis-mobikorea-sa-castello-de-la-plana-1ac64ce0",
+      "destination": "/talleres/mobikorea-quadis-hyundai-castellon-castello-de-la-plana-8227083e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-patricio-garcia-bosch-service-torrent-fda39d52",
+      "destination": "/talleres/automoviles-patricio-garcia-torrent-8f66a2b7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-rubens-s-c-alicante-84ac8976",
+      "destination": "/talleres/talleres-rubens-alicante-12b43d83",
+      "permanent": true
     }
   ]
 }
