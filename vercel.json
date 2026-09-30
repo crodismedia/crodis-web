@@ -445,6 +445,46 @@
       "source": "/talleres/",
       "destination": "/talleres.html",
       "permanent": true
+    },
+    {
+      "source": "/talleres/airbagkit-especialistas-en-airbags-meliana-db128d4f",
+      "destination": "/talleres/airbagkit-meliana-6fb981b7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autocarburacion-castalla-castalla-b426475b",
+      "destination": "/talleres/autocarburacion-castalla-7a730fb4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motorwork-benissa-benissa-6df5aecd",
+      "destination": "/talleres/motor-work-benissa-448e6e60",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/topcar-automocion-san-miguel-de-salinas-20c2eabe",
+      "destination": "/talleres/top-car-automocion-s-l-u-san-miguel-de-salinas-d71fba47",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/reparauto-leo-s-l-castello-de-la-plana-ea67f6fe",
+      "destination": "/talleres/reparautoleo-castello-de-la-plana-a32b41dc",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ruvamar-san-vicente-del-raspeig-01e82c69",
+      "destination": "/talleres/bestdrive-talleres-ruvamar-sant-vicent-del-raspeig-fb4fd915",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/josauto-almassora-c6d84ee0",
+      "destination": "/talleres/josauto-talleres-svilal-almazora-almassora-bf40c8cc",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/cortijo-sanchez-s-l-orihuela-61389b90",
+      "destination": "/talleres/bosch-car-service-electromecanica-e-inyeccion-cortijo-sanchez-orihuela-4c46839e",
+      "permanent": true
     }
   ]
 }
