@@ -440,6 +440,11 @@
       "source": "/talleres/precisionauto-vila-real-420a69ad",
       "destination": "/talleres/precisionauto-vila-real-vila-real-8ee28835",
       "permanent": true
+    },
+    {
+      "source": "/talleres/",
+      "destination": "/talleres.html",
+      "permanent": true
     }
   ]
 }
