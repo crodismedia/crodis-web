@@ -75,6 +75,36 @@
       "source": "/talleres/talleres-rubens-s-c-alicante-84ac8976",
       "destination": "/talleres/talleres-rubens-alicante-12b43d83",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-de-automoviles-ricar-s-l-alboraya-c86b0878",
+      "destination": "/talleres/talleres-ricar-alboraya-alboraya-f2d429dd",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-monzon-delgado-s-l-cheste-e3aa06a5",
+      "destination": "/talleres/talleres-monzon-delgado-cheste-f27b5a50",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ximo-taller-traiguera-a12e7728",
+      "destination": "/talleres/talleres-ximo-s-l-traiguera-ba53827b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/feralvi-automocion-alcoi-ecceb634",
+      "destination": "/talleres/bosch-car-service-feralvi-automocion-alcoy-c5aabc8f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-torres-y-fons-gata-de-gorgos-7da36cb2",
+      "destination": "/talleres/torres-y-fons-s-c-p-gata-de-gorgos-8fac67b7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-automar-gandia-gandia-6325f648",
+      "destination": "/talleres/automar-gandia-gandia-61dc957e",
+      "permanent": true
     }
   ]
 }
