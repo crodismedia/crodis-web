@@ -890,6 +890,21 @@
       "source": "/talleres/angauto-petrer-21092582",
       "destination": "/talleres/angauto-petrer-petrer-50e85809",
       "permanent": true
+    },
+    {
+      "source": "/talleres/auto-esteller-seat-cupra-vinaros-vinaros-1e675caf",
+      "destination": "/talleres/auto-esteller-s-l-vinaros-fc0fc0cf",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/miralles-automocion-s-l-elche-780acff3",
+      "destination": "/talleres/taller-miralles-automocion-elche-96df27a3",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-viaducto-s-l-alcoy-b449e131",
+      "destination": "/talleres/talleres-viaducto-alcoi-764ee365",
+      "permanent": true
     }
   ]
 }
