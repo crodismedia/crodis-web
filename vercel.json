@@ -680,6 +680,61 @@
       "source": "/talleres/talleres-vilauto-vila-real-c6c2ecb3",
       "destination": "/talleres/talleres-vilauto-betxi-b6f275ef",
       "permanent": true
+    },
+    {
+      "source": "/talleres/area-movil-automocion-utiel-44c5cd46",
+      "destination": "/talleres/mecanica-alizoltecnik-utiel-528f0668",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-onda-motor-onda-a3dfb448",
+      "destination": "/talleres/jf-motors-onda-onda-1e98d236",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/diesel-arquero-s-l-u-castello-de-la-plana-dd1a4690",
+      "destination": "/talleres/tourauto-diesel-arquero-castello-de-la-plana-c56838d5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/donauto-castello-de-la-plana-4215e7a7",
+      "destination": "/talleres/taller-automec-castellon-castello-de-la-plana-3bbec5d8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/miper-c-b-vila-real-0017578d",
+      "destination": "/talleres/radiadores-vila-real-miper-vila-real-3358a50d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motor-pacifico-premium-alzira-volkswagen-la-barraca-d-aigues-vives-578621f4",
+      "destination": "/talleres/alzira-import-alzira-d8145477",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticos-jose-sanz-castello-de-la-plana-d332cd7c",
+      "destination": "/talleres/bestdrive-castalia-neumaticos-y-mecanica-castello-de-la-plana-e8a49a0e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-alt-palancia-segorbe-f5929b97",
+      "destination": "/talleres/euromaster-segorbe-roque-guillen-segorbe-afa7d7e1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-las-maromas-la-jana-7da8ceb2",
+      "destination": "/talleres/taller-sebastian-la-jana-800b9855",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-guillem-s-l-sagunt-237df77f",
+      "destination": "/talleres/juan-jose-moll-sebastia-sagunto-2c4804ab",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-mondragon-naquera-e558632a",
+      "destination": "/talleres/talleres-mondragon-chapa-y-pintura-mecanica-naquera-75c1cf5d",
+      "permanent": true
     }
   ]
 }
