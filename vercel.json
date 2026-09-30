@@ -810,6 +810,21 @@
       "source": "/talleres/atj-motor-almassora-1feacf2b",
       "destination": "/talleres/a-t-j-motor-mecanica-y-performance-almassora-dcbb1183",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-orovedo-orpesa-c788b907",
+      "destination": "/talleres/automocion-orovedo-s-l-u-orpesa-oropesa-del-mar-9ce338ec",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autos-pocisa-s-l-orpesa-oropesa-del-mar-a9e6f7ec",
+      "destination": "/talleres/autos-pocisa-oropesa-del-mar-a3bb10ad",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/eurorepar-agustin-gimenez-s-l-el-port-de-sagunt-792af627",
+      "destination": "/talleres/agustin-gimenez-s-l-puerto-de-sagunto-42710161",
+      "permanent": true
     }
   ]
 }
