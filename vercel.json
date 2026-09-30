@@ -795,6 +795,21 @@
       "source": "/talleres/talleres-trilles-llach-s-l-castello-de-la-plana-3a2391d1",
       "destination": "/talleres/talleres-trifal-castello-de-la-plana-ae456a58",
       "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-castalia-s-l-onda-onda-4ebee289",
+      "destination": "/talleres/automoviles-castalia-s-l-eurorepar-onda-43c04532",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-alfonso-quart-quart-de-poblet-54821bc3",
+      "destination": "/talleres/talleres-alfonso-quart-de-poblet-118efaf3",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/atj-motor-almassora-1feacf2b",
+      "destination": "/talleres/a-t-j-motor-mecanica-y-performance-almassora-dcbb1183",
+      "permanent": true
     }
   ]
 }
