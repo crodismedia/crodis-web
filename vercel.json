@@ -880,6 +880,16 @@
       "source": "/talleres/talleres-san-juan-gomez-s-l-ibi-74878672",
       "destination": "/talleres/talleres-sanjuan-gomez-ibi-025d1d81",
       "permanent": true
+    },
+    {
+      "source": "/talleres/euromaster-gandia-neumaticos-gandia-gandia-c88b2582",
+      "destination": "/talleres/euromaster-gandia-neumaticos-gandia-2-gandia-2419321d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/angauto-petrer-21092582",
+      "destination": "/talleres/angauto-petrer-petrer-50e85809",
+      "permanent": true
     }
   ]
 }
