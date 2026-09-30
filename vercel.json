@@ -170,6 +170,31 @@
       "source": "/talleres/talleres-antoniet-alcala-de-xivert-0059ffaa",
       "destination": "/talleres/taller-de-automoviles-antoniet-alcala-de-xivert-c899fdc9",
       "permanent": true
+    },
+    {
+      "source": "/talleres/jose-luis-pons-s-l-benifaio-b242a52b",
+      "destination": "/talleres/j-luis-pons-s-l-benifaio-095269f0",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vicusauto-massanassa-3218ba15",
+      "destination": "/talleres/talleres-vicusauto-s-l-massanassa-65fd2f00",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-autopower-valencia-89db8fdf",
+      "destination": "/talleres/taller-mecanico-autopower-valencia-valencia-bedab68d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-garpa-olleria-l-olleria-5b4b1a29",
+      "destination": "/talleres/talleres-garpa-l-olleria-s-l-l-olleria-ea7ebd67",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/top-recambios-xirivella-f6f4cb9f",
+      "destination": "/talleres/top-recambios-xirivella-xirivella-fa09fe6a",
+      "permanent": true
     }
   ]
 }
