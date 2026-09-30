@@ -105,6 +105,46 @@
       "source": "/talleres/taller-automar-gandia-gandia-6325f648",
       "destination": "/talleres/automar-gandia-gandia-61dc957e",
       "permanent": true
+    },
+    {
+      "source": "/talleres/mecasonik-taller-s-l-novelda-3a801c6e",
+      "destination": "/talleres/mecasonik-taller-novelda-10e13f9a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/don-automovil-taller-mecanico-denia-92d32021",
+      "destination": "/talleres/don-automovil-denia-edbd6db7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-rafael-barroso-petrer-fa2d8fdd",
+      "destination": "/talleres/talleres-rafael-barroso-s-l-petrer-2c60f8ef",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/jomauto-onda-onda-241e4532",
+      "destination": "/talleres/jomauto-onda-s-c-onda-02f399cb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autos-leal-c-b-alzira-c2167674",
+      "destination": "/talleres/talleres-autos-leal-alzira-e3533c4e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/l-aljubauto-liberato-elche-6df6eb8e",
+      "destination": "/talleres/talleres-liberato-elche-29101d4e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-juan-borrallo-benetusser-9fa14577",
+      "destination": "/talleres/juan-borrallo-gomez-benetusser-6dbd9eb4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ssangval-automocion-valencia-4168e1de",
+      "destination": "/talleres/ssangval-automocion-s-l-l-valencia-c47388ee",
+      "permanent": true
     }
   ]
 }
