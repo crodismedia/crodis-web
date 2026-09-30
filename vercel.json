@@ -750,6 +750,16 @@
       "source": "/talleres/talleres-nieto-benetusser-bf6eba76",
       "destination": "/talleres/talleres-nieto-benetusser-benetusser-aa062875",
       "permanent": true
+    },
+    {
+      "source": "/talleres/1001neumaticos-es-grenis-automocion-sl-teulada-110775e8",
+      "destination": "/talleres/1001neumaticos-es-gremis-automocion-s-l-teulada-110775e8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/julio-orti-s-l-morella-65b15ed8",
+      "destination": "/talleres/talleres-julio-orti-segona-del-riu-morella-98805fa6",
+      "permanent": true
     }
   ]
 }
