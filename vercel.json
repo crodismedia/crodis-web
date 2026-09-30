@@ -505,6 +505,136 @@
       "source": "/talleres/auto-sport-ibi-s-l-ibi-702771cc",
       "destination": "/talleres/bosch-car-service-autosport-ibi-ibi-4f163db4",
       "permanent": true
+    },
+    {
+      "source": "/talleres/auto-agost-s-l-agost-a32ff6cf",
+      "destination": "/talleres/talleres-agost-motor-agost-404278e7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-aspe-aspe-64168016",
+      "destination": "/talleres/autos-morgan-aspe-5ad85cae",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-carrascosa-alicante-alicante-525961b2",
+      "destination": "/talleres/auto-carrascosa-alicante-51701402",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autoelectricidad-y-neumaticos-juan-vicente-gimeno-l-alcudia-4d9a3c92",
+      "destination": "/talleres/juan-vicente-gimeno-garcia-l-alcudia-6e043187",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-morgan-s-l-aspe-7484f205",
+      "destination": "/talleres/autos-morgan-aspe-5ad85cae",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autos-martinez-alcoy-40b8d0e2",
+      "destination": "/talleres/autos-martinez-alcoy-alcoi-731b0eda",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-pla-de-la-vallonga-alicante-0bc65f92",
+      "destination": "/talleres/jogase-motor-alicante-602e10b3",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-talleres-vilamarxant-lliria-ff80d834",
+      "destination": "/talleres/talleres-vilamarxant-bosch-car-service-vilamarxant-bd40c0d6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/mecanica-uixola-s-l-alcoy-466939bc",
+      "destination": "/talleres/mecanica-uixola-alcoi-fedd31a6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/midas-elche-elche-22992a0a",
+      "destination": "/talleres/midas-elche-avenida-alicante-elche-ded11317",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticos-ibi-ibi-ea7a70ef",
+      "destination": "/talleres/mecanica-neumaticos-ibi-ibi-f52d5042",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticosalicante-com-sant-vicent-del-raspeig-7cf2d20f",
+      "destination": "/talleres/bestdrive-talleres-ruvamar-sant-vicent-del-raspeig-fb4fd915",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/pedros-mulet-francisco-gata-de-gorgos-4c0042fa",
+      "destination": "/talleres/castrol-service-gata-motor-gata-de-gorgos-b58bdea5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-auto-lopez-los-montesinos-0e688c8c",
+      "destination": "/talleres/bosch-car-service-autos-lopez-taller-los-montesinos-7920c2be",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-pedreguer-pedreguer-134ea880",
+      "destination": "/talleres/auto-centro-crisam-pedreguer-398784eb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autochapa-2000-pilar-de-la-horadada-1b177226",
+      "destination": "/talleres/talleres-autochapa-2000-s-l-pilar-de-la-horadada-532e61a8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-carolinas-alicante-b9624ecc",
+      "destination": "/talleres/neumaticos-carolinas-alicante-929f5740",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-gran-monovar-5cbb86d7",
+      "destination": "/talleres/talleres-gran-s-l-monovar-6989c25e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-maxi-petrer-49db754e",
+      "destination": "/talleres/hijos-de-maxi-gruas-y-taller-petrer-e8b5ffb1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-motor-elda-elda-6c2f5e57",
+      "destination": "/talleres/automecanica-vergara-elda-132b02f3",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-navarra-aspe-aspe-c721ac75",
+      "destination": "/talleres/talleres-juan-ramon-s-l-aspe-d9f8307a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-paco-santa-pola-santa-pola-27e85284",
+      "destination": "/talleres/talleres-paco-santa-pola-39cdfac4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-roma-alicante-alicante-9b47183a",
+      "destination": "/talleres/talleres-roma-alicante-7175c825",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-vistahermosa-alicante-alicante-d2d77665",
+      "destination": "/talleres/talleres-vista-bella-alicante-42e52c5b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/telleres-armero-petrer-af97e0a4",
+      "destination": "/talleres/talleres-armero-petrer-ca2705ff",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tu-taller-mecanico-gata-gata-de-gorgos-71e40529",
+      "destination": "/talleres/david-font-jose-gata-de-gorgos-6eab61b4",
+      "permanent": true
     }
   ]
 }
