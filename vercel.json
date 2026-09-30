@@ -15,6 +15,16 @@
       "source": "/contacto.html",
       "destination": "/pages/contacto.html",
       "permanent": true
+    },
+    {
+      "source": "/talleres",
+      "destination": "/talleres.html",
+      "permanent": true
+    },
+    {
+      "source": "/desguace.html",
+      "destination": "/desguaces/",
+      "permanent": true
     }
   ]
 }
