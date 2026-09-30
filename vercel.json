@@ -430,6 +430,16 @@
       "source": "/talleres/taller-de-reparacion-romero-s-l-la-nucia-2b2163e6",
       "destination": "/talleres/talleres-romero-la-nucia-la-nucia-007df573",
       "permanent": true
+    },
+    {
+      "source": "/talleres/aquamotor-valencia-dfc53e13",
+      "destination": "/talleres/taller-oficial-kgm-aquamotor-valencia-e55c856d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/precisionauto-vila-real-420a69ad",
+      "destination": "/talleres/precisionauto-vila-real-vila-real-8ee28835",
+      "permanent": true
     }
   ]
 }
