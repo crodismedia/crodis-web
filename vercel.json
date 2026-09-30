@@ -485,6 +485,26 @@
       "source": "/talleres/cortijo-sanchez-s-l-orihuela-61389b90",
       "destination": "/talleres/bosch-car-service-electromecanica-e-inyeccion-cortijo-sanchez-orihuela-4c46839e",
       "permanent": true
+    },
+    {
+      "source": "/talleres/vinamotors-vinaros-8bd4ccf2",
+      "destination": "/talleres/vinamotors-2020-vinaros-05b8f299",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automocion-orovedo-oropesa-del-mar-14f546c3",
+      "destination": "/talleres/automocion-orovedo-s-l-u-orpesa-oropesa-del-mar-9ce338ec",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-gimeno-picassent-05143527",
+      "destination": "/talleres/talleres-gimeno-picassent-picassent-359b4291",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-sport-ibi-s-l-ibi-702771cc",
+      "destination": "/talleres/bosch-car-service-autosport-ibi-ibi-4f163db4",
+      "permanent": true
     }
   ]
 }
