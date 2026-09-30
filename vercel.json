@@ -640,6 +640,46 @@
       "source": "/talleres/talleres-marina-baixa-la-nucia-2fd8cbd1",
       "destination": "/talleres/talleres-marina-baixa-polop-d8eafaf5",
       "permanent": true
+    },
+    {
+      "source": "/talleres/auto-payca-s-l-valencia-cccff649",
+      "destination": "/talleres/auto-payca-oliva-a8eeb633",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-payca-taller-brosquil-oliva-5679d107",
+      "destination": "/talleres/auto-payca-oliva-a8eeb633",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/integra-movil-s-l-benifaio-6c6cefbf",
+      "destination": "/talleres/integral-movil-s-l-benifaio-78d8224c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/miguel-rausell-s-l-foios-79a7e786",
+      "destination": "/talleres/taller-carretera-barcelona-foios-foios-05bae511",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/pucol-color-s-l-pucol-30f6bef8",
+      "destination": "/talleres/puzol-color-pucol-91d1c030",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autojuste-s-l-puerto-de-sagunto-4c82d0ed",
+      "destination": "/talleres/auto-juste-s-l-el-port-de-sagunt-63b0e8bc",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-domenech-la-vall-d-alba-88a6aa6e",
+      "destination": "/talleres/electromecanica-vall-de-albense-vall-d-alba-d88afcb8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-vilauto-vila-real-c6c2ecb3",
+      "destination": "/talleres/talleres-vilauto-betxi-b6f275ef",
+      "permanent": true
     }
   ]
 }
