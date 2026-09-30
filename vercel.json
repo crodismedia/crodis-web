@@ -865,6 +865,21 @@
       "source": "/talleres/talleres-a-g-sancho-s-l-l-alcora-dc1f4cfc",
       "destination": "/talleres/automocio-germans-sancho-s-l-l-alcora-79ff125d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticos-antonio-requena-d1c82221",
+      "destination": "/talleres/neumaticos-antonio-requena-requena-6ade4692",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/reparauto-denia-denia-f1d21e33",
+      "destination": "/talleres/reparauto-tallers-denia-denia-2953ed6c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-san-juan-gomez-s-l-ibi-74878672",
+      "destination": "/talleres/talleres-sanjuan-gomez-ibi-025d1d81",
+      "permanent": true
     }
   ]
 }
