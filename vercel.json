@@ -145,6 +145,31 @@
       "source": "/talleres/ssangval-automocion-valencia-4168e1de",
       "destination": "/talleres/ssangval-automocion-s-l-l-valencia-c47388ee",
       "permanent": true
+    },
+    {
+      "source": "/talleres/jose-manuel-climent-cocentaina-70151e43",
+      "destination": "/talleres/jose-manuel-climent-electromecanica-cocentaina-e52f06e8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/grifo-gimeno-s-l-almassora-b17b338d",
+      "destination": "/talleres/grifo-gimeno-almassora-271822fa",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-pedro-arcas-elda-dd8cda1a",
+      "destination": "/talleres/pedro-arcas-s-l-elda-60301a50",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-vimarauto-lliria-3fcdb303",
+      "destination": "/talleres/taller-mecanico-vimarauto-s-l-lliria-ef422d8a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-antoniet-alcala-de-xivert-0059ffaa",
+      "destination": "/talleres/taller-de-automoviles-antoniet-alcala-de-xivert-c899fdc9",
+      "permanent": true
     }
   ]
 }
