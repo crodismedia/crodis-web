@@ -420,6 +420,11 @@
       "source": "/talleres/talleres-ismael-les-coves-les-coves-de-vinroma-43c11591",
       "destination": "/talleres/talleres-ismael-les-coves-de-vinroma-80c4a100",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-tecnovega-s-l-guardamar-del-segura-65ab6cf9",
+      "destination": "/talleres/talleres-tecnovega-guardamar-guardamar-del-segura-31b99e65",
+      "permanent": true
     }
   ]
 }
