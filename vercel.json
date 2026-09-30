@@ -850,6 +850,21 @@
       "source": "/talleres/vecauto-ontinyent-2006-ontinyent-9833989c",
       "destination": "/talleres/taller-vecauto-ontinyent-4a512070",
       "permanent": true
+    },
+    {
+      "source": "/talleres/diesel-injeccio-palma-de-gandia-palma-de-gandia-c30d2d98",
+      "destination": "/talleres/bosch-car-service-diesel-injeccio-s-l-palma-de-gandia-4416b6a0",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/diesel-navarro-picanya-b9bc75b1",
+      "destination": "/talleres/bosch-car-service-servi-diesel-navarro-picanya-b7945e91",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-a-g-sancho-s-l-l-alcora-dc1f4cfc",
+      "destination": "/talleres/automocio-germans-sancho-s-l-l-alcora-79ff125d",
+      "permanent": true
     }
   ]
 }
