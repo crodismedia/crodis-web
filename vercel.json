@@ -735,6 +735,21 @@
       "source": "/talleres/talleres-mondragon-naquera-e558632a",
       "destination": "/talleres/talleres-mondragon-chapa-y-pintura-mecanica-naquera-75c1cf5d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/automobils-puig-alzira-deec1e41",
+      "destination": "/talleres/automobils-puig-taller-y-neumaticos-alzira-alzira-d927234b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/gimenez-motor-castillo-de-villamalefa-b2a132ed",
+      "destination": "/talleres/autos-gimenez-castello-de-la-plana-cb32ceca",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-nieto-benetusser-bf6eba76",
+      "destination": "/talleres/talleres-nieto-benetusser-benetusser-aa062875",
+      "permanent": true
     }
   ]
 }
