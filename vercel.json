@@ -195,6 +195,226 @@
       "source": "/talleres/top-recambios-xirivella-f6f4cb9f",
       "destination": "/talleres/top-recambios-xirivella-xirivella-fa09fe6a",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-queralt-castello-de-la-plana-c717ca34",
+      "destination": "/talleres/queralt-mallol-j-a-castello-de-la-plana-29714bfc",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-burgales-alicante-e7fcaa88",
+      "destination": "/talleres/taller-el-burgales-alicante-alicante-368db463",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tecnomovil-la-vall-c-b-tavernes-de-la-valldigna-e0d57923",
+      "destination": "/talleres/tecnomovil-la-vall-tavernes-de-la-valldigna-f6a5e5ce",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/pascual-orengo-franco-gandia-8ac45369",
+      "destination": "/talleres/taller-pascual-orengo-gandia-d5406955",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-mico-c-b-valencia-279a9fe4",
+      "destination": "/talleres/talleres-mico-valencia-c4b0be70",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-parodi-s-l-villena-be0e4b81",
+      "destination": "/talleres/talleres-parodi-villena-c3c4d755",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motorcasim-s-l-benicassim-dc4d6c31",
+      "destination": "/talleres/motorcasim-s-l-benicassim-d2a96bf5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-archer-sport-sueca-c9764a70",
+      "destination": "/talleres/talleres-archer-sport-s-l-sueca-87595309",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/hyundai-automar-ontinyent-ontinyent-abbbeb61",
+      "destination": "/talleres/automar-ontinyent-ontinyent-44eb4e71",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/adrida-neumaticos-riba-roja-de-turia-4f2eee3d",
+      "destination": "/talleres/adrida-autos-riba-roja-de-turia-9878e0d6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/estilauto-borriana-borriana-e37d76f4",
+      "destination": "/talleres/estilauto-c-b-borriana-40118fe6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-totalauto-castello-de-la-plana-eee4195d",
+      "destination": "/talleres/totalauto-fadrell-eurorepar-castello-de-la-plana-c30aee7d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autobelmon-valencia-valencia-2b0ef314",
+      "destination": "/talleres/autobelmon-valencia-a2fd51ef",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/jabega-auto-s-l-villar-del-arzobispo-b4505c02",
+      "destination": "/talleres/auto-jabega-s-l-villar-del-arzobispo-aaea2cc8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/maberauto-bmw-mini-castellon-castello-de-la-plana-fb58b4f9",
+      "destination": "/talleres/bmw-maberauto-castello-de-la-plana-bcb905d5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-arnau-team-riba-roja-de-turia-f7dda75d",
+      "destination": "/talleres/arnau-team-riba-roja-de-turia-8673e56f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automat-castello-de-la-plana-d9a24470",
+      "destination": "/talleres/talleres-automat-castello-de-la-plana-60773726",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-sedano-cdad-cocentaina-9ccc51c3",
+      "destination": "/talleres/talleres-sedano-c-b-cocentaina-44ab0056",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tallers-gualmont-xapa-i-pintura-s-l-castello-de-la-plana-e6a8efb4",
+      "destination": "/talleres/tallers-gualmont-castello-de-la-plana-4c3c948c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/turdiesel-picanya-da8aa9d4",
+      "destination": "/talleres/turdiesel-s-l-picanya-0e1f4473",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/gil-gil-cristobal-vilafranca-e6bce391",
+      "destination": "/talleres/cristobal-gil-gil-vilafranca-a4671a64",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/xapa-color-d-autos-onda-7bc8a172",
+      "destination": "/talleres/xapa-color-d-autos-s-l-onda-ab1b0177",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motors-ifach-s-l-calpe-754f00a5",
+      "destination": "/talleres/automocion-ifach-calp-27aded98",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vaello-motors-spg-talleres-ontinyent-1db447ad",
+      "destination": "/talleres/vaello-motors-ontinyent-004e5e27",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-fayos-xativa-s-l-xativa-ae4bf4e4",
+      "destination": "/talleres/auto-fayos-xativa-xativa-aa950fbb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-azzati-s-l-el-port-de-sagunt-4caa5828",
+      "destination": "/talleres/talleres-azzati-puerto-de-sagunto-144d4fe7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/juan-vinals-ferrer-borriana-f3d467da",
+      "destination": "/talleres/taller-de-chapa-y-pintura-juan-vinals-borriana-18a80bef",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-inyecar-inyeccion-y-carrocerias-castello-de-la-plana-e46930e9",
+      "destination": "/talleres/inyecar-inyeccion-y-carrocerias-castello-de-la-plana-75b2d539",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ponce-miota-torrent-5bce2135",
+      "destination": "/talleres/ponce-miota-torrent-torrent-2f6fb872",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-alberotecnic-valencia-793375c6",
+      "destination": "/talleres/alberotecnic-talleres-valencia-ad423bad",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/chapa-y-pintura-babel-alicante-3409566c",
+      "destination": "/talleres/auto-babel-alicante-04b42817",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/mateu-automocion-onda-386385be",
+      "destination": "/talleres/mateu-automocion-bosch-car-service-onda-6baea272",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vivar-auto-finestrat-8f6a7519",
+      "destination": "/talleres/vivar-auto-finestrat-finestrat-78065c87",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/serauto-ontinyent-ontinyent-b24b746a",
+      "destination": "/talleres/serauto-ontinyent-05b92924",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-nilbud-nules-3046f74e",
+      "destination": "/talleres/nilbud-s-l-nules-95de87f8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/asmotors-alzira-valencia-alzira-1dc40569",
+      "destination": "/talleres/asmotors-alzira-alzira-7ecac55c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-luis-miguel-de-la-rosa-la-vall-d-uixo-2f88343e",
+      "destination": "/talleres/talleres-lm-de-la-rosa-s-l-la-vall-d-uixo-fca7ba7a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automocion-f-alcantara-s-l-betxi-665bfb19",
+      "destination": "/talleres/automocion-f-alcantara-s-l-betxi-0ca4bda7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/barber-y-boronat-c-b-denia-207996b5",
+      "destination": "/talleres/barber-y-boronat-denia-ad173712",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/servicio-diesel-iglesias-catarroja-0ea87ddb",
+      "destination": "/talleres/servicios-diesel-iglesias-s-l-catarroja-5a91cf29",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-honorio-s-l-renault-morella-de75c04b",
+      "destination": "/talleres/talleres-honorio-s-l-morella-ecd19fb4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-rul-automocio-spg-betxi-4b974200",
+      "destination": "/talleres/talleres-rul-automocio-betxi-090d197c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-fragut-torreblanca-e0709b6e",
+      "destination": "/talleres/talleres-fragut-eurorepar-torreblanca-0caca781",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-bot-elda-elda-fd93212b",
+      "destination": "/talleres/auto-bot-elda-15767110",
+      "permanent": true
     }
   ]
 }
