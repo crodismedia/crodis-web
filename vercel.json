@@ -920,6 +920,16 @@
       "source": "/talleres/automoviles-puig-alzira-alzira-139b50e5",
       "destination": "/talleres/automobils-puig-taller-y-neumaticos-alzira-alzira-d927234b",
       "permanent": true
+    },
+    {
+      "source": "/talleres/san-juan-confort-taller-sant-joan-d-alacant-e5334600",
+      "destination": "/talleres/talleres-san-juan-sant-joan-d-alacant-20292056",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automocion-cano-kia-castello-de-la-plana-a3cf2e31",
+      "destination": "/talleres/kia-automocion-cano-castellon-castello-de-la-plana-6733fd9f",
+      "permanent": true
     }
   ]
 }
