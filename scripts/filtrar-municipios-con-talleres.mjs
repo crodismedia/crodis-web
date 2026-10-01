@@ -83,18 +83,23 @@ fs.writeFileSync(CATALOG, catalogOutput, "utf8");
 
 let directoryHtml = fs.readFileSync(DIRECTORY, "utf8");
 const listStart = directoryHtml.indexOf('<ul class="lista-municipios" id="lista-municipios">');
-if (listStart < 0) throw new Error("No se encontró lista-municipios en municipios/index.html");
-const itemsStart = directoryHtml.indexOf("\n", listStart) + 1;
-const listEnd = directoryHtml.indexOf("</ul>", itemsStart);
-if (itemsStart <= 0 || listEnd < 0) throw new Error("No se pudo delimitar la lista de municipios.");
 
-const items = visible.map(item => {
-  const href = path.posix.basename(item.archivo);
-  return `                    <li data-nombre="${escapeHtml(item.nombre.toLocaleLowerCase("es"))}"><a href="${escapeHtml(href)}"><strong>${escapeHtml(item.nombre)}</strong><span>${escapeHtml(item.codigo)}</span></a></li>`;
-}).join("\n");
+if (listStart >= 0) {
+  const itemsStart = directoryHtml.indexOf("\n", listStart) + 1;
+  const listEnd = directoryHtml.indexOf("</ul>", itemsStart);
+  if (itemsStart <= 0 || listEnd < 0) throw new Error("No se pudo delimitar la lista de municipios.");
 
-directoryHtml = directoryHtml.slice(0, itemsStart) + items + "\n                " + directoryHtml.slice(listEnd);
-fs.writeFileSync(DIRECTORY, directoryHtml, "utf8");
+  const items = visible.map(item => {
+    const href = path.posix.basename(item.archivo);
+    return `                    <li data-nombre="${escapeHtml(item.nombre.toLocaleLowerCase("es"))}"><a href="${escapeHtml(href)}"><strong>${escapeHtml(item.nombre)}</strong><span>${escapeHtml(item.codigo)}</span></a></li>`;
+  }).join("\n");
+
+  directoryHtml = directoryHtml.slice(0, itemsStart) + items + "\n                " + directoryHtml.slice(listEnd);
+  fs.writeFileSync(DIRECTORY, directoryHtml, "utf8");
+  console.log("DIRECTORIO_MUNICIPIOS=LISTA_ACTUALIZADA");
+} else {
+  console.log("DIRECTORIO_MUNICIPIOS=PORTADA_PROVINCIAS_SIN_CAMBIOS");
+}
 
 console.log(`MODO=WRITE`);
 console.log(`OK: ocultados ${hidden.length} municipios con 0 talleres; visibles ${visible.length}.`);
