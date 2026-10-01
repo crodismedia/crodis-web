@@ -48,7 +48,6 @@ jobs:
         run: node scripts/filtrar-municipios-con-talleres.mjs --write
 
       - name: Regenerar sitemap de municipios
-        if: steps.editor_sync.outputs.changed == 'true'
         run: node scripts/generate-sitemap-municipios.mjs
 
       - name: Regenerar sitemap de talleres
