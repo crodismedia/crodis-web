@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Keep directory URLs with trailing slash so relative links resolve like they do in browsers.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
