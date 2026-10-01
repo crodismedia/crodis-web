@@ -64,7 +64,10 @@ function render(d) {
   const web = safeWeb(d.web);
   const maps = safeWeb(d.google_maps_url) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([name,address].filter(Boolean).join(', '))}`;
   const canonical = `${SITE_URL}/desguace/${encodeURIComponent(slug)}`;
-  const description = clean(d.descripcion || `Desguace en ${municipality}. Consulta teléfono, dirección, horario, servicios y solicita una pieza.`, 155);
+  const bodyDescription = clean(d.descripcion || `Desguace en ${municipality}. Consulta teléfono, dirección, horario, servicios y solicita una pieza.`, 500);
+  const locationLabel = municipality ? ` en ${municipality}` : '';
+  const description = clean(`${name}${locationLabel}. ${bodyDescription}`, 155);
+  const contextText = `Esta ficha de TallerMap reúne los datos públicos disponibles de ${name}${locationLabel} para facilitar su localización y contacto.`;
   const services = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0,20) : [];
   const serviceHtml = services.map(s => `<span>${escapeHTML(clean(s,80))}</span>`).join('');
   const actionLinks = [
@@ -74,7 +77,7 @@ function render(d) {
   ].filter(Boolean).join(' · ');
   const structured = JSON.stringify({
     '@context':'https://schema.org', '@type':'AutoPartsStore', name, url:canonical,
-    description, telephone: phone || undefined,
+    description: bodyDescription, telephone: phone || undefined,
     address: address ? {'@type':'PostalAddress',streetAddress:clean(d.direccion,120)||undefined,postalCode:clean(d.codigo_postal,20)||undefined,addressLocality:municipality||undefined,addressRegion:province||undefined,addressCountry:'ES'} : undefined
   }).replace(/</g,'\\u003c');
 
@@ -90,7 +93,8 @@ body{background:#f5f7fa;color:#172033}.dg-wrap{max-width:1050px;margin:0 auto;pa
 <header class="cabecera"><div class="contenedor cabecera-contenido"><a href="/" class="marca"><img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="" width="46" height="46"><span class="marca-texto"><strong>TallerMap</strong><small>Desguaces</small></span></a><nav class="menu"><a href="/">Inicio</a><a href="/desguaces.html">Desguaces</a></nav></div></header>
 <main class="dg-wrap"><article class="dg-card"><div class="dg-head"><div><div class="dg-local">${escapeHTML(municipality)} · ${escapeHTML(province)}</div><h1>${escapeHTML(name)}</h1></div></div>
 ${address ? `<p><strong>Dirección:</strong><br>${escapeHTML(address)}</p>` : ''}
-${description ? `<p>${escapeHTML(description)}</p>` : ''}
+${bodyDescription ? `<p>${escapeHTML(bodyDescription)}</p>` : ''}
+<p>${escapeHTML(contextText)}</p>
 ${serviceHtml ? `<div class="dg-services">${serviceHtml}</div>` : ''}
 ${actionLinks ? `<div class="actions">${actionLinks}</div>` : ''}</article>
 <div class="grid"><section class="dg-card data"><h2>Datos del desguace</h2><p><strong>Nombre:</strong> ${escapeHTML(name)}</p>${municipality?`<p><strong>Municipio:</strong> ${escapeHTML(municipality)}</p>`:''}${province?`<p><strong>Provincia:</strong> ${escapeHTML(province)}</p>`:''}${d.codigo_postal?`<p><strong>Código postal:</strong> ${escapeHTML(clean(d.codigo_postal,20))}</p>`:''}${phone?`<p><strong>Teléfono:</strong> ${escapeHTML(formatPhoneDisplay(phone))}</p>`:''}<h3>Horario</h3>${scheduleHtml(d.horarios)}</section>
