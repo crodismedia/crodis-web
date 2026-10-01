@@ -23,7 +23,7 @@
     },
     {
       "source": "/desguace.html",
-      "destination": "/desguaces/",
+      "destination": "/desguaces.html",
       "permanent": true
     },
     {
