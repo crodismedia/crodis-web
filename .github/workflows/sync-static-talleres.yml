@@ -10,6 +10,7 @@ on:
     paths:
       - 'scripts/sync-editor-v4-static.mjs'
       - 'scripts/sync-editor-v4-static-runner.mjs'
+      - 'scripts/shorten-static-workshop-titles.mjs'
       - 'scripts/filtrar-municipios-con-talleres.mjs'
       - 'scripts/generate-static-municipios.mjs'
       - 'scripts/generate-sitemap-talleres.mjs'
@@ -48,6 +49,9 @@ jobs:
       - name: Regenerar sitemap de talleres
         if: steps.editor_sync.outputs.changed == 'true'
         run: node scripts/generate-sitemap-talleres.mjs
+
+      - name: Acortar títulos largos de fichas estáticas
+        run: node scripts/shorten-static-workshop-titles.mjs
 
       - name: Validar que no se publique contenido dinámico
         run: |
