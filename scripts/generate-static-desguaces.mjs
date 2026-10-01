@@ -19,6 +19,19 @@ function clean(value, max = 500) {
   return text.length > max ? text.slice(0, max) : text;
 }
 
+function scrapyardTitle(name, municipality) {
+  const full = `${name} en ${municipality} | TallerMap`;
+  if (full.length <= 65) return full;
+  const compact = `${name} | TallerMap`;
+  if (compact.length <= 65) return compact;
+  const suffix = ' | TallerMap';
+  const max = 65 - suffix.length - 1;
+  let short = String(name).slice(0, max).trim();
+  const cut = short.lastIndexOf(' ');
+  if (cut >= Math.floor(max * 0.65)) short = short.slice(0, cut).trim();
+  return `${short}…${suffix}`;
+}
+
 function scheduleHtml(schedule) {
   if (!schedule || typeof schedule !== 'object') return '<p>Horario no disponible.</p>';
   const days = [
@@ -83,7 +96,7 @@ function render(d) {
 
   return `<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escapeHTML(name)} en ${escapeHTML(municipality)} | TallerMap</title>
+<title>${escapeHTML(scrapyardTitle(name, municipality))}</title>
 <meta name="description" content="${escapeHTML(description)}"><meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="${escapeHTML(canonical)}"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/taller-shell.css?v=${SHELL_VERSION}">
