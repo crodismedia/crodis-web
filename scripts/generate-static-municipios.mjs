@@ -121,7 +121,9 @@ function municipalityTitle(name) {
 
 function seoDescription(municipality) {
   const province = provinceFromCode(municipality.code);
-  return `Encuentra talleres mecánicos en ${municipality.name}, ${province}. Consulta servicios, teléfonos, horarios, ubicación y fichas de talleres en TallerMap.`;
+  const full = `Encuentra talleres mecánicos en ${municipality.name}, ${province}. Consulta servicios, teléfonos, horarios, ubicación y fichas de talleres en TallerMap.`;
+  if (full.length <= 155) return full;
+  return `Encuentra talleres mecánicos en ${municipality.name}. Consulta servicios, teléfonos, horarios y fichas disponibles en TallerMap.`;
 }
 
 async function rpcMunicipality(code, from = 0) {
