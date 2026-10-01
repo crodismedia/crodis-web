@@ -104,6 +104,21 @@ function provinceFromCode(code) {
   return "Comunidad Valenciana";
 }
 
+function municipalityTitle(name) {
+  const full = `Talleres mecánicos en ${name} | TallerMap`;
+  if (full.length <= 65) return full;
+  const compact = `Talleres en ${name} | TallerMap`;
+  if (compact.length <= 65) return compact;
+  const brandOnly = `${name} | TallerMap`;
+  if (brandOnly.length <= 65) return brandOnly;
+  const suffix = ' | TallerMap';
+  const max = 65 - suffix.length - 1;
+  let short = String(name).slice(0, max).trim();
+  const cut = short.lastIndexOf(' ');
+  if (cut >= Math.floor(max * 0.65)) short = short.slice(0, cut).trim();
+  return `${short}…${suffix}`;
+}
+
 function seoDescription(municipality) {
   const province = provinceFromCode(municipality.code);
   return `Encuentra talleres mecánicos en ${municipality.name}, ${province}. Consulta servicios, teléfonos, horarios, ubicación y fichas de talleres en TallerMap.`;
@@ -202,6 +217,8 @@ function inject(html, municipality, workshops, serviceCatalog) {
   let out = html.replace(/(<div\s+class="talleres-grid"\s+id="lista-talleres"[\s\S]*?>)[\s\S]*?(<\/div>\s*<div\s+id="contenedor-cargar-mas")/i, `$1${workshopHTML}$2`);
   out = out.replace(/<span class="orden-talleres mapa-estado"[^>]*>[\s\S]*?<\/span>/i, `<span class="orden-talleres mapa-estado" aria-live="polite">${workshops.length} ${workshops.length === 1 ? "taller publicado" : "talleres publicados"}</span>`);
   out = out.replace(/(<select\s+id="servicio"\s+name="servicio"[^>]*>)[\s\S]*?(<\/select>)/i, `$1\n${renderServiceOptions(serviceCatalog)}\n                            $2`);
+  const title = municipalityTitle(municipality.name);
+  out = out.replace(/<title>[^<]*<\/title>/i, `<title>${escapeHTML(title)}</title>`);
   const description = seoDescription(municipality);
   out = out.replace(/<meta name="description" content="[^"]*">/i, `<meta name="description" content="${escapeHTML(description)}">`);
   out = out.replace(/("description"\s*:\s*)"[^"]*"/i, `$1"${description.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`);
