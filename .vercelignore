@@ -10,3 +10,4 @@ crodis-web-main
 *.sql
 *.md
 *.txt
+!robots.txt
