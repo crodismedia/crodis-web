@@ -11,6 +11,7 @@ const requireCondition = (condition, message) => {
 const home = read("index.html");
 const searchRuntime = read("js/buscador-portada-estatico.js");
 const catalogRuntime = read("js/catalogo-municipios-estatico.js");
+const sitemapMunicipios = read("sitemap-municipios.xml");
 const prefix = "window.TallerMapMunicipiosEstaticos=Object.freeze(";
 const start = catalogRuntime.indexOf(prefix);
 const end = catalogRuntime.lastIndexOf(");");
@@ -22,7 +23,9 @@ if (start !== -1 && end > start) {
   catalog = JSON.parse(catalogRuntime.slice(start + prefix.length, end));
 }
 
-requireCondition(catalog.length === 542, `El catálogo debe contener 542 municipios; contiene ${catalog.length}.`);
+const sitemapMunicipalityPaths = [...sitemapMunicipios.matchAll(/<loc>https:\/\/www\.tallermap\.es(\/municipios\/[^<]+\.html)<\/loc>/g)].map(match => match[1]);
+const sitemapMunicipalitySet = new Set(sitemapMunicipalityPaths);
+requireCondition(catalog.length === sitemapMunicipalitySet.size, `El catálogo debe coincidir con el sitemap de municipios: catálogo ${catalog.length}, sitemap ${sitemapMunicipalitySet.size}.`);
 requireCondition(/<form[^>]+id="formulario-buscador-publico"[^>]+action="\/municipios\/"[^>]+method="get"/i.test(home), "Falta el formulario con salida HTML estática.");
 requireCondition(!/js\/(?:servicios|autocomplete-municipios|taller-urls|imagenes-automaticas)\.js/i.test(home), "La portada todavía carga un runtime dinámico retirado.");
 requireCondition(!/supabase/i.test(searchRuntime), "El buscador de portada no debe depender de Supabase para resolver contenido.");
@@ -36,6 +39,7 @@ requireCondition(staticMunicipalityLinks.length >= 9, "La portada debe mostrar e
 
 for (const item of catalog) {
   requireCondition(fs.existsSync(path.join(ROOT, item.ruta.replace(/^\//, ""))), `Falta la página ${item.ruta}.`);
+  requireCondition(sitemapMunicipalitySet.has(item.ruta), `${item.ruta} está en el buscador pero no en sitemap-municipios.xml.`);
 }
 
 for (const match of home.matchAll(/href="(\/servicios\/[^"?#]+\.html)"/g)) {
@@ -75,4 +79,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("OK: portada estática, 542 municipios y rutas principales validadas.");
+console.log(`OK: portada estática, ${catalog.length} municipios con talleres y rutas principales validadas.`);
