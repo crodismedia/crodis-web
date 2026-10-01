@@ -66,7 +66,7 @@ function render(d) {
   const canonical = `${SITE_URL}/desguace/${encodeURIComponent(slug)}`;
   const bodyDescription = clean(d.descripcion || `Desguace en ${municipality}. Consulta teléfono, dirección, horario, servicios y solicita una pieza.`, 500);
   const locationLabel = municipality ? ` en ${municipality}` : '';
-  const description = clean(`${name}${locationLabel}. ${bodyDescription}`, 155);
+  const description = clean(`${name}${locationLabel}. Consulta dirección, teléfono, horario, servicios y datos publicados para este desguace en TallerMap.`, 155);
   const contextText = `Esta ficha de TallerMap reúne los datos públicos disponibles de ${name}${locationLabel} para facilitar su localización y contacto.`;
   const services = Array.isArray(d.servicios) ? d.servicios.filter(Boolean).slice(0,20) : [];
   const serviceHtml = services.map(s => `<span>${escapeHTML(clean(s,80))}</span>`).join('');
