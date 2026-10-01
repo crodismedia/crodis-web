@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Keep directory URLs with trailing slash so relative links resolve like they do in browsers.
+// Keep directory URLs with trailing slash so relative links resolve like they do in browsers. Final production check after static workshop enrichment.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
