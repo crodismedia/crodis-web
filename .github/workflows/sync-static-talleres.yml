@@ -14,6 +14,7 @@ on:
       - 'scripts/filtrar-municipios-con-talleres.mjs'
       - 'scripts/generate-static-municipios.mjs'
       - 'scripts/generate-sitemap-talleres.mjs'
+      - 'scripts/generate-sitemap-municipios.mjs'
       - 'datos/static-sync-cursor.json'
       - '.github/workflows/sync-static-talleres.yml'
 
@@ -46,6 +47,10 @@ jobs:
       - name: Ocultar municipios sin talleres de navegación y buscador
         run: node scripts/filtrar-municipios-con-talleres.mjs --write
 
+      - name: Regenerar sitemap de municipios
+        if: steps.editor_sync.outputs.changed == 'true'
+        run: node scripts/generate-sitemap-municipios.mjs
+
       - name: Regenerar sitemap de talleres
         if: steps.editor_sync.outputs.changed == 'true'
         run: node scripts/generate-sitemap-talleres.mjs
@@ -70,6 +75,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add talleres municipios js/catalogo-municipios-estatico.js sitemap-talleres.xml datos/static-sync-cursor.json
+          git add talleres municipios js/catalogo-municipios-estatico.js sitemap-talleres.xml sitemap-municipios.xml datos/static-sync-cursor.json
           git commit -m "Publicar cambios estáticos del Editor V4"
           git push
