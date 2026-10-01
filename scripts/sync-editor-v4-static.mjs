@@ -64,13 +64,24 @@ function actionHtml(t){
   const name=clean(t.nombre,140),addr=[t.direccion,t.codigo_postal,t.ciudad,t.provincia,'España'].filter(Boolean).join(', '),phone=safePhone(t.telefono),web=safeUrl(t.web),maps=addr?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${addr}`)}`:'';
   const a=[];if(phone)a.push(`<a class="boton accion-principal" href="tel:${esc(phone)}">☎ Llamar ahora</a>`);if(maps)a.push(`<a class="boton boton-claro accion-mapa" href="${esc(maps)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`);if(web)a.push(`<a class="boton boton-claro accion-web" href="${esc(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);return a.join('');
 }
+function shortCity(city){
+  const parts=String(city||'').split('/').map(x=>x.trim()).filter(Boolean);
+  return parts.at(-1)||String(city||'').trim();
+}
 function workshopTitle(name,city){
-  const full=`${name} | Taller en ${city} | TallerMap`;
-  if(full.length<=65)return full;
-  const compact=`${name} | ${city} | TallerMap`;
-  if(compact.length<=65)return compact;
-  const brandOnly=`${name} | TallerMap`;
-  if(brandOnly.length<=65)return brandOnly;
+  const local=shortCity(city);
+  const candidates=[
+    `${name} | Taller en ${local} | TallerMap`,
+    `${name} | ${local} | TallerMap`,
+    `${name} | Taller mecánico | TallerMap`,
+    `${name} | TallerMap`
+  ];
+  for(const title of candidates){
+    if(title.length>=30&&title.length<=65)return title;
+  }
+  for(const title of candidates){
+    if(title.length<=65)return title;
+  }
   const suffix=' | TallerMap';
   const max=Math.max(20,65-suffix.length-1);
   let short=name.slice(0,max).trim();

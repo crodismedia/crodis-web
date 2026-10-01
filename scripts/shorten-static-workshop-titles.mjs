@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const ROOT=process.cwd();
 const DIR=path.join(ROOT,'talleres');
+const MIN=30;
 const MAX=65;
 
 function decodeHtml(value){
@@ -15,13 +16,24 @@ function decodeHtml(value){
 function esc(value){
   return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+function shortCity(city){
+  const parts=String(city||'').split('/').map(x=>x.trim()).filter(Boolean);
+  return parts.at(-1)||String(city||'').trim();
+}
 function makeTitle(name,city){
-  const full=`${name} | Taller en ${city} | TallerMap`;
-  if(full.length<=MAX)return full;
-  const compact=`${name} | ${city} | TallerMap`;
-  if(compact.length<=MAX)return compact;
-  const brandOnly=`${name} | TallerMap`;
-  if(brandOnly.length<=MAX)return brandOnly;
+  const local=shortCity(city);
+  const candidates=[
+    `${name} | Taller en ${local} | TallerMap`,
+    `${name} | ${local} | TallerMap`,
+    `${name} | Taller mecánico | TallerMap`,
+    `${name} | TallerMap`
+  ];
+  for(const title of candidates){
+    if(title.length>=MIN&&title.length<=MAX)return title;
+  }
+  for(const title of candidates){
+    if(title.length<=MAX)return title;
+  }
   const suffix=' | TallerMap';
   const max=Math.max(20,MAX-suffix.length-1);
   let short=name.slice(0,max).trim();
@@ -32,7 +44,7 @@ function makeTitle(name,city){
 
 if(!fs.existsSync(DIR))throw new Error('No existe /talleres');
 
-let scanned=0,changed=0,stillLong=0;
+let scanned=0,changed=0,stillLong=0,stillShort=0;
 for(const entry of fs.readdirSync(DIR,{withFileTypes:true})){
   if(!entry.isDirectory())continue;
   const file=path.join(DIR,entry.name,'index.html');
@@ -42,7 +54,7 @@ for(const entry of fs.readdirSync(DIR,{withFileTypes:true})){
   if(!titleMatch)continue;
   scanned++;
   const current=decodeHtml(titleMatch[1].replace(/<[^>]+>/g,'')).trim();
-  if(current.length<=MAX)continue;
+  if(current.length>=MIN&&current.length<=MAX)continue;
 
   const nameMatch=html.match(/<h1[^>]*id=["']taller-nombre["'][^>]*>([\s\S]*?)<\/h1>/i);
   const cityMatch=html.match(/<p><strong>Municipio:<\/strong>\s*([\s\S]*?)<\/p>/i);
@@ -54,6 +66,7 @@ for(const entry of fs.readdirSync(DIR,{withFileTypes:true})){
 
   const next=makeTitle(name,city);
   if(next.length>MAX)stillLong++;
+  if(next.length<MIN)stillShort++;
   html=html.replace(titleMatch[0],`<title>${esc(next)}</title>`);
   fs.writeFileSync(file,html,'utf8');
   changed++;
@@ -61,4 +74,5 @@ for(const entry of fs.readdirSync(DIR,{withFileTypes:true})){
 console.log(`TITLES_ESCANEADOS=${scanned}`);
 console.log(`TITLES_ACORTADOS=${changed}`);
 console.log(`TITLES_AUN_LARGOS=${stillLong}`);
-if(stillLong>0)process.exitCode=1;
+console.log(`TITLES_AUN_CORTOS=${stillShort}`);
+if(stillLong>0||stillShort>0)process.exitCode=1;
