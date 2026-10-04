@@ -126,6 +126,22 @@
 
   populateServiceSelect();
 
+  // Las páginas de servicio pasan el filtro mediante el fragmento #servicio=...
+  // para evitar crear URLs rastreables duplicadas con ?servicio= en la portada.
+  const initialServiceFromHash = (() => {
+    const match = String(window.location.hash || "").match(/^#servicio=([a-z0-9-]+)$/i);
+    return match ? match[1].toLocaleLowerCase("es") : "";
+  })();
+
+  if (initialServiceFromHash && [...service.options].some(option => option.value === initialServiceFromHash)) {
+    service.value = initialServiceFromHash;
+    window.requestAnimationFrame(() => {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      input.focus({ preventScroll: true });
+      setStatus(`Servicio seleccionado: ${service.options[service.selectedIndex]?.text || initialServiceFromHash}. Escribe una población o código postal.`);
+    });
+  }
+
   const normalize = value => String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
