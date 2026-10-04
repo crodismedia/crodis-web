@@ -117,7 +117,9 @@
     "diagnosis-electronica", "electricidad-automovil", "embrague", "equilibrado-ruedas",
     "escape-catalizador", "frenos", "hibridos-electricos", "lunas-cristales",
     "mecanica-general", "neumaticos", "pre-itv", "reparacion-motor",
-    "sistema-refrigeracion", "suspension-amortiguadores"
+    "sistema-refrigeracion", "suspension-amortiguadores",
+    "turbo", "filtro-particulas-dpf-fap", "inyeccion-diesel",
+    "caja-cambios-automatica-dsg", "sistemas-adas"
   ]);
 
   const populateServiceSelect = () => {
