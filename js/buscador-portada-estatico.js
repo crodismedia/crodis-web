@@ -108,6 +108,18 @@
     ]]
   ];
 
+  // Solo estas especialidades tienen actualmente una landing estática publicada.
+  // El resto siguen disponibles como filtro cuando se selecciona un municipio.
+  const staticServicePages = new Set([
+    "aire-acondicionado", "alineacion-direccion", "alternador-motor-arranque", "baterias",
+    "cadena-distribucion", "caja-cambios", "calefaccion-climatizacion", "cambio-aceite-filtros",
+    "carroceria", "centralitas-electronica", "chapa-pintura", "correa-distribucion",
+    "diagnosis-electronica", "electricidad-automovil", "embrague", "equilibrado-ruedas",
+    "escape-catalizador", "frenos", "hibridos-electricos", "lunas-cristales",
+    "mecanica-general", "neumaticos", "pre-itv", "reparacion-motor",
+    "sistema-refrigeracion", "suspension-amortiguadores"
+  ]);
+
   const populateServiceSelect = () => {
     const previous = service.value;
     service.replaceChildren(new Option("Todos los servicios", ""));
@@ -383,9 +395,19 @@
     const term = input.value.trim();
 
     if (!term) {
-      window.location.assign(service.value
-        ? `/servicios/${encodeURIComponent(service.value)}.html`
-        : "/municipios/");
+      const selectedService = String(service.value || "").trim();
+      if (!selectedService) {
+        window.location.assign("/municipios/");
+        return;
+      }
+
+      if (staticServicePages.has(selectedService)) {
+        window.location.assign(`/servicios/${encodeURIComponent(selectedService)}.html`);
+        return;
+      }
+
+      setStatus("Para filtrar por este servicio, escribe una población o código postal.");
+      input.focus();
       return;
     }
 
