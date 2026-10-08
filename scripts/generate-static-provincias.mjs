@@ -24,7 +24,7 @@ function escapeHTML(value) {
 function readMunicipios() {
   // El sitemap publicado contiene las URL estables de los municipios.
   const xml = fs.readFileSync(SITEMAP_MUNICIPIOS, "utf8");
-  const rx = /<loc>https:\/\/www\\.tallermap\\.es\/municipios\/([^/]+-(\\d{5})\\.html)<\/loc>/gi;
+  const rx = /<loc>https?:\/\/[^/]+\/municipios\/([^/]+-([0-9]{5})[.]html)<\/loc>/gi;
   const rows = [];
   let match;
   while ((match = rx.exec(xml))) {
