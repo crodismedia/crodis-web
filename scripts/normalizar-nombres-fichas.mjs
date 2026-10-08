@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 const ROOT=process.cwd();
 const MAP=JSON.parse(fs.readFileSync(path.join(ROOT,"scripts/municipios-nombres-castellanos.json"),"utf8"));
-const rows=fs.readFileSync(path.join(ROOT,"datos/municipios.csv"),"utf8").replace(/^\\uFEFF/,"").trim().split(/\\r?\\n/).slice(1).map(line=>line.split(";"));
+const rows=fs.readFileSync(path.join(ROOT,"datos/municipios.csv"),"utf8").replace(/^\uFEFF/,"").trim().split(/\r?\n/).slice(1).map(line=>line.split(";"));
 const rules=[
  ...rows.filter(([name])=>name.includes("/")).map(([original,code])=>[original,MAP[code]]),
  ["Castellón/Castelló","Castellon"],["Castellón / Castelló","Castellon"],
@@ -32,11 +32,11 @@ for(const entry of fs.readdirSync(folder,{withFileTypes:true})){
  const old=fs.readFileSync(filename,"utf8");
  if(!old.includes("<html"))continue;
  seen++;
- const originalCanonical=old.match(/<link\\b[^>]*\\brel="canonical"[^>]*href="([^"]+)"/i)?.[1];
- const originalHref=[...old.matchAll(/\\bhref="([^"]+)"/g)].map(m=>m[1]);
+ const originalCanonical=old.match(/<link\b[^>]*\brel="canonical"[^>]*href="([^"]+)"/i)?.[1];
+ const originalHref=[...old.matchAll(/\bhref="([^"]+)"/g)].map(m=>m[1]);
  const next=transform(old);
- const newCanonical=next.match(/<link\\b[^>]*\\brel="canonical"[^>]*href="([^"]+)"/i)?.[1];
- const newHref=[...next.matchAll(/\\bhref="([^"]+)"/g)].map(m=>m[1]);
+ const newCanonical=next.match(/<link\b[^>]*\brel="canonical"[^>]*href="([^"]+)"/i)?.[1];
+ const newHref=[...next.matchAll(/\bhref="([^"]+)"/g)].map(m=>m[1]);
  if(originalCanonical!==newCanonical || JSON.stringify(originalHref)!==JSON.stringify(newHref))
   throw Error("Enlaces modificados: "+filename);
  if(next!==old){fs.writeFileSync(filename,next,"utf8");touched++;}
