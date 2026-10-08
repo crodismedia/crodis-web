@@ -5,9 +5,8 @@
   const seccion=document.getElementById('tm-carrusel-marcas');
   if(!seccion)return;
   const tira=seccion.querySelector('.tm-marcas-tira');
-  const control=seccion.querySelector('.tm-marcas-pausa');
   const ventana=seccion.querySelector('.tm-marcas-ventana');
-  if(!tira||!control||!ventana)return;
+  if(!tira||!ventana)return;
 
   const overlay=document.createElement('div');
   overlay.className='tm-logo-overlay';
@@ -101,13 +100,6 @@
     origen=null;
   }
 
-  control.addEventListener('click',function(){
-    const pausa=seccion.getAttribute('data-pausado')!=='true';
-    seccion.setAttribute('data-pausado',String(pausa));
-    control.textContent=pausa?'Reanudar':'Pausar';
-    control.setAttribute('aria-label',pausa?'Reanudar carrusel de insignias':'Pausar carrusel de insignias');
-    control.setAttribute('aria-pressed',String(pausa));
-  });
   ventana.addEventListener('click',function(evento){
     const boton=evento.target.closest('.tm-marca-boton');
     if(boton&&ventana.contains(boton))abrir(boton);
