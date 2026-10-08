@@ -6,6 +6,8 @@ body.tm-fondo-azul .tm-marcas {
   background:transparent;
 }
 body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
+.tm-marcas .tm-marcas-tira .tm-marcas-cargando{padding:8px 16px;color:#d7e8f8;font-size:.82rem}
+.tm-marcas[aria-busy="true"] .tm-marcas-tira{animation:none;min-height:48px}
 .tm-marcas .tm-marcas-marco{
   position:relative;
   isolation:isolate;
