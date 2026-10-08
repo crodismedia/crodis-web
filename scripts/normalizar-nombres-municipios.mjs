@@ -35,7 +35,7 @@ function titleFor(name) {
   return next.length <= 65 ? next : name + " | TallerMap";
 }
 function fixMunicipality(html, original, newName, fileName) {
-  const originalCanonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  const originalCanonical = html.match(/<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i)?.[1];
   if (!originalCanonical) throw Error("Falta canonical en " + fileName);
   const originalCards = (html.match(/<article\b[^>]*class="[^"]*\btaller-card\b/g) || []).length;
   const stored = [];
@@ -49,7 +49,7 @@ function fixMunicipality(html, original, newName, fileName) {
   out = canonicalize(out, original, newName);
   out = out.replace(/<title>[\s\S]*?<\/title>/i, "<title>" + entities(titleFor(newName)) + "</title>");
   out = out.replace(/PLACEHOLDER_TALLERMAP_CARD_(\d+)_END/g, (_m,i) => stored[Number(i)]);
-  const newCanonical = out.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  const newCanonical = out.match(/<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i)?.[1];
   const newCards = (out.match(/<article\b[^>]*class="[^"]*\btaller-card\b/g) || []).length;
   if (originalCanonical !== newCanonical || newCards !== originalCards) {
     throw Error("Cambio inesperado en enlaces o tarjetas de " + fileName);
