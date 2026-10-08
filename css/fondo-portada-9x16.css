@@ -1,0 +1,111 @@
+/*
+ * TallerMap · fondo de portada 9:16
+ * Imagen elegida por el propietario el 08/10/2026.
+ * Solo se carga en index.html. No modifica páginas de talleres ni municipios.
+ */
+body.tm-fondo-azul {
+  background-color: #061321;
+  color: #ecf4ff;
+}
+
+/* Capa permanente: el contenido se desplaza delante, sin usar background-attachment
+   fixed (menos fiable en navegadores móviles). */
+body.tm-fondo-azul::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #061321;
+  background-image:
+    linear-gradient(180deg, rgba(2, 9, 22, .26) 0%, rgba(2, 9, 22, .10) 46%, rgba(2, 9, 22, .36) 100%),
+    url("/images/fondos/movil/fondo-02-pista-azul.webp");
+  background-size: cover;
+  background-position: center 53%;
+  background-repeat: no-repeat;
+}
+body.tm-fondo-azul > main {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+body.tm-fondo-azul > header.cabecera {
+  /* Mantener el encabezado sticky y el menú móvil plenamente funcional. */
+  background: rgba(255, 255, 255, .94);
+}
+body.tm-fondo-azul > footer.pie {
+  position: relative;
+  z-index: 1;
+  background: rgba(4, 13, 27, .88);
+}
+
+/* Destapar la fotografía en todas las secciones de la portada. */
+body.tm-fondo-azul .hero,
+body.tm-fondo-azul .seccion,
+body.tm-fondo-azul .seccion-gris {
+  background: transparent;
+}
+body.tm-fondo-azul .hero::before {
+  display: none;
+}
+
+/* Tipografía clara sobre el azul oscuro, pero sin alterar la semántica. */
+body.tm-fondo-azul .hero h1,
+body.tm-fondo-azul .titulo-seccion h2 {
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(1, 9, 24, .54);
+}
+body.tm-fondo-azul .hero h1 span {
+  color: #78ccff;
+}
+body.tm-fondo-azul .hero-descripcion,
+body.tm-fondo-azul .titulo-seccion p {
+  color: #edf5ff;
+  text-shadow: 0 1px 8px rgba(1, 8, 20, .5);
+}
+body.tm-fondo-azul .titulo-seccion > span {
+  color: #ffc47c !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .45);
+}
+body.tm-fondo-azul .hero .etiqueta {
+  color: #d7efff;
+  background: rgba(5, 27, 54, .72);
+  border-color: rgba(155, 213, 250, .5);
+}
+body.tm-fondo-azul .busquedas-populares strong {
+  color: #fff;
+}
+body.tm-fondo-azul .busquedas-populares a {
+  color: #b6e6ff;
+  border-bottom-color: rgba(182, 230, 255, .65);
+}
+body.tm-fondo-azul .busquedas-populares a:hover {
+  color: #fff;
+}
+
+/* Mantener tarjetas, campos y enlaces sobre superficies fáciles de leer.
+   Las transparencias dejan ver discretamente la imagen. */
+body.tm-fondo-azul .buscador,
+body.tm-fondo-azul .servicio-card,
+body.tm-fondo-azul .selector-provincia {
+  background: rgba(255, 255, 255, .94);
+  color: #162033;
+  border-color: rgba(219, 233, 247, .92);
+  box-shadow: 0 12px 35px rgba(0, 8, 24, .23);
+}
+body.tm-fondo-azul .servicio-card:hover,
+body.tm-fondo-azul .selector-provincia:hover {
+  background: rgba(255, 255, 255, .98);
+}
+
+/* En pantallas muy anchas se encuadra el centro luminoso sin deformar el 9:16. */
+@media (min-width: 1000px) {
+  body.tm-fondo-azul::before {
+    background-position: center 49%;
+  }
+}
+@media (max-width: 750px) {
+  body.tm-fondo-azul::before {
+    background-position: center 53%;
+  }
+}
