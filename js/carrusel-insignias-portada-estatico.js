@@ -6,8 +6,7 @@
   const tira=seccion.querySelector('.tm-marcas-tira');
   const primera=seccion.querySelector('.tm-marcas-bloque');
   const ventana=seccion.querySelector('.tm-marcas-ventana');
-  const pausa=seccion.querySelector('.tm-marcas-pausa');
-  if(!tira||!primera||!ventana||!pausa)return;
+  if(!tira||!primera||!ventana)return;
   const botones=primera.querySelectorAll('.tm-marca-boton');
   if(botones.length<101)return;
 
@@ -75,13 +74,6 @@
     origen=null;
   }
 
-  pausa.addEventListener('click',function(){
-    const activo=seccion.getAttribute('data-pausado')!=='true';
-    seccion.setAttribute('data-pausado',String(activo));
-    pausa.textContent=activo?'Reanudar':'Pausar';
-    pausa.setAttribute('aria-label',activo?'Reanudar carrusel de insignias':'Pausar carrusel de insignias');
-    pausa.setAttribute('aria-pressed',String(activo));
-  });
   ventana.addEventListener('click',function(evento){
     const boton=evento.target.closest('.tm-marca-boton');
     if(boton&&ventana.contains(boton))abrir(boton);
