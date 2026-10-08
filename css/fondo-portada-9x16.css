@@ -93,6 +93,11 @@ body.tm-fondo-azul .selector-provincia {
   border-color: rgba(219, 233, 247, .92);
   box-shadow: 0 12px 35px rgba(0, 8, 24, .23);
 }
+/* Ficha del buscador: una transparencia suave para mostrar el fondo 9:16. */
+body.tm-fondo-azul .buscador {
+  background: rgba(255, 255, 255, .84);
+}
+
 body.tm-fondo-azul .servicio-card:hover,
 body.tm-fondo-azul .selector-provincia:hover {
   background: rgba(255, 255, 255, .98);
