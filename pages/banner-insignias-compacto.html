@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="description" content="Vista previa independiente del carrusel alfabético de insignias de marcas de automoción de TallerMap.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="stylesheet" href="/css/banner-insignias-compacto.css?v=1">
+<link rel="stylesheet" href="/css/banner-insignias-compacto.css?v=2">
 <script>/* El inicio cambia entre visitas para que ninguna marca tenga preferencia visual. */
 document.documentElement.style.setProperty('--inicio',(-Math.random()*300).toFixed(2)+'s');</script>
 </head>
@@ -23,8 +23,7 @@ document.documentElement.style.setProperty('--inicio',(-Math.random()*300).toFix
   <nav class="versiones" aria-label="Comparar diseños del carrusel"><a href="/pages/banner-insignias-preview.html">Versión 1 · clásica</a><a href="/pages/banner-insignias-compacto.html" class="actual" aria-current="page">Versión 2 · compacta</a></nav>
   <section class="banner-marcas" aria-label="Carrusel compacto con 184 marcas de automóviles ordenadas alfabéticamente">
     <div class="banner-barra">
-      <div><div class="banner-titulo">Marcas de automóviles</div><div class="banner-detalle">184 insignias · orden alfabético · movimiento continuo</div></div>
-      <button type="button" class="boton-pausa" id="pausar" aria-pressed="false" aria-label="Pausar carrusel">Pausar</button>
+      <div class="banner-titulo">Marcas de automóviles</div>
     </div>
     <div class="ventana-carrusel" aria-label="Insignias de marcas">
       <div class="insignias-cinta">
@@ -417,7 +416,6 @@ document.documentElement.style.setProperty('--inicio',(-Math.random()*300).toFix
 <script>
 (function(){
 const banner=document.querySelector('.banner-marcas');
-const boton=document.getElementById('pausar');
 const overlay=document.getElementById('insignia-overlay');
 const imagen=document.getElementById('insignia-imagen');
 const nombre=document.getElementById('insignia-nombre');
@@ -425,13 +423,6 @@ const ampliar=document.getElementById('insignia-ampliada');
 const carrusel=document.querySelector('.ventana-carrusel');
 let origen=null;
 let scrollAnterior='';
-
-boton.addEventListener('click',function(){
- const pausado=banner.classList.toggle('pausado');
- boton.textContent=pausado?'Reanudar':'Pausar';
- boton.setAttribute('aria-pressed',String(pausado));
- boton.setAttribute('aria-label',pausado?'Reanudar carrusel':'Pausar carrusel');
-});
 
 function abrirInsignia(botonMarca){
  const img=botonMarca.querySelector('img');
