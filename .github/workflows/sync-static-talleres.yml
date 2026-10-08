@@ -14,6 +14,7 @@ on:
       - 'scripts/filtrar-municipios-con-talleres.mjs'
       - 'scripts/generate-static-municipios.mjs'
       - 'scripts/normalizar-nombres-municipios.mjs'
+      - 'scripts/normalizar-nombres-fichas.mjs'
       - 'scripts/municipios-nombres-castellanos.json'
       - 'scripts/generate-sitemap-talleres.mjs'
       - 'scripts/generate-sitemap-municipios.mjs'
@@ -48,6 +49,9 @@ jobs:
 
       - name: Unificar nombres municipales visibles sin alterar las URL
         run: node scripts/normalizar-nombres-municipios.mjs
+
+      - name: Normalizar nombres duplicados en las fichas de talleres
+        run: node scripts/normalizar-nombres-fichas.mjs
 
       - name: Ocultar municipios sin talleres de navegación y buscador
         run: node scripts/filtrar-municipios-con-talleres.mjs --write
