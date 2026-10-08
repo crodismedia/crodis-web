@@ -1,0 +1,45 @@
+name: Unificar nombres en fichas de talleres
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/normalizar-nombres-fichas.mjs'
+      - '.github/workflows/normalizar-nombres-fichas.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: normalizar-fichas
+  cancel-in-progress: false
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Corregir nombres visibles sin tocar URL
+        run: node scripts/normalizar-nombres-fichas.mjs
+      - name: Confirmar caso Adaptaciones Castellón
+        run: |
+          test -f talleres/adaptaciones-castellon-castello-de-la-plana-07a72c70/index.html
+          if grep -q 'Castelló de la Plana/Castellón de la Plana' talleres/adaptaciones-castellon-castello-de-la-plana-07a72c70/index.html; then
+            echo 'Sigue un nombre doble en la ficha ejemplo'
+            exit 1
+          fi
+      - name: Publicar fichas corregidas
+        run: |
+          git add talleres
+          if git diff --cached --quiet; then echo 'Sin cambios'; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Unificar nombres visibles en fichas de talleres'
+          git pull --rebase origin main
+          git push origin HEAD:main
