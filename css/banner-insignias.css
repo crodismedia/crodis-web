@@ -1,0 +1,33 @@
+/* TallerMap - Vista previa aislada del carrusel de insignias (NO aplicado a la portada) */
+:root{color-scheme:dark;--banda-velocidad:300s;--marca-ancho:118px;--marca-separacion:14px}
+*{box-sizing:border-box}
+html{min-width:320px}
+body{margin:0;min-height:100vh;color:#fff;font:400 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(ellipse at 80% 18%,#15557733,transparent 49%),radial-gradient(ellipse at 16% 87%,#b1692530,transparent 52%),linear-gradient(135deg,#07111e 0%,#0c2540 48%,#121923 100%);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-30% -20%;pointer-events:none;background:repeating-radial-gradient(ellipse at 75% 90%,transparent 0 65px,rgba(92,180,244,.055) 67px,transparent 70px);transform:rotate(-16deg);z-index:-1}
+.pagina-demo{max-width:1200px;margin:0 auto;min-height:100vh;padding:clamp(28px,6vw,80px) 16px}
+.volver{color:#b1dffb;font-weight:700;text-decoration:underline;text-underline-offset:4px}
+.encabezado{max-width:780px;margin:52px auto 36px;text-align:center}
+.kicker{letter-spacing:.18em;text-transform:uppercase;font-size:.78rem;font-weight:800;color:#82d9f7}
+h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1.04;margin:12px 0 20px;font-weight:850;letter-spacing:-.035em}
+.encabezado p{color:#d6e3ef;font-size:clamp(1rem,1.9vw,1.16rem)}
+.banner-marcas{position:relative;width:100%;isolation:isolate;overflow:hidden;border:1px solid #ffffff24;border-radius:28px;background:linear-gradient(160deg,rgba(9,22,36,.75),rgba(7,14,25,.92));box-shadow:0 26px 70px #0008, inset 0 1px 0 #ffffff16;padding:25px 0 21px}
+.banner-marcas::before{content:"";position:absolute;pointer-events:none;inset:0;background:linear-gradient(110deg,transparent 15%,#4baddc17 49%,transparent 80%);z-index:-1}
+.banner-barra{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 26px 20px}
+.banner-titulo{font-weight:800;color:#f0f5fa;letter-spacing:.015em;font-size:clamp(.88rem,2vw,1.12rem)}
+.banner-detalle{font-size:.78rem;color:#99b2c4}
+.boton-pausa{appearance:none;border:1px solid #bce7ff62;border-radius:999px;background:#12334f;color:#f2faff;font-weight:800;font:inherit;padding:8px 15px;cursor:pointer;min-height:42px;white-space:nowrap}
+.boton-pausa:focus-visible{outline:3px solid #ffb15e;outline-offset:3px}
+.ventana-carrusel{width:100%;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.insignias-cinta{display:flex;align-items:stretch;width:max-content;animation:insignias-infinito var(--banda-velocidad) linear infinite;animation-delay:var(--inicio,0s);will-change:transform}
+.insignias-bloque{display:flex;align-items:stretch;gap:var(--marca-separacion);padding-right:var(--marca-separacion);flex:none}
+.marca-item{width:var(--marca-ancho);flex:none;margin:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.marca-sello{height:87px;width:100%;display:grid;place-items:center;overflow:hidden;border:1px solid #fff4;border-radius:16px;background:linear-gradient(145deg,#fff,#edf4f7);box-shadow:inset 0 1px 0 #fff,0 7px 14px #0003;padding:12px}
+.marca-sello img{display:block;width:100%;height:100%;object-fit:contain}
+.marca-item figcaption{display:block;color:#eff6fc;font-size:.73rem;font-weight:650;line-height:1.2;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@keyframes insignias-infinito{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.banner-marcas.pausado .insignias-cinta{animation-play-state:paused}
+.notas{max-width:860px;margin:27px auto 0;text-align:center;color:#b8c8d7;font-size:.92rem}
+.notas a{color:#c6e7ff}
+.pildora{display:inline-block;padding:6px 13px;border:1px solid #ffffff41;border-radius:99px;background:#ffffff14;color:#b8eeff;font-weight:800;font-size:.81rem}
+@media(max-width:600px){:root{--marca-ancho:98px;--marca-separacion:11px}.pagina-demo{padding:26px 12px}.encabezado{margin:48px auto 26px}h1{font-size:2.5rem}.banner-marcas{border-radius:19px;padding-top:20px}.banner-barra{padding:0 15px 18px}.marca-sello{height:75px;padding:10px}.marca-item figcaption{font-size:.69rem}}
+@media(prefers-reduced-motion:reduce){.insignias-cinta{animation:none!important;transform:none!important}.ventana-carrusel{overflow-x:auto;mask-image:none;-webkit-mask-image:none;scrollbar-color:#739bb3 #142538}.boton-pausa{display:none}}
