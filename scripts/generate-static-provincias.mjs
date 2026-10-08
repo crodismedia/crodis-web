@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const MUNICIPIOS_INDEX = path.join(ROOT, "municipios", "index.html");
+const SITEMAP_MUNICIPIOS = path.join(ROOT, "sitemap-municipios.xml");
 const MUNICIPIOS_DIR = path.join(ROOT, "municipios");
 const PROVINCIAS_DIR = path.join(ROOT, "provincias");
 
@@ -22,19 +22,15 @@ function escapeHTML(value) {
 }
 
 function readMunicipios() {
-  const html = fs.readFileSync(MUNICIPIOS_INDEX, "utf8");
-  const rx = /<li\s+data-nombre="([^"]*)">\s*<a\s+href="([^"]+)">\s*<strong>([\s\S]*?)<\/strong>\s*<span>(\d{5})<\/span>\s*<\/a>\s*<\/li>/gi;
+  // El sitemap publicado contiene las URL estables de los municipios.
+  const xml = fs.readFileSync(SITEMAP_MUNICIPIOS, "utf8");
+  const rx = /<loc>https:\/\/www\\.tallermap\\.es\/municipios\/([^/]+-(\\d{5})\\.html)<\/loc>/gi;
   const rows = [];
   let match;
-  while ((match = rx.exec(html))) {
-    rows.push({
-      dataNombre: match[1],
-      href: match[2],
-      nombreHTML: match[3],
-      codigo: match[4]
-    });
+  while ((match = rx.exec(xml))) {
+    rows.push({ href: match[1], codigo: match[2] });
   }
-  if (!rows.length) throw new Error("No se pudieron leer los municipios estáticos");
+  if (!rows.length) throw new Error("No se pudieron leer los municipios desde sitemap-municipios.xml");
   return rows;
 }
 
