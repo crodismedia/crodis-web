@@ -25,11 +25,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   background:linear-gradient(90deg,transparent,rgba(152,223,255,.09) 19%,transparent 42%,rgba(252,205,133,.05) 71%,transparent),
   linear-gradient(180deg,rgba(255,255,255,.07),transparent 35%,rgba(255,255,255,.025));
 }
-.tm-marcas .tm-marcas-barra{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:0 13px 7px;
-}
-.tm-marcas .tm-marcas-titulo{margin:0;color:#f1f8ff;font-size:.85rem;font-weight:800;letter-spacing:.015em}
 .tm-marcas .tm-marca-boton:focus-visible{outline:3px solid #ffc07b;outline-offset:3px}
 .tm-marcas .tm-marcas-ventana{
   overflow:hidden;width:100%;
@@ -118,8 +113,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
 @media(max-width:600px){
   body.tm-fondo-azul .tm-marcas{padding:10px 0 14px}
   .tm-marcas .tm-marcas-marco{padding:7px 0;border-radius:14px}
-  .tm-marcas .tm-marcas-barra{padding:0 10px 5px}
-  .tm-marcas .tm-marcas-titulo{font-size:.76rem}
   .tm-marcas .tm-marcas-bloque{gap:5px;padding-right:5px}
   .tm-marcas .tm-marcas-tira{animation-duration:210s}
   .tm-marcas .tm-marca-item{width:44px}
