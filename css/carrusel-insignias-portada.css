@@ -30,14 +30,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   padding:0 13px 7px;
 }
 .tm-marcas .tm-marcas-titulo{margin:0;color:#f1f8ff;font-size:.85rem;font-weight:800;letter-spacing:.015em}
-.tm-marcas .tm-marcas-detalle{font-size:.68rem;color:#b4cadd}
-.tm-marcas .tm-marcas-pausa{
-  flex:0 0 auto;min-height:35px;padding:5px 12px;
-  border:1px solid rgba(185,226,255,.45);border-radius:999px;
-  background:linear-gradient(160deg,#203d53,#102437);color:#f4faff;
-  font-size:.82rem;font-weight:750;cursor:pointer;
-}
-.tm-marcas .tm-marcas-pausa:focus-visible,
 .tm-marcas .tm-marca-boton:focus-visible{outline:3px solid #ffc07b;outline-offset:3px}
 .tm-marcas .tm-marcas-ventana{
   overflow:hidden;width:100%;
@@ -58,7 +50,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   overflow-x:auto;
   -webkit-mask-image:none;mask-image:none;
 }
-.tm-marcas:not(.tm-marcas-listo) .tm-marcas-pausa{display:none}
 
 .tm-marcas .tm-marcas-bloque{display:flex;align-items:center;flex:none;gap:7px;padding-right:7px}
 .tm-marcas .tm-marca-item{width:49px;flex:none;margin:0;position:relative;text-align:center}
@@ -91,7 +82,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   white-space:nowrap!important;margin:-1px!important;padding:0!important;border:0!important;
 }
 @keyframes tm-marcas-desplazar{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
-.tm-marcas[data-pausado="true"] .tm-marcas-tira,
 .tm-marcas.tm-marcas-ampliando .tm-marcas-tira{animation-play-state:paused}
 
 /* Modal en body para que ninguna capa de la portada tape la insignia ampliada. */
@@ -130,8 +120,6 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   .tm-marcas .tm-marcas-marco{padding:7px 0;border-radius:14px}
   .tm-marcas .tm-marcas-barra{padding:0 10px 5px}
   .tm-marcas .tm-marcas-titulo{font-size:.76rem}
-  .tm-marcas .tm-marcas-detalle{display:none}
-  .tm-marcas .tm-marcas-pausa{min-height:33px;padding:5px 10px;font-size:.78rem}
   .tm-marcas .tm-marcas-bloque{gap:5px;padding-right:5px}
   .tm-marcas .tm-marcas-tira{animation-duration:210s}
   .tm-marcas .tm-marca-item{width:44px}
@@ -145,6 +133,5 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
     scrollbar-color:#7099b4 #112236;
   }
   .tm-marcas .tm-marcas-duplicado{display:none!important}
-  .tm-marcas .tm-marcas-pausa{display:none}
   .tm-logo-overlay,.tm-logo-panel,.tm-marca-sello{transition:none!important}
 }
