@@ -22,6 +22,9 @@
         ["51", "Ceuta"], ["52", "Melilla"]
     ].map(([codigo, nombre]) => ({ codigo, nombre }));
 
+    // Etiquetas públicas: el nombre canónico se mantiene para los formularios y la BD.
+    const nombresVisibles = { "03": "Alicante", "12": "Castellon", "46": "Valencia" };
+
     const porCodigo = Object.fromEntries(
         provincias.map((provincia) => [provincia.codigo, provincia])
     );
@@ -57,7 +60,7 @@
             .forEach((provincia) => {
                 const opcion = document.createElement("option");
                 opcion.value = provincia.nombre;
-                opcion.textContent = `${provincia.nombre} (CP ${provincia.codigo}xxx)`;
+                opcion.textContent = `${nombresVisibles[provincia.codigo] || provincia.nombre} (CP ${provincia.codigo}xxx)`;
                 select.appendChild(opcion);
             });
     }
