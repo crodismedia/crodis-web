@@ -25,4 +25,11 @@ Guardar cada alternativa con su numero correspondiente para compararlas y conser
 
 ## Estado
 
-**Fase 1: almacenamiento.** Ya se ha guardado la primera variante para movil: `movil/fondo-01-abstracto.webp` (768 x 1365 px, fondo abstracto azul con curvas irregulares). **No esta activada** y no se ha cambiado ningun HTML, CSS o JS de la portada.
+**Fase 2: fondo aplicado a la portada.**
+
+- `movil/fondo-01-abstracto.webp`: primera alternativa azul (768 x 1365), conservada pero **no activa**.
+- `movil/fondo-02-pista-azul.webp`: fondo elegido, **activo en la portada** (864 x 1536 px, relacion 9:16, WebP de unos 55 KB).
+- La portada carga `/css/fondo-portada-9x16.css`, que muestra el fondo a pantalla completa con una capa fija y el contenido superpuesto.
+- En ordenador se usa la misma imagen con `background-size: cover`, centrada y recortada sin deformaciones; no se ha generado una imagen horizontal distinta.
+- La aplicacion se limita a `index.html`. Las paginas de municipios, talleres y servicios mantienen sus disenos.
+- No se han cambiado URLs, sitemaps, contenido indexable ni logica del buscador.
