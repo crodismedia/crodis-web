@@ -4,6 +4,7 @@ import path from "node:path";
 const ROOT = path.resolve(import.meta.dirname, "..");
 const SOURCE = path.join(ROOT, "datos", "municipios.csv");
 const OUTPUT = path.join(ROOT, "js", "catalogo-municipios-estatico.js");
+const NOMBRES = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "municipios-nombres-castellanos.json"), "utf8"));
 
 function postalCodesFrom(html) {
   const postales = new Set();
@@ -43,7 +44,8 @@ const catalog = rows.map((row) => {
   const html = fs.readFileSync(filePath, "utf8");
 
   return {
-    nombre,
+    nombre: NOMBRES[codigo] || nombre,
+    aliases: (NOMBRES[codigo] && NOMBRES[codigo] !== nombre) ? nombre.split("/") : [],
     codigo,
     ruta: `/${archivo.replaceAll("\\", "/")}`,
     postales: postalCodesFrom(html),
