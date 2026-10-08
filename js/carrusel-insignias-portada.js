@@ -135,13 +135,14 @@
           /\.(svg|png)$/.test(m.url);
       });
       if(marcas.length!==data.marcas.length)throw new Error('URL de insignia incorrecta');
-      tira.appendChild(crearBloque(marcas,false));
-      tira.appendChild(crearBloque(marcas,true));
+      tira.replaceChildren(crearBloque(marcas,false),crearBloque(marcas,true));
       seccion.querySelector('.tm-marcas-numero').textContent=String(marcas.length);
       seccion.style.setProperty('--tm-marcas-inicio',(-Math.random()*200).toFixed(2)+'s');
-      seccion.hidden=false;
+      seccion.removeAttribute('aria-busy');
     })
     .catch(function(error){
+      tira.textContent='No se han podido cargar las insignias.';
+      seccion.removeAttribute('aria-busy');
       console.warn('[TallerMap] El carrusel no se ha cargado:',error.message);
     });
 })();
