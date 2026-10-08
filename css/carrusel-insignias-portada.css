@@ -1,0 +1,138 @@
+/* TallerMap · carrusel compacto de marcas en la portada (aislado). */
+body.tm-fondo-azul .tm-marcas {
+  position:relative;
+  z-index:2;
+  padding:13px 0 18px;
+  background:transparent;
+}
+body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
+.tm-marcas .tm-marcas-marco{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid rgba(184,224,249,.31);
+  border-radius:17px;
+  background:
+    radial-gradient(ellipse at 18% -40%,rgba(67,154,210,.17),transparent 62%),
+    linear-gradient(175deg,rgba(21,35,54,.91),rgba(7,16,30,.94));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 12px 30px rgba(0,0,0,.28);
+  padding:9px 0 8px;
+}
+.tm-marcas .tm-marcas-marco::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:linear-gradient(90deg,transparent,rgba(152,223,255,.09) 19%,transparent 42%,rgba(252,205,133,.05) 71%,transparent),
+  linear-gradient(180deg,rgba(255,255,255,.07),transparent 35%,rgba(255,255,255,.025));
+}
+.tm-marcas .tm-marcas-barra{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:0 13px 7px;
+}
+.tm-marcas .tm-marcas-titulo{margin:0;color:#f1f8ff;font-size:.85rem;font-weight:800;letter-spacing:.015em}
+.tm-marcas .tm-marcas-detalle{font-size:.68rem;color:#b4cadd}
+.tm-marcas .tm-marcas-pausa{
+  flex:0 0 auto;min-height:35px;padding:5px 12px;
+  border:1px solid rgba(185,226,255,.45);border-radius:999px;
+  background:linear-gradient(160deg,#203d53,#102437);color:#f4faff;
+  font-size:.82rem;font-weight:750;cursor:pointer;
+}
+.tm-marcas .tm-marcas-pausa:focus-visible,
+.tm-marcas .tm-marca-boton:focus-visible{outline:3px solid #ffc07b;outline-offset:3px}
+.tm-marcas .tm-marcas-ventana{
+  overflow:hidden;width:100%;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);
+}
+.tm-marcas .tm-marcas-tira{
+  display:flex;align-items:center;width:max-content;
+  animation:tm-marcas-desplazar 240s linear infinite;
+  animation-delay:var(--tm-marcas-inicio,0s);
+  will-change:transform;
+}
+.tm-marcas .tm-marcas-bloque{display:flex;align-items:center;flex:none;gap:7px;padding-right:7px}
+.tm-marcas .tm-marca-item{width:49px;flex:none;margin:0;position:relative;text-align:center}
+.tm-marcas .tm-marca-boton{
+  appearance:none;border:0;background:transparent;color:inherit;
+  display:grid;place-items:center;width:100%;min-height:48px;padding:0;
+  cursor:zoom-in;border-radius:12px;touch-action:manipulation;
+}
+.tm-marcas .tm-marca-sello{
+  position:relative;display:grid;place-items:center;overflow:hidden;
+  width:40px;height:40px;padding:8px;
+  border:1px solid rgba(255,255,255,.55);border-radius:12px;
+  background:radial-gradient(circle at 29% 22%,#fff,#edf3f8 57%,#cbd5dd);
+  box-shadow:inset 0 1px 0 #fff,0 6px 11px rgba(0,0,0,.3);
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+.tm-marcas .tm-marca-sello::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(165deg,rgba(255,255,255,.47),transparent 39%,transparent 73%,rgba(255,255,255,.08));
+}
+.tm-marcas .tm-marca-sello img{display:block;position:relative;z-index:1;width:100%;height:100%;object-fit:contain}
+.tm-marcas .tm-marca-boton:hover .tm-marca-sello,
+.tm-marcas .tm-marca-boton:focus-visible .tm-marca-sello{
+  transform:scale(1.07);
+  box-shadow:inset 0 1px 0 #fff,0 8px 16px #0005,0 0 16px #78c7f96b;
+}
+.tm-marcas .tm-marca-item figcaption{
+  position:absolute!important;width:1px!important;height:1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;margin:-1px!important;padding:0!important;border:0!important;
+}
+@keyframes tm-marcas-desplazar{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.tm-marcas[data-pausado="true"] .tm-marcas-tira,
+.tm-marcas.tm-marcas-ampliando .tm-marcas-tira{animation-play-state:paused}
+
+/* Modal en body para que ninguna capa de la portada tape la insignia ampliada. */
+.tm-logo-overlay{
+  position:fixed;inset:0;z-index:2147483647;
+  display:grid;place-items:center;padding:24px;
+  background:rgba(2,8,19,.84);
+  -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .36s ease,visibility 0s linear .36s;
+}
+.tm-logo-overlay.abierto{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .36s ease,visibility 0s linear 0s;
+}
+.tm-logo-panel{
+  display:flex;align-items:center;flex-direction:column;gap:14px;
+  width:min(92vw,520px);text-align:center;
+  opacity:0;transform:translateY(22px) scale(.83);
+  transition:opacity .3s ease,transform .43s cubic-bezier(.16,1,.3,1);
+}
+.tm-logo-overlay.abierto .tm-logo-panel{opacity:1;transform:translateY(0) scale(1)}
+.tm-logo-ampliado{
+  display:grid;place-items:center;cursor:zoom-out;
+  width:min(78vw,420px);height:min(58vh,370px);min-height:180px;
+  padding:clamp(24px,6vw,50px);border:1px solid #dceaf5;
+  border-radius:24px;background:linear-gradient(145deg,#fff,#e9f2f7);
+  box-shadow:0 32px 90px rgba(0,0,0,.58),0 0 50px rgba(142,211,240,.16);
+}
+.tm-logo-ampliado img{display:block;width:100%;height:100%;object-fit:contain}
+.tm-logo-ampliado:focus-visible{outline:4px solid #ffc16a;outline-offset:5px}
+.tm-logo-nombre{color:#fff;font-size:clamp(1.4rem,4vw,2rem);font-weight:850}
+.tm-logo-instruccion{margin:0;color:#d5e5f1;font-size:.93rem}
+@media(max-width:600px){
+  body.tm-fondo-azul .tm-marcas{padding:10px 0 14px}
+  .tm-marcas .tm-marcas-marco{padding:7px 0;border-radius:14px}
+  .tm-marcas .tm-marcas-barra{padding:0 10px 5px}
+  .tm-marcas .tm-marcas-titulo{font-size:.76rem}
+  .tm-marcas .tm-marcas-detalle{display:none}
+  .tm-marcas .tm-marcas-pausa{min-height:33px;padding:5px 10px;font-size:.78rem}
+  .tm-marcas .tm-marcas-bloque{gap:5px;padding-right:5px}
+  .tm-marcas .tm-marcas-tira{animation-duration:210s}
+  .tm-marcas .tm-marca-item{width:44px}
+  .tm-marcas .tm-marca-boton{min-height:44px}
+  .tm-marcas .tm-marca-sello{width:34px;height:34px;padding:6px;border-radius:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .tm-marcas .tm-marcas-tira{animation:none!important;transform:none!important}
+  .tm-marcas .tm-marcas-ventana{
+    overflow-x:auto;-webkit-mask-image:none;mask-image:none;
+    scrollbar-color:#7099b4 #112236;
+  }
+  .tm-marcas .tm-marcas-duplicado{display:none!important}
+  .tm-marcas .tm-marcas-pausa{display:none}
+  .tm-logo-overlay,.tm-logo-panel,.tm-marca-sello{transition:none!important}
+}
