@@ -1,0 +1,929 @@
+{
+  "version": 1,
+  "fuente": "https://github.com/vehiclespecs/brand-logos",
+  "commit_origen": "3f0929e70e0a9a2a502063edc4b3e5c0146cba74",
+  "nota": "Las insignias identifican marcas; no implican afiliacion ni colaboracion. El software y los datos tienen licencia distinta de las marcas comerciales.",
+  "total": 184,
+  "marcas": [
+    {
+      "nombre": "Abarth",
+      "archivo": "abarth-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/abarth-logo.svg"
+    },
+    {
+      "nombre": "Acura",
+      "archivo": "acura-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/acura-logo.svg"
+    },
+    {
+      "nombre": "Aion",
+      "archivo": "aion-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aion-logo.svg"
+    },
+    {
+      "nombre": "Aito",
+      "archivo": "aito-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aito-logo.svg"
+    },
+    {
+      "nombre": "Aiways",
+      "archivo": "aiways-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aiways-logo.svg"
+    },
+    {
+      "nombre": "Aixam",
+      "archivo": "aixam-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aixam-logo.svg"
+    },
+    {
+      "nombre": "Alfa Romeo",
+      "archivo": "alfa-romeo-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/alfa-romeo-logo.svg"
+    },
+    {
+      "nombre": "Alpina",
+      "archivo": "alpina-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/alpina-logo.svg"
+    },
+    {
+      "nombre": "Alpine",
+      "archivo": "alpine-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/alpine-logo.svg"
+    },
+    {
+      "nombre": "Ariel",
+      "archivo": "ariel-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ariel-logo.svg"
+    },
+    {
+      "nombre": "Aro",
+      "archivo": "aro-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aro-logo.svg"
+    },
+    {
+      "nombre": "Aston Martin",
+      "archivo": "aston-martin-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/aston-martin-logo.svg"
+    },
+    {
+      "nombre": "Audi",
+      "archivo": "audi-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/audi-logo.svg"
+    },
+    {
+      "nombre": "Austin",
+      "archivo": "austin-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/austin-logo.svg"
+    },
+    {
+      "nombre": "Autobianchi",
+      "archivo": "autobianchi-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/autobianchi-logo.svg"
+    },
+    {
+      "nombre": "Avatr",
+      "archivo": "avatr-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/avatr-logo.svg"
+    },
+    {
+      "nombre": "BAC",
+      "archivo": "bac-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bac-logo.svg"
+    },
+    {
+      "nombre": "BAIC",
+      "archivo": "baic-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/baic-logo.svg"
+    },
+    {
+      "nombre": "BAW",
+      "archivo": "baw-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/baw-logo.svg"
+    },
+    {
+      "nombre": "Bentley",
+      "archivo": "bentley-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bentley-logo.svg"
+    },
+    {
+      "nombre": "Bertone",
+      "archivo": "bertone-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bertone-logo.svg"
+    },
+    {
+      "nombre": "BMW",
+      "archivo": "bmw-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bmw-logo.svg"
+    },
+    {
+      "nombre": "Bollinger",
+      "archivo": "bollinger-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bollinger-logo.svg"
+    },
+    {
+      "nombre": "Brabham",
+      "archivo": "brabham-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/brabham-logo.svg"
+    },
+    {
+      "nombre": "Brilliance",
+      "archivo": "brilliance-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/brilliance-logo.png"
+    },
+    {
+      "nombre": "Bugatti",
+      "archivo": "bugatti-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/bugatti-logo.svg"
+    },
+    {
+      "nombre": "Buick",
+      "archivo": "buick-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/buick-logo.png"
+    },
+    {
+      "nombre": "BYD",
+      "archivo": "byd-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/byd-logo.svg"
+    },
+    {
+      "nombre": "Cadillac",
+      "archivo": "cadillac-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/cadillac-logo.png"
+    },
+    {
+      "nombre": "Callaway",
+      "archivo": "callaway-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/callaway-logo.svg"
+    },
+    {
+      "nombre": "Caterham",
+      "archivo": "caterham-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/caterham-logo.svg"
+    },
+    {
+      "nombre": "Changan",
+      "archivo": "changan-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/changan-logo.png"
+    },
+    {
+      "nombre": "Chery",
+      "archivo": "chery-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/chery-logo.png"
+    },
+    {
+      "nombre": "Chevrolet",
+      "archivo": "chevrolet-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/chevrolet-logo.png"
+    },
+    {
+      "nombre": "Chrysler",
+      "archivo": "chrysler-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/chrysler-logo.svg"
+    },
+    {
+      "nombre": "Citroën",
+      "archivo": "citroen-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/citroen-logo.svg"
+    },
+    {
+      "nombre": "Cupra",
+      "archivo": "cupra-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/cupra-logo.svg"
+    },
+    {
+      "nombre": "Dacia",
+      "archivo": "dacia-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/dacia-logo.svg"
+    },
+    {
+      "nombre": "Dadi",
+      "archivo": "dadi-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/dadi-logo.svg"
+    },
+    {
+      "nombre": "Daewoo",
+      "archivo": "daewoo-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/daewoo-logo.png"
+    },
+    {
+      "nombre": "Daihatsu",
+      "archivo": "daihatsu-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/daihatsu-logo.svg"
+    },
+    {
+      "nombre": "Daimler",
+      "archivo": "daimler-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/daimler-logo.svg"
+    },
+    {
+      "nombre": "Datsun",
+      "archivo": "datsun-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/datsun-logo.png"
+    },
+    {
+      "nombre": "De Tomaso",
+      "archivo": "de-tomaso-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/de-tomaso-logo.png"
+    },
+    {
+      "nombre": "Deepal",
+      "archivo": "deepal-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/deepal-logo.svg"
+    },
+    {
+      "nombre": "DeLorean",
+      "archivo": "de-lorean-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/de-lorean-logo.svg"
+    },
+    {
+      "nombre": "Denza",
+      "archivo": "denza-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/denza-logo.svg"
+    },
+    {
+      "nombre": "Desoto",
+      "archivo": "desoto-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/desoto-logo.png"
+    },
+    {
+      "nombre": "DFSK",
+      "archivo": "dfsk-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/dfsk-logo.svg"
+    },
+    {
+      "nombre": "Dodge",
+      "archivo": "dodge-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/dodge-logo.png"
+    },
+    {
+      "nombre": "Dongfeng",
+      "archivo": "dongfeng-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/dongfeng-logo.png"
+    },
+    {
+      "nombre": "DS Automobiles",
+      "archivo": "ds-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ds-logo.svg"
+    },
+    {
+      "nombre": "Ego",
+      "archivo": "ego-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ego-logo.svg"
+    },
+    {
+      "nombre": "Emc",
+      "archivo": "emc-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/emc-logo.svg"
+    },
+    {
+      "nombre": "Evo",
+      "archivo": "evo-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/evo-logo.svg"
+    },
+    {
+      "nombre": "FAW",
+      "archivo": "faw-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/faw-logo.svg"
+    },
+    {
+      "nombre": "Ferrari",
+      "archivo": "ferrari-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ferrari-logo.svg"
+    },
+    {
+      "nombre": "Fiat",
+      "archivo": "fiat-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/fiat-logo.svg"
+    },
+    {
+      "nombre": "Fisker",
+      "archivo": "fisker-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/fisker-logo.png"
+    },
+    {
+      "nombre": "Ford",
+      "archivo": "ford-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ford-logo.png"
+    },
+    {
+      "nombre": "Gaz",
+      "archivo": "gaz-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/gaz-logo.png"
+    },
+    {
+      "nombre": "Geely",
+      "archivo": "geely-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/geely-logo.svg"
+    },
+    {
+      "nombre": "Genesis",
+      "archivo": "genesis-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/genesis-logo.svg"
+    },
+    {
+      "nombre": "Geo",
+      "archivo": "geo-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/geo-logo.svg"
+    },
+    {
+      "nombre": "Geometry",
+      "archivo": "geometry-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/geometry-logo.svg"
+    },
+    {
+      "nombre": "Ginetta",
+      "archivo": "ginetta-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ginetta-logo.svg"
+    },
+    {
+      "nombre": "GMC",
+      "archivo": "gmc-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/gmc-logo.png"
+    },
+    {
+      "nombre": "Great Wall",
+      "archivo": "great-wall-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/great-wall-logo.png"
+    },
+    {
+      "nombre": "Haval",
+      "archivo": "haval-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/haval-logo.png"
+    },
+    {
+      "nombre": "Hennessey",
+      "archivo": "hennessey-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/hennessey-logo.svg"
+    },
+    {
+      "nombre": "Hispano Suiza",
+      "archivo": "hispano-suiza-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/hispano-suiza-logo.png"
+    },
+    {
+      "nombre": "Holden",
+      "archivo": "holden-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/holden-logo.svg"
+    },
+    {
+      "nombre": "Honda",
+      "archivo": "honda-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/honda-logo.png"
+    },
+    {
+      "nombre": "Hongqi",
+      "archivo": "hongqi-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/hongqi-logo.png"
+    },
+    {
+      "nombre": "Hummer",
+      "archivo": "hummer-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/hummer-logo.svg"
+    },
+    {
+      "nombre": "Hyundai",
+      "archivo": "hyundai-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/hyundai-logo.svg"
+    },
+    {
+      "nombre": "iCar",
+      "archivo": "icar-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/icar-logo.svg"
+    },
+    {
+      "nombre": "ICH-X",
+      "archivo": "ich-x-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ich-x-logo.svg"
+    },
+    {
+      "nombre": "IMSA",
+      "archivo": "imsa-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/imsa-logo.svg"
+    },
+    {
+      "nombre": "INEOS",
+      "archivo": "ineos-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ineos-logo.svg"
+    },
+    {
+      "nombre": "Infiniti",
+      "archivo": "infiniti-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/infiniti-logo.svg"
+    },
+    {
+      "nombre": "Invicta",
+      "archivo": "invicta-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/invicta-logo.svg"
+    },
+    {
+      "nombre": "Isdera",
+      "archivo": "isdera-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/isdera-logo.svg"
+    },
+    {
+      "nombre": "Isuzu",
+      "archivo": "isuzu-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/isuzu-logo.svg"
+    },
+    {
+      "nombre": "JAC",
+      "archivo": "jac-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/jac-logo.png"
+    },
+    {
+      "nombre": "Jaecoo",
+      "archivo": "jaecoo-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/jaecoo-logo.svg"
+    },
+    {
+      "nombre": "Jaguar",
+      "archivo": "jaguar-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/jaguar-logo.svg"
+    },
+    {
+      "nombre": "Jeep",
+      "archivo": "jeep-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/jeep-logo.svg"
+    },
+    {
+      "nombre": "Jetour",
+      "archivo": "jetour-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/jetour-logo.svg"
+    },
+    {
+      "nombre": "Karma",
+      "archivo": "karma-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/karma-logo.png"
+    },
+    {
+      "nombre": "KGM",
+      "archivo": "kgm-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/kgm-logo.svg"
+    },
+    {
+      "nombre": "Kia",
+      "archivo": "kia-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/kia-logo.svg"
+    },
+    {
+      "nombre": "Koenigsegg",
+      "archivo": "koenigsegg-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/koenigsegg-logo.svg"
+    },
+    {
+      "nombre": "Lada",
+      "archivo": "lada-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lada-logo.svg"
+    },
+    {
+      "nombre": "Lamborghini",
+      "archivo": "lamborghini-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lamborghini-logo.png"
+    },
+    {
+      "nombre": "Lancia",
+      "archivo": "lancia-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lancia-logo.png"
+    },
+    {
+      "nombre": "Land Rover",
+      "archivo": "land-rover-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/land-rover-logo.svg"
+    },
+    {
+      "nombre": "Leapmotor",
+      "archivo": "leapmotor-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/leapmotor-logo.png"
+    },
+    {
+      "nombre": "Lexus",
+      "archivo": "lexus-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lexus-logo.png"
+    },
+    {
+      "nombre": "Ligier",
+      "archivo": "ligier-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ligier-logo.png"
+    },
+    {
+      "nombre": "Lincoln",
+      "archivo": "lincoln-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lincoln-logo.svg"
+    },
+    {
+      "nombre": "Lister",
+      "archivo": "lister-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lister-logo.png"
+    },
+    {
+      "nombre": "Lotus",
+      "archivo": "lotus-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lotus-logo.svg"
+    },
+    {
+      "nombre": "Lucid",
+      "archivo": "lucid-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/lucid-logo.png"
+    },
+    {
+      "nombre": "Mahindra",
+      "archivo": "mahindra-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mahindra-logo.png"
+    },
+    {
+      "nombre": "Maruti",
+      "archivo": "maruti-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/maruti-logo.svg"
+    },
+    {
+      "nombre": "Maserati",
+      "archivo": "maserati-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/maserati-logo.png"
+    },
+    {
+      "nombre": "Maxus",
+      "archivo": "maxus-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/maxus-logo.png"
+    },
+    {
+      "nombre": "Maybach",
+      "archivo": "maybach-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/maybach-logo.png"
+    },
+    {
+      "nombre": "Mazda",
+      "archivo": "mazda-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mazda-logo.svg"
+    },
+    {
+      "nombre": "Mclaren",
+      "archivo": "mclaren-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mclaren-logo.svg"
+    },
+    {
+      "nombre": "Mercedes-Benz",
+      "archivo": "mercedes-benz-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mercedes-benz-logo.svg"
+    },
+    {
+      "nombre": "Mercury",
+      "archivo": "mercury-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mercury-logo.png"
+    },
+    {
+      "nombre": "MG",
+      "archivo": "mg-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mg-logo.png"
+    },
+    {
+      "nombre": "MINI",
+      "archivo": "mini-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mini-logo.svg"
+    },
+    {
+      "nombre": "Mitsubishi",
+      "archivo": "mitsubishi-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mitsubishi-logo.svg"
+    },
+    {
+      "nombre": "Mitsuoka",
+      "archivo": "mitsuoka-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/mitsuoka-logo.png"
+    },
+    {
+      "nombre": "Morgan",
+      "archivo": "morgan-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/morgan-logo.png"
+    },
+    {
+      "nombre": "Morris",
+      "archivo": "morris-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/morris-logo.png"
+    },
+    {
+      "nombre": "Nio",
+      "archivo": "nio-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/nio-logo.png"
+    },
+    {
+      "nombre": "Nissan",
+      "archivo": "nissan-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/nissan-logo.svg"
+    },
+    {
+      "nombre": "Noble",
+      "archivo": "noble-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/noble-logo.png"
+    },
+    {
+      "nombre": "Oldsmobile",
+      "archivo": "oldsmobile-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/oldsmobile-logo.png"
+    },
+    {
+      "nombre": "Omoda",
+      "archivo": "omoda-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/omoda-logo.png"
+    },
+    {
+      "nombre": "Opel",
+      "archivo": "opel-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/opel-logo.svg"
+    },
+    {
+      "nombre": "Ora",
+      "archivo": "ora-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ora-logo.png"
+    },
+    {
+      "nombre": "Pagani",
+      "archivo": "pagani-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/pagani-logo.png"
+    },
+    {
+      "nombre": "Perodua",
+      "archivo": "perodua-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/perodua-logo.png"
+    },
+    {
+      "nombre": "Peugeot",
+      "archivo": "peugeot-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/peugeot-logo.svg"
+    },
+    {
+      "nombre": "Pininfarina",
+      "archivo": "pininfarina-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/pininfarina-logo.png"
+    },
+    {
+      "nombre": "Plymouth",
+      "archivo": "plymouth-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/plymouth-logo.png"
+    },
+    {
+      "nombre": "Polaris",
+      "archivo": "polaris-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/polaris-logo.png"
+    },
+    {
+      "nombre": "Polestar",
+      "archivo": "polestar-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/polestar-logo.png"
+    },
+    {
+      "nombre": "Pontiac",
+      "archivo": "pontiac-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/pontiac-logo.png"
+    },
+    {
+      "nombre": "Porsche",
+      "archivo": "porsche-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/porsche-logo.svg"
+    },
+    {
+      "nombre": "Praga",
+      "archivo": "praga-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/praga-logo.png"
+    },
+    {
+      "nombre": "Proton",
+      "archivo": "proton-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/proton-logo.png"
+    },
+    {
+      "nombre": "Puch",
+      "archivo": "puch-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/puch-logo.svg"
+    },
+    {
+      "nombre": "Puma",
+      "archivo": "puma-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/puma-logo.png"
+    },
+    {
+      "nombre": "RAM",
+      "archivo": "ram-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ram-logo.svg"
+    },
+    {
+      "nombre": "Reliant",
+      "archivo": "reliant-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/reliant-logo.png"
+    },
+    {
+      "nombre": "Renault",
+      "archivo": "renault-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/renault-logo.svg"
+    },
+    {
+      "nombre": "Rimac",
+      "archivo": "rimac-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/rimac-logo.png"
+    },
+    {
+      "nombre": "Rivian",
+      "archivo": "rivian-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/rivian-logo.svg"
+    },
+    {
+      "nombre": "Rolls-Royce",
+      "archivo": "rolls-royce-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/rolls-royce-logo.svg"
+    },
+    {
+      "nombre": "Rover",
+      "archivo": "rover-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/rover-logo.png"
+    },
+    {
+      "nombre": "Ruf",
+      "archivo": "ruf-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ruf-logo.png"
+    },
+    {
+      "nombre": "Saab",
+      "archivo": "saab-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/saab-logo.png"
+    },
+    {
+      "nombre": "Saleen",
+      "archivo": "saleen-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/saleen-logo.png"
+    },
+    {
+      "nombre": "Saturn",
+      "archivo": "saturn-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/saturn-logo.png"
+    },
+    {
+      "nombre": "SCG",
+      "archivo": "scg-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/scg-logo.png"
+    },
+    {
+      "nombre": "Scion",
+      "archivo": "scion-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/scion-logo.png"
+    },
+    {
+      "nombre": "Seat",
+      "archivo": "seat-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/seat-logo.svg"
+    },
+    {
+      "nombre": "Seres",
+      "archivo": "seres-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/seres-logo.png"
+    },
+    {
+      "nombre": "Skoda",
+      "archivo": "skoda-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/skoda-logo.svg"
+    },
+    {
+      "nombre": "Smart",
+      "archivo": "smart-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/smart-logo.png"
+    },
+    {
+      "nombre": "SsangYong",
+      "archivo": "ssangyong-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/ssangyong-logo.png"
+    },
+    {
+      "nombre": "Subaru",
+      "archivo": "subaru-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/subaru-logo.png"
+    },
+    {
+      "nombre": "Suzuki",
+      "archivo": "suzuki-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/suzuki-logo.svg"
+    },
+    {
+      "nombre": "SWM",
+      "archivo": "swm-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/swm-logo.png"
+    },
+    {
+      "nombre": "Talbot",
+      "archivo": "talbot-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/talbot-logo.png"
+    },
+    {
+      "nombre": "Tata",
+      "archivo": "tata-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/tata-logo.png"
+    },
+    {
+      "nombre": "Tatra",
+      "archivo": "tatra-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/tatra-logo.png"
+    },
+    {
+      "nombre": "Tesla",
+      "archivo": "tesla-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/tesla-logo.svg"
+    },
+    {
+      "nombre": "Togg",
+      "archivo": "togg-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/togg-logo.svg"
+    },
+    {
+      "nombre": "Toyota",
+      "archivo": "toyota-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/toyota-logo.svg"
+    },
+    {
+      "nombre": "Trabant",
+      "archivo": "trabant-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/trabant-logo.svg"
+    },
+    {
+      "nombre": "TVR",
+      "archivo": "tvr-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/tvr-logo.png"
+    },
+    {
+      "nombre": "UAZ",
+      "archivo": "uaz-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/uaz-logo.png"
+    },
+    {
+      "nombre": "Vauxhall",
+      "archivo": "vauxhall-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/vauxhall-logo.png"
+    },
+    {
+      "nombre": "Venturi",
+      "archivo": "venturi-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/venturi-logo.png"
+    },
+    {
+      "nombre": "Vinfast",
+      "archivo": "vinfast-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/vinfast-logo.png"
+    },
+    {
+      "nombre": "Volkswagen",
+      "archivo": "volkswagen-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/volkswagen-logo.svg"
+    },
+    {
+      "nombre": "Volvo",
+      "archivo": "volvo-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/volvo-logo.svg"
+    },
+    {
+      "nombre": "W Motors",
+      "archivo": "w-motors-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/w-motors-logo.png"
+    },
+    {
+      "nombre": "Wartburg",
+      "archivo": "wartburg-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/wartburg-logo.png"
+    },
+    {
+      "nombre": "Westfield",
+      "archivo": "westfield-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/westfield-logo.png"
+    },
+    {
+      "nombre": "Xiaomi",
+      "archivo": "xiaomi-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/xiaomi-logo.svg"
+    },
+    {
+      "nombre": "XPeng",
+      "archivo": "xpeng-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/xpeng-logo.png"
+    },
+    {
+      "nombre": "Yangwang",
+      "archivo": "yangwang-logo.svg",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/yangwang-logo.svg"
+    },
+    {
+      "nombre": "ZAZ",
+      "archivo": "zaz-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/zaz-logo.png"
+    },
+    {
+      "nombre": "Zeekr",
+      "archivo": "zeekr-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/zeekr-logo.png"
+    },
+    {
+      "nombre": "Zenvo",
+      "archivo": "zenvo-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/zenvo-logo.png"
+    },
+    {
+      "nombre": "Zotye",
+      "archivo": "zotye-logo.png",
+      "url": "https://cdn.jsdelivr.net/gh/vehiclespecs/brand-logos@3f0929e70e0a9a2a502063edc4b3e5c0146cba74/zotye-logo.png"
+    }
+  ]
+}
