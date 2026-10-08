@@ -173,7 +173,7 @@
   const prepared = catalog.map(item => ({
     ...item,
     searchName: normalize(item.nombre),
-    aliases: String(item.nombre || "").split("/").map(normalize).filter(Boolean),
+    aliases: [...String(item.nombre || "").split("/"), ...(Array.isArray(item.aliases) ? item.aliases.flatMap(value => String(value).split("/")) : [])].map(normalize).filter(Boolean),
     postales: Array.isArray(item.postales) ? item.postales : []
   }));
 
