@@ -25,4 +25,4 @@ Guardar cada alternativa con su numero correspondiente para compararlas y conser
 
 ## Estado
 
-**Fase 1: almacenamiento.** Todavia no hay fondos activados; no se ha cambiado ningun HTML, CSS o JS de la portada.
+**Fase 1: almacenamiento.** Ya se ha guardado la primera variante para movil: `movil/fondo-01-abstracto.webp` (768 x 1365 px, fondo abstracto azul con curvas irregulares). **No esta activada** y no se ha cambiado ningun HTML, CSS o JS de la portada.
