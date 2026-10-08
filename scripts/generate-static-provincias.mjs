@@ -46,11 +46,16 @@ function workshopCount(fileName) {
   return matches ? matches.length : 0;
 }
 
+const NOMBRES_CASTELLANOS = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "municipios-nombres-castellanos.json"), "utf8"));
+
 function renderMunicipios(rows) {
   return rows.map(row => {
     const count = workshopCount(row.href);
     const etiqueta = count === 1 ? "1 taller" : `${count} talleres`;
-    return `                <li data-nombre="${escapeHTML(row.dataNombre)}"><a href="../municipios/${escapeHTML(row.href)}"><strong>${row.nombreHTML}</strong><span>${etiqueta}</span></a></li>`;
+    const codigo = row.codigo;
+    const nombre = NOMBRES_CASTELLANOS[codigo];
+    if (!nombre) throw new Error(`Falta el nombre castellano de municipio ${codigo}. Revisar el mapa antes de regenerar.`);
+    return `                <li data-nombre="${escapeHTML(nombre.toLowerCase())}"><a href="../municipios/${escapeHTML(row.href)}"><strong>${escapeHTML(nombre)}</strong><span>${etiqueta}</span></a></li>`;
   }).join("\n");
 }
 
