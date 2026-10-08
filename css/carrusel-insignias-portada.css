@@ -46,10 +46,20 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
 }
 .tm-marcas .tm-marcas-tira{
   display:flex;align-items:center;width:max-content;
+  animation:none;
+}
+.tm-marcas.tm-marcas-listo .tm-marcas-tira{
   animation:tm-marcas-desplazar 240s linear infinite;
   animation-delay:var(--tm-marcas-inicio,0s);
   will-change:transform;
 }
+/* Hasta que se habilite la animacion: banda visible y desplazable en cualquier navegador. */
+.tm-marcas:not(.tm-marcas-listo) .tm-marcas-ventana{
+  overflow-x:auto;
+  -webkit-mask-image:none;mask-image:none;
+}
+.tm-marcas:not(.tm-marcas-listo) .tm-marcas-pausa{display:none}
+
 .tm-marcas .tm-marcas-bloque{display:flex;align-items:center;flex:none;gap:7px;padding-right:7px}
 .tm-marcas .tm-marca-item{width:49px;flex:none;margin:0;position:relative;text-align:center}
 .tm-marcas .tm-marca-boton{
