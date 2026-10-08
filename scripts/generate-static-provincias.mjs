@@ -8,7 +8,7 @@ const PROVINCIAS_DIR = path.join(ROOT, "provincias");
 
 const PROVINCIAS = {
   "03": { key: "alicante", nombre: "Alicante" },
-  "12": { key: "castellon", nombre: "Castellón" },
+  "12": { key: "castellon", nombre: "Castellon" },
   "46": { key: "valencia", nombre: "Valencia" }
 };
 
