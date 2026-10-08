@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="css/cookie-consent.css?v=20260809-5">
     <link rel="preload" as="image" href="/images/fondos/movil/fondo-02-pista-azul.webp" type="image/webp">
     <link rel="stylesheet" href="/css/fondo-portada-9x16.css?v=20261008-1">
+    <link rel="stylesheet" href="/css/carrusel-insignias-portada.css?v=20261008-1">
 
 <style>
     a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #fff!important;outline-offset:2px!important;box-shadow:0 0 0 6px #071a33!important}
@@ -404,6 +405,26 @@
 
 </section>
 
+<!-- Carrusel compacto premium: banda integrada sobre el fondo azul de la portada. -->
+<section class="tm-marcas" id="tm-carrusel-marcas" aria-label="Carrusel de insignias de marcas de automóviles" aria-busy="true">
+    <div class="contenedor">
+        <div class="tm-marcas-marco">
+            <div class="tm-marcas-barra">
+                <div>
+                    <p class="tm-marcas-titulo">Insignias de automóviles</p>
+                    <span class="tm-marcas-detalle"><span class="tm-marcas-numero">184</span> marcas · orden alfabético · toca para ampliar</span>
+                </div>
+                <button class="tm-marcas-pausa" type="button" aria-pressed="false" aria-label="Pausar carrusel de insignias">Pausar</button>
+            </div>
+            <div class="tm-marcas-ventana" aria-label="Insignias de automóviles de la A a la Z">
+                <div class="tm-marcas-tira">
+                    <span class="tm-marcas-cargando" role="status">Cargando insignias…</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section id="servicios" class="seccion">
     <div class="contenedor">
         <div class="titulo-seccion">
@@ -644,6 +665,8 @@
 <script defer src="js/catalogo-municipios-estatico.js?v=20260904-1"></script>
 
 <script defer src="js/buscador-portada-estatico.js?v=20261004-3"></script>
+
+<script defer src="/js/carrusel-insignias-portada.js?v=20261008-1"></script>
 
   <script src="js/servicio-selector-movil.js"></script>
 </body>
