@@ -1,0 +1,51 @@
+name: Normalizar nombres municipales visibles
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/normalizar-nombres-municipios.mjs'
+      - 'scripts/municipios-nombres-castellanos.json'
+      - '.github/workflows/normalizar-nombres-municipios.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: normalizar-nombres-municipios
+  cancel-in-progress: false
+
+jobs:
+  normalizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unificar los nombres visibles sin tocar las URL
+        run: node scripts/normalizar-nombres-municipios.mjs
+      - name: Regenerar catálogo de búsqueda con nombres castellanos y alias
+        run: node scripts/filtrar-municipios-con-talleres.mjs --write
+      - name: Verificar títulos y enlaces de los casos principales
+        run: |
+          grep -q '<title>Talleres mecánicos en Sagunto | TallerMap</title>' municipios/sagunt-sagunto-46220.html
+          grep -q '<title>Talleres mecánicos en Alicante | TallerMap</title>' municipios/alacant-alicante-03014.html
+          grep -q '<title>Talleres mecánicos en Jativa | TallerMap</title>' municipios/xativa-46145.html
+          grep -q '<title>Talleres mecánicos en Valencia | TallerMap</title>' municipios/valencia-46250.html
+      - name: Publicar páginas municipales y catálogo corregidos
+        shell: bash
+        run: |
+          git add municipios index.html js/catalogo-municipios-estatico.js
+          if git diff --cached --quiet; then
+            echo 'Sin cambios municipales pendientes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Mostrar nombre castellano unico en las paginas municipales'
+          git pull --rebase origin main
+          git push origin HEAD:main
