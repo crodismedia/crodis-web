@@ -6,6 +6,7 @@ const CSV = path.join(ROOT, "datos", "municipios.csv");
 const CATALOG = path.join(ROOT, "js", "catalogo-municipios-estatico.js");
 const DIRECTORY = path.join(ROOT, "municipios", "index.html");
 const WRITE = process.argv.includes("--write");
+const NOMBRES = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "municipios-nombres-castellanos.json"), "utf8"));
 
 function postalCodesFrom(html) {
   const postales = new Set();
@@ -50,7 +51,8 @@ const all = rows.map(row => {
   const html = fs.readFileSync(filePath, "utf8");
   const talleres = workshopCount(html);
   return {
-    nombre,
+    nombre: NOMBRES[codigo] || nombre,
+    aliases: (NOMBRES[codigo] && NOMBRES[codigo] !== nombre) ? nombre.split("/") : [],
     codigo,
     archivo: archivo.replaceAll("\\", "/"),
     ruta: `/${archivo.replaceAll("\\", "/")}`,
@@ -72,7 +74,7 @@ if (!WRITE) {
   process.exit(0);
 }
 
-const catalogPayload = visible.map(({ nombre, codigo, ruta, postales }) => ({ nombre, codigo, ruta, postales }));
+const catalogPayload = visible.map(({ nombre, aliases, codigo, ruta, postales }) => ({ nombre, aliases, codigo, ruta, postales }));
 const catalogOutput = [
   "/* Archivo generado desde datos/municipios.csv y HTML municipales con al menos un taller publicado. */",
   "/* No consulta bases de datos ni API en el navegador. */",
