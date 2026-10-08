@@ -49,7 +49,7 @@ function workshopCount(fileName) {
 const NOMBRES_CASTELLANOS = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "municipios-nombres-castellanos.json"), "utf8"));
 
 function renderMunicipios(rows) {
-  return rows.map(row => {
+  return [...rows].sort((a, b) => NOMBRES_CASTELLANOS[a.codigo].localeCompare(NOMBRES_CASTELLANOS[b.codigo], "es", { sensitivity: "base" })).map(row => {
     const count = workshopCount(row.href);
     const etiqueta = count === 1 ? "1 taller" : `${count} talleres`;
     const codigo = row.codigo;
