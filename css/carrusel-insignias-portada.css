@@ -236,3 +236,10 @@ body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{
 background:transparent!important;border:2px solid #e9fbff!important;
 box-shadow:0 0 5px #fff,0 0 13px #7bdfff,0 0 24px #389eff,inset 0 0 5px #aeefff!important;
 }
+
+/* Reflejo de espejo ligado a la luz del centro, con desvanecimiento. */
+body.tm-fondo-azul .tm-marcas .tm-marca-sello{
+-webkit-box-reflect:below 4px linear-gradient(to bottom,transparent 45%,rgba(255,255,255,calc(var(--tm-luz-centro,0) * .65)) 100%);
+}
+body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:32px}
+@media(max-width:600px){body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:28px}}
