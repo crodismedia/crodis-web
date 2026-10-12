@@ -198,3 +198,8 @@ background:transparent!important;border:0!important;box-shadow:none!important;
 }
 body.tm-fondo-azul .tm-marcas .tm-marca-sello::before{display:none!important}
 body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* La luz central actúa sobre el logotipo, sin rellenar su fondo. */
+body.tm-fondo-azul .tm-marcas .tm-marca-sello img{
+filter:brightness(calc(1 + var(--tm-luz-centro,0) * .45)) drop-shadow(0 2px 3px #00000080) drop-shadow(0 0 4px rgba(174,227,255,var(--tm-luz-centro,0)))!important;
+}
