@@ -360,6 +360,7 @@
   locationButton.addEventListener("click", locateMunicipality);
 
   input.addEventListener("input", () => {
+    locationStatus.textContent = "";
     delete input.dataset.rutaMunicipio;
     setStatus("");
     const term = normalize(input.value);
