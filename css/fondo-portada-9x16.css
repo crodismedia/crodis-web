@@ -158,3 +158,11 @@ body.tm-fondo-azul:has(#form-buscar) .menu-movil-panel .menu-movil-registro{back
 body.tm-fondo-azul:has(#form-buscar) .cabecera .menu{display:flex!important;flex-direction:row!important;align-items:center;width:auto}
 body.tm-fondo-azul:has(#form-buscar) .menu-movil-label,body.tm-fondo-azul:has(#form-buscar) .menu-movil-panel,body.tm-fondo-azul:has(#form-buscar) .menu-movil-control{display:none!important}
 }
+
+/* Navegación de escritorio visible y legible sobre cabecera blanca. */
+@media(min-width:1051px){
+body.tm-fondo-azul .cabecera .menu{display:flex!important;visibility:visible!important;opacity:1!important;flex-direction:row!important;align-items:center;gap:18px!important}
+body.tm-fondo-azul .cabecera .menu a{display:block!important;color:#071a33!important;opacity:1!important;visibility:visible!important;text-shadow:none!important;white-space:nowrap}
+body.tm-fondo-azul .cabecera .menu a:hover{color:#1457d9!important}
+body.tm-fondo-azul .cabecera .cabecera-contenido{display:flex;align-items:center;justify-content:space-between}
+}
