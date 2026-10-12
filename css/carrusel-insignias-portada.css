@@ -189,3 +189,12 @@ box-shadow:0 0 9px rgba(123,214,255,.65),0 0 18px rgba(67,167,255,.3),inset 0 1p
 background:radial-gradient(ellipse at 30% 0%,#ffffff,transparent 75%),linear-gradient(145deg,#e5edf5,#a8bdd0);
 border-color:#e2f1ff;
 }
+
+/* Fondo de insignias totalmente transparente, sin placas ni biseles. */
+body.tm-fondo-azul .tm-marcas .tm-marca-boton .tm-marca-sello,
+body.tm-fondo-azul .tm-marcas .tm-marca-boton:hover .tm-marca-sello,
+body.tm-fondo-azul .tm-marcas .tm-marca-boton:focus-visible .tm-marca-sello{
+background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body.tm-fondo-azul .tm-marcas .tm-marca-sello::before{display:none!important}
+body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{background:transparent!important;border:0!important;box-shadow:none!important}
