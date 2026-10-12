@@ -11,7 +11,11 @@ body.tm-fondo-azul .intro input::placeholder{color:#526176;opacity:1}
 body.tm-fondo-azul .cabecera,body.tm-fondo-azul .cabecera .marca-texto,body.tm-fondo-azul .cabecera .marca-texto strong,body.tm-fondo-azul .cabecera .menu a{color:#071a33;text-shadow:none}
 body.tm-fondo-azul .cabecera .menu a:hover{color:#104bba}
 #sin-resultados{color:#fff}
-.acciones-busqueda{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.acciones-busqueda button{padding:12px 18px;min-height:48px;border:0;border-radius:8px;background:#1457d9;color:#fff;font:inherit;font-weight:700;cursor:pointer}.acciones-busqueda #mostrar-todos{background:#e4ebf4;color:#162033}#buscar-taller{position:relative;z-index:2;pointer-events:auto;box-sizing:border-box}</style></head><body class="tm-fondo-azul"><header class="cabecera">
+.acciones-busqueda{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.acciones-busqueda button{padding:12px 18px;min-height:48px;border:0;border-radius:8px;background:#1457d9;color:#fff;font:inherit;font-weight:700;cursor:pointer}.acciones-busqueda #mostrar-todos{background:#e4ebf4;color:#162033}#buscar-taller{position:relative;z-index:2;pointer-events:auto;box-sizing:border-box}
+#poblaciones-sugeridas{background:#fff;border:1px solid #a7bbd1;border-radius:8px;margin-top:4px;max-height:240px;overflow:auto;box-shadow:0 8px 18px #071a3322}
+#poblaciones-sugeridas button{display:block;width:100%;text-align:left;padding:12px 14px;background:#fff;color:#162033;border:0;border-bottom:1px solid #e4ebf4;font:inherit;cursor:pointer}
+#poblaciones-sugeridas button:hover,#poblaciones-sugeridas button:focus{background:#eaf2ff}
+</style></head><body class="tm-fondo-azul"><header class="cabecera">
     <div class="contenedor cabecera-contenido">
         <a href="/" class="marca">
             <img class="marca-icono marca-icono-logo" src="/favicon.svg" alt="TallerMap" width="40" height="40">
@@ -4280,12 +4284,20 @@ body.tm-fondo-azul .cabecera .menu a:hover{color:#104bba}
 <article class="taller"><h2>Zona Tecnicar</h2><p>Calle Félix Rodríguez de la Fuente, 12 · 03203 · Elx/Elche · Alicante</p><p>mecanica-general · mantenimiento-programado · chapa-pintura · venta-vehiculos-nuevos · venta-vehiculos-ocasion</p><div class="enlaces"><a href="tel:966442484">Llamar</a><a href="/talleres/zona-tecnicar-elche-c0f29f87">Ver ficha</a><a href="https://www.google.com/maps/search/?api=1&amp;query=Zona%20Tecnicar%2C%20Calle%20F%C3%A9lix%20Rodr%C3%ADguez%20de%20la%20Fuente%2C%2012%2C%20Elx%2FElche%2C%20Alicante%2FAlacant" target="_blank" rel="noopener">Maps</a></div></article>
 <article class="taller"><h2>Zonauto</h2><p>Calle Industria, 4 · 03190 · Pilar de la Horadada · Alicante</p><p>mecanica-general · mantenimiento-programado · cambio-aceite-filtros · frenos · neumaticos · diagnosis-electronica · electricidad-automovil · chapa-pintura · carroceria · aire-acondicionado</p><div class="enlaces"><a href="tel:674092477">Llamar</a><a href="/talleres/zonauto-pilar-de-la-horadada-4584fed3">Ver ficha</a><a href="https://www.google.com/maps/search/?api=1&amp;query=Zonauto%2C%20Calle%20Industria%2C%204%2C%20Pilar%20de%20la%20Horadada%2C%20Alicante%2FAlacant" target="_blank" rel="noopener">Maps</a></div></article>
 <article class="taller"><h2>ZR - Performance Valencia</h2><p>Calle Nº Ocho, 10 · 46470 · Albal · Valencia</p><p>mecanica-general</p><div class="enlaces"><a href="/talleres/zr-performance-valencia-albal-f67206c1">Ver ficha</a><a href="https://www.google.com/maps/search/?api=1&amp;query=ZR%20-%20Performance%20Valencia%2C%20Calle%20N%C2%BA%20Ocho%2C%2010%2C%20Albal%2C%20Valencia%2FVal%C3%A8ncia" target="_blank" rel="noopener">Maps</a></div></article></div><p id="sin-resultados" hidden>No se encontraron talleres con esa búsqueda.</p></main><footer class="pie"><div class="contenedor"><p>© 2026 TallerMap · CRODIS Media</p><a href="/pages/contacto.html">Contacto</a></div></footer><script>(()=>{
-const input=document.getElementById("buscar-taller");
-const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[-·,]/g," ");
-const items=Array.from(document.querySelectorAll(".taller"),el=>({el,text:norm(el.textContent)}));
-let timer;
-function buscar(){const words=norm(input.value.trim()).split(/\s+/).filter(Boolean);let count=0;for(const item of items){const show=words.every(w=>item.text.includes(w));item.el.hidden=!show;if(show)count++}document.getElementById("resultado").textContent=count.toLocaleString("es-ES")+" talleres";document.getElementById("sin-resultados").hidden=count!==0}
-input.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(buscar,120)});
-document.getElementById("form-buscar").addEventListener("submit",e=>{e.preventDefault();clearTimeout(timer);buscar();input.blur()});
-document.getElementById("mostrar-todos").addEventListener("click",()=>{clearTimeout(timer);input.value="";buscar();input.focus()});
+const input=document.getElementById("buscar-taller"),form=document.getElementById("form-buscar");
+const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[-·,]/g," ").trim();
+const items=Array.from(document.querySelectorAll(".taller"),el=>{const parts=el.querySelector("p").textContent.split(" · ");return {el,text:norm(el.textContent),city:parts[parts.length-2]||""}});
+const cities=Array.from(new Set(items.map(i=>i.city))).sort((a,b)=>a.localeCompare(b,"es"));
+const box=document.createElement("div");box.id="poblaciones-sugeridas";box.hidden=true;box.setAttribute("role","listbox");input.after(box);
+input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-controls",box.id);input.setAttribute("aria-expanded","false");
+let selected="",timer;
+function close(){box.hidden=true;input.setAttribute("aria-expanded","false")}
+function buscar(){const words=norm(input.value).split(/\s+/).filter(Boolean);let count=0;for(const item of items){const show=selected?item.city===selected:words.every(w=>item.text.includes(w));item.el.hidden=!show;if(show)count++}document.getElementById("resultado").textContent=count.toLocaleString("es-ES")+" talleres";document.getElementById("sin-resultados").hidden=count!==0}
+function suggest(){box.replaceChildren();const term=norm(input.value);if(term.length<2)return close();const matches=cities.filter(city=>norm(city).split(/[\s/]+/).some(part=>part.startsWith(term))||norm(city).startsWith(term)).slice(0,8);if(!matches.length)return close();for(const city of matches){const b=document.createElement("button");b.type="button";b.textContent=city;b.setAttribute("role","option");b.addEventListener("click",()=>{clearTimeout(timer);selected=city;input.value=city;close();buscar();input.blur()});box.appendChild(b)}box.hidden=false;input.setAttribute("aria-expanded","true")}
+input.addEventListener("input",()=>{selected="";clearTimeout(timer);suggest();timer=setTimeout(buscar,120)});
+input.addEventListener("keydown",e=>{if(e.key==="Escape")close();if(e.key==="ArrowDown"&&!box.hidden){e.preventDefault();box.querySelector("button")?.focus()}});
+box.addEventListener("keydown",e=>{const buttons=Array.from(box.querySelectorAll("button")),i=buttons.indexOf(document.activeElement);if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();buttons[(i+(e.key==="ArrowDown"?1:-1)+buttons.length)%buttons.length].focus()}if(e.key==="Escape"){close();input.focus()}});
+form.addEventListener("submit",e=>{e.preventDefault();clearTimeout(timer);if(!selected){const exact=cities.find(c=>norm(c)===norm(input.value)||norm(c).split("/").includes(norm(input.value)));if(exact)selected=exact}close();buscar();input.blur()});
+document.getElementById("mostrar-todos").addEventListener("click",()=>{clearTimeout(timer);selected="";input.value="";close();buscar();input.focus()});
+document.addEventListener("click",e=>{if(!form.contains(e.target))close()});
 })();</script></body></html>
