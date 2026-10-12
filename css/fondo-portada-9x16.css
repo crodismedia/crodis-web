@@ -138,3 +138,23 @@ border-radius:12px!important;max-height:calc(100dvh - 84px);overflow-y:auto;
 }
 body.tm-fondo-azul .cabecera .menu-movil-panel a{padding:11px 12px!important;font-size:15px!important}
 }
+
+/* El directorio usa un menú plegable, no una lista permanente. */
+@media(max-width:1050px){
+body.tm-fondo-azul:has(#form-buscar)>header.cabecera{position:relative!important}
+body.tm-fondo-azul:has(#form-buscar) .cabecera-contenido{position:relative;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;min-height:64px}
+body.tm-fondo-azul:has(#form-buscar) .cabecera .menu{display:none!important}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-control{display:block!important;position:absolute;width:1px;height:1px;opacity:0}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-label{display:flex!important;align-items:center;justify-content:center;margin-left:auto;width:44px;height:44px;border:1px solid #dfe6ef;border-radius:10px;background:#fff;color:#071a33;cursor:pointer}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-label .solo-lectores{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-icono::before{content:"☰";font-size:26px}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-control:checked+.menu-movil-label .menu-movil-icono::before{content:"×";font-size:32px}
+body.tm-fondo-azul:has(#form-buscar) .cabecera .menu-movil-panel{display:none!important;position:absolute!important;top:100%!important;z-index:1000;background:#fff;color:#071a33;box-shadow:0 12px 28px #071a3333}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-control:checked~.menu-movil-panel{display:flex!important;flex-direction:column;gap:2px}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-panel a{color:#071a33;text-decoration:none}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-panel .menu-movil-registro{background:#1457d9;color:#fff;border-radius:8px;text-align:center}
+}
+@media(min-width:1051px){
+body.tm-fondo-azul:has(#form-buscar) .cabecera .menu{display:flex!important;flex-direction:row!important;align-items:center;width:auto}
+body.tm-fondo-azul:has(#form-buscar) .menu-movil-label,body.tm-fondo-azul:has(#form-buscar) .menu-movil-panel,body.tm-fondo-azul:has(#form-buscar) .menu-movil-control{display:none!important}
+}
