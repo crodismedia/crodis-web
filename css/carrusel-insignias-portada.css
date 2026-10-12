@@ -248,3 +248,15 @@ body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:32px}
 body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:24px}
 body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:8px}
 @media(max-width:600px){body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:20px}}
+
+/* Reducir un 25 % la iluminación central sin alterar el reflejo. */
+body.tm-fondo-azul .tm-marcas .tm-marca-sello img{
+filter:brightness(calc(1 + var(--tm-luz-centro,0) * 1.0125))
+drop-shadow(0 2px 3px #00000080)
+drop-shadow(0 0 3px rgba(240,252,255,calc(var(--tm-luz-centro,0) * .75)))
+drop-shadow(0 0 9px rgba(117,222,255,calc(var(--tm-luz-centro,0) * .75)))
+drop-shadow(0 0 16px rgba(55,166,255,calc(var(--tm-luz-centro,0) * .75)))!important;
+}
+body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{
+opacity:calc(var(--tm-luz-centro,0) * .75);
+}
