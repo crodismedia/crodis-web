@@ -148,3 +148,29 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
 .tm-marcas .tm-marca-sello img{width:38px;height:38px;filter:drop-shadow(0 2px 3px #00000080)}
 .tm-marcas .tm-marca-boton:hover .tm-marca-sello,.tm-marcas .tm-marca-boton:focus-visible .tm-marca-sello{transform:translateY(-2px);border-color:#a1d8ff;box-shadow:inset 0 1px 0 #ffffff40,0 0 12px #53b9ff40}
 @media(max-width:600px){.tm-marcas .tm-marcas-marco{padding:9px 0}.tm-marcas .tm-marcas-bloque{gap:9px;padding-right:9px}.tm-marcas .tm-marca-item{width:54px}.tm-marcas .tm-marca-boton{min-height:52px}.tm-marcas .tm-marca-sello{width:48px;height:48px;padding:6px;border-radius:12px}.tm-marcas .tm-marca-sello img{width:34px;height:34px}}
+
+/* Relieve 3D: bisel, reflejo y profundidad sin alterar los logotipos. */
+.tm-marcas .tm-marca-boton{perspective:420px;overflow:visible}
+.tm-marcas .tm-marca-sello{
+isolation:isolate;overflow:visible;transform:rotateX(8deg) rotateY(-7deg);
+border:1px solid #8ab2ce;
+background:radial-gradient(ellipse at 25% 5%,#8ebbd14d,transparent 60%),linear-gradient(145deg,#314b65 0%,#15283d 48%,#07111f 100%);
+box-shadow:inset 1px 2px 2px #e5f5ff70,inset -2px -2px 3px #000000a0,1px 3px 0 #071322,2px 5px 0 #030a13,4px 9px 10px #00000080;
+transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+}
+.tm-marcas .tm-marca-sello::before{
+content:"";position:absolute;inset:3px;z-index:0;pointer-events:none;border-radius:10px;
+background:linear-gradient(135deg,#ffffff24,transparent 43%,#a4dfff08 65%,transparent);
+border-top:1px solid #ffffff38;
+}
+.tm-marcas .tm-marca-sello img{
+z-index:1;transform:translateZ(6px);
+filter:drop-shadow(1px 2px 0 #00000060) drop-shadow(0 4px 3px #00000080);
+}
+.tm-marcas .tm-marca-boton:hover .tm-marca-sello,
+.tm-marcas .tm-marca-boton:focus-visible .tm-marca-sello{
+transform:rotateX(0deg) rotateY(0deg) translateY(-3px);
+border-color:#bde5ff;
+box-shadow:inset 1px 2px 2px #e5f5ff80,inset -2px -2px 3px #000000a0,1px 3px 0 #071322,2px 5px 0 #030a13,4px 11px 14px #00000090,0 0 12px #57bfff30;
+}
+@media(prefers-reduced-motion:reduce){.tm-marcas .tm-marca-sello,.tm-marcas .tm-marca-boton:hover .tm-marca-sello{transform:none;transition:none}}
