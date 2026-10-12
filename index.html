@@ -281,7 +281,11 @@
   }
 }
 </style>
-</head>
+<style>
+#formulario-buscador-publico .poblacion-controles #boton-buscar{display:block;width:auto!important;min-height:38px!important;margin-top:8px;padding:8px 12px!important;font-size:.86rem!important;grid-column:auto!important;grid-row:auto!important}
+#formulario-buscador-publico>#usar-mi-ubicacion{grid-column:1!important;grid-row:2!important;justify-self:stretch;width:100%!important;margin:0!important;min-height:54px;padding:14px 24px!important;font-size:1rem!important}
+@media(max-width:750px){#formulario-buscador-publico>#usar-mi-ubicacion{grid-row:auto!important;min-height:52px}#formulario-buscador-publico .poblacion-controles #boton-buscar{width:100%!important;min-height:46px!important}}
+</style></head>
 
 <body class="tm-fondo-azul">
 
@@ -554,6 +558,7 @@
                             aria-expanded="false"
                             placeholder="Ej. Valencia, Silla o 46460"
                         >
+                        <button type="submit" class="boton boton-buscar" id="boton-buscar">Buscar talleres</button>
                     </div>
 
                     <small>Busca por población o código postal.</small>
@@ -576,8 +581,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="boton boton-buscar" id="boton-buscar">
-                Buscar talleres
+            <button type="button" class="boton" id="usar-mi-ubicacion">
+                Usar mi ubicación
             </button>
 
             <p id="estado-buscador-portada" role="status" aria-live="polite" hidden></p>
