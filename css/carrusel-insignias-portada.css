@@ -243,3 +243,8 @@ body.tm-fondo-azul .tm-marcas .tm-marca-sello{
 }
 body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:32px}
 @media(max-width:600px){body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:28px}}
+
+/* Reservar el espacio del reflejo dentro de la ventana del carrusel. */
+body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:24px}
+body.tm-fondo-azul .tm-marcas .tm-marcas-marco{padding-bottom:8px}
+@media(max-width:600px){body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:20px}}
