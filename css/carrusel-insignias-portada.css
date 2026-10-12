@@ -174,3 +174,12 @@ border-color:#bde5ff;
 box-shadow:inset 1px 2px 2px #e5f5ff80,inset -2px -2px 3px #000000a0,1px 3px 0 #071322,2px 5px 0 #030a13,4px 11px 14px #00000090,0 0 12px #57bfff30;
 }
 @media(prefers-reduced-motion:reduce){.tm-marcas .tm-marca-sello,.tm-marcas .tm-marca-boton:hover .tm-marca-sello{transform:none;transition:none}}
+
+/* Destello progresivo al cruzar el centro del carrusel. */
+.tm-marcas .tm-marca-sello::after{
+content:"";position:absolute;inset:-3px;pointer-events:none;border-radius:inherit;
+opacity:var(--tm-luz-centro,0);z-index:2;
+background:radial-gradient(ellipse at 38% 8%,rgba(232,249,255,.45),rgba(103,200,255,.12) 40%,transparent 70%);
+border:1px solid rgba(196,236,255,.9);
+box-shadow:0 0 9px rgba(123,214,255,.65),0 0 18px rgba(67,167,255,.3),inset 0 1px 2px rgba(255,255,255,.8);
+}
