@@ -260,3 +260,13 @@ drop-shadow(0 0 16px rgba(55,166,255,calc(var(--tm-luz-centro,0) * .75)))!import
 body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{
 opacity:calc(var(--tm-luz-centro,0) * .75);
 }
+
+/* Peugeot blanco puro, conservando la transparencia del archivo. */
+body.tm-fondo-azul .tm-marcas .tm-marca-boton[aria-label="Ampliar insignia de Peugeot"] .tm-marca-sello img{
+filter:brightness(0) invert(1)
+drop-shadow(0 2px 3px #00000080)
+drop-shadow(0 0 9px rgba(117,222,255,calc(var(--tm-luz-centro,0) * .75)))!important;
+}
+.tm-logo-ampliado img[alt="Insignia de Peugeot"]{
+filter:brightness(0) invert(1) drop-shadow(0 3px 8px #00000080)!important;
+}
