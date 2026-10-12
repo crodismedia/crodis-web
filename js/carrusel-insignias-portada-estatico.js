@@ -1,4 +1,4 @@
-/* TallerMap: version sin peticion de datos. Las 184 insignias estan en el HTML. */
+/* TallerMap: version sin peticion de datos. Las 30 marcas principales estan en el HTML. */
 (function(){
   'use strict';
   const seccion=document.getElementById('tm-carrusel-marcas');
@@ -8,7 +8,7 @@
   const ventana=seccion.querySelector('.tm-marcas-ventana');
   if(!tira||!primera||!ventana)return;
   const botones=primera.querySelectorAll('.tm-marca-boton');
-  if(botones.length<101)return;
+  if(botones.length<2)return;
 
   /* Segunda copia exacta para el movimiento infinito. Sin solicitudes JSON. */
   const copia=primera.cloneNode(true);
