@@ -22,6 +22,38 @@
   seccion.style.setProperty('--tm-marcas-inicio',(-Math.random()*185).toFixed(2)+'s');
   seccion.classList.add('tm-marcas-listo');
 
+
+  /* Luz ligada a la distancia al centro visible; solo mientras el banner se ve. */
+  const insignias=Array.from(tira.querySelectorAll('.tm-marca-item'));
+  let luzFrame=0;
+  let luzVisible=false;
+  let luzUltimo=0;
+  function actualizarLuz(ahora){
+    luzFrame=0;
+    if(!luzVisible||document.hidden)return;
+    if(ahora-luzUltimo>=50){
+      luzUltimo=ahora;
+      const rect=ventana.getBoundingClientRect();
+      const centro=rect.left+rect.width/2;
+      const radio=90;
+      const niveles=insignias.map(function(item){
+        const r=item.getBoundingClientRect();
+        return Math.max(0,1-Math.abs(r.left+r.width/2-centro)/radio);
+      });
+      insignias.forEach(function(item,i){item.style.setProperty('--tm-luz-centro',niveles[i].toFixed(3));});
+    }
+    luzFrame=requestAnimationFrame(actualizarLuz);
+  }
+  function iniciarLuz(){if(luzVisible&&!document.hidden&&!luzFrame)luzFrame=requestAnimationFrame(actualizarLuz);}
+  if('IntersectionObserver' in window){
+    const observador=new IntersectionObserver(function(entries){
+      luzVisible=entries[0].isIntersecting;
+      if(luzVisible)iniciarLuz();else if(luzFrame){cancelAnimationFrame(luzFrame);luzFrame=0;}
+    });
+    observador.observe(seccion);
+  }else{luzVisible=true;iniciarLuz();}
+  document.addEventListener('visibilitychange',iniciarLuz);
+
   const overlay=document.createElement('div');
   overlay.className='tm-logo-overlay';
   overlay.setAttribute('role','dialog');
