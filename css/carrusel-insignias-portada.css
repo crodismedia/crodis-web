@@ -270,3 +270,15 @@ drop-shadow(0 0 9px rgba(117,222,255,calc(var(--tm-luz-centro,0) * .75)))!import
 .tm-logo-ampliado img[alt="Insignia de Peugeot"]{
 filter:brightness(0) invert(1) drop-shadow(0 3px 8px #00000080)!important;
 }
+
+/* Nombre visible solo cerca del centro, sincronizado con la luz. */
+body.tm-fondo-azul .tm-marcas .tm-marca-item figcaption{
+position:absolute!important;top:100%!important;left:50%!important;
+width:100px!important;height:auto!important;clip:auto!important;
+overflow:visible!important;margin:4px 0 0!important;padding:0!important;
+transform:translateX(-50%);font-size:11px;line-height:16px;font-weight:700;
+color:#fff;text-align:center;text-shadow:0 1px 4px #000;
+opacity:var(--tm-luz-centro,0);pointer-events:none;
+}
+body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:34px}
+@media(max-width:600px){body.tm-fondo-azul .tm-marcas .tm-marcas-ventana{padding-bottom:30px}}
