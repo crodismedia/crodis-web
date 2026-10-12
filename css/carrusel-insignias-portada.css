@@ -203,3 +203,18 @@ body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{background:transparent!impo
 body.tm-fondo-azul .tm-marcas .tm-marca-sello img{
 filter:brightness(calc(1 + var(--tm-luz-centro,0) * .45)) drop-shadow(0 2px 3px #00000080) drop-shadow(0 0 4px rgba(174,227,255,var(--tm-luz-centro,0)))!important;
 }
+
+/* Borde visible con interior completamente transparente. */
+body.tm-fondo-azul .tm-marcas .tm-marca-boton .tm-marca-sello{
+background:transparent!important;border:1px solid rgba(172,218,249,.72)!important;
+box-shadow:0 2px 3px rgba(0,0,0,.35)!important;
+}
+body.tm-fondo-azul .tm-marcas .tm-marca-boton:hover .tm-marca-sello,
+body.tm-fondo-azul .tm-marcas .tm-marca-boton:focus-visible .tm-marca-sello{
+background:transparent!important;border:1px solid #d6f0ff!important;
+box-shadow:0 0 8px rgba(124,214,255,.4)!important;
+}
+body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{
+background:transparent!important;border:1px solid rgba(217,244,255,.95)!important;
+box-shadow:0 0 9px rgba(123,214,255,.65)!important;
+}
