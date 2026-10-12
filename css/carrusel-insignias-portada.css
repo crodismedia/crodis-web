@@ -218,3 +218,8 @@ body.tm-fondo-azul .tm-marcas .tm-marca-sello::after{
 background:transparent!important;border:1px solid rgba(217,244,255,.95)!important;
 box-shadow:0 0 9px rgba(123,214,255,.65)!important;
 }
+
+/* Ampliación legible sobre una superficie oscura uniforme. */
+.tm-logo-overlay{background:rgba(2,7,15,.97)!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.tm-logo-ampliado img{filter:brightness(1.45) contrast(1.2) drop-shadow(0 0 2px rgba(237,249,255,.7)) drop-shadow(0 6px 16px #000)!important}
+.tm-logo-nombre{color:#fff!important;text-shadow:0 2px 4px #000}
