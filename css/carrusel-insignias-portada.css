@@ -131,3 +131,10 @@ body.tm-fondo-azul .tm-marcas[hidden]{display:none!important}
   .tm-marcas .tm-marcas-duplicado{display:none!important}
   .tm-logo-overlay,.tm-logo-panel,.tm-marca-sello{transition:none!important}
 }
+
+/* Un mismo espacio para todas las insignias, sin deformarlas. */
+.tm-marcas .tm-marca-item{width:56px}
+.tm-marcas .tm-marca-sello{width:40px;height:40px;padding:0;box-sizing:border-box}
+.tm-marcas .tm-marca-sello img{width:40px;height:40px;max-width:none;max-height:none;object-fit:contain;object-position:center}
+.tm-marcas.tm-marcas-listo .tm-marcas-tira{animation-duration:70s}
+@media(max-width:600px){.tm-marcas .tm-marca-item{width:50px}.tm-marcas .tm-marca-sello,.tm-marcas .tm-marca-sello img{width:36px;height:36px}}
