@@ -128,3 +128,13 @@ body.tm-fondo-azul:has(#form-buscar) .cabecera .menu a{padding:8px 0!important;f
 body.tm-fondo-azul:has(#form-buscar) .cabecera .menu{flex-direction:column!important;align-items:stretch!important;gap:0!important}
 body.tm-fondo-azul:has(#form-buscar) .cabecera .menu a{display:block!important;width:100%;padding:10px 12px!important;border-bottom:1px solid #dfe6ef}
 }
+
+/* Desplegable móvil compacto alineado con el botón del menú. */
+@media(max-width:1050px){
+body.tm-fondo-azul .cabecera .menu-movil-panel{
+left:auto!important;right:12px!important;width:min(280px,calc(100vw - 24px))!important;
+box-sizing:border-box!important;padding:10px 12px 14px!important;border:1px solid #dfe6ef!important;
+border-radius:12px!important;max-height:calc(100dvh - 84px);overflow-y:auto;
+}
+body.tm-fondo-azul .cabecera .menu-movil-panel a{padding:11px 12px!important;font-size:15px!important}
+}
