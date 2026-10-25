@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿De qué año es mi matrícula? Calculadora gratuita | TallerMap</title>
+<meta name="description" content="Calcula gratis el mes y año aproximados de matriculación de un coche o furgoneta por su matrícula española. Desde septiembre de 2000.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://www.tallermap.es/matriculas.html">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#071a33">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Calculadora de matrículas españolas | TallerMap">
+<meta property="og:url" content="https://www.tallermap.es/matriculas.html">
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#071a33;background:#f0f5fa}
+*{box-sizing:border-box}body{margin:0;line-height:1.5;background:linear-gradient(145deg,#e7f0fa,#f8fbfe 38%,#eef4fa);min-height:100vh}
+a{color:#1457d9}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #ffab00;outline-offset:3px}
+.contenedor{max-width:1170px;padding:0 22px;margin:0 auto}
+header{background:#fff;border-bottom:1px solid #d8e5f0;box-shadow:0 3px 20px #0a244412}
+.cabecera{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:76px}
+.marca{display:flex;align-items:center;gap:10px;color:#071a33;text-decoration:none;font-weight:850;font-size:21px;white-space:nowrap}
+.marca img{height:40px;width:40px}
+.menu{display:flex;align-items:center;gap:16px}.menu a{text-decoration:none;font-size:13.5px;font-weight:750;color:#263e5a;white-space:nowrap}.menu a[aria-current],.menu a:hover{color:#1256bf}
+.menu .registro{color:white;background:#1457d9;border-radius:9px;padding:10px 12px}
+.menu-movil{display:none}
+main{padding-top:36px;padding-bottom:70px}.miga{font-size:13px;color:#65758b;margin:0 0 22px}
+.intro{text-align:center;max-width:750px;margin:0 auto 30px}.etiqueta{display:inline-block;padding:6px 12px;border-radius:99px;background:#dfedff;color:#1756a3;font-weight:850;font-size:12px}
+h1{font-size:clamp(28px,4.5vw,46px);line-height:1.12;letter-spacing:-.04em;margin:15px 0}.intro p{font-size:17px;color:#465b77;margin:0}
+.panel{max-width:720px;margin:0 auto;background:white;border:1px solid #dce5ee;border-radius:21px;padding:clamp(20px,4vw,35px);box-shadow:0 17px 50px #071a3320}
+label{display:block;font-weight:800;margin-bottom:8px}.ayuda{font-size:13px;color:#62738a;margin:0 0 14px}
+.entrada{display:flex;gap:12px}input{min-width:0;flex:1;border:2px solid #c8d7e6;padding:13px 16px;border-radius:10px;color:#071a33;font-size:24px;font-weight:750;letter-spacing:1.5px;text-transform:uppercase;background:#fff}
+button{border:0;border-radius:10px;background:#16834f;color:white;padding:13px 23px;font-size:16px;font-weight:800;cursor:pointer}button:hover{background:#106b40}
+#mensaje{color:#a22332;font-size:14px;margin:10px 0 0}#mensaje:empty{display:none}
+#resultado[hidden]{display:none}#resultado{margin-top:22px;border-radius:15px;background:#edf9f0;border:1px solid #b5dec3;padding:21px}
+.eyebrow{font-size:12px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:#24673b}.fecha{font-weight:850;font-size:30px;line-height:1.2;margin:8px 0 18px}
+.datos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dato{padding:12px 13px;border:1px solid #d1e8d8;background:#fff;border-radius:10px}.dato small{display:block;color:#526176;font-size:12px}.dato strong{font-size:17px}
+.nota{font-size:13px;color:#42634d;margin:13px 0 0}
+.informacion{max-width:900px;margin:32px auto 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.bloque{background:white;border:1px solid #dce5ee;padding:23px;border-radius:15px}.bloque h2{font-size:19px;margin:0 0 8px}.bloque p{color:#465b77;margin:0}
+footer{background:#fff;border-top:1px solid #dae5ee;padding:22px 0;color:#66758b;font-size:13px}.pie{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:1100px){.menu{display:none}.menu-movil{display:block;position:relative}.menu-movil summary{list-style:none;font-weight:800;cursor:pointer;padding:9px 14px;border:1px solid #cfdae5;border-radius:10px}.menu-movil summary::-webkit-details-marker{display:none}.menu-movil[open] nav{position:absolute;z-index:20;right:0;top:calc(100% + 9px);width:min(285px,85vw);display:grid;background:#fff;border:1px solid #dae5ed;border-radius:12px;padding:10px;box-shadow:0 16px 36px #071a3330}.menu-movil nav a{padding:11px 14px;text-decoration:none;font-weight:750;color:#071a33}}
+@media(max-width:650px){.contenedor{padding:0 15px}.cabecera{min-height:65px}main{padding-top:25px;padding-bottom:40px}.intro p{font-size:15px}.entrada{flex-direction:column}button{width:100%}.informacion{grid-template-columns:1fr}.fecha{font-size:26px}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Calculadora de matrículas españolas | TallerMap","url":"https://www.tallermap.es/matriculas.html","applicationCategory":"UtilitiesApplication","operatingSystem":"All","isAccessibleForFree":true,"inLanguage":"es-ES"}</script>
+</head>
+<body>
+<header><div class="contenedor cabecera">
+<a class="marca" href="/"><img src="/favicon.svg" alt="" width="40" height="40">TallerMap</a>
+<nav class="menu" aria-label="Navegación principal"><a href="/">Inicio</a><a href="/talleres.html">Talleres Valencia</a><a href="/desguaces.html">Desguaces</a><a aria-current="page" href="/matriculas.html">Matrículas</a><a href="/pages/sobre-nosotros.html">Sobre nosotros</a><a href="/pages/contacto.html">Contacto</a><a class="registro" href="/pages/registro.html">Registrar taller</a></nav>
+<details class="menu-movil"><summary>☰ Menú</summary><nav aria-label="Navegación móvil"><a href="/">Inicio</a><a href="/talleres.html">Talleres Valencia</a><a href="/desguaces.html">Desguaces</a><a aria-current="page" href="/matriculas.html">Matrículas</a><a href="/pages/sobre-nosotros.html">Sobre nosotros</a><a href="/pages/contacto.html">Contacto</a><a href="/pages/registro.html">Registrar taller</a></nav></details>
+</div></header>
+<main class="contenedor">
+<p class="miga"><a href="/">Inicio</a> / Calculadora de matrículas</p>
+<section class="intro"><span class="etiqueta">HERRAMIENTA GRATUITA</span><h1>¿De qué año es esta matrícula?</h1><p>Introduce una matrícula española y descubre su <strong>mes y año aproximados de matriculación</strong> y la antigüedad orientativa del vehículo.</p></section>
+<section class="panel" aria-label="Consultar matrícula">
+<form id="calculadora" novalidate>
+<label for="matricula">Matrícula española</label>
+<p class="ayuda" id="ayuda">Formato moderno: cuatro cifras y tres letras, desde septiembre de 2000. Ejemplo: 8968 DYP.</p>
+<div class="entrada"><input name="matricula" id="matricula" type="text" placeholder="8968 DYP" maxlength="12" spellcheck="false" autocomplete="off" autocapitalize="characters" aria-describedby="ayuda" required><button type="submit">Calcular fecha</button></div>
+<p id="mensaje" role="alert" aria-live="polite"></p>
+</form>
+<div id="resultado" aria-live="polite" hidden><span class="eyebrow">Matriculación aproximada</span><div class="fecha" id="fecha"></div>
+<div class="datos"><div class="dato"><small>Matrícula</small><strong id="placa"></strong></div><div class="dato"><small>Antigüedad orientativa</small><strong id="antiguedad"></strong></div><div class="dato" style="grid-column:1/-1"><small>Orden matemático de asignación</small><strong id="orden"></strong></div></div>
+<p class="nota">El mes puede variar cerca del cambio de serie. Es una estimación, no una certificación de la DGT.</p></div>
+</section>
+<div class="informacion">
+<section class="bloque"><h2>¿Cómo funciona?</h2><p>El cálculo transforma los números y letras en una posición correlativa y la compara con las series al cierre de cada mes, sin consultar ninguna matrícula individual en Internet.</p></section>
+<section class="bloque"><h2>¿Es una fecha oficial?</h2><p>No. El resultado no indica el día exacto, la fecha de fabricación ni los datos del titular. Para la fecha oficial, consulta el <a href="https://sede.dgt.gob.es/es/vehiculos/informacion-de-vehiculos/informe-de-un-vehiculo/" rel="noopener noreferrer">informe de la DGT</a>.</p></section>
+<section class="bloque"><h2>¿Qué matrículas se admiten?</h2><p>Las matrículas españolas ordinarias de cuatro cifras y tres consonantes desde septiembre de 2000. Las antiguas matrículas provinciales y las especiales no están incluidas.</p></section>
+<section class="bloque"><h2>Privacidad y referencias</h2><p>El cálculo se realiza en el navegador y no envía tu matrícula a un servidor. Tabla orientativa de series: <a href="https://siago.org/tabla-matriculas/" rel="noopener noreferrer">siago.org</a>, datos consultados a 23 de octubre de 2026.</p></section>
+</div>
+</main>
+<footer><div class="contenedor pie"><span>© 2026 TallerMap · CRODIS Media</span><span><a href="/pages/privacidad.html">Privacidad</a> · <a href="/pages/contacto.html">Contacto</a> · <a href="/">Buscar talleres</a></span></div></footer>
+<script>
+(function(){
+"use strict";
+const alphabet="BCDFGHJKLMNPRSTVWXYZ";
+const data={"2000":"- - - - - - - - BBB BCD BCY BDR","2001":"BFJ BGF BHG BJC BKB BLC BMF BMW BNL BPG BRB BRT","2002":"BSL BTF BTZ BVW BWT BXP BYP BZF BZV CBP CCH CDC","2003":"CDV CFM CGJ CHF CJC CKB CLD CLV CMM CNK CPF CRC","2004":"CRV CSS CTT CVR CWR CXT CYY CZP DBJ DCH DDG DFF","2005":"DFZ DGX DHZ DKB DLD DMJ DNP DPK DRG DSC DTB DVB","2006":"DVW DWT DXZ DYY FBC FCJ FDP FFK FGF FHD FJD FKC","2007":"FKY FLV FNB FNZ FRC FSJ FTP FVJ FWC FXB FXY FYY","2008":"FZR GBN GCK GDH GFC GFY GGV GHG GHT GJJ GJV GKH","2009":"GKS GLC GLP GMC GMN GNF GNY GPJ GPW GRM GSC GSR","2010":"GTC GTS GVM GWC GWV GXP GYD GYM GYX GZJ GZT HBG","2011":"HBP HCB HCR HDC HDR HFF HFT HGC HGM HGX HHH HHT","2012":"HJC HJM HKB HKL HKX HLK HLW HMD HML HMT HNC HNK","2013":"HNT HPC HPN HPY HRK HRX HSK HSS HSZ HTK HTV HVF","2014":"HVN HVZ HWM HXB HXN HYD HYT HZB HZL HZZ JBL JBY","2015":"JCK JCY JDR JFG JFX JGR JHJ JHT JJH JJW JKK JKZ","2016":"JLN JMF JMY JNR JPK JRG JRZ JSK JTB JTN JVH JVZ","2017":"JWN JXF JYB JYT JZP KBM KCH KCT KDH KFC KFW KGN","2018":"KHG KHY KJV KKR KLN KMM KNK KPD KPS KRJ KRZ KSS","2019":"KTJ KVB KVX KWT KXR KYN KZK KZY LBN LCG LCY LDR","2020":"LFH LFY LGG LGH LGP LHG LJD LJR LKF LKV LLJ LMC","2021":"LML LMX LNN LPD LPW LRP LSF LSP LTD LTP LVD LVV","2022":"LWD LWR LXD LXS LYJ LYZ LZP LZZ MBN MBZ MCR MDD","2023":"MDS MFG MFX MGN MHG MHY MJR MKD MKP MLH MLY MMN","2024":"MNC MNT MPL MRD MRW MSS MTK MTV MVL MWD MWS MXP","2025":"MYC MYV MZS NBL NCG NDG NFC NFR NGJ NHC NHX NJS","2026":"NKF NKY NLZ NMW NNT NPT NRN NSG NTB NTM - -"};
+const table=Object.entries(data).flatMap(function(pair){return pair[1].split(" ").map(function(series,i){return series==="-"?null:{year:Number(pair[0]),month:i+1,series:series};}).filter(Boolean);});
+const numberOf=function(plate){return (400*alphabet.indexOf(plate[4])+20*alphabet.indexOf(plate[5])+alphabet.indexOf(plate[6]))*10000+Number(plate.slice(0,4));};
+const months=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const form=document.getElementById("calculadora"),field=document.getElementById("matricula"),message=document.getElementById("mensaje"),result=document.getElementById("resultado");
+form.addEventListener("submit",function(event){
+event.preventDefault();result.hidden=true;message.textContent="";
+const plate=field.value.toUpperCase().replace(/[\s-]/g,"");
+if(!/^\d{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(plate)){message.textContent="Introduce una matrícula válida: cuatro cifras y tres consonantes sin Ñ ni Q.";field.setAttribute("aria-invalid","true");field.focus();return;}
+field.removeAttribute("aria-invalid");
+const order=numberOf(plate);
+const row=table.find(function(e){return order<=numberOf("9999"+e.series);});
+if(!row){message.textContent="La matrícula supera los datos históricos disponibles. No podemos estimar su fecha todavía.";return;}
+const now=new Date(),approxMonths=Math.max(0,12*(now.getFullYear()-row.year)+(now.getMonth()+1-row.month));
+const years=Math.floor(approxMonths/12),remainder=approxMonths%12;
+const age=(years?years+" año"+(years===1?"":"s"):"")+(remainder?(years?" y ":"")+remainder+" mes"+(remainder===1?"":"es"):"")||"Menos de un mes";
+document.getElementById("fecha").textContent=months[row.month-1][0].toUpperCase()+months[row.month-1].slice(1)+" de "+row.year+(row.year===2026&&row.month===10?" (provisional)":"");
+document.getElementById("placa").textContent=plate.slice(0,4)+" "+plate.slice(4);
+document.getElementById("antiguedad").textContent=age;
+document.getElementById("orden").textContent=order.toLocaleString("es-ES");
+result.hidden=false;
+});
+})();
+</script>
+</body>
+</html>
