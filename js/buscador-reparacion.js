@@ -37,7 +37,20 @@ try{
  e.preventDefault();
  const ruta=$("municipio").value;
  if(!validarUrlRuta(ruta))return estado("Selecciona un municipio válido.");
- const servicios=mapa.relaciones[$("averia").value]||[];
+ const motor=$("motor").value;
+ const serviciosBase=mapa.relaciones[$("averia").value]||[];
+ const electrificado=["electrico","hibrido-gasolina","hibrido-diesel","microhibrido","hibrido-enchufable"].includes(motor);
+ const soloElectrico=motor==="electrico";
+ const combustible=motor==="diesel"?"inyeccion-diesel":motor==="gasolina"?"inyeccion-gasolina":null;
+ let servicios=serviciosBase.filter(s=>{
+   if(soloElectrico && ["inyeccion-diesel","inyeccion-gasolina","turbo","filtro-particulas-dpf-fap","embrague","escape-catalizador"].includes(s))return false;
+   if(motor==="diesel" && s==="inyeccion-gasolina")return false;
+   if(motor==="gasolina" && ["inyeccion-diesel","filtro-particulas-dpf-fap"].includes(s))return false;
+   return true;
+ });
+ if(electrificado)servicios=[...new Set(["hibridos-electricos",...servicios])];
+ if(soloElectrico)servicios=[...new Set(["electricidad-automovil","diagnosis-electronica",...servicios])];
+
  if(!servicios.length)return estado("No hay especialidades asociadas a este síntoma.");
  $("buscar").disabled=true;$("resultados").hidden=true;estado("Consultando fichas publicadas de TallerMap…");
  try{
@@ -76,7 +89,7 @@ try{
  }catch(err){estado("No se pudo realizar la búsqueda: "+err.message);}
  finally{$("buscar").disabled=false;}
  });
- estado("Selecciona las cuatro opciones para buscar.");
+ estado("Selecciona las cinco opciones para buscar.");
 }catch(e){estado("No se pudo cargar el catálogo. "+e.message);}
 }
 document.addEventListener("DOMContentLoaded",iniciar);
