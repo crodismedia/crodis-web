@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "updated": "2026-11-12",
+  "pais": "España",
+  "moneda": "EUR",
+  "iva": "Incluido según cada fuente",
+  "nota": "Datos de referencia publicados, no ofertas individuales ni presupuestos específicos de TallerMap. Mostrar por operación concreta; para síntomas indeterminados indicar sólo coste de diagnosis.",
+  "precios": [
+    {
+      "id": "diagnosis",
+      "trabajo": "Diagnosis electrónica",
+      "min": 40,
+      "max": 80,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Diagnosis básica; no implica reparación",
+      "claves": [
+        "diagnos",
+        "testigo",
+        "fallo motor",
+        "luz motor",
+        "tirones",
+        "perdida potencia",
+        "no arranca",
+        "arranque",
+        "humo",
+        "ralenti",
+        "se cala"
+      ]
+    },
+    {
+      "id": "embrague",
+      "trabajo": "Cambio de kit de embrague",
+      "min": 500,
+      "max": 1200,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Kit sin volante bimasa",
+      "claves": [
+        "embrague"
+      ]
+    },
+    {
+      "id": "bimasa",
+      "trabajo": "Embrague y volante bimasa",
+      "min": 900,
+      "max": 1800,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Incluye volante bimasa; trabajo distinto al kit simple",
+      "claves": [
+        "bimasa",
+        "volante motor"
+      ]
+    },
+    {
+      "id": "discos-pastillas",
+      "trabajo": "Discos y pastillas de freno delanteros",
+      "min": 220,
+      "max": 420,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Eje delantero, piezas y mano de obra",
+      "claves": [
+        "discos",
+        "pastillas y discos",
+        "frenos completos"
+      ]
+    },
+    {
+      "id": "pastillas",
+      "trabajo": "Pastillas de freno delanteras",
+      "min": 90,
+      "max": 180,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Eje delantero, no incluye discos",
+      "claves": [
+        "pastillas",
+        "frenos"
+      ]
+    },
+    {
+      "id": "distribucion",
+      "trabajo": "Kit distribución con bomba de agua",
+      "min": 450,
+      "max": 900,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Correa, tensores y bomba",
+      "claves": [
+        "distribucion",
+        "correa"
+      ]
+    },
+    {
+      "id": "bateria",
+      "trabajo": "Cambio de batería montada",
+      "min": 90,
+      "max": 220,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Montaje y registro; según sistema start-stop",
+      "claves": [
+        "bateria",
+        "no arranca"
+      ]
+    },
+    {
+      "id": "aceite",
+      "trabajo": "Aceite y filtro",
+      "min": 70,
+      "max": 140,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Aceite y filtro, turismo medio",
+      "claves": [
+        "aceite",
+        "filtro aceite",
+        "revision"
+      ]
+    },
+    {
+      "id": "amortiguadores",
+      "trabajo": "Amortiguadores delanteros (par)",
+      "min": 220,
+      "max": 450,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Par delantero; alineación aparte",
+      "claves": [
+        "amortiguador",
+        "suspension"
+      ]
+    },
+    {
+      "id": "clima",
+      "trabajo": "Carga de aire acondicionado",
+      "min": 60,
+      "max": 160,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Depende del gas refrigerante",
+      "claves": [
+        "aire acondicionado",
+        "climatizacion",
+        "no enfria"
+      ]
+    },
+    {
+      "id": "dpf",
+      "trabajo": "Regeneración forzada y limpieza DPF",
+      "min": 120,
+      "max": 300,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "No equivale a reemplazar el filtro",
+      "claves": [
+        "dpf",
+        "fap",
+        "filtro particulas"
+      ]
+    },
+    {
+      "id": "centralita",
+      "trabajo": "Reparación de centralita",
+      "min": 150,
+      "max": 400,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Reparación en laboratorio",
+      "claves": [
+        "centralita",
+        "ecu"
+      ]
+    },
+    {
+      "id": "alineacion",
+      "trabajo": "Alineación de dirección",
+      "min": 40,
+      "max": 100,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Tarifa según ejes",
+      "claves": [
+        "alineacion",
+        "direccion"
+      ]
+    },
+    {
+      "id": "pre-itv",
+      "trabajo": "Revisión Pre-ITV",
+      "min": 30,
+      "max": 60,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Revisión previa, no la tasa ITV",
+      "claves": [
+        "pre itv",
+        "preitv"
+      ]
+    },
+    {
+      "id": "filtro",
+      "trabajo": "Filtro de aire, habitáculo o combustible",
+      "min": 15,
+      "max": 45,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "Precio por unidad con sustitución",
+      "claves": [
+        "filtro aire",
+        "filtro habitaculo",
+        "filtro combustible"
+      ]
+    },
+    {
+      "id": "neumatico",
+      "trabajo": "Neumático 205/55 R16 gama media (unidad)",
+      "min": 50,
+      "max": 80,
+      "url": "https://www.redtalleres.es/precios/",
+      "fuente": "Red de Talleres",
+      "fecha": "2026-09",
+      "alcance": "No vale para otras medidas",
+      "claves": [
+        "neumatico",
+        "rueda"
+      ]
+    },
+    {
+      "id": "turbo",
+      "trabajo": "Reparación/sustitución de turbo",
+      "min": 700,
+      "max": 1500,
+      "url": "https://clinicadelmotor.com/precios-reparaciones-coche/",
+      "fuente": "Clínica del Motor",
+      "fecha": "2026-10-28",
+      "alcance": "Referencia general; varía mucho por motor",
+      "claves": [
+        "turbo"
+      ]
+    },
+    {
+      "id": "cadena",
+      "trabajo": "Sustitución de cadena de distribución",
+      "min": 700,
+      "max": 1800,
+      "url": "https://clinicadelmotor.com/precios-reparaciones-coche/",
+      "fuente": "Clínica del Motor",
+      "fecha": "2026-10-28",
+      "alcance": "Referencia general; no confundir con correa",
+      "claves": [
+        "cadena distribucion"
+      ]
+    }
+  ]
+}
