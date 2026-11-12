@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "titulo": "Averías y síntomas habituales",
+  "tipo": "sintomas_no_diagnosticos",
+  "nota": "Opciones orientativas para un buscador. No determinan la avería ni sustituyen un diagnóstico de taller.",
+  "opciones": [
+    {
+      "id": "no-arranca",
+      "nombre": "El coche no arranca"
+    },
+    {
+      "id": "arranque-dificil",
+      "nombre": "Cuesta arrancar en frío o caliente"
+    },
+    {
+      "id": "se-cala",
+      "nombre": "El motor se cala o se apaga"
+    },
+    {
+      "id": "tirones",
+      "nombre": "Tirones al conducir"
+    },
+    {
+      "id": "perdida-potencia",
+      "nombre": "Pérdida de potencia"
+    },
+    {
+      "id": "ralenti-inestable",
+      "nombre": "Ralentí inestable"
+    },
+    {
+      "id": "sobrecalentamiento",
+      "nombre": "Sobrecalentamiento del motor"
+    },
+    {
+      "id": "humo-blanco",
+      "nombre": "Humo blanco por el escape"
+    },
+    {
+      "id": "humo-negro",
+      "nombre": "Humo negro por el escape"
+    },
+    {
+      "id": "humo-azul",
+      "nombre": "Humo azul por el escape"
+    },
+    {
+      "id": "consumo-excesivo",
+      "nombre": "Consumo excesivo de combustible"
+    },
+    {
+      "id": "fuga-aceite",
+      "nombre": "Pérdida de aceite"
+    },
+    {
+      "id": "fuga-refrigerante",
+      "nombre": "Pérdida de refrigerante"
+    },
+    {
+      "id": "testigo-motor",
+      "nombre": "Testigo de avería del motor encendido"
+    },
+    {
+      "id": "bateria-descarga",
+      "nombre": "Batería se descarga"
+    },
+    {
+      "id": "alternador",
+      "nombre": "Problemas de carga o alternador"
+    },
+    {
+      "id": "embrague-patina",
+      "nombre": "El embrague patina"
+    },
+    {
+      "id": "cambio-marchas",
+      "nombre": "Dificultad para cambiar de marcha"
+    },
+    {
+      "id": "vibraciones",
+      "nombre": "Vibraciones al conducir"
+    },
+    {
+      "id": "ruidos-motor",
+      "nombre": "Ruidos anormales del motor"
+    },
+    {
+      "id": "frenos-ruido",
+      "nombre": "Ruidos o chirridos al frenar"
+    },
+    {
+      "id": "frenos-vibracion",
+      "nombre": "Vibraciones al frenar"
+    },
+    {
+      "id": "direccion-dura",
+      "nombre": "Dirección dura o asistida defectuosa"
+    },
+    {
+      "id": "suspension-ruidos",
+      "nombre": "Golpes o ruidos de suspensión"
+    },
+    {
+      "id": "aire-acondicionado",
+      "nombre": "Aire acondicionado no enfría"
+    },
+    {
+      "id": "calefaccion",
+      "nombre": "Calefacción no calienta"
+    },
+    {
+      "id": "ventilador-radiador",
+      "nombre": "Ventilador del radiador no funciona"
+    },
+    {
+      "id": "elevalunas",
+      "nombre": "Elevalunas no funciona"
+    },
+    {
+      "id": "luces",
+      "nombre": "Luces exteriores no funcionan"
+    },
+    {
+      "id": "cierre-centralizado",
+      "nombre": "Cierre centralizado no funciona"
+    }
+  ]
+}
