@@ -82,10 +82,10 @@ try{
  if(publicadas.has("electricidad"))publicadas.add("electricidad-automovil");
  if(publicadas.has("refrigeracion"))publicadas.add("sistema-refrigeracion");
  const coincidencias=servicios.filter(s=>publicadas.has(s));
- // No asumir que un rótulo genérico identifica una especialidad concreta.
-
- return {card,coincidencias};
- }).filter(c=>c.coincidencias.length).sort((a,b)=>b.coincidencias.length-a.coincidencias.length);
+ const generales=soloElectrico?["hibridos-electricos","electricidad-automovil"]:["mecanica-general","mecanica-rapida"];
+ const general=coincidencias.length===0&&generales.some(s=>publicadas.has(s));
+ return {card,coincidencias,general};
+ }).filter(c=>c.coincidencias.length||c.general).sort((a,b)=>Number(!!a.general)-Number(!!b.general)||b.coincidencias.length-a.coincidencias.length);
  const salida=$("tarjetas");salida.replaceChildren();
  const detalles=[$("marca").value,$("modelo").value,$("motor").selectedOptions[0]?.textContent,$("anio").value?("Año "+$("anio").value):"", $("cilindrada").value.trim(), $("potencia").value?($("potencia").value+" CV"):"",$("averia").selectedOptions[0]?.textContent].filter(Boolean);
  $("resumen-vehiculo").textContent="Vehículo y síntoma: "+detalles.join(" · ");
@@ -97,12 +97,12 @@ try{
  };
  $("titulo-resultados").textContent=candidatos.length+" talleres candidatos en "+$("municipio").selectedOptions[0].text.split(" (")[0];
  if(!candidatos.length){const p=document.createElement("p");p.textContent="No hay talleres con especialidades coincidentes publicadas en este municipio. Prueba otra población cercana o consulta el directorio.";salida.append(p);}
- candidatos.forEach(({card,coincidencias})=>{
+ candidatos.forEach(({card,coincidencias,general})=>{
  const box=document.createElement("article");box.className="resultado";
  const h=document.createElement("h3");h.textContent=card.querySelector("h3")?.textContent?.trim()||"Taller";
  const address=document.createElement("p");address.textContent=card.querySelector(".ubicacion")?.textContent?.trim()||"Consulta su ficha para ver la dirección";
- const esp=document.createElement("p");esp.textContent="Especialidades relacionadas: "+coincidencias.map(s=>categorias[s]||s.replace(/-/g," ")).join(", ");
- const badge=document.createElement("span");badge.className="etiqueta";badge.textContent="Especialidad relacionada · disponibilidad por confirmar";
+ const esp=document.createElement("p");esp.textContent=coincidencias.length?"Especialidades relacionadas: "+coincidencias.map(s=>categorias[s]||s.replace(/-/g," ")).join(", "):"Mecánica/electricidad general publicada; no figura una especialidad específica para esta avería.";
+ const badge=document.createElement("span");badge.className="etiqueta";badge.textContent=general?"Taller general · consultar si acepta el trabajo":"Especialidad relacionada · confirmar reparación";
  const actions=document.createElement("div");actions.className="acciones";
  const links=card.querySelectorAll("a[href]");
  const ficha=[...links].find(a=>a.classList.contains("enlace-ficha-taller"));
