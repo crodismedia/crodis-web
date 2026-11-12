@@ -21,11 +21,26 @@ try{
  const marcas=catalogo.marcas||{};
  for(let year=new Date().getFullYear()+1;year>=1950;year--)add($("anio"),String(year),String(year));
  const municipios=Array.isArray(window.TallerMapMunicipiosEstaticos)?window.TallerMapMunicipiosEstaticos:[];
- const lista=[...new Set(municipios.filter(m=>validarUrlRuta(m.ruta)).map(m=>JSON.stringify({nombre:m.nombre,ruta:m.ruta,codigo:m.codigo})))].map(JSON.parse);
+ const lista=municipios.filter(m=>validarUrlRuta(m.ruta)&&m.nombre).map(m=>({...m,postales:Array.isArray(m.postales)?m.postales:[],aliases:Array.isArray(m.aliases)?m.aliases:[]}));
  lista.sort((a,b)=>a.nombre.localeCompare(b.nombre,"es"));
  Object.keys(marcas).sort((a,b)=>a.localeCompare(b,"es")).forEach(n=>add($("marca"),n,n));
  averias.opciones.forEach(a=>add($("averia"),a.nombre,a.id));
- lista.forEach(m=>add($("municipio"),m.nombre+" ("+({"03":"Alicante","12":"Castellón","46":"Valencia"}[String(m.codigo||"").slice(0,2)]||"Comunidad Valenciana")+")",m.ruta));
+ const municipio=$("municipio"),municipioTexto=$("municipio-texto");
+ const nombreMunicipio=m=>m.nombre+" ("+({"03":"Alicante","12":"Castellón","46":"Valencia"}[String(m.codigo||"").slice(0,2)]||"Comunidad Valenciana")+")";
+ const actualizarMunicipios=()=>{
+  const anterior=municipio.value;
+  const entrada=municipioTexto.value.trim();
+  const consulta=normalizar(entrada);
+  const cp=entrada.replace(/\D/g,"");
+  const filtrados=entrada.length<2?lista:lista.filter(m=>normalizar(m.nombre).includes(consulta)||m.aliases.some(a=>normalizar(a).includes(consulta))||(cp.length===5&&m.postales.includes(cp)));
+  municipio.replaceChildren();add(municipio,"Selecciona un municipio","");
+  filtrados.slice(0,250).forEach(m=>add(municipio,nombreMunicipio(m),m.ruta));
+  if(filtrados.some(m=>m.ruta===anterior))municipio.value=anterior;
+  else if(filtrados.length===1)municipio.value=filtrados[0].ruta;
+  $("ayuda-municipio").textContent=filtrados.length?filtrados.length+" municipios encontrados"+(filtrados.length>250?" · escribe más letras para afinar":""):"Sin coincidencias. Prueba otra población o código postal.";
+ };
+ municipioTexto.addEventListener("input",actualizarMunicipios);
+ actualizarMunicipios();
  $("marca").addEventListener("change",()=>{
  const sel=$("modelo");sel.replaceChildren();add(sel,"Selecciona un modelo","");
  const modelos=marcas[$("marca").value]||[];
@@ -63,6 +78,9 @@ try{
  const tarjetas=[...doc.querySelectorAll("#lista-talleres .taller-card")];
  const candidatos=tarjetas.map(card=>{
  const publicadas=new Set([...String(card.dataset.servicios||"").split(/\s+/).map(normalizar),...Array.from(card.querySelectorAll(".especialidades span"),e=>normalizar(e.textContent))]);
+ if(publicadas.has("diagnosis"))publicadas.add("diagnosis-electronica");
+ if(publicadas.has("electricidad"))publicadas.add("electricidad-automovil");
+ if(publicadas.has("refrigeracion"))publicadas.add("sistema-refrigeracion");
  const coincidencias=servicios.filter(s=>publicadas.has(s));
  // No asumir que un rótulo genérico identifica una especialidad concreta.
 
