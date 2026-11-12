@@ -11,7 +11,7 @@ const sourceMap={
 };
 // Consulta anónima del CSV público; si el origen bloquea CORS, usamos referencias contrastadas locales.
 async function consultarFuenteAbierta(){
- const response=await fetch("https://www.artemek.com/estudios/precios-taller-2026.csv",{mode:"cors",cache:"no-store",signal:AbortSignal.timeout(12000)});
+ const response=await fetch("https://raw.githubusercontent.com/artemekSLU/artemek-data/main/precios/estudio-precios-espana.csv",{mode:"cors",cache:"no-store",signal:AbortSignal.timeout(12000)});
  if(!response.ok)throw Error("Fuente externa no disponible");
  const raw=await response.text();
  if(raw.length>150000)throw Error("Archivo remoto demasiado grande");
@@ -27,7 +27,7 @@ async function consultarFuenteAbierta(){
   if(obj.unidad!=="trabajo"||!sourceMap[obj.slug]||obj.slug==="neumaticos")continue;
   const min=Number(obj.bajo_eur),max=Number(obj.alto_eur);
   if(!(min>0&&max>=min&&max<10000))continue;
-  results.push({id:obj.slug,trabajo:obj.servicio,min,max,fecha:obj.fecha_datos,fuente:"Artemek · estudio de precios 2026",url:"https://www.artemek.com/estudios/precios-taller-2026",ambito:obj.ambito||"España",alcance:"Mediana y tramo estadístico de precios publicados; no oferta específica."});
+  results.push({id:obj.slug,trabajo:obj.servicio,min,max,fecha:obj.fecha_datos,fuente:"Artemek · datos abiertos CC BY 4.0 (consultados en GitHub)",url:"https://www.artemek.com/estudios/precios-taller-2026",ambito:obj.ambito||"España",alcance:"Mediana y tramo estadístico de precios publicados; no oferta específica."});
  }
  if(!results.length)throw Error("CSV sin datos válidos");
  return {online:true,results};
