@@ -13,7 +13,7 @@ body{margin:0;line-height:1.5}header{background:white;border-bottom:1px solid #d
 h1{font-size:clamp(27px,4vw,40px);line-height:1.16;margin-bottom:10px}h2{font-size:22px}
 .intro{max-width:800px}.intro p,.nota{color:#4c6175}.panel,.resultado{background:#fff;border:1px solid #dae5ec;border-radius:17px;padding:24px;box-shadow:0 8px 26px #142d4410}
 .campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.campo{min-width:0}
-label{display:block;font-weight:750;margin-bottom:6px}select{width:100%;padding:12px;border-radius:9px;border:1px solid #b9cbdc;font:inherit;background:white;color:#102741}
+label{display:block;font-weight:750;margin-bottom:6px}select,input{width:100%;padding:12px;border-radius:9px;border:1px solid #b9cbdc;font:inherit;background:white;color:#102741}
 button{background:#1457d9;color:#fff;border:0;border-radius:10px;padding:13px 21px;font:inherit;font-weight:750;cursor:pointer;margin-top:20px}button:disabled{opacity:.6;cursor:wait}
 :focus-visible{outline:3px solid #e9a700;outline-offset:3px}
 #estado{margin:16px 0 0;white-space:pre-line}#resultados{margin-top:24px}#resultados[hidden]{display:none}
@@ -43,10 +43,13 @@ footer{padding:20px;background:white;border-top:1px solid #dae5ec}
 <option value="gnc">Gasolina / GNC</option>
 <option value="otro">Otro / No lo sé</option>
 </select></div>
-<div class="campo"><label for="averia">4. Avería o síntoma</label><select id="averia" required><option value="">Selecciona el síntoma</option></select></div>
-<div class="campo"><label for="municipio">5. Municipio</label><select id="municipio" required><option value="">Selecciona un municipio</option></select></div>
-</div><button id="buscar" type="submit">Buscar talleres candidatos</button><p id="estado" role="status" aria-live="polite"></p></form>
-<section id="resultados" hidden aria-live="polite"><h2 id="titulo-resultados">Talleres candidatos</h2><p class="nota">La coincidencia se basa en las especialidades publicadas, no es una garantía de que el taller acepte esta marca, modelo o avería. Confirma el servicio por teléfono.</p><div id="tarjetas"></div></section>
+<div class="campo"><label for="anio">4. Año de fabricación o matriculación (opcional)</label><select id="anio"><option value="">No lo sé / no indicar</option></select></div>
+<div class="campo"><label for="cilindrada">5. Cilindrada o versión del motor (opcional)</label><input id="cilindrada" type="text" maxlength="60" placeholder="Ej. 2.0 HDi, 1.5 dCi, 1.6 TDI"></div>
+<div class="campo"><label for="potencia">6. Potencia en CV (opcional)</label><input id="potencia" type="number" min="1" max="2500" step="1" inputmode="numeric" placeholder="Ej. 90"></div>
+<div class="campo"><label for="averia">7. Avería o síntoma</label><select id="averia" required><option value="">Selecciona el síntoma</option></select></div>
+<div class="campo"><label for="municipio">8. Municipio</label><select id="municipio" required><option value="">Selecciona un municipio</option></select></div>
+</div><button id="buscar" type="submit">Buscar talleres candidatos</button><p id="estado" role="status" aria-live="polite"></p><p class="nota">Los campos de año, versión y potencia sirven para describir tu vehículo al taller. Todavía no verifican automáticamente qué motores repara cada establecimiento.</p></form>
+<section id="resultados" hidden aria-live="polite"><h2 id="titulo-resultados">Talleres candidatos</h2><p id="resumen-vehiculo"></p><p class="nota">La coincidencia se basa en las especialidades publicadas. No garantiza diagnosis, reparación, disponibilidad ni compatibilidad con la marca o el motor. Confírmalo antes de desplazarte.</p><div id="tarjetas"></div><button type="button" id="copiar-consulta" hidden>Copiar datos para consultar al taller</button></section>
 <p class="nota">Esta herramienta es orientativa y no sustituye un diagnóstico profesional. Los datos proceden de las fichas públicas de TallerMap.</p>
 </main><footer><div class="wrap">© 2026 TallerMap · <a href="/pages/privacidad.html">Privacidad</a></div></footer>
 </body></html>
