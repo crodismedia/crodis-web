@@ -1,17 +1,34 @@
 {
   "version": 1,
-  "estado": "parcial",
+  "estado": "ampliado_provisional",
   "fuente_referencia": "https://www.autodoc.es/recambios-models",
-  "nota": "Listado preliminar de modelos contrastados con la página pública de modelos populares de AUTODOC. No es un catálogo completo, ni una integración/API de AUTODOC. Los arrays vacíos indican revisión pendiente. No usar como única fuente para identificar variantes exactas.",
+  "nota": "Catálogo orientativo de modelos para navegación. No equivale a una extracción completa ni a una validación de versiones de AUTODOC. Revisar año, mercado y motor antes de inferir compatibilidad.",
   "marcas": {
     "Abarth": [
       "500",
       "595",
-      "695"
+      "695",
+      "Grande Punto",
+      "Punto Evo"
     ],
     "Alfa Romeo": [
+      "4C",
+      "145",
+      "146",
       "147",
-      "159"
+      "155",
+      "156",
+      "159",
+      "164",
+      "166",
+      "Giulia",
+      "Giulietta",
+      "GT",
+      "GTV",
+      "MiTo",
+      "Spider",
+      "Stelvio",
+      "Tonale"
     ],
     "Audi": [
       "A1",
@@ -36,7 +53,16 @@
       "X4",
       "X5"
     ],
-    "BYD": [],
+    "BYD": [
+      "Atto 2",
+      "Atto 3",
+      "Dolphin",
+      "Dolphin Surf",
+      "Han",
+      "Seal",
+      "Seal U",
+      "Tang"
+    ],
     "Citroën": [
       "C2",
       "C3",
@@ -49,10 +75,23 @@
       "Saxo",
       "Xsara"
     ],
-    "Cupra": [],
+    "Cupra": [
+      "Ateca",
+      "Born",
+      "Formentor",
+      "Leon",
+      "Tavascan",
+      "Terramar"
+    ],
     "Dacia": [
+      "Bigster",
+      "Dokker",
       "Duster",
-      "Sandero"
+      "Jogger",
+      "Lodgy",
+      "Logan",
+      "Sandero",
+      "Spring"
     ],
     "Fiat": [
       "500",
@@ -79,18 +118,48 @@
     "Honda": [
       "Accord",
       "Civic",
-      "CR-V"
+      "CR-V",
+      "e",
+      "FR-V",
+      "HR-V",
+      "Jazz",
+      "Prelude"
     ],
     "Hyundai": [
+      "Accent",
+      "Atos",
+      "Bayon",
+      "Getz",
+      "i10",
       "i20",
       "i30",
+      "i40",
+      "Ioniq",
+      "Ioniq 5",
+      "Ioniq 6",
+      "Kona",
+      "Matrix",
       "Santa Fe",
       "Tucson"
     ],
-    "Jaguar": [],
+    "Jaguar": [
+      "E-Pace",
+      "F-Pace",
+      "F-Type",
+      "I-Pace",
+      "S-Type",
+      "X-Type",
+      "XE",
+      "XF",
+      "XJ"
+    ],
     "Jeep": [
+      "Avenger",
       "Cherokee",
-      "Grand Cherokee"
+      "Compass",
+      "Grand Cherokee",
+      "Renegade",
+      "Wrangler"
     ],
     "Kia": [
       "Carens",
@@ -103,12 +172,27 @@
       "XCeed"
     ],
     "Land Rover": [
+      "Defender",
       "Discovery",
+      "Discovery Sport",
       "Freelander",
       "Range Rover",
-      "Range Rover Evoque"
+      "Range Rover Evoque",
+      "Range Rover Sport",
+      "Range Rover Velar"
     ],
-    "Lexus": [],
+    "Lexus": [
+      "CT",
+      "ES",
+      "GS",
+      "IS",
+      "LBX",
+      "LS",
+      "NX",
+      "RC",
+      "RX",
+      "UX"
+    ],
     "Mazda": [
       "2",
       "3",
@@ -136,12 +220,24 @@
       "Vito"
     ],
     "Mini": [
-      "Hatchback"
+      "Clubman",
+      "Convertible",
+      "Countryman",
+      "Coupe",
+      "Hatchback",
+      "Paceman",
+      "Roadster"
     ],
     "Mitsubishi": [
+      "ASX",
+      "Colt",
+      "Eclipse Cross",
+      "Grandis",
       "L200",
+      "Lancer",
       "Montero",
-      "Outlander"
+      "Outlander",
+      "Space Star"
     ],
     "Nissan": [
       "Almera",
@@ -184,7 +280,13 @@
       "Rifter"
     ],
     "Porsche": [
-      "Cayenne"
+      "718 Boxster",
+      "718 Cayman",
+      "911",
+      "Cayenne",
+      "Macan",
+      "Panamera",
+      "Taycan"
     ],
     "Renault": [
       "Captur",
@@ -210,18 +312,53 @@
       "Toledo"
     ],
     "Škoda": [
+      "Citigo",
+      "Enyaq",
       "Fabia",
+      "Kamiq",
+      "Karoq",
+      "Kodiaq",
       "Octavia",
-      "Superb"
+      "Rapid",
+      "Scala",
+      "Superb",
+      "Yeti"
     ],
-    "Smart": [],
-    "Subaru": [],
+    "Smart": [
+      "#1",
+      "#3",
+      "Forfour",
+      "Fortwo",
+      "Roadster"
+    ],
+    "Subaru": [
+      "BRZ",
+      "Forester",
+      "Impreza",
+      "Legacy",
+      "Levorg",
+      "Outback",
+      "Solterra",
+      "XV"
+    ],
     "Suzuki": [
+      "Alto",
+      "Baleno",
       "Grand Vitara",
+      "Ignis",
+      "Jimny",
+      "S-Cross",
+      "Splash",
       "Swift",
-      "Vitara"
+      "Vitara",
+      "Wagon R+"
     ],
-    "Tesla": [],
+    "Tesla": [
+      "Model 3",
+      "Model S",
+      "Model X",
+      "Model Y"
+    ],
     "Toyota": [
       "Auris",
       "Avensis",
@@ -254,10 +391,25 @@
       "Transporter"
     ],
     "Volvo": [
+      "240",
+      "850",
+      "C30",
+      "C40",
+      "EX30",
+      "EX40",
+      "EX90",
       "S40",
       "S60",
+      "S80",
+      "S90",
+      "V40",
+      "V50",
+      "V60",
+      "V70",
+      "V90",
       "XC40",
       "XC60",
+      "XC70",
       "XC90"
     ]
   }
