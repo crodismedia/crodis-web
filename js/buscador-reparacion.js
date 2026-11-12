@@ -19,6 +19,7 @@ try{
  cargar("/data/averias-servicios.json")
  ]);
  const marcas=catalogo.marcas||{};
+ for(let year=new Date().getFullYear()+1;year>=1950;year--)add($("anio"),String(year),String(year));
  const municipios=Array.isArray(window.TallerMapMunicipiosEstaticos)?window.TallerMapMunicipiosEstaticos:[];
  const lista=[...new Set(municipios.filter(m=>validarUrlRuta(m.ruta)).map(m=>JSON.stringify({nombre:m.nombre,ruta:m.ruta,codigo:m.codigo})))].map(JSON.parse);
  lista.sort((a,b)=>a.nombre.localeCompare(b.nombre,"es"));
@@ -41,15 +42,18 @@ try{
  const serviciosBase=mapa.relaciones[$("averia").value]||[];
  const electrificado=["electrico","hibrido-gasolina","hibrido-diesel","microhibrido","hibrido-enchufable"].includes(motor);
  const soloElectrico=motor==="electrico";
- const combustible=motor==="diesel"?"inyeccion-diesel":motor==="gasolina"?"inyeccion-gasolina":null;
+
  let servicios=serviciosBase.filter(s=>{
    if(soloElectrico && ["inyeccion-diesel","inyeccion-gasolina","turbo","filtro-particulas-dpf-fap","embrague","escape-catalizador"].includes(s))return false;
    if(motor==="diesel" && s==="inyeccion-gasolina")return false;
    if(motor==="gasolina" && ["inyeccion-diesel","filtro-particulas-dpf-fap"].includes(s))return false;
    return true;
  });
- if(electrificado)servicios=[...new Set(["hibridos-electricos",...servicios])];
- if(soloElectrico)servicios=[...new Set(["electricidad-automovil","diagnosis-electronica",...servicios])];
+ // La propulsión modifica los servicios aplicables; no prueba compatibilidad.
+ if(electrificado && ["no-arranca","arranque-dificil","bateria-descarga","perdida-potencia","testigo-motor","alternador"].includes($("averia").value))servicios=[...new Set([...servicios,"hibridos-electricos"])];
+ if(soloElectrico && ["no-arranca","arranque-dificil","bateria-descarga","testigo-motor","perdida-potencia"].includes($("averia").value))servicios=[...new Set([...servicios,"baterias-alta-tension"])];
+ if(motor==="hibrido-diesel")servicios=servicios.filter(s=>s!=="inyeccion-gasolina");
+ if(motor==="hibrido-gasolina"||motor==="hibrido-enchufable")servicios=servicios.filter(s=>s!=="inyeccion-diesel");
 
  if(!servicios.length)return estado("No hay especialidades asociadas a este síntoma.");
  $("buscar").disabled=true;$("resultados").hidden=true;estado("Consultando fichas publicadas de TallerMap…");
@@ -58,11 +62,21 @@ try{
  const doc=new DOMParser().parseFromString(await res.text(),"text/html");
  const tarjetas=[...doc.querySelectorAll("#lista-talleres .taller-card")];
  const candidatos=tarjetas.map(card=>{
- const publicadas=new Set([...String(card.dataset.servicios||"").split(/\s+/),...Array.from(card.querySelectorAll(".especialidades span"),e=>normalizar(e.textContent))]);
+ const publicadas=new Set([...String(card.dataset.servicios||"").split(/\s+/).map(normalizar),...Array.from(card.querySelectorAll(".especialidades span"),e=>normalizar(e.textContent))]);
  const coincidencias=servicios.filter(s=>publicadas.has(s));
+ // No asumir que un rótulo genérico identifica una especialidad concreta.
+
  return {card,coincidencias};
  }).filter(c=>c.coincidencias.length).sort((a,b)=>b.coincidencias.length-a.coincidencias.length);
  const salida=$("tarjetas");salida.replaceChildren();
+ const detalles=[$("marca").value,$("modelo").value,$("motor").selectedOptions[0]?.textContent,$("anio").value?("Año "+$("anio").value):"", $("cilindrada").value.trim(), $("potencia").value?($("potencia").value+" CV"):"",$("averia").selectedOptions[0]?.textContent].filter(Boolean);
+ $("resumen-vehiculo").textContent="Vehículo y síntoma: "+detalles.join(" · ");
+ $("copiar-consulta").hidden=false;
+ $("copiar-consulta").onclick=async()=>{
+  const texto="Hola, tengo un "+detalles.join(" · ")+". ¿Podéis diagnosticarlo y confirmarme si trabajáis con este modelo y motor?";
+  try{await navigator.clipboard.writeText(texto);estado("Consulta copiada. Puedes enviarla al taller.");}
+  catch{estado("No se pudo copiar automáticamente. Selecciona el texto del resumen para compartirlo.");}
+ };
  $("titulo-resultados").textContent=candidatos.length+" talleres candidatos en "+$("municipio").selectedOptions[0].text.split(" (")[0];
  if(!candidatos.length){const p=document.createElement("p");p.textContent="No hay talleres con especialidades coincidentes publicadas en este municipio. Prueba otra población cercana o consulta el directorio.";salida.append(p);}
  candidatos.forEach(({card,coincidencias})=>{
@@ -70,7 +84,7 @@ try{
  const h=document.createElement("h3");h.textContent=card.querySelector("h3")?.textContent?.trim()||"Taller";
  const address=document.createElement("p");address.textContent=card.querySelector(".ubicacion")?.textContent?.trim()||"Consulta su ficha para ver la dirección";
  const esp=document.createElement("p");esp.textContent="Especialidades relacionadas: "+coincidencias.map(s=>categorias[s]||s.replace(/-/g," ")).join(", ");
- const badge=document.createElement("span");badge.className="etiqueta";badge.textContent="Posible candidato · confirmar reparación";
+ const badge=document.createElement("span");badge.className="etiqueta";badge.textContent="Especialidad relacionada · disponibilidad por confirmar";
  const actions=document.createElement("div");actions.className="acciones";
  const links=card.querySelectorAll("a[href]");
  const ficha=[...links].find(a=>a.classList.contains("enlace-ficha-taller"));
@@ -89,7 +103,7 @@ try{
  }catch(err){estado("No se pudo realizar la búsqueda: "+err.message);}
  finally{$("buscar").disabled=false;}
  });
- estado("Selecciona las cinco opciones para buscar.");
+ estado("Selecciona marca, modelo, tipo de motor, avería y municipio. Los demás datos son opcionales.");
 }catch(e){estado("No se pudo cargar el catálogo. "+e.message);}
 }
 document.addEventListener("DOMContentLoaded",iniciar);
