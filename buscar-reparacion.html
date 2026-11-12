@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buscar talleres según avería y municipio | TallerMap</title>
-<meta name="description" content="Selecciona la marca, el modelo, el síntoma y el municipio. Encuentra talleres con especialidades publicadas que podrían diagnosticar la avería.">
+<meta name="description" content="Selecciona la marca, el modelo, la motorización, el síntoma y el municipio. Encuentra talleres con especialidades publicadas que podrían diagnosticar la avería.">
 <meta name="robots" content="index,follow"><link rel="canonical" href="https://www.tallermap.es/buscar-reparacion.html">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
@@ -26,12 +26,25 @@ footer{padding:20px;background:white;border-top:1px solid #dae5ec}
 <script src="/js/buscador-reparacion.js" defer></script>
 </head><body>
 <header><div class="wrap"><a href="/" style="font-size:21px;font-weight:850;text-decoration:none">TallerMap</a><nav><a href="/">Inicio</a><a href="/talleres.html">Talleres</a><a href="/potencia.html">Potencia</a></nav></div></header>
-<main class="wrap"><div class="intro"><p><a href="/">Inicio</a> / Buscar reparación</p><h1>Encuentra un taller para la avería de tu coche</h1><p>Indica la marca, modelo, síntoma y municipio. Buscaremos talleres con servicios publicados relacionados con ese síntoma.</p></div>
+<main class="wrap"><div class="intro"><p><a href="/">Inicio</a> / Buscar reparación</p><h1>Encuentra un taller para la avería de tu coche</h1><p>Indica la marca, modelo, tipo de motor, síntoma y municipio. Buscaremos talleres con servicios publicados relacionados con ese síntoma.</p></div>
 <form id="formulario" class="panel"><div class="campos">
 <div class="campo"><label for="marca">1. Marca</label><select id="marca" required><option value="">Selecciona una marca</option></select></div>
 <div class="campo"><label for="modelo">2. Modelo</label><select id="modelo" required disabled><option value="">Selecciona primero la marca</option></select></div>
-<div class="campo"><label for="averia">3. Avería o síntoma</label><select id="averia" required><option value="">Selecciona el síntoma</option></select></div>
-<div class="campo"><label for="municipio">4. Municipio</label><select id="municipio" required><option value="">Selecciona un municipio</option></select></div>
+<div class="campo"><label for="motor">3. Tipo de motor o propulsión</label><select id="motor" required>
+<option value="">Selecciona el tipo de motor</option>
+<option value="gasolina">Gasolina</option>
+<option value="diesel">Diésel</option>
+<option value="hibrido-gasolina">Híbrido gasolina (HEV)</option>
+<option value="hibrido-diesel">Híbrido diésel (HEV)</option>
+<option value="microhibrido">Microhíbrido (MHEV)</option>
+<option value="hibrido-enchufable">Híbrido enchufable (PHEV)</option>
+<option value="electrico">100 % eléctrico</option>
+<option value="glp">Gasolina / GLP</option>
+<option value="gnc">Gasolina / GNC</option>
+<option value="otro">Otro / No lo sé</option>
+</select></div>
+<div class="campo"><label for="averia">4. Avería o síntoma</label><select id="averia" required><option value="">Selecciona el síntoma</option></select></div>
+<div class="campo"><label for="municipio">5. Municipio</label><select id="municipio" required><option value="">Selecciona un municipio</option></select></div>
 </div><button id="buscar" type="submit">Buscar talleres candidatos</button><p id="estado" role="status" aria-live="polite"></p></form>
 <section id="resultados" hidden aria-live="polite"><h2 id="titulo-resultados">Talleres candidatos</h2><p class="nota">La coincidencia se basa en las especialidades publicadas, no es una garantía de que el taller acepte esta marca, modelo o avería. Confirma el servicio por teléfono.</p><div id="tarjetas"></div></section>
 <p class="nota">Esta herramienta es orientativa y no sustituye un diagnóstico profesional. Los datos proceden de las fichas públicas de TallerMap.</p>
