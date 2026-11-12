@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "estado": "parcial",
+  "fuente_referencia": "https://www.autodoc.es/recambios-models",
+  "nota": "Listado preliminar de modelos contrastados con la página pública de modelos populares de AUTODOC. No es un catálogo completo, ni una integración/API de AUTODOC. Los arrays vacíos indican revisión pendiente. No usar como única fuente para identificar variantes exactas.",
+  "marcas": {
+    "Abarth": [
+      "500",
+      "595",
+      "695"
+    ],
+    "Alfa Romeo": [
+      "147",
+      "159"
+    ],
+    "Audi": [
+      "A1",
+      "A3",
+      "A4",
+      "A5",
+      "A6",
+      "Q3",
+      "Q5",
+      "Q7",
+      "TT"
+    ],
+    "BMW": [
+      "Serie 1",
+      "Serie 2",
+      "Serie 3",
+      "Serie 4",
+      "Serie 5",
+      "Serie 7",
+      "X1",
+      "X3",
+      "X4",
+      "X5"
+    ],
+    "BYD": [],
+    "Citroën": [
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C15",
+      "Berlingo",
+      "Jumper",
+      "Jumpy",
+      "Saxo",
+      "Xsara"
+    ],
+    "Cupra": [],
+    "Dacia": [
+      "Duster",
+      "Sandero"
+    ],
+    "Fiat": [
+      "500",
+      "Doblo",
+      "Ducato",
+      "Grande Punto",
+      "Panda",
+      "Punto"
+    ],
+    "Ford": [
+      "C-Max",
+      "Fiesta",
+      "Focus",
+      "Ka",
+      "Kuga",
+      "Mondeo",
+      "Puma",
+      "Ranger",
+      "S-Max",
+      "Transit",
+      "Transit Connect",
+      "Transit Custom"
+    ],
+    "Honda": [
+      "Accord",
+      "Civic",
+      "CR-V"
+    ],
+    "Hyundai": [
+      "i20",
+      "i30",
+      "Santa Fe",
+      "Tucson"
+    ],
+    "Jaguar": [],
+    "Jeep": [
+      "Cherokee",
+      "Grand Cherokee"
+    ],
+    "Kia": [
+      "Carens",
+      "Ceed",
+      "Niro",
+      "Rio",
+      "Sorento",
+      "Sportage",
+      "Stonic",
+      "XCeed"
+    ],
+    "Land Rover": [
+      "Discovery",
+      "Freelander",
+      "Range Rover",
+      "Range Rover Evoque"
+    ],
+    "Lexus": [],
+    "Mazda": [
+      "2",
+      "3",
+      "6",
+      "CX-5",
+      "CX-30",
+      "MX-5"
+    ],
+    "Mercedes-Benz": [
+      "Clase A",
+      "Clase B",
+      "Clase C",
+      "Clase E",
+      "Clase M",
+      "Clase S",
+      "Citan",
+      "CLA",
+      "CLK",
+      "GLA",
+      "GLC",
+      "GLE",
+      "SLK",
+      "Sprinter",
+      "Viano",
+      "Vito"
+    ],
+    "Mini": [
+      "Hatchback"
+    ],
+    "Mitsubishi": [
+      "L200",
+      "Montero",
+      "Outlander"
+    ],
+    "Nissan": [
+      "Almera",
+      "Juke",
+      "Micra",
+      "Navara",
+      "Pathfinder",
+      "Patrol",
+      "Qashqai",
+      "Terrano",
+      "X-Trail"
+    ],
+    "Opel": [
+      "Astra",
+      "Corsa",
+      "Frontera",
+      "Insignia",
+      "Mokka",
+      "Vectra",
+      "Vivaro",
+      "Zafira"
+    ],
+    "Peugeot": [
+      "106",
+      "206",
+      "207",
+      "208",
+      "306",
+      "307",
+      "308",
+      "406",
+      "407",
+      "508",
+      "2008",
+      "3008",
+      "5008",
+      "Boxer",
+      "Expert",
+      "Partner",
+      "Rifter"
+    ],
+    "Porsche": [
+      "Cayenne"
+    ],
+    "Renault": [
+      "Captur",
+      "Clio",
+      "Espace",
+      "Grand Scenic",
+      "Kadjar",
+      "Kangoo",
+      "Laguna",
+      "Megane",
+      "Scenic",
+      "Trafic"
+    ],
+    "Seat": [
+      "Alhambra",
+      "Altea",
+      "Arona",
+      "Ateca",
+      "Cordoba",
+      "Exeo",
+      "Ibiza",
+      "Leon",
+      "Toledo"
+    ],
+    "Škoda": [
+      "Fabia",
+      "Octavia",
+      "Superb"
+    ],
+    "Smart": [],
+    "Subaru": [],
+    "Suzuki": [
+      "Grand Vitara",
+      "Swift",
+      "Vitara"
+    ],
+    "Tesla": [],
+    "Toyota": [
+      "Auris",
+      "Avensis",
+      "Aygo",
+      "C-HR",
+      "Celica",
+      "Corolla",
+      "Hilux",
+      "Land Cruiser",
+      "Prius",
+      "RAV4",
+      "Verso",
+      "Yaris"
+    ],
+    "Volkswagen": [
+      "Caddy",
+      "Crafter",
+      "Golf",
+      "Jetta",
+      "Multivan",
+      "Passat",
+      "Polo",
+      "Scirocco",
+      "Taigo",
+      "T-Cross",
+      "T-Roc",
+      "Tiguan",
+      "Touareg",
+      "Touran",
+      "Transporter"
+    ],
+    "Volvo": [
+      "S40",
+      "S60",
+      "XC40",
+      "XC60",
+      "XC90"
+    ]
+  }
+}
