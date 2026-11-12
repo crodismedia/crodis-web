@@ -21,9 +21,21 @@ button{background:#1457d9;color:#fff;border:0;border-radius:10px;padding:13px 21
 .etiqueta{display:inline-block;background:#e5f2e9;color:#185e32;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:750}
 footer{padding:20px;background:white;border-top:1px solid #dae5ec}
 @media(max-width:650px){.campos{grid-template-columns:1fr}nav a{margin-left:7px;font-size:13px}.panel{padding:17px}}
+
+#precios-orientativos{margin-top:30px}
+#descripcion-precio{display:block;width:100%;min-height:150px;padding:14px;resize:vertical;font:inherit;line-height:1.5;border:1px solid #b9cbdc;border-radius:10px}
+#estado-precios{margin-top:12px;font-weight:700;white-space:pre-line}
+#progreso-precios[hidden],#resultado-precios[hidden]{display:none}
+#progreso-precios{margin-top:16px}
+#barra-precios{display:block;width:100%;height:17px;margin-top:8px;accent-color:#1457d9}
+#lista-precios{list-style:none;margin:16px 0;padding:0;display:grid;gap:12px}
+#lista-precios li{background:#fff;border:1px solid #cbdbe8;border-radius:13px;padding:17px}
+.precio-importe{font-size:22px;font-weight:850;color:#135c34;display:block;margin:4px 0}
+.precio-fuente{font-size:13px;color:#4c6175}
+#precios-orientativos small{display:block;color:#4c6175;margin-top:8px}
 </style>
 <script src="/js/catalogo-municipios-estatico.js" defer></script>
-<script src="/js/buscador-reparacion.js" defer></script>
+<script src="/js/buscador-reparacion.js" defer></script><script src="/js/precios-reparacion.js" defer></script>
 </head><body>
 <header><div class="wrap"><a href="/" style="font-size:21px;font-weight:850;text-decoration:none">TallerMap</a><nav><a href="/">Inicio</a><a href="/talleres.html">Talleres</a><a href="/potencia.html">Potencia</a></nav></div></header>
 <main class="wrap"><div class="intro"><p><a href="/">Inicio</a> / Buscar reparación</p><h1>Encuentra un taller para la avería de tu coche</h1><p>Indica la marca, modelo, tipo de motor, síntoma y municipio. Buscaremos talleres con servicios publicados relacionados con ese síntoma.</p></div>
@@ -50,6 +62,23 @@ footer{padding:20px;background:white;border-top:1px solid #dae5ec}
 <div class="campo"><label for="municipio-texto">8. Municipio o código postal</label><input id="municipio-texto" type="search" autocomplete="address-level2" placeholder="Escribe Silla, 46460, Cox…" aria-describedby="ayuda-municipio"><p id="ayuda-municipio" class="nota" style="font-size:13px;margin:4px 0 8px">Escribe al menos 2 letras o 5 cifras para filtrar municipios.</p><select id="municipio" required aria-label="Selecciona el municipio de los resultados"><option value="">Selecciona un municipio</option></select></div>
 </div><button id="buscar" type="submit">Buscar talleres candidatos</button><p id="estado" role="status" aria-live="polite"></p><p class="nota">Los campos de año, versión y potencia sirven para describir tu vehículo al taller. Todavía no verifican automáticamente qué motores repara cada establecimiento.</p></form>
 <section id="resultados" hidden aria-live="polite"><h2 id="titulo-resultados">Talleres candidatos</h2><p id="resumen-vehiculo"></p><p class="nota">La coincidencia se basa en las especialidades publicadas. No garantiza diagnosis, reparación, disponibilidad ni compatibilidad con la marca o el motor. Confírmalo antes de desplazarte.</p><div id="tarjetas"></div><button type="button" id="copiar-consulta" hidden>Copiar datos para consultar al taller</button></section>
+<section id="precios-orientativos" class="panel" aria-labelledby="titulo-precios">
+<h2 id="titulo-precios">Investigar precios aproximados de reparación</h2>
+<p>Describe tu coche y el trabajo que crees necesario. Se consultará una fuente pública de precios en Internet y se contrastará con referencias documentadas. <strong>Los importes se mostrarán solo después de tres minutos completos</strong>, del menor al mayor.</p>
+<label for="descripcion-precio">Datos del vehículo, síntomas o reparación solicitada</label>
+<textarea id="descripcion-precio" minlength="10" maxlength="1600" placeholder="Ejemplo: Citroën Berlingo 2006, 2.0 HDi 90 CV diésel, 230.000 km. Da tirones al acelerar, se enciende la luz de motor. Quiero saber cuánto cuesta una diagnosis y las posibles reparaciones." required></textarea>
+<small>Evita escribir matrícula, bastidor, teléfono o datos personales. Un síntoma por sí solo no permite saber qué pieza hay que reparar.</small>
+<button type="button" id="completar-precio">Rellenar con los campos anteriores</button>
+<button type="button" id="buscar-precio">Investigar precios (3 minutos)</button>
+<p id="estado-precios" role="status" aria-live="polite"></p>
+<div id="progreso-precios" hidden><label for="barra-precios">Espera antes de mostrar precios</label><progress id="barra-precios" max="180" value="0"></progress><small id="cuenta-precios"></small></div>
+<section id="resultado-precios" hidden aria-labelledby="subtitulo-precios">
+<h3 id="subtitulo-precios">Referencias de precios encontradas</h3>
+<p id="explicacion-precios"></p>
+<ol id="lista-precios"></ol>
+<p class="nota">Precios orientativos españoles de las operaciones indicadas, no presupuestos para tu coche ni ofertas de los talleres listados. La diagnosis puede requerir un coste adicional. Pide siempre presupuesto por escrito con desglose e IVA.</p>
+</section>
+</section>
 <p class="nota">Esta herramienta es orientativa y no sustituye un diagnóstico profesional. Los datos proceden de las fichas públicas de TallerMap. No almacenamos aquí tus búsquedas ni enviamos los detalles del coche a los talleres automáticamente.</p><section class="advertencia"><strong>Seguridad:</strong> si se enciende una alerta roja de temperatura, aceite o frenos, detén el vehículo de forma segura y solicita asistencia. No sigas circulando para llegar al taller.</section>
 </main><footer><div class="wrap">© 2026 TallerMap · <a href="/pages/privacidad.html">Privacidad</a></div></footer>
 </body></html>
