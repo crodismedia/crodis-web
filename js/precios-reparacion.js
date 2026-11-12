@@ -9,6 +9,29 @@ const sourceMap={
 "kit-distribucion":"distribucion","aire-acondicionado":"clima","neumaticos":"neumatico","alineacion":"alineacion",
 "bomba-agua":"bomba-agua","revision-basica":"revision-basica"
 };
+// Consulta anónima del CSV público; si el origen bloquea CORS, usamos referencias contrastadas locales.
+async function consultarFuenteAbierta(){
+ const response=await fetch("https://www.artemek.com/estudios/precios-taller-2026.csv",{mode:"cors",cache:"no-store",signal:AbortSignal.timeout(12000)});
+ if(!response.ok)throw Error("Fuente externa no disponible");
+ const raw=await response.text();
+ if(raw.length>150000)throw Error("Archivo remoto demasiado grande");
+ const rows=raw.split(/\r?\n/).filter(Boolean);
+ const header=rows.findIndex(r=>r.startsWith("servicio,slug,unidad,"));
+ if(header<0)throw Error("Formato de fuente desconocido");
+ const headings=rows[header].split(",");
+ const results=[];
+ for(const line of rows.slice(header+1)){
+  if(line.startsWith("#")||line.startsWith('"#')||line.startsWith("comunidad,"))break;
+  const cells=line.match(/(?:[^,"]+|"[^"]*")+/g)?.map(v=>v.replace(/^"|"$/g,""))||[];
+  const obj=Object.fromEntries(headings.map((k,i)=>[k,cells[i]??""]));
+  if(obj.unidad!=="trabajo"||!sourceMap[obj.slug]||obj.slug==="neumaticos")continue;
+  const min=Number(obj.bajo_eur),max=Number(obj.alto_eur);
+  if(!(min>0&&max>=min&&max<10000))continue;
+  results.push({id:obj.slug,trabajo:obj.servicio,min,max,fecha:obj.fecha_datos,fuente:"Artemek · estudio de precios 2026",url:"https://www.artemek.com/estudios/precios-taller-2026",ambito:obj.ambito||"España",alcance:"Mediana y tramo estadístico de precios publicados; no oferta específica."});
+ }
+ if(!results.length)throw Error("CSV sin datos válidos");
+ return {online:true,results};
+}
 const matchers=[
 {id:"diagnosis",rx:/\b(diagnos|revision de averia|escaneo de fallos|lectura de fallos|maquina de diagnosis)/},
 {id:"embrague",rx:/\b(embrague|kit de embrague)/},
@@ -92,7 +115,7 @@ async function run(){
  try{
   const [base,live]=await Promise.allSettled([
    fetch("/data/referencias-precios-reparacion.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("datos base");return r.json();}),
-   fetch("/api/precios-reparacion",{cache:"no-store",signal:AbortSignal.timeout(17000)}).then(r=>r.json())
+   consultarFuenteAbierta()
   ]);
   if(base.status!=="fulfilled")throw Error("No se pudieron cargar las referencias de precios.");
   const rows=base.value.precios||[];
