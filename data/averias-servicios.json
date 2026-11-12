@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "nota": "Correspondencias orientativas entre síntomas y especialidades; no prueban capacidad ni aceptación del modelo concreto.",
+  "relaciones": {
+    "no-arranca": [
+      "diagnosis-electronica",
+      "alternador-motor-arranque",
+      "electricidad-automovil"
+    ],
+    "arranque-dificil": [
+      "diagnosis-electronica",
+      "inyeccion-diesel",
+      "inyeccion-gasolina",
+      "alternador-motor-arranque"
+    ],
+    "se-cala": [
+      "diagnosis-electronica",
+      "reparacion-motor",
+      "inyeccion-diesel",
+      "inyeccion-gasolina"
+    ],
+    "tirones": [
+      "diagnosis-electronica",
+      "inyeccion-diesel",
+      "inyeccion-gasolina",
+      "reparacion-motor"
+    ],
+    "perdida-potencia": [
+      "diagnosis-electronica",
+      "turbo",
+      "inyeccion-diesel",
+      "inyeccion-gasolina",
+      "filtro-particulas-dpf-fap"
+    ],
+    "ralenti-inestable": [
+      "diagnosis-electronica",
+      "inyeccion-diesel",
+      "inyeccion-gasolina",
+      "reparacion-motor"
+    ],
+    "sobrecalentamiento": [
+      "sistema-refrigeracion",
+      "reparacion-motor"
+    ],
+    "humo-blanco": [
+      "diagnosis-electronica",
+      "reparacion-motor",
+      "inyeccion-diesel"
+    ],
+    "humo-negro": [
+      "diagnosis-electronica",
+      "inyeccion-diesel",
+      "filtro-particulas-dpf-fap"
+    ],
+    "humo-azul": [
+      "diagnosis-electronica",
+      "reparacion-motor",
+      "turbo"
+    ],
+    "consumo-excesivo": [
+      "diagnosis-electronica",
+      "inyeccion-diesel",
+      "inyeccion-gasolina"
+    ],
+    "fuga-aceite": [
+      "reparacion-motor",
+      "mecanica-general"
+    ],
+    "fuga-refrigerante": [
+      "sistema-refrigeracion",
+      "mecanica-general"
+    ],
+    "testigo-motor": [
+      "diagnosis-electronica",
+      "centralitas-electronica"
+    ],
+    "bateria-descarga": [
+      "baterias",
+      "alternador-motor-arranque",
+      "electricidad-automovil"
+    ],
+    "alternador": [
+      "alternador-motor-arranque",
+      "electricidad-automovil"
+    ],
+    "embrague-patina": [
+      "embrague",
+      "caja-cambios"
+    ],
+    "cambio-marchas": [
+      "caja-cambios",
+      "embrague",
+      "caja-cambios-automatica-dsg"
+    ],
+    "vibraciones": [
+      "suspension-amortiguadores",
+      "equilibrado-ruedas",
+      "alineacion-direccion",
+      "mecanica-general"
+    ],
+    "ruidos-motor": [
+      "reparacion-motor",
+      "diagnosis-electronica"
+    ],
+    "frenos-ruido": [
+      "frenos"
+    ],
+    "frenos-vibracion": [
+      "frenos"
+    ],
+    "direccion-dura": [
+      "direccion",
+      "alineacion-direccion"
+    ],
+    "suspension-ruidos": [
+      "suspension-amortiguadores",
+      "mecanica-general"
+    ],
+    "aire-acondicionado": [
+      "aire-acondicionado"
+    ],
+    "calefaccion": [
+      "calefaccion-climatizacion",
+      "sistema-refrigeracion"
+    ],
+    "ventilador-radiador": [
+      "sistema-refrigeracion",
+      "electricidad-automovil"
+    ],
+    "elevalunas": [
+      "electricidad-automovil"
+    ],
+    "luces": [
+      "electricidad-automovil"
+    ],
+    "cierre-centralizado": [
+      "electricidad-automovil",
+      "centralitas-electronica"
+    ]
+  }
+}
