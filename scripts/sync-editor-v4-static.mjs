@@ -101,7 +101,62 @@ function render(t,labels,m,rels){
 }
 
 const from=readCursor(),to=new Date().toISOString(),list=await changes(from,to),labels=await serviceMap(),munis=municipalities();
-let touched=0;
-for(const ch of list){const slug=clean(ch.slug,180);if(!/^[a-z0-9-]{2,180}$/.test(slug))continue;const dir=path.join(ROOT,'talleres',slug);if(ch.operacion==='delete'){if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true,force:true});touched++;}continue;}const t=await workshop(slug);if(!t||t.activo!==true||t.estado!=='publicado'){if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true,force:true});touched++;}continue;}const html=render(t,labels,municipioFor(t,munis),await related(t));fs.mkdirSync(dir,{recursive:true});const file=path.join(dir,'index.html'),before=fs.existsSync(file)?fs.readFileSync(file,'utf8'):'';if(before!==html){fs.writeFileSync(file,html,'utf8');touched++;}}
+function syncDirectory(changes) {
+  if (!changes.size) return;
+  const file = path.join(ROOT, 'talleres.html');
+  const html = fs.readFileSync(file, 'utf8');
+  const startMarker = '<div class="listado">';
+  const endMarker = '</div><p id="sin-resultados"';
+  const start = html.indexOf(startMarker);
+  const end = html.indexOf(endMarker, start);
+  if (start < 0 || end < 0) throw new Error('No se encontró el listado general');
+  const body = html.slice(start + startMarker.length, end);
+  const cards = [];
+  for (const card of body.trim().split(/\s*(?=<article class="taller">)/)) {
+    const slug = card.match(/href="\/talleres\/([^"]+)"/)?.[1];
+    const title = card.match(/<h2>(.*?)<\/h2>/)?.[1];
+    if (!slug || !title) throw new Error('Tarjeta sin nombre o enlace en talleres.html');
+    if (!changes.has(slug)) cards.push({title, card});
+  }
+  for (const [slug, workshop] of changes) {
+    if (!workshop) continue;
+    const {nombre, direccion, codigo_postal, ciudad, provincia, telefono, servicios} = workshop;
+    const address = [direccion, codigo_postal, ciudad, (provincia || '').split('/')[0]].filter(Boolean).join(' · ');
+    const maps = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([nombre, direccion, codigo_postal, ciudad, provincia].filter(Boolean).join(', '));
+    const phone = safePhone(telefono);
+    const call = phone ? '<a href="tel:' + esc(phone) + '">Llamar</a>' : '';
+    const title = esc(nombre);
+    const card = '<article class="taller"><h2>' + title + '</h2><p>' + esc(address) + '</p><p>' + esc((servicios || []).join(' · ')) + '</p><div class="enlaces">' + call + '<a href="/talleres/' + esc(slug) + '">Ver ficha</a><a href="' + esc(maps) + '" target="_blank" rel="noopener">Maps</a></div></article>';
+    const index = cards.findIndex(item => item.title.localeCompare(title, 'es', {sensitivity:'base'}) > 0);
+    cards.splice(index < 0 ? cards.length : index, 0, {title, card});
+  }
+  const updated = html.slice(0, start + startMarker.length) + cards.map(x => x.card).join('\n') + html.slice(end);
+  fs.writeFileSync(file, updated.replace(/(<p id="resultado"[^>]*>)\d+ talleres(<\/p>)/, (_, open, close) => open + cards.length + ' talleres' + close), 'utf8');
+}
+let touched = 0;
+const directoryChanges = new Map();
+for (const change of list) {
+  const slug = clean(change.slug, 180);
+  if (!/^[a-z0-9-]{2,180}$/.test(slug)) continue;
+  const dir = path.join(ROOT, 'talleres', slug);
+  const t = change.operacion === 'delete' ? null : await workshop(slug);
+  if (!t || !t.activo || t.estado !== 'publicado') {
+    directoryChanges.set(slug, null);
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, {recursive:true, force:true});
+      touched++;
+    }
+    continue;
+  }
+  directoryChanges.set(slug, t);
+  const html = render(t, labels, municipioFor(t, munis), await related(t));
+  fs.mkdirSync(dir, {recursive:true});
+  const file = path.join(dir, 'index.html');
+  if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== html) {
+    fs.writeFileSync(file, html, 'utf8');
+    touched++;
+  }
+}
+syncDirectory(directoryChanges);
 fs.writeFileSync(CURSOR,JSON.stringify({last_sync:to},null,2)+'\n','utf8');
 console.log(`CAMBIOS_LOG=${list.length}`);console.log(`FICHAS_CAMBIADAS=${touched}`);if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,`changed=${list.length>0?'true':'false'}\n`);
