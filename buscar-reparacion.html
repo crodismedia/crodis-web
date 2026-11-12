@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscar talleres según avería y municipio | TallerMap</title>
+<meta name="description" content="Selecciona la marca, el modelo, el síntoma y el municipio. Encuentra talleres con especialidades publicadas que podrían diagnosticar la avería.">
+<meta name="robots" content="index,follow"><link rel="canonical" href="https://www.tallermap.es/buscar-reparacion.html">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color:#102741;background:#f0f5fa}*{box-sizing:border-box}
+body{margin:0;line-height:1.5}header{background:white;border-bottom:1px solid #d9e4ed}header .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+.wrap{max-width:1080px;margin:auto;padding:0 18px}a{color:#1457d9}nav a{margin-left:15px;font-weight:700;text-decoration:none}main{padding-top:35px;padding-bottom:65px}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.16;margin-bottom:10px}h2{font-size:22px}
+.intro{max-width:800px}.intro p,.nota{color:#4c6175}.panel,.resultado{background:#fff;border:1px solid #dae5ec;border-radius:17px;padding:24px;box-shadow:0 8px 26px #142d4410}
+.campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.campo{min-width:0}
+label{display:block;font-weight:750;margin-bottom:6px}select{width:100%;padding:12px;border-radius:9px;border:1px solid #b9cbdc;font:inherit;background:white;color:#102741}
+button{background:#1457d9;color:#fff;border:0;border-radius:10px;padding:13px 21px;font:inherit;font-weight:750;cursor:pointer;margin-top:20px}button:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:3px solid #e9a700;outline-offset:3px}
+#estado{margin:16px 0 0;white-space:pre-line}#resultados{margin-top:24px}#resultados[hidden]{display:none}
+.resultado{margin-bottom:14px}.resultado h3{margin:0 0 5px;font-size:20px}.resultado p{margin:6px 0}.acciones{display:flex;flex-wrap:wrap;gap:13px;margin-top:12px}
+.etiqueta{display:inline-block;background:#e5f2e9;color:#185e32;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:750}
+footer{padding:20px;background:white;border-top:1px solid #dae5ec}
+@media(max-width:650px){.campos{grid-template-columns:1fr}nav a{margin-left:7px;font-size:13px}.panel{padding:17px}}
+</style>
+<script src="/js/catalogo-municipios-estatico.js" defer></script>
+<script src="/js/buscador-reparacion.js" defer></script>
+</head><body>
+<header><div class="wrap"><a href="/" style="font-size:21px;font-weight:850;text-decoration:none">TallerMap</a><nav><a href="/">Inicio</a><a href="/talleres.html">Talleres</a><a href="/potencia.html">Potencia</a></nav></div></header>
+<main class="wrap"><div class="intro"><p><a href="/">Inicio</a> / Buscar reparación</p><h1>Encuentra un taller para la avería de tu coche</h1><p>Indica la marca, modelo, síntoma y municipio. Buscaremos talleres con servicios publicados relacionados con ese síntoma.</p></div>
+<form id="formulario" class="panel"><div class="campos">
+<div class="campo"><label for="marca">1. Marca</label><select id="marca" required><option value="">Selecciona una marca</option></select></div>
+<div class="campo"><label for="modelo">2. Modelo</label><select id="modelo" required disabled><option value="">Selecciona primero la marca</option></select></div>
+<div class="campo"><label for="averia">3. Avería o síntoma</label><select id="averia" required><option value="">Selecciona el síntoma</option></select></div>
+<div class="campo"><label for="municipio">4. Municipio</label><select id="municipio" required><option value="">Selecciona un municipio</option></select></div>
+</div><button id="buscar" type="submit">Buscar talleres candidatos</button><p id="estado" role="status" aria-live="polite"></p></form>
+<section id="resultados" hidden aria-live="polite"><h2 id="titulo-resultados">Talleres candidatos</h2><p class="nota">La coincidencia se basa en las especialidades publicadas, no es una garantía de que el taller acepte esta marca, modelo o avería. Confirma el servicio por teléfono.</p><div id="tarjetas"></div></section>
+<p class="nota">Esta herramienta es orientativa y no sustituye un diagnóstico profesional. Los datos proceden de las fichas públicas de TallerMap.</p>
+</main><footer><div class="wrap">© 2026 TallerMap · <a href="/pages/privacidad.html">Privacidad</a></div></footer>
+</body></html>
