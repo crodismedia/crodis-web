@@ -132,4 +132,16 @@ fs.writeFileSync(mdPath, `# Guardian · carpeta ${requested}\n\n- Score: **${sco
 console.log(`🛡️ Guardian carpeta: ${requested}`);
 console.log(`✅ ${score}/100 | ${metrics.files} archivos | ${errors} errores | ${warnings} advertencias`);
 console.log(mdPath);
+
+// Única ampliación: publicar los errores concretos en GitHub Actions.
+// No cambia las reglas de validación, los HTML ni el resultado del workflow.
+if (errors) {
+  console.error('\n=== ERRORES DETECTADOS POR QUALITY GUARD ===');
+  for (const issue of issues.filter(i => i.severity === 'error')) {
+    console.error(`[${issue.type}] ${issue.file}: ${issue.message}`);
+    if (issue.line) console.error(`  Línea: ${issue.line}`);
+    if (issue.detail) console.error(`  Detalle: ${issue.detail}`);
+  }
+  console.error('=== FIN DE LOS ERRORES ===\n');
+}
 if (args.strict && errors) process.exitCode = 1;
