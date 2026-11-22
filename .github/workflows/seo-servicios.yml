@@ -1,0 +1,39 @@
+name: Optimizar palabras clave de servicios TallerMap
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/optimizar-seo-servicios.mjs'
+      - '.github/workflows/seo-servicios.yml'
+permissions:
+  contents: write
+concurrency:
+  group: seo-servicios
+  cancel-in-progress: false
+jobs:
+  seo-servicios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simular mejoras SEO con protecciones
+        run: node scripts/optimizar-seo-servicios.mjs --dry-run
+      - name: Actualizar metadatos de servicios
+        run: node scripts/optimizar-seo-servicios.mjs
+      - name: Publicar únicamente las páginas de servicios modificadas
+        run: |
+          if git diff --quiet -- servicios/; then
+            echo "Servicios ya actualizados"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add servicios/*.html
+          git commit -m 'Optimizar títulos y descripciones de 32 páginas de servicios'
+          git pull --rebase origin main
+          git push origin HEAD:main
