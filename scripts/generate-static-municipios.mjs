@@ -160,6 +160,10 @@ function seoDescription(municipality, count) {
     if (empty.length <= 155) return empty;
     return `Talleres en ${name}. Todav\u00eda no hay talleres publicados. Registra tu taller en TallerMap.`;
   }
+  // Prueba SEO limitada a Valencia (46250); no modifica otras fichas.
+  if (code === "46250") {
+    return "Encuentra talleres mec\u00e1nicos en Valencia. Busca mec\u00e1nicos por servicio y consulta direcci\u00f3n, tel\u00e9fono, horario y c\u00f3mo llegar a cada taller en TallerMap.";
+  }
   const quantity = count === 1 ? "1 taller publicado" : `${count} talleres publicados`;
   const full = `Encuentra talleres mec\u00e1nicos en ${name}, ${province}: ${quantity}. Consulta servicios, tel\u00e9fonos, horarios y ubicaci\u00f3n.`;
   if (full.length <= 155) return full;
