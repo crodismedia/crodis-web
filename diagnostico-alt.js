@@ -25,6 +25,33 @@ function altVacio(tag) {
   return value.trim() === "";
 }
 
+// Un alt vacio es correcto cuando una imagen es decorativa y el control
+// o el texto contiguo ya comunica su significado al lector de pantalla.
+function esDecorativaConContexto(html, tag, pos) {
+  if (/\baria-hidden\s*=\s*["']true["']/i.test(tag)) return true;
+
+  // Logotipo junto al nombre visible de TallerMap dentro del mismo enlace.
+  if (/\bclass=["'][^"']*\bmarca-icono-logo\b/i.test(tag)) {
+    const inicio = html.lastIndexOf("<a", pos);
+    const fin = html.indexOf("</a>", pos);
+    if (inicio >= 0 && pos - inicio < 650 && fin > pos && fin - pos < 650) {
+      const despues = html.slice(pos + tag.length, fin);
+      if (/<strong\b[^>]*>\s*TallerMap\s*<\/strong>/i.test(despues)) return true;
+    }
+  }
+
+  // Insignias de marcas con boton accesible y pie de figura visible.
+  const inicio = html.lastIndexOf("<figure", pos);
+  const fin = html.indexOf("</figure>", pos);
+  if (inicio >= 0 && pos - inicio < 600 && fin > pos && fin - pos < 600) {
+    const figura = html.slice(inicio, fin + 9);
+    if (/\bclass=["'][^"']*\btm-marca-item\b/i.test(figura)
+      && /<button\b[^>]*\baria-label=["'][^"']+["']/i.test(figura)
+      && /<figcaption\b[^>]*>[^<]+<\/figcaption>/i.test(figura)) return true;
+  }
+  return false;
+}
+
 async function descargar(url) {
   const response = await fetch(url, {
     headers: { "user-agent": USER_AGENT, "cache-control": "no-cache" },
@@ -57,6 +84,7 @@ function muestraRepartida(urls, max = MAX_POR_SITEMAP) {
 }
 
 async function recogerUrls() {
+  if (process.argv.includes("--single")) return [base.href];
   const urls = new Set([
     new URL("/", base).href,
     new URL("/provincias/alicante.html", base).href,
@@ -88,9 +116,12 @@ async function recogerUrls() {
 async function analizar(url) {
   try {
     const { url: finalUrl, text: html } = await descargar(url);
-    const imgs = obtenerImgs(html);
-    const sinAlt = imgs.filter((tag) => !tieneAlt(tag));
-    const altVacios = imgs.filter((tag) => tieneAlt(tag) && altVacio(tag));
+    const imgs = [...html.matchAll(/<img\b[^>]*>/gi)]
+      .map((m) => ({ tag: m[0], pos: m.index }));
+    const sinAlt = imgs.filter(({ tag }) => !tieneAlt(tag)).map(({ tag }) => tag);
+    const altVacios = imgs.filter(({ tag, pos }) =>
+      tieneAlt(tag) && altVacio(tag) && !esDecorativaConContexto(html, tag, pos)
+    ).map(({ tag }) => tag);
 
     return {
       ok: sinAlt.length === 0 && altVacios.length === 0,
