@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// TallerMap: generador de fichas estÃ¡ticas y auditorÃ­a SEO.
-// No modifica Supabase, las fichas pÃºblicas, el sitemap ni vercel.json.
+// TallerMap: generador de fichas estaticas y auditoria SEO.
+// No modifica Supabase, las fichas publicas, el sitemap ni vercel.json.
 // Uso: node scripts/generate-static-talleres-temporal-v2.mjs [--dry-run]
 const ROOT = process.cwd();
 const U = process.env.SUPABASE_URL || 'https://cnyptelvbsndpkzbrete.supabase.co';
@@ -27,7 +27,7 @@ function short(v, max) {
   if (text.length <= max) return text;
   const chunk = text.slice(0, max - 1);
   const cut = chunk.lastIndexOf(' ');
-  return (cut > max * 0.65 ? chunk.slice(0, cut) : chunk).trimEnd() + 'â€¦';
+  return (cut > max * 0.65 ? chunk.slice(0, cut) : chunk).trimEnd() + '\u2026';
 }
 function normalize(v) {
   return clean(v).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -68,13 +68,13 @@ function serviceLabel(v) {
 }
 function schedule(h) {
   if (!h || typeof h !== 'object') return '<p>Horario no disponible.</p>';
-  const days = [['lunes','Lunes'],['martes','Martes'],['miercoles','MiÃ©rcoles'],['jueves','Jueves'],['viernes','Viernes'],['sabado','SÃ¡bado'],['domingo','Domingo']];
+  const days = [['lunes','Lunes'],['martes','Martes'],['miercoles','Mi\u00e9rcoles'],['jueves','Jueves'],['viernes','Viernes'],['sabado','S\u00e1bado'],['domingo','Domingo']];
   const items = [];
   for (const [key,label] of days) {
     const d = h[key] ?? h[label.toLowerCase()];
     if (!d || typeof d !== 'object') continue;
     const value = d.cerrado === true ? 'Cerrado' : Array.isArray(d.turnos)
-      ? d.turnos.map(t => t?.apertura && t?.cierre ? `${clean(t.apertura,10)}â€“${clean(t.cierre,10)}` : '').filter(Boolean).join(' y ') : '';
+      ? d.turnos.map(t => t?.apertura && t?.cierre ? `${clean(t.apertura,10)}\u2013${clean(t.cierre,10)}` : '').filter(Boolean).join(' y ') : '';
     if (value) items.push(`<li><strong>${escapeHTML(label)}:</strong> ${escapeHTML(value)}</li>`);
   }
   return items.length ? `<ul>${items.join('')}</ul>` : '<p>Horario no disponible.</p>';
@@ -88,7 +88,7 @@ function view(t) {
   const address = [street, cp, city, province].filter(Boolean).join(', ');
   const ph = [t.telefono, t.telefono1, t.movil].map(phone).find(Boolean) || '';
   const web = [t.web, t.sitio_web].map(safeURL).find(Boolean) || '';
-  const maps = [t.google_maps_url,t.maps_url].map(safeURL).find(Boolean) || (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${address}, EspaÃ±a`)}` : '');
+  const maps = [t.google_maps_url,t.maps_url].map(safeURL).find(Boolean) || (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${address}, Espa\u00f1a`)}` : '');
   return { id: clean(t.id), slug: slugOf(t), name, city, province, cp, street, address, ph, web, maps, sv: services(t), description: clean(t.descripcion, 2500), horario: t.horarios || t.horario };
 }
 function seoTitle(v) {
@@ -100,7 +100,7 @@ function seoTitle(v) {
 }
 function seoDescription(v) {
   const locality = [v.city, v.province && normalize(v.city) !== normalize(v.province) ? v.province : ''].filter(Boolean).join(', ');
-  const fields = [v.street && 'direcciÃ³n', v.ph && 'telÃ©fono', v.horario && 'horario', v.sv.length && 'servicios'].filter(Boolean);
+  const fields = [v.street && 'direcci\u00f3n', v.ph && 'tel\u00e9fono', v.horario && 'horario', v.sv.length && 'servicios'].filter(Boolean);
   const prefix = `${v.name}${locality ? ` en ${locality}` : ''}.`;
   const details = fields.length ? ` Consulta ${fields.join(', ')} en TallerMap.` : ' Consulta su ficha en TallerMap.';
   // El corte es editorial; Google puede mostrar un fragmento diferente.
@@ -110,8 +110,8 @@ function html(t) {
   const v = view(t);
   const e = escapeHTML;
   const title = seoTitle(v), desc = seoDescription(v), url = canonical(v.slug);
-  const actions = [v.ph ? `<a href="tel:${e(v.ph)}">${e(displayPhone(v.ph))}</a>` : '', v.maps ? `<a href="${e(v.maps)}" target="_blank" rel="noopener noreferrer">CÃ³mo llegar</a>` : '', v.web ? `<a href="${e(v.web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ''].filter(Boolean).join(' Â· ');
-  const locality = [v.city,v.province].filter(Boolean).join(' Â· ');
+  const actions = [v.ph ? `<a href="tel:${e(v.ph)}">${e(displayPhone(v.ph))}</a>` : '', v.maps ? `<a href="${e(v.maps)}" target="_blank" rel="noopener noreferrer">C\u00f3mo llegar</a>` : '', v.web ? `<a href="${e(v.web)}" target="_blank" rel="noopener noreferrer">Web</a>` : ''].filter(Boolean).join(' \u00b7 ');
+  const locality = [v.city,v.province].filter(Boolean).join(' \u00b7 ');
   const municipalCode = clean(t.codigo_municipal);
   const municipalityLink = /^\d{5}$/.test(municipalCode) ? municipalityURL(municipalCode) : '';
   const bodyDescription = v.description || `${v.name}${v.city ? ` en ${v.city}` : ''}. Consulta los datos disponibles de este establecimiento en TallerMap.`;
@@ -132,11 +132,11 @@ function html(t) {
 <style>body{margin:0;background:#f5f7fa;color:#172033;font-family:Arial,sans-serif;line-height:1.5}.w{max-width:1000px;margin:auto;padding:22px}.c{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:24px;margin:18px 0}.l{color:#667085;font-weight:700;text-transform:uppercase}.s{display:flex;flex-wrap:wrap;gap:8px}.s span{background:#f2f4f7;border-radius:999px;padding:6px 10px}.a a,.b{color:#155eef;text-decoration:none;font-weight:700}.a a:hover,.b:hover{text-decoration:underline}a:focus-visible{outline:2px solid #155eef;outline-offset:3px}h1{overflow-wrap:anywhere}</style>
 </head>
 <body><main class="w">
-<nav aria-label="NavegaciÃ³n"><a class="b" href="/">TallerMap</a>${municipalityLink ? ` Â· <a class="b" href="${e(municipalityLink)}">Talleres en ${e(v.city)}</a>` : ''}</nav>
+<nav aria-label="Navegaci\u00f3n"><a class="b" href="/">TallerMap</a>${municipalityLink ? ` \u00b7 <a class="b" href="${e(municipalityLink)}">Talleres en ${e(v.city)}</a>` : ''}</nav>
 <article class="c">
 ${locality ? `<div class="l">${e(locality)}</div>` : ''}
 <h1>${e(v.name)}</h1>
-${v.address ? `<p><strong>DirecciÃ³n:</strong><br>${e(v.address)}</p>` : ''}
+${v.address ? `<p><strong>Direcci\u00f3n:</strong><br>${e(v.address)}</p>` : ''}
 <p>${e(bodyDescription)}</p>
 ${v.sv.length ? `<div class="s">${v.sv.map(x => `<span>${e(serviceLabel(x))}</span>`).join('')}</div>` : ''}
 ${actions ? `<p class="a">${actions}</p>` : ''}
@@ -145,8 +145,8 @@ ${actions ? `<p class="a">${actions}</p>` : ''}
 <p><strong>Nombre:</strong> ${e(v.name)}</p>
 ${v.city ? `<p><strong>Municipio:</strong> ${e(v.city)}</p>` : ''}
 ${v.province ? `<p><strong>Provincia:</strong> ${e(v.province)}</p>` : ''}
-${v.cp ? `<p><strong>CÃ³digo postal:</strong> ${e(v.cp)}</p>` : ''}
-${v.ph ? `<p><strong>TelÃ©fono:</strong> <a href="tel:${e(v.ph)}">${e(displayPhone(v.ph))}</a></p>` : ''}
+${v.cp ? `<p><strong>C\u00f3digo postal:</strong> ${e(v.cp)}</p>` : ''}
+${v.ph ? `<p><strong>Tel\u00e9fono:</strong> <a href="tel:${e(v.ph)}">${e(displayPhone(v.ph))}</a></p>` : ''}
 <h3>Horario</h3>${schedule(v.horario)}</section>
 ${v.sv.length ? `<section class="c"><h2>Servicios</h2><ul>${v.sv.map(x => `<li>${e(serviceLabel(x))}</li>`).join('')}</ul></section>` : ''}
 </main></body></html>\n`;
@@ -166,7 +166,7 @@ function municipalityURL(code) {
 async function rows(fetcher = fetch) {
   const all = [], ids = new Set();
   let offset = 0, expected = null;
-  // Avanza por el tamaÃ±o real recibido; no presupone el lÃ­mite del servidor.
+  // Avanza por el tamano real recibido; no presupone el limite del servidor.
   while (true) {
     const url = new URL(`${U.replace(/\/$/, '')}/rest/v1/talleres`);
     url.searchParams.set('select','*');
@@ -182,18 +182,18 @@ async function rows(fetcher = fetch) {
       if (count) expected = Number(count[1]);
     }
     const batch = await response.json();
-    if (!Array.isArray(batch)) throw new Error('Respuesta de Supabase no vÃ¡lida.');
+    if (!Array.isArray(batch)) throw new Error('Respuesta de Supabase no v\u00e1lida.');
     if (!batch.length) break;
     for (const t of batch) {
       const id = clean(t?.id);
-      if (!id || ids.has(id)) throw new Error(`ID ausente o repetido en paginaciÃ³n: ${id || '(vacÃ­o)'}.`);
+      if (!id || ids.has(id)) throw new Error(`ID ausente o repetido en paginaci\u00f3n: ${id || '(vac\u00edo)'}.`);
       ids.add(id); all.push(t);
     }
     offset += batch.length;
     console.log(`Supabase: ${offset} talleres cargados`);
     if (expected !== null && offset >= expected) break;
   }
-  if (!all.length) throw new Error('Supabase devolviÃ³ cero talleres. No se sustituye la generaciÃ³n anterior.');
+  if (!all.length) throw new Error('Supabase devolvi\u00f3 cero talleres. No se sustituye la generaci\u00f3n anterior.');
   if (expected !== null && all.length !== expected) throw new Error(`Lectura incompleta: ${all.length} de ${expected}.`);
   return all;
 }
@@ -217,7 +217,7 @@ function audit(data) {
     if (!v.slug) { invalid.push(summary(v)); continue; }
     usable.push(t);
     group(bySlug, v.slug, v);
-    // Mismo nombre o telÃ©fono en la misma localidad: solo candidatos.
+    // Mismo nombre o telefono en la misma localidad: solo candidatos.
     const locality = normalize(v.city) && (normalize(v.province) || /^\d{5}$/.test(v.cp)) ? `${normalize(v.city)}|${normalize(v.province) || v.cp.slice(0,2)}` : '';
     const name = normalize(v.name).replace(/\b(s l u|s l|s a|c b|s c|slu|sl|sa|cb|sc)$/, '').trim();
     if (locality && name) group(byName, `${locality}|${name}`, v);
@@ -236,7 +236,7 @@ function audit(data) {
   }
   const current = existingPublicSlugs();
   const missing = current.filter(slug => !bySlug.has(slug));
-  return { usable, report: { fecha:new Date().toISOString(), origen:'Supabase tabla talleres', total_leidos:data.length, fichas_validas:usable.length, slugs_unicos:bySlug.size, colisiones_slug:collisions, slugs_invalidos:invalid, posibles_duplicados:[...candidates.values()], fichas_publicas_sin_registro_actual:missing.map(slug => ({slug,url:canonical(slug)})), aviso:'Los candidatos necesitan revisiÃ³n. No se eliminan registros, no se cambian slugs y no se crean redirecciones automÃ¡ticamente.' } };
+  return { usable, report: { fecha:new Date().toISOString(), origen:'Supabase tabla talleres', total_leidos:data.length, fichas_validas:usable.length, slugs_unicos:bySlug.size, colisiones_slug:collisions, slugs_invalidos:invalid, posibles_duplicados:[...candidates.values()], fichas_publicas_sin_registro_actual:missing.map(slug => ({slug,url:canonical(slug)})), aviso:'Los candidatos necesitan revisi\u00f3n. No se eliminan registros, no se cambian slugs y no se crean redirecciones autom\u00e1ticamente.' } };
 }
 function publishTemporary(usable, report) {
   // Primero genera todo en otra carpeta. Conserva la salida anterior si falla.
@@ -249,7 +249,7 @@ function publishTemporary(usable, report) {
       fs.mkdirSync(folder);
       fs.writeFileSync(path.join(folder,'index.html'),html(t),'utf8');
     }
-    fs.writeFileSync(path.join(stage,'_GENERACION.txt'),`Generadas: ${usable.length}\nOmitidas: ${report.slugs_invalidos.length}\nOrigen directo: Supabase tabla talleres\nSin API pÃºblica ni constructor en tiempo de visita.\nPosibles duplicados: ${report.posibles_duplicados.length}\nAuditorÃ­a: auditoria-talleres-temporal.json\n`,'utf8');
+    fs.writeFileSync(path.join(stage,'_GENERACION.txt'),`Generadas: ${usable.length}\nOmitidas: ${report.slugs_invalidos.length}\nOrigen directo: Supabase tabla talleres\nSin API p\u00fablica ni constructor en tiempo de visita.\nPosibles duplicados: ${report.posibles_duplicados.length}\nAuditor\u00eda: auditoria-talleres-temporal.json\n`,'utf8');
     if (fs.existsSync(O)) { fs.renameSync(O,backup); moved = true; }
     try { fs.renameSync(stage,O); }
     catch (err) { if (moved) fs.renameSync(backup,O); throw err; }
@@ -263,15 +263,15 @@ async function main() {
   const data = await rows();
   const { usable, report } = audit(data);
   fs.writeFileSync(REPORT,JSON.stringify(report,null,2)+'\n','utf8');
-  console.log(`AuditorÃ­a: ${REPORT}`);
+  console.log(`Auditor\u00eda: ${REPORT}`);
   console.log(`Candidatos a duplicado: ${report.posibles_duplicados.length}`);
-  console.log(`Fichas pÃºblicas sin slug actual: ${report.fichas_publicas_sin_registro_actual.length}`);
-  if (!usable.length || report.colisiones_slug.length) throw new Error('No se genera: no hay fichas vÃ¡lidas o existen colisiones de slug. Revisa la auditorÃ­a.');
-  if (report.slugs_invalidos.length) console.warn(`Slugs invÃ¡lidos omitidos: ${report.slugs_invalidos.length}. Revisa antes de publicar.`);
-  if (DRY_RUN) { console.log(`SimulaciÃ³n: ${usable.length} fichas vÃ¡lidas. No se modifica ninguna ficha.`); return; }
+  console.log(`Fichas p\u00fablicas sin slug actual: ${report.fichas_publicas_sin_registro_actual.length}`);
+  if (!usable.length || report.colisiones_slug.length) throw new Error('No se genera: no hay fichas v\u00e1lidas o existen colisiones de slug. Revisa la auditor\u00eda.');
+  if (report.slugs_invalidos.length) console.warn(`Slugs inv\u00e1lidos omitidos: ${report.slugs_invalidos.length}. Revisa antes de publicar.`);
+  if (DRY_RUN) { console.log(`Simulaci\u00f3n: ${usable.length} fichas v\u00e1lidas. No se modifica ninguna ficha.`); return; }
   publishTemporary(usable,report);
   console.log(`OK ${usable.length} fichas temporales generadas; omitidas ${report.slugs_invalidos.length}.`);
-  console.log('Las fichas pÃºblicas, sitemap y redirecciones permanecen intactos.');
+  console.log('Las fichas p\u00fablicas, sitemap y redirecciones permanecen intactos.');
 }
 export { rows, audit, html, seoTitle, seoDescription, view, publishTemporary };
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
