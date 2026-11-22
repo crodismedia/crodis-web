@@ -174,6 +174,8 @@ if (FIX && changedFiles > 0) {
 }
 
 const hardErrors = doubleEncodedCount + mojibakeCount;
-if (CI && (hardErrors > 0 || apostropheCount > 0)) {
+// Las entidades de apostrofo HTML son validas y solo generan advertencias.
+// CI debe detenerse unicamente por doble codificacion o mojibake.
+if (CI && hardErrors > 0) {
   process.exit(1);
 }
