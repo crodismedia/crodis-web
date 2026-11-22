@@ -8,8 +8,8 @@ const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_91-
 const PAGE_SIZE = 100;
 const SITE_URL = "https://www.tallermap.es";
 const EXPECTED_MUNICIPALITIES = 542;
-// PolÃ­tica solicitada: permitir indexar tambiÃ©n municipios sin talleres.
-// Cambiar a false si se quieren excluir las pÃ¡ginas vacÃ­as de la indexaciÃ³n.
+// Politica solicitada: permitir indexar tambien municipios sin talleres.
+// Cambiar a false si se quieren excluir las paginas vacias de la indexacion.
 const INDEX_EMPTY_MUNICIPALITIES = true;
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -59,20 +59,20 @@ function safeWeb(value) {
 
 function renderSchedule(schedule) {
   if (!schedule || typeof schedule !== "object") return "";
-  const days = [["lunes","Lunes"],["martes","Martes"],["miercoles","MiÃ©rcoles"],["jueves","Jueves"],["viernes","Viernes"],["sabado","SÃ¡bado"],["domingo","Domingo"]];
+  const days = [["lunes","Lunes"],["martes","Martes"],["miercoles","Mi\u00e9rcoles"],["jueves","Jueves"],["viernes","Viernes"],["sabado","S\u00e1bado"],["domingo","Domingo"]];
   const rows = days.map(([key,label]) => {
     const value = schedule[key];
     if (!value) return "";
     const text = value.cerrado ? "Cerrado" : (Array.isArray(value.turnos) ? value.turnos : [])
-      .map(slot => `${slot.apertura || ""}â€“${slot.cierre || ""}`)
-      .filter(slot => slot !== "â€“").join(" y ");
+      .map(slot => `${slot.apertura || ""}\u2013${slot.cierre || ""}`)
+      .filter(slot => slot !== "\u2013").join(" y ");
     return text ? `<div><dt>${label}</dt><dd>${escapeHTML(text)}</dd></div>` : "";
   }).filter(Boolean).join("");
   return rows ? `<details class="taller-horario"><summary>Ver horario semanal</summary><dl>${rows}</dl></details>` : "";
 }
 
 function mapsURL(workshop, rawName) {
-  const location = [rawName, workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia, "EspaÃ±a"]
+  const location = [rawName, workshop.direccion, workshop.codigo_postal, workshop.ciudad, workshop.provincia, "Espa\u00f1a"]
     .filter(Boolean).map(v => String(v).trim()).filter(Boolean).join(", ");
   return location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}` : "";
 }
@@ -85,15 +85,15 @@ function renderWorkshop(workshop, index) {
   const phone = safePhone(workshop.telefono);
   const web = safeWeb(workshop.web);
   const map = mapsURL(workshop, rawName);
-  const description = escapeHTML(workshop.descripcion || "Consulta servicios, datos de contacto y ubicaciÃ³n del taller.");
+  const description = escapeHTML(workshop.descripcion || "Consulta servicios, datos de contacto y ubicaci\u00f3n del taller.");
   const services = Array.isArray(workshop.servicios) ? workshop.servicios : [];
-  const serviceHTML = services.length ? services.map(s => `<span>${escapeHTML(serviceLabel(s))}</span>`).join("") : "<span>Taller mecÃ¡nico</span>";
+  const serviceHTML = services.length ? services.map(s => `<span>${escapeHTML(serviceLabel(s))}</span>`).join("") : "<span>Taller mec\u00e1nico</span>";
   const contacts = [];
   if (phone) contacts.push(`<a href="tel:${escapeHTML(phone)}" aria-label="Llamar a ${name}">Llamar</a>`);
   contacts.push(`<a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}" aria-label="Ver servicios de ${name}">Ver servicios</a>`);
   if (map) contacts.push(`<a class="accion-mapa" href="${escapeHTML(map)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${name} en Google Maps">Abrir en Google Maps</a>`);
   if (web) contacts.push(`<a href="${escapeHTML(web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
-  return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a></h3><p class="ubicacion">âŒ– ${address || "UbicaciÃ³n no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
+  return `<article class="taller-card" data-taller-index="${index}" data-taller-slug="${escapeHTML(slug)}"><div class="taller-informacion"><h3><a class="enlace-ficha-taller" href="/talleres/${encodeURIComponent(slug)}">${name}</a></h3><p class="ubicacion">\u2316 ${address || "Ubicaci\u00f3n no indicada"}</p><p class="taller-descripcion">${description}</p><div class="especialidades">${serviceHTML}</div>${renderSchedule(workshop.horarios)}<div class="taller-pie"><span class="taller-contactos">${contacts.join("") || "Sin contacto publicado"}</span></div></div></article>`;
 }
 
 // Lee atributos HTML sin depender de su orden ni del tipo de comillas.
@@ -124,7 +124,7 @@ function readMunicipalityData(html, fileName) {
   const name = tag && getAttribute(tag, "data-municipio");
   const code = tag && getAttribute(tag, "data-codigo-municipal");
   if (!name || !/^\d{5}$/.test(code || "") || !fileName.endsWith(`-${code}.html`)) {
-    throw new Error(`Nombre o cÃ³digo municipal invÃ¡lido en ${fileName}`);
+    throw new Error(`Nombre o c\u00f3digo municipal inv\u00e1lido en ${fileName}`);
   }
   return { name: decodeHTML(name).trim(), code, fileName };
 }
@@ -132,13 +132,13 @@ function readMunicipalityData(html, fileName) {
 function provinceFromCode(code) {
   const prefix = String(code || "").slice(0, 2);
   if (prefix === "03") return "Alicante";
-  if (prefix === "12") return "CastellÃ³n";
+  if (prefix === "12") return "Castell\u00f3n";
   if (prefix === "46") return "Valencia";
   return "Comunidad Valenciana";
 }
 
 function municipalityTitle(name) {
-  const full = `Talleres mecÃ¡nicos en ${name} | TallerMap`;
+  const full = `Talleres mec\u00e1nicos en ${name} | TallerMap`;
   if (full.length <= 65) return full;
   const compact = `Talleres en ${name} | TallerMap`;
   if (compact.length <= 65) return compact;
@@ -149,21 +149,21 @@ function municipalityTitle(name) {
   let short = String(name).slice(0, max).trim();
   const cut = short.lastIndexOf(' ');
   if (cut >= Math.floor(max * 0.65)) short = short.slice(0, cut).trim();
-  return `${short}â€¦${suffix}`;
+  return `${short}\u2026${suffix}`;
 }
 
 function seoDescription(municipality, count) {
   const { name, code } = municipality;
   const province = provinceFromCode(code);
   if (!count) {
-    const empty = `Directorio de talleres mecÃ¡nicos en ${name}, ${province}. TodavÃ­a no hay talleres publicados. Consulta cÃ³mo registrar un taller en TallerMap.`;
+    const empty = `Directorio de talleres mec\u00e1nicos en ${name}, ${province}. Todav\u00eda no hay talleres publicados. Consulta c\u00f3mo registrar un taller en TallerMap.`;
     if (empty.length <= 155) return empty;
-    return `Talleres en ${name}. TodavÃ­a no hay talleres publicados. Registra tu taller en TallerMap.`;
+    return `Talleres en ${name}. Todav\u00eda no hay talleres publicados. Registra tu taller en TallerMap.`;
   }
   const quantity = count === 1 ? "1 taller publicado" : `${count} talleres publicados`;
-  const full = `Encuentra talleres mecÃ¡nicos en ${name}, ${province}: ${quantity}. Consulta servicios, telÃ©fonos, horarios y ubicaciÃ³n.`;
+  const full = `Encuentra talleres mec\u00e1nicos en ${name}, ${province}: ${quantity}. Consulta servicios, tel\u00e9fonos, horarios y ubicaci\u00f3n.`;
   if (full.length <= 155) return full;
-  return `Talleres mecÃ¡nicos en ${name}: ${quantity}. Consulta servicios y datos de contacto en TallerMap.`;
+  return `Talleres mec\u00e1nicos en ${name}: ${quantity}. Consulta servicios y datos de contacto en TallerMap.`;
 }
 
 async function rpcMunicipality(code, from = 0) {
@@ -187,15 +187,15 @@ async function fetchAllWorkshops(code) {
   const seenPages = new Set();
   while (true) {
     const rows = await rpcMunicipality(code, from);
-    if (!Array.isArray(rows)) throw new Error(`Respuesta invÃ¡lida en municipio ${code}`);
+    if (!Array.isArray(rows)) throw new Error(`Respuesta inv\u00e1lida en municipio ${code}`);
     if (rows.length === 0) {
       if (expected !== null && from < expected) {
-        throw new Error(`PaginaciÃ³n incompleta en ${code}: ${from}/${expected}`);
+        throw new Error(`Paginaci\u00f3n incompleta en ${code}: ${from}/${expected}`);
       }
       break;
     }
     const signature = JSON.stringify(rows.map(row => [row.id, row.slug, row.nombre]));
-    if (seenPages.has(signature)) throw new Error(`PÃ¡gina de resultados repetida en ${code}`);
+    if (seenPages.has(signature)) throw new Error(`P\u00e1gina de resultados repetida en ${code}`);
     seenPages.add(signature);
     const rawTotal = rows[0]?.total_resultados;
     if (rawTotal != null && rawTotal !== "") {
@@ -204,7 +204,7 @@ async function fetchAllWorkshops(code) {
         throw new Error(`Total de resultados incoherente en ${code}`);
       }
       if (expected !== null && expected !== total) {
-        throw new Error(`Los datos de ${code} cambiaron durante la generaciÃ³n. Reintenta.`);
+        throw new Error(`Los datos de ${code} cambiaron durante la generaci\u00f3n. Reintenta.`);
       }
       expected = total;
     }
@@ -223,7 +223,7 @@ function uniqueWorkshops(workshops, code, globalSlugs, globalIds) {
   for (const workshop of workshops) {
     const slug = workshopSlug(workshop);
     if (!slug || (!workshop.slug && !workshop.id)) {
-      throw new Error(`Taller sin identificador o slug vÃ¡lido en ${code}`);
+      throw new Error(`Taller sin identificador o slug v\u00e1lido en ${code}`);
     }
     const id = workshop.id == null ? null : String(workshop.id);
     if (id !== null) {
@@ -242,7 +242,7 @@ function uniqueWorkshops(workshops, code, globalSlugs, globalIds) {
     }
     globalSlugs.set(slug, { id, code });
     if (seen.has(slug)) {
-      console.warn(`\nAVISO: ficha repetida en ${code}: ${slug}. Se mostrarÃ¡ una sola vez.`);
+      console.warn(`\nAVISO: ficha repetida en ${code}: ${slug}. Se mostrar\u00e1 una sola vez.`);
       continue;
     }
     seen.add(slug);
@@ -266,7 +266,7 @@ async function fetchServiceCatalog() {
 
   if (!response.ok) throw new Error(`Supabase servicios ${response.status}: ${await response.text()}`);
   const rows = await response.json();
-  if (!Array.isArray(rows) || !rows.length) throw new Error("El catÃ¡logo de servicios estÃ¡ vacÃ­o");
+  if (!Array.isArray(rows) || !rows.length) throw new Error("El cat\u00e1logo de servicios est\u00e1 vac\u00edo");
   return rows.filter(row => String(row?.slug || "").trim() && String(row?.nombre || "").trim());
 }
 
@@ -307,7 +307,7 @@ function ensurePublicAssets(html) {
   return out;
 }
 
-// Actualiza una etiqueta Ãºnica del <head>, o la crea si falta.
+// Actualiza una etiqueta unica del <head>, o la crea si falta.
 function upsertHeadTag(head, pattern, matchesTag, replacement) {
   let inserted = false;
   const updated = head.replace(pattern, tag => {
@@ -359,13 +359,13 @@ function updateSEO(html, municipality, workshopCount) {
     head = upsertHeadTag(head, /<title\b[^>]*>[\s\S]*?<\/title\s*>/gi, () => true, `<title>${escapeHTML(title)}</title>`);
     head = upsertHeadTag(head, metaPattern, tag => getAttribute(tag, "name")?.toLowerCase() === "description", meta("description", description));
     head = upsertHeadTag(head, metaPattern, tag => getAttribute(tag, "name")?.toLowerCase() === "robots", meta("robots", robots));
-    // Evita directivas contradictorias especÃ­ficas de Google o Bing, si existen.
+    // Evita directivas contradictorias especificas de Google o Bing, si existen.
     for (const bot of ["googlebot", "bingbot"]) {
       const hasBot = [...head.matchAll(metaPattern)].some(match => getAttribute(match[0], "name")?.toLowerCase() === bot);
       if (hasBot) head = upsertHeadTag(head, metaPattern, tag => getAttribute(tag, "name")?.toLowerCase() === bot, meta(bot, robots));
     }
     head = upsertHeadTag(head, linkPattern, tag => (getAttribute(tag, "rel") || "").toLowerCase().split(/\s+/).includes("canonical"), `<link rel="canonical" href="${escapeHTML(canonical)}">`);
-    // Sincroniza Open Graph si ya estaba presente, sin aÃ±adir etiquetas innecesarias.
+    // Sincroniza Open Graph si ya estaba presente, sin anadir etiquetas innecesarias.
     for (const [property, content] of [["og:title", title], ["og:description", description], ["og:url", canonical]]) {
       if ([...head.matchAll(metaPattern)].some(match => getAttribute(match[0], "property")?.toLowerCase() === property)) {
         head = upsertHeadTag(head, metaPattern, tag => getAttribute(tag, "property")?.toLowerCase() === property, `<meta property="${property}" content="${escapeHTML(content)}">`);
@@ -377,25 +377,25 @@ function updateSEO(html, municipality, workshopCount) {
 }
 
 function replaceRequired(html, pattern, replacement, label, fileName) {
-  if (!pattern.test(html)) throw new Error(`No se encontrÃ³ ${label} en ${fileName}`);
+  if (!pattern.test(html)) throw new Error(`No se encontr\u00f3 ${label} en ${fileName}`);
   return html.replace(pattern, replacement);
 }
 
 function inject(html, municipality, workshops, serviceCatalog) {
   const workshopHTML = workshops.length
     ? workshops.map(renderWorkshop).join("")
-    : `<div class="municipio-sin-talleres"><h3>TodavÃ­a no hay talleres publicados en ${escapeHTML(municipality.name)}</h3><p>Un taller de esta poblaciÃ³n puede solicitar gratuitamente su alta en TallerMap.</p><a class="boton" href="../pages/registro.html">Registrar un taller</a></div>`;
+    : `<div class="municipio-sin-talleres"><h3>Todav\u00eda no hay talleres publicados en ${escapeHTML(municipality.name)}</h3><p>Un taller de esta poblaci\u00f3n puede solicitar gratuitamente su alta en TallerMap.</p><a class="boton" href="../pages/registro.html">Registrar un taller</a></div>`;
 
   const file = municipality.fileName;
   const divTag = /<div\b(?:"[^"]*"|'[^']*'|[^'">])*>/gi;
   const divs = [...html.matchAll(divTag)];
   const start = divs.find(match => getAttribute(match[0], "id") === "lista-talleres");
   const end = divs.find(match => match.index > (start?.index ?? Infinity) && getAttribute(match[0], "id") === "contenedor-cargar-mas");
-  if (!start || !end) throw new Error(`No se encontrÃ³ el bloque de talleres en ${file}`);
+  if (!start || !end) throw new Error(`No se encontr\u00f3 el bloque de talleres en ${file}`);
   const contentStart = start.index + start[0].length;
   const originalContent = html.slice(contentStart, end.index);
   const closing = originalContent.match(/<\/div\s*>\s*$/i);
-  if (!closing) throw new Error(`Cierre del bloque de talleres invÃ¡lido en ${file}`);
+  if (!closing) throw new Error(`Cierre del bloque de talleres inv\u00e1lido en ${file}`);
   let out = html.slice(0, contentStart) + workshopHTML + originalContent.slice(closing.index) + html.slice(end.index);
   out = replaceRequired(out, /<span\b(?=[^>]*\bclass=["'][^"']*\bmapa-estado\b[^"']*["'])[^>]*>[\s\S]*?<\/span>/i,
     () => `<span class="orden-talleres mapa-estado" aria-live="polite">${workshops.length} ${workshops.length === 1 ? "taller publicado" : "talleres publicados"}</span>`, "contador de talleres", file);
@@ -411,12 +411,12 @@ async function main() {
   const files = fs.readdirSync(MUNICIPIOS_DIR)
     .filter(name => /^[a-z0-9-]+-\d{5}\.html$/i.test(name))
     .sort();
-  if (!files.length) throw new Error("No se encontraron pÃ¡ginas municipales");
+  if (!files.length) throw new Error("No se encontraron p\u00e1ginas municipales");
   if (files.length !== EXPECTED_MUNICIPALITIES) {
     throw new Error(`Se esperaban ${EXPECTED_MUNICIPALITIES} municipios y se encontraron ${files.length}. Revisa la carpeta antes de generar.`);
   }
   const catalog = await fetchServiceCatalog();
-  if (!catalog.length) throw new Error("No hay servicios vÃ¡lidos en el catÃ¡logo");
+  if (!catalog.length) throw new Error("No hay servicios v\u00e1lidos en el cat\u00e1logo");
   console.log(`Servicios activos sincronizados desde Supabase: ${catalog.length}`);
   const pending = [];
   const globalSlugs = new Map();
@@ -425,29 +425,29 @@ async function main() {
   let totalWorkshops = 0;
   let emptyMunicipalities = 0;
   // Primero valida y genera todo en memoria. Si falla Supabase o una plantilla,
-  // no se sobrescribe ningÃºn HTML municipal.
+  // no se sobrescribe ningun HTML municipal.
   for (const fileName of files) {
     const filePath = path.join(MUNICIPIOS_DIR, fileName);
     const html = fs.readFileSync(filePath, "utf8");
     const municipality = readMunicipalityData(html, fileName);
-    if (codes.has(municipality.code)) throw new Error(`CÃ³digo municipal duplicado: ${municipality.code}`);
+    if (codes.has(municipality.code)) throw new Error(`C\u00f3digo municipal duplicado: ${municipality.code}`);
     codes.add(municipality.code);
     const workshops = uniqueWorkshops(await fetchAllWorkshops(municipality.code), municipality.code, globalSlugs, globalIds);
     pending.push({ filePath, html: inject(html, municipality, workshops, catalog) });
     totalWorkshops += workshops.length;
     if (!workshops.length) emptyMunicipalities++;
-    process.stdout.write(`\rPreparados ${pending.length}/${files.length} municipios Â· ${totalWorkshops} talleres`);
+    process.stdout.write(`\rPreparados ${pending.length}/${files.length} municipios \u00b7 ${totalWorkshops} talleres`);
   }
-  if (!totalWorkshops) throw new Error("Supabase no devolviÃ³ ningÃºn taller. Se cancela la generaciÃ³n para proteger el directorio.");
+  if (!totalWorkshops) throw new Error("Supabase no devolvi\u00f3 ning\u00fan taller. Se cancela la generaci\u00f3n para proteger el directorio.");
   console.log(`\nMunicipios sin talleres: ${emptyMunicipalities}`);
   if (DRY_RUN) {
-    console.log("OK: simulaciÃ³n completada. No se ha modificado ningÃºn HTML.");
+    console.log("OK: simulaci\u00f3n completada. No se ha modificado ning\u00fan HTML.");
     return;
   }
   for (const { filePath, html } of pending) {
     fs.writeFileSync(filePath, html, "utf8");
   }
-  console.log(`OK: ${pending.length} HTML municipales generados con contenido estÃ¡tico.`);
+  console.log(`OK: ${pending.length} HTML municipales generados con contenido est\u00e1tico.`);
 }
 
 main().catch(error => {
