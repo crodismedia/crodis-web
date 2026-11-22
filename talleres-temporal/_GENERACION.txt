@@ -1,6 +1,6 @@
 Generadas: 4249
 Omitidas: 0
 Origen directo: Supabase tabla talleres
-Sin API pÃºblica ni constructor en tiempo de visita.
+Sin API pública ni constructor en tiempo de visita.
 Posibles duplicados: 14
-AuditorÃ­a: auditoria-talleres-temporal.json
+Auditoría: auditoria-talleres-temporal.json
