@@ -1,6 +1,8 @@
-Generadas: 4249
+Generadas: 4250
 Omitidas: 0
 Origen directo: Supabase tabla talleres
+HTML estático con Schema.org AutoRepair
+Datos estructurados: OfferCatalog, Offer y Service
 Sin API pública ni constructor en tiempo de visita.
 Posibles duplicados: 14
 Auditoría: auditoria-talleres-temporal.json
