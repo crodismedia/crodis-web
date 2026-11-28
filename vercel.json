@@ -2175,6 +2175,11 @@
       "source": "/talleres/spg-talleres-guillem-s-l-sagunt-7619b18a",
       "destination": "/talleres/talleres-guillem-s-l-sagunt-237df77f",
       "permanent": true
+    },
+    {
+      "source": "/talleres/jeep-xativa-grupo-palacios-xativa-9fdbdba1",
+      "destination": "/talleres/gp-automocion-xativa-xativa-b2a3f23b",
+      "permanent": true
     }
   ]
 }
