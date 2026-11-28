@@ -930,6 +930,431 @@
       "source": "/talleres/automocion-cano-kia-castello-de-la-plana-a3cf2e31",
       "destination": "/talleres/kia-automocion-cano-castellon-castello-de-la-plana-6733fd9f",
       "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "3d4635b9-cdbe-4b29-bb96-88b00223b3e6"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "alquiler-de-boxes-y-talleres-puntocar-manises-3d4635b9"
+        }
+      ],
+      "destination": "/talleres/alquiler-de-boxes-y-talleres-puntocar-manises-3d4635b9",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "4796556c-4962-47ca-a666-9966ae5ad1be"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "autotalleres-gama-s-a-l-alaquas-4796556c"
+        }
+      ],
+      "destination": "/talleres/autotalleres-gama-s-a-l-alaquas-4796556c",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "7adab29d-0f04-4edb-b63e-c0f74d9042b6"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "juan-antonio-verdu-alvarez-benifairo-de-la-valldigna-7adab29d"
+        }
+      ],
+      "destination": "/talleres/juan-antonio-verdu-alvarez-benifairo-de-la-valldigna-7adab29d",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "f52d5042-4d33-440a-b69e-8fbb5f84acf3"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "mecanica-neumaticos-ibi-ibi-f52d5042"
+        }
+      ],
+      "destination": "/talleres/mecanica-neumaticos-ibi-ibi-f52d5042",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "2c4753b5-5f50-4b6b-8d70-41631f71cae3"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "talleres-r-g-s-l-paiporta-2c4753b5"
+        }
+      ],
+      "destination": "/talleres/talleres-r-g-s-l-paiporta-2c4753b5",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "6018c165-ecea-4549-8829-66f7ce6392e0"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "turboxsafor-almoines-6018c165"
+        }
+      ],
+      "destination": "/talleres/turboxsafor-almoines-6018c165",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "aa0baae3-1a2d-42a7-b015-69435e204b25"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "feu-vert-alzira-alzira-aa0baae3"
+        }
+      ],
+      "destination": "/talleres/feu-vert-alzira-alzira-aa0baae3",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "02d26112-ab98-46ea-987c-769eb5394af7"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "segui-automocion-s-l-paiporta-02d26112"
+        }
+      ],
+      "destination": "/talleres/segui-automocion-s-l-paiporta-02d26112",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "80b8fd69-acd7-4666-a143-28105cb88be0"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "villena-motors-bunol-80b8fd69"
+        }
+      ],
+      "destination": "/talleres/villena-motors-bunol-80b8fd69",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "ec1c8964-8a1c-4643-bf03-794e5269bc0f"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "rdp-motors-lliria-ec1c8964"
+        }
+      ],
+      "destination": "/talleres/rdp-motors-lliria-ec1c8964",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "1e186913-fa85-4612-a855-724636c036a1"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "evomotor-elda-elda-1e186913"
+        }
+      ],
+      "destination": "/talleres/evomotor-elda-elda-1e186913",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "073edf23-72e8-42e4-9a37-25480b25d404"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "manuel-sanchez-cerda-ayora-073edf23"
+        }
+      ],
+      "destination": "/talleres/manuel-sanchez-cerda-ayora-073edf23",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "9a97c860-2eb9-4e5b-a06f-902bcb06a398"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "antonio-sanchez-rodenas-alicante-9a97c860"
+        }
+      ],
+      "destination": "/talleres/antonio-sanchez-rodenas-alicante-9a97c860",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "ff38ad68-79a4-4da7-8036-68d32d9642a2"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "jose-francisco-carrascosa-gimeno-manises-ff38ad68"
+        }
+      ],
+      "destination": "/talleres/jose-francisco-carrascosa-gimeno-manises-ff38ad68",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "2bc00b9d-e331-42ab-a35d-8f6197de68ec"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "chapas-arias-s-a-quart-de-poblet-2bc00b9d"
+        }
+      ],
+      "destination": "/talleres/chapas-arias-s-a-quart-de-poblet-2bc00b9d",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "3e7f896f-aa54-4f91-a901-bae53e8f90c2"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "automotor-frayma-s-l-elche-3e7f896f"
+        }
+      ],
+      "destination": "/talleres/automotor-frayma-s-l-elche-3e7f896f",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "e28693b9-ba0a-4a0a-a8ab-19f7c195949b"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "talleres-auto-levante-s-l-massamagrell-e28693b9"
+        }
+      ],
+      "destination": "/talleres/talleres-auto-levante-s-l-massamagrell-e28693b9",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "f85efa90-259e-4fd2-8699-8a9e4d35254d"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "taller-victoria-guardamar-guardamar-del-segura-f85efa90"
+        }
+      ],
+      "destination": "/talleres/taller-victoria-guardamar-guardamar-del-segura-f85efa90",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "b1751ed5-92cd-41b2-a509-d1b38fdc1840"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "taller-jimenez-motor-castalla-b1751ed5"
+        }
+      ],
+      "destination": "/talleres/taller-jimenez-motor-castalla-b1751ed5",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "76f92b56-3648-48c4-afce-fd853ffbfacc"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "automoviles-carcel-utiel-76f92b56"
+        }
+      ],
+      "destination": "/talleres/automoviles-carcel-utiel-76f92b56",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "45ada907-bb21-4703-a00b-b66621a6935d"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "automocion-utiel-s-l-utiel-45ada907"
+        }
+      ],
+      "destination": "/talleres/automocion-utiel-s-l-utiel-45ada907",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "aec2886c-e49e-4f24-a5bf-1f943ed8368d"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "autoespezial-c-b-alfafar-aec2886c"
+        }
+      ],
+      "destination": "/talleres/autoespezial-c-b-alfafar-aec2886c",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "46482f7b-2dbf-4f3c-9b0c-09cf7e2118c5"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "francisco-bori-torres-lliria-46482f7b"
+        }
+      ],
+      "destination": "/talleres/francisco-bori-torres-lliria-46482f7b",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "5f358756-b00b-4180-b090-270a80cf822b"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "recauchutados-cordoba-quart-de-poblet-5f358756"
+        }
+      ],
+      "destination": "/talleres/recauchutados-cordoba-quart-de-poblet-5f358756",
+      "permanent": true
+    },
+    {
+      "source": "/pages/taller.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "950a1d4f-8cc2-4e5a-98f4-a90e09398df4"
+        },
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "civerlliria-lliria-950a1d4f"
+        }
+      ],
+      "destination": "/talleres/civerlliria-lliria-950a1d4f",
+      "permanent": true
     }
   ]
 }
