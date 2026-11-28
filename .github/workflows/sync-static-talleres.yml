@@ -21,6 +21,7 @@ on:
       - 'scripts/generate-sitemap-municipios.mjs'
       - 'datos/static-sync-cursor.json'
       - 'scripts/audit-data/gsc-404-clasificacion.csv'
+      - 'scripts/audit-data/gsc-404-inventario-pendiente.csv'
       - '.github/workflows/sync-static-talleres.yml'
 
 permissions:
