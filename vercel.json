@@ -2170,6 +2170,11 @@
       "source": "/talleres/taller-de-reparaciones-fernando-borriana-701e4a32",
       "destination": "/talleres/garaje-burriana-s-l-borriana-acee7f90",
       "permanent": true
+    },
+    {
+      "source": "/talleres/alegre-valencia-e4fdd07a",
+      "destination": "/talleres/talleres-alegre-s-l-valencia-5f220ab9",
+      "permanent": true
     }
   ]
 }
