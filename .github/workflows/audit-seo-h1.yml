@@ -1,0 +1,66 @@
+name: Auditoría de encabezados H1 SEO
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Origen de la auditoría'
+        type: choice
+        options:
+          - local
+          - live
+        default: local
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-seo-h1.yml'
+      - 'scripts/audit-seo-h1.mjs'
+  schedule:
+    - cron: '30 6 * * 5'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-seo-h1
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar sintaxis
+        run: node --check scripts/audit-seo-h1.mjs
+      - name: Ejecutar auditoría
+        env:
+          AUDIT_MODE: ${{ inputs.mode || 'local' }}
+        shell: bash
+        run: |
+          if [ "$AUDIT_MODE" = "live" ]; then
+            node scripts/audit-seo-h1.mjs --live --concurrency 4
+          else
+            node scripts/audit-seo-h1.mjs
+          fi
+      - name: Publicar resumen
+        if: success()
+        run: |
+          echo '## Auditoría de encabezados H1 SEO' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat audit-seo-h1/resumen.json >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-h1-seo
+          path: audit-seo-h1/
+          retention-days: 30
+          if-no-files-found: warn
