@@ -159,12 +159,15 @@ if (FIX) console.log(`Archivos corregidos automáticamente: ${changedFiles}`);
 
 if (findings.length) {
   console.log('\nHallazgos:');
-  for (const item of findings.slice(0, 200)) {
+  const errors = findings.filter(item => item.severity === 'error');
+  const warnings = findings.filter(item => item.severity !== 'error');
+  const displayed = [...errors, ...warnings.slice(0, Math.max(0, 200 - errors.length))];
+  for (const item of displayed) {
     const icon = item.severity === 'error' ? '❌' : '⚠️';
     console.log(`${icon} ${item.file}:${item.line} [${item.type}] ${item.sample}`);
   }
-  if (findings.length > 200) {
-    console.log(`… y ${findings.length - 200} hallazgos más`);
+  if (findings.length > displayed.length) {
+    console.log(`… y ${findings.length - displayed.length} hallazgos más`);
   }
 }
 
