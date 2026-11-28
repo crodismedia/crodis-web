@@ -2025,6 +2025,21 @@
       "source": "/talleres/rodi-motor-services-sagunto-andres-zamora-e-hijos-sagunto-b4b6209c",
       "destination": "/talleres/andres-zamora-e-hijos-puerto-de-sagunto-f157b86d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/autos-escrig-y-cerezo-riba-roja-de-turia-e77b6f76",
+      "destination": "/talleres/automocion-navarro-paredes-riba-roja-de-turia-bff83c9d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-nul-auto-nules-3587469c",
+      "destination": "/talleres/joaquin-mata-navarro-nules-f10c88a6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-autocrono-museros-museros-7108128d",
+      "destination": "/talleres/taller-autocrono-rafelbunyol-d4c00b9d",
+      "permanent": true
     }
   ]
 }
