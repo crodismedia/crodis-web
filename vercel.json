@@ -2185,6 +2185,11 @@
       "source": "/talleres/talleres-auto-agost-s-l-agost-a4a620a8",
       "destination": "/desguace/talleres-auto-agost-s-l-agost",
       "permanent": true
+    },
+    {
+      "source": "/talleres/gr-autos-albal-583d9835",
+      "destination": "/talleres/autos-orellano-s-l-albal-2e2ac536",
+      "permanent": true
     }
   ]
 }
