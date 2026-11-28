@@ -2105,6 +2105,21 @@
       "source": "/talleres/luibal-sueca-4ad86dff",
       "destination": "/talleres/automecanica-luibal-s-l-sueca-77338de1",
       "permanent": true
+    },
+    {
+      "source": "/talleres/paddock-garage-oropesa-del-mar-7b99dbef",
+      "destination": "/talleres/paddock-garage-oropesa-orpesa-oropesa-del-mar-6766abb1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-micalluch-xirivella-27f40a88",
+      "destination": "/talleres/talleres-micalluch-s-l-xirivella-c9eebaf2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vera-mecanica-sagunto-f72e064e",
+      "destination": "/talleres/vera-mecanica-car-audio-sagunt-6285463a",
+      "permanent": true
     }
   ]
 }
