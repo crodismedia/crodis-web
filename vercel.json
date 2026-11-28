@@ -2120,6 +2120,21 @@
       "source": "/talleres/vera-mecanica-sagunto-f72e064e",
       "destination": "/talleres/vera-mecanica-car-audio-sagunt-6285463a",
       "permanent": true
+    },
+    {
+      "source": "/talleres/autos-lolla-taller-mecanico-altea-d05d1920",
+      "destination": "/talleres/autos-l-olla-altea-65a2f1e7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/paddock-garage-orpesa-oropesa-del-mar-d795b7bc",
+      "destination": "/talleres/paddock-garage-oropesa-orpesa-oropesa-del-mar-6766abb1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/m-motor-castello-de-la-plana-638ad4ba",
+      "destination": "/talleres/m-automocion-seat-castellon-castello-de-la-plana-e3032f21",
+      "permanent": true
     }
   ]
 }
