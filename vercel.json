@@ -2155,6 +2155,21 @@
       "source": "/talleres/auto-moto-gascon-valencia-43dd39b8",
       "destination": "/talleres/auto-moto-gascon-s-l-valencia-0f7f4594",
       "permanent": true
+    },
+    {
+      "source": "/talleres/fuentes-automocion-s-l-benicarlo-026498a6",
+      "destination": "/talleres/citroen-benicarlo-benicarlo-e1422fec",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-paulino-cocentaina-3311f2fd",
+      "destination": "/talleres/jose-manuel-climent-electromecanica-cocentaina-e52f06e8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-de-reparaciones-fernando-borriana-701e4a32",
+      "destination": "/talleres/garaje-burriana-s-l-borriana-acee7f90",
+      "permanent": true
     }
   ]
 }
