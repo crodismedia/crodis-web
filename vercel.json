@@ -2180,6 +2180,11 @@
       "source": "/talleres/jeep-xativa-grupo-palacios-xativa-9fdbdba1",
       "destination": "/talleres/gp-automocion-xativa-xativa-b2a3f23b",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-auto-agost-s-l-agost-a4a620a8",
+      "destination": "/desguace/talleres-auto-agost-s-l-agost",
+      "permanent": true
     }
   ]
 }
