@@ -2050,6 +2050,46 @@
       "source": "/talleres/talleres-vialider-vinaros-78bdfa53",
       "destination": "/talleres/vulcanizados-serret-vinaros-de8e9810",
       "permanent": true
+    },
+    {
+      "source": "/talleres/autobren-s-l-xeraco-5fc8eeab",
+      "destination": "/talleres/autobren-xeraco-000df8e2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autotalleres-climent-rotgla-i-corbera-87949dc5",
+      "destination": "/talleres/auto-tallers-climent-s-l-rotgla-i-corbera-1abcdedb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-auta-tavernes-de-la-valldigna-520793da",
+      "destination": "/talleres/tallers-auta-tavernes-de-la-valldigna-36549bd9",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/cga-requena-automotive-requena-7fb26eba",
+      "destination": "/talleres/eurorepar-requena-automotive-requena-3cb1152f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autolopa-sedavi-354f6202",
+      "destination": "/talleres/autolopa-s-l-sedavi-7d8e30ae",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automocio-movil-vall-s-l-tavernes-de-la-valldigna-b7843c3a",
+      "destination": "/talleres/automocio-mobil-vall-s-l-tavernes-de-la-valldigna-a34291c1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/norauto-sedavi-sedavi-55612f6d",
+      "destination": "/talleres/norauto-valencia-sedavi-sedavi-c3a7882d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/carrasco-cotaina-j-m-benifaio-f748783f",
+      "destination": "/talleres/taller-miquel-benifaio-cb8ad7b8",
+      "permanent": true
     }
   ]
 }
