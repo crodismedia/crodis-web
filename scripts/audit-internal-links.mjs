@@ -27,6 +27,20 @@ const sitemapKeys=new Set([...urls].map(key));
 const incoming=new Map(), links=new Map(), sourceErrors=[];
 function csvParse(s){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<s.length;i++){const c=s[i];if(c==='"'){if(quoted&&s[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}else if(!quoted&&(c===','||c==='\n')){row.push(cell.replace(/\r$/,''));cell='';if(c==='\n'){rows.push(row);row=[];}}else cell+=c;}if(cell||row.length){row.push(cell);rows.push(row);}return rows;}
 const gsc=opt.gsc?csvParse((await fs.readFile(opt.gsc,'utf8')).replace(/^\uFEFF/,'' )).slice(1).filter(r=>r[0]?.startsWith('http')):[];
+// Clasificaciones históricas: solo se aplican a la URL exacta del CSV.
+const classifications=new Map();
+try {
+  const records=csvParse((await fs.readFile(path.join(root,'scripts/audit-data/gsc-404-clasificacion.csv'),'utf8')).replace(/^\uFEFF/,''));
+  const expected=['url','id_prefijo','nombre','clasificacion','evidencia','fecha_revision'];
+  if(records.shift()?.join(',')!==expected.join(',')) throw Error('Cabecera de clasificación incorrecta');
+  for(const [url,id,nombre,clasificacion,evidencia,fecha_revision] of records){
+    if(!url)continue;
+    const k=key(url);
+    if(!k||!evidencia?.trim()||!['404_JUSTIFICADO_HISTORICO','PENDIENTE_VERIFICACION'].includes(clasificacion))throw Error('Clasificación inválida: '+url);
+    if(classifications.has(k))throw Error('Clasificación duplicada: '+url);
+    classifications.set(k,{clasificacion,evidencia,fecha_revision});
+  }
+}catch(e){if(e.code!=='ENOENT')throw e;}
 const pool=async(items,fn)=>{let i=0;await Promise.all(Array.from({length:concurrency},async()=>{while(i<items.length){const item=items[i++];await fn(item);if(opt.live)await sleep(150);}}));};
 await pool([...urls],async source=>{try{const r=await read(source);if(![200,'LOCAL'].includes(r.status)){sourceErrors.push({url:source,estado:r.status});return;}const html=r.body.replace(/<!--[\s\S]*?-->/g,'').replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,'');const bt=html.match(/<base\b(?:[^>"']|"[^"]*"|'[^']*')*>/i);const resolution=bt?new URL(attrs(bt[0]).href??source,r.final).href:r.final;
 for(const m of html.matchAll(/<a\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)){const href=attrs(m[0]).href;if(!href||href.startsWith('#'))continue;let dest;try{dest=key(new URL(href,resolution).href);}catch{continue;}if(!dest)continue;const set=links.get(dest)??new Set();set.add(source);links.set(dest,set);if(dest!==key(source)){const inc=incoming.get(dest)??new Set();inc.add(source);incoming.set(dest,inc);}}
@@ -39,19 +53,26 @@ async function check(u){if(results.has(u))return;let current=u,chain=[],status='
 await pool([...new Set([...links.keys(),...gsc.map(r=>key(r[0])).filter(Boolean),...sitemapKeys])],check);
 const all=[...results.values()],bad=all.filter(r=>['404','410','NO_ENCONTRADO_LOCAL','BUCLE_O_CADENA_EXCESIVA','BUCLE_REDIRECCION'].includes(r.estado));
 const edges=bad.flatMap(r=>[...(links.get(r.url)??[])].map(origen=>({...r,origen})));
-const gscRows=gsc.map(([url,ultimo_rastreo])=>({...results.get(key(url)),url_original:url,ultimo_rastreo}));
+const gscRows=gsc.map(([url,ultimo_rastreo])=>{
+  const result=results.get(key(url))??{}, documented=classifications.get(key(url))??{};
+  const redirected=result.saltos>0&&['ARCHIVO_EXISTE','200'].includes(result.estado);
+  const justified=['404','410','NO_ENCONTRADO_LOCAL'].includes(result.estado)&&documented.clasificacion==='404_JUSTIFICADO_HISTORICO'&&!result.origenes&&!result.en_sitemap;
+  return {...result,url_original:url,ultimo_rastreo,...documented,resolucion:redirected?'REDIRECCION_CON_DESTINO':justified?'BAJA_JUSTIFICADA_HISTORICA':'PENDIENTE'};
+});
 const orphans=[...sitemapKeys].filter(u=>route(u)!=='/'&&!incoming.has(u)).map(url=>({url,nota:'Sin enlaces entrantes desde HTML de páginas del sitemap; no incluye JS'}));
 const csvCell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};
 await fs.mkdir(out,{recursive:true});
 async function save(name,rows,headers){await fs.writeFile(path.join(out,name),'\ufeff'+[headers.join(';'),...rows.map(r=>headers.map(h=>csvCell(r[h])).join(';'))].join('\r\n')+'\r\n');}
 const headers=['url','estado','destino_final','saltos','cadena','detalle','en_sitemap','origenes','candidatas'];
 await save('enlaces-rotos.csv',edges,['origen',...headers]);
-await save('errores-404-gsc.csv',gscRows,['url_original','ultimo_rastreo',...headers]);
+await save('errores-404-gsc.csv',gscRows,['url_original','ultimo_rastreo',...headers,'clasificacion','evidencia','fecha_revision','resolucion']);
 await save('redirecciones-existentes.csv',all.filter(r=>r.saltos),headers);
 await save('posibles-equivalencias.csv',gscRows.filter(r=>r.candidatas),['url_original',...headers]);
 await save('paginas-huerfanas.csv',orphans,['url','nota']);
 await save('destinos-todos.csv',all,headers);
 await save('origenes-no-leidos.csv',sourceErrors,['url','estado']);
 const gscEstados={};for(const r of gscRows)gscEstados[r.estado??'FUERA_DOMINIO']=(gscEstados[r.estado??'FUERA_DOMINIO']??0)+1;
-const summary={modo:opt.live?'web':'local',paginas_sitemap:urls.size,origenes_no_leidos:sourceErrors.length,destinos:all.length,enlaces_problematicos:edges.length,destinos_problematicos:bad.length,gsc_total:gscRows.length,gsc_estados:gscEstados,gsc_con_enlaces:gscRows.filter(r=>r.origenes>0).length,gsc_con_candidatas:gscRows.filter(r=>r.candidatas).length,redirecciones:all.filter(r=>r.saltos).length,paginas_sin_entrantes:orphans.length};
+const gscResolucion={};for(const r of gscRows)gscResolucion[r.resolucion]=(gscResolucion[r.resolucion]??0)+1;
+await save('gsc-pendientes.csv',gscRows.filter(r=>r.resolucion==='PENDIENTE'),['url_original','ultimo_rastreo',...headers,'clasificacion','evidencia','fecha_revision','resolucion']);
+const summary={gsc_resolucion:gscResolucion,gsc_porcentaje_clasificado:gscRows.length?Number((100*(gscRows.length-(gscResolucion.PENDIENTE??0))/gscRows.length).toFixed(2)):null,modo:opt.live?'web':'local',paginas_sitemap:urls.size,origenes_no_leidos:sourceErrors.length,destinos:all.length,enlaces_problematicos:edges.length,destinos_problematicos:bad.length,gsc_total:gscRows.length,gsc_estados:gscEstados,gsc_con_enlaces:gscRows.filter(r=>r.origenes>0).length,gsc_con_candidatas:gscRows.filter(r=>r.candidatas).length,redirecciones:all.filter(r=>r.saltos).length,paginas_sin_entrantes:orphans.length};
 await fs.writeFile(path.join(out,'resumen.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify(summary,null,2));
