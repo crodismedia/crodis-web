@@ -2100,6 +2100,11 @@
       "source": "/talleres/ontinyent-upe-motors-ontinyent-54d7cfb7",
       "destination": "/talleres/bosch-car-service-ontinyent-ramon-y-cajal-ontinyent-7e417393",
       "permanent": true
+    },
+    {
+      "source": "/talleres/luibal-sueca-4ad86dff",
+      "destination": "/talleres/automecanica-luibal-s-l-sueca-77338de1",
+      "permanent": true
     }
   ]
 }
