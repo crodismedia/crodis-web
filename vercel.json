@@ -2145,6 +2145,11 @@
       "source": "/talleres/tallers-ferras-sanz-s-l-xert-c9706853",
       "destination": "/talleres/tallers-ferras-sanz-xert-8ee4cf30",
       "permanent": true
+    },
+    {
+      "source": "/talleres/autos-ximo-2002-s-l-almenara-546305cb",
+      "destination": "/talleres/autos-ximo-almenara-1f3a3ac4",
+      "permanent": true
     }
   ]
 }
