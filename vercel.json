@@ -2010,6 +2010,21 @@
       "source": "/talleres/falco-zamora-julian-monovar-e7486284",
       "destination": "/talleres/talleres-zamora-monovar-4f83584d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ortgran-castello-de-la-plana-6fabce82",
+      "destination": "/talleres/talleres-ortgran-s-l-el-grau-de-castello-7240349a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-serrano-xativa-xativa-af293402",
+      "destination": "/talleres/tallers-serrano-xativa-xativa-cd17500a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/rodi-motor-services-sagunto-andres-zamora-e-hijos-sagunto-b4b6209c",
+      "destination": "/talleres/andres-zamora-e-hijos-puerto-de-sagunto-f157b86d",
+      "permanent": true
     }
   ]
 }
