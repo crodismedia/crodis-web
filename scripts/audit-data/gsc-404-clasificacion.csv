@@ -1,7 +1,17 @@
-url,id_prefijo,nombre,clasificacion,evidencia,fecha_revision
-"https://www.tallermap.es/pages/taller.html?id=c4dd8c55-8bd3-4023-a64e-80315570ce98&slug=aqt-investment-s-l-castello-de-la-plana-c4dd8c55&nombre=AQT","c4dd8c55","AQT Investment","404_JUSTIFICADO_HISTORICO","Compraventa sin reparación al público confirmada; observaciones Supabase 2026-08-14","2026-11-28"
-"https://www.tallermap.es/pages/taller.html?id=5a324586-d3fd-4098-b4a1-342e2442ef29&slug=bigauto-orihuela-5a324586&nombre=Bigauto&direccion=CV-925","5a324586","Bigauto","404_JUSTIFICADO_HISTORICO","Cierre permanente documentado en Supabase 2026-08-22","2026-11-28"
-"https://www.tallermap.es/pages/taller.html?id=74c3ca5c-1755-470a-a928-db64bd8e14ad&slug=talleres-serrano-garcia-s-l-nules-74c3ca5c&nombre=Talleres","74c3ca5c","Talleres Serrano García","404_JUSTIFICADO_HISTORICO","Carpintería metálica; observaciones Supabase 2026-08-14 y 2026-08-21","2026-11-28"
+"url","id_prefijo","nombre","clasificacion","evidencia","fecha_revision"
+"https://www.tallermap.es/pages/taller.html?id=c4dd8c55-8bd3-4023-a64e-80315570ce98&slug=aqt-investment-s-l-castello-de-la-plana-c4dd8c55&nombre=AQT 
+INVESTMENT, S.L.&direccion=C/ Grecia, 49, Nave 8D, Castell%C3%B3 de la 
+Plana, Castell%C3%B3n&telefono=639769040&descripcion=Taller de 
+reparaci%C3%B3n y mantenimiento de 
+autom%C3%B3viles.&verificado=true&actualizado=2026-08-04T17:26:45.194519%2B00:00&servicios=mecanica-general","c4dd8c55","AQT Investment","404_JUSTIFICADO_HISTORICO","Compraventa sin reparación al público confirmada; observaciones Supabase 2026-08-14","2026-11-28"
+"https://www.tallermap.es/pages/taller.html?id=5a324586-d3fd-4098-b4a1-342e2442ef29&slug=bigauto-orihuela-5a324586&nombre=Bigauto&direccion=CV-925, 
+km 2,7, Orihuela, Alicante&telefono=966740029&descripcion=Taller de 
+reparaci%C3%B3n y mantenimiento de 
+autom%C3%B3viles.&verificado=true&actualizado=2026-08-04T16:30:57.002119%2B00:00&servicios=mecanica-general%7Cmantenimiento","5a324586","Bigauto","404_JUSTIFICADO_HISTORICO","Cierre permanente documentado en Supabase 2026-08-22","2026-11-28"
+"https://www.tallermap.es/pages/taller.html?id=74c3ca5c-1755-470a-a928-db64bd8e14ad&slug=talleres-serrano-garcia-s-l-nules-74c3ca5c&nombre=Talleres 
+Serrano Garcia S.L.&direccion=Carrer de Sant Felip, 10, Nules, 
+Castell%C3%B3n&telefono=964670436&descripcion=Taller de reparaci%C3%B3n de 
+autom%C3%B3viles.&verificado=true&actualizado=2026-08-04T14:03:46.174428%2B00:00&servicios=mecanica-general","74c3ca5c","Talleres Serrano García","404_JUSTIFICADO_HISTORICO","Carpintería metálica; observaciones Supabase 2026-08-14 y 2026-08-21","2026-11-28"
 "https://www.tallermap.es/talleres/talleres-serrano-garcia-s-l-nules-74c3ca5c","74c3ca5c","Talleres Serrano García","404_JUSTIFICADO_HISTORICO","Carpintería metálica; observaciones Supabase 2026-08-14 y 2026-08-21","2026-11-28"
 "https://www.tallermap.es/talleres/talleres-jovi-almassora-4c593fd7","4c593fd7","Talleres Jovi Almassora","PENDIENTE_VERIFICACION","Registro en respaldo; actividad industrial señalada en revisión previa, fuente externa no verificada en esta ejecución","2026-11-28"
 "https://www.tallermap.es/talleres/talleres-amador-almassora-almassora-63c01a20","63c01a20","Talleres Amador Almassora","PENDIENTE_VERIFICACION","Registro en respaldo; actividad industrial señalada en revisión previa, fuente externa no verificada en esta ejecución","2026-11-28"
