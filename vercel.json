@@ -2040,6 +2040,11 @@
       "source": "/talleres/taller-mecanico-autocrono-museros-museros-7108128d",
       "destination": "/talleres/taller-autocrono-rafelbunyol-d4c00b9d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/rodi-motor-services-sagunto-sagunto-16dc7fe9",
+      "destination": "/talleres/andres-zamora-e-hijos-puerto-de-sagunto-f157b86d",
+      "permanent": true
     }
   ]
 }
