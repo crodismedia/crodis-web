@@ -55,9 +55,11 @@ const all=[...results.values()],bad=all.filter(r=>['404','410','NO_ENCONTRADO_LO
 const edges=bad.flatMap(r=>[...(links.get(r.url)??[])].map(origen=>({...r,origen})));
 const gscRows=gsc.map(([url,ultimo_rastreo])=>{
   const result=results.get(key(url))??{}, documented=classifications.get(key(url))??{};
-  const redirected=result.saltos>0&&['ARCHIVO_EXISTE','200'].includes(result.estado);
+  const accessible=['ARCHIVO_EXISTE','200'].includes(result.estado);
+  const redirected=result.saltos>0&&accessible&&sitemapKeys.has(result.destino_final);
+  const restored=!result.saltos&&accessible&&result.en_sitemap&&!new URL(key(url)).search;
   const justified=['404','410','NO_ENCONTRADO_LOCAL'].includes(result.estado)&&documented.clasificacion==='404_JUSTIFICADO_HISTORICO'&&!result.origenes&&!result.en_sitemap;
-  return {...result,url_original:url,ultimo_rastreo,...documented,resolucion:redirected?'REDIRECCION_CON_DESTINO':justified?'BAJA_JUSTIFICADA_HISTORICA':'PENDIENTE'};
+  return {...result,url_original:url,ultimo_rastreo,...documented,resolucion:redirected?'REDIRECCION_CON_DESTINO':restored?'FICHA_RECUPERADA':justified?'BAJA_JUSTIFICADA_HISTORICA':'PENDIENTE'};
 });
 const orphans=[...sitemapKeys].filter(u=>route(u)!=='/'&&!incoming.has(u)).map(url=>({url,nota:'Sin enlaces entrantes desde HTML de páginas del sitemap; no incluye JS'}));
 const csvCell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};
