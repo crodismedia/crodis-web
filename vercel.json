@@ -2190,6 +2190,11 @@
       "source": "/talleres/gr-autos-albal-583d9835",
       "destination": "/talleres/autos-orellano-s-l-albal-2e2ac536",
       "permanent": true
+    },
+    {
+      "source": "/talleres/serpis-motor-ontinyent-ce05e4da",
+      "destination": "/talleres/citroen-ontinyent-motor-ontinyent-465f2cf9",
+      "permanent": true
     }
   ]
 }
