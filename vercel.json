@@ -727,11 +727,6 @@
       "permanent": true
     },
     {
-      "source": "/talleres/talleres-guillem-s-l-sagunt-237df77f",
-      "destination": "/talleres/juan-jose-moll-sebastia-sagunto-2c4804ab",
-      "permanent": true
-    },
-    {
       "source": "/talleres/talleres-mondragon-naquera-e558632a",
       "destination": "/talleres/talleres-mondragon-chapa-y-pintura-mecanica-naquera-75c1cf5d",
       "permanent": true
@@ -2174,6 +2169,11 @@
     {
       "source": "/talleres/alegre-valencia-e4fdd07a",
       "destination": "/talleres/talleres-alegre-s-l-valencia-5f220ab9",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/spg-talleres-guillem-s-l-sagunt-7619b18a",
+      "destination": "/talleres/talleres-guillem-s-l-sagunt-237df77f",
       "permanent": true
     }
   ]
