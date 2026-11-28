@@ -2045,6 +2045,11 @@
       "source": "/talleres/rodi-motor-services-sagunto-sagunto-16dc7fe9",
       "destination": "/talleres/andres-zamora-e-hijos-puerto-de-sagunto-f157b86d",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-vialider-vinaros-78bdfa53",
+      "destination": "/talleres/vulcanizados-serret-vinaros-de8e9810",
+      "permanent": true
     }
   ]
 }
