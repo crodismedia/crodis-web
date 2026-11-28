@@ -1355,6 +1355,626 @@
       ],
       "destination": "/talleres/civerlliria-lliria-950a1d4f",
       "permanent": true
+    },
+    {
+      "source": "/talleres/first-stop-alzira-alzira-70a473e1",
+      "destination": "/talleres/automoviles-alzira-alzira-8915d4e2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/cesareo-martinez-martinez-vila-real-8b6dee61",
+      "destination": "/talleres/talleres-angel-cabanes-vila-real-de2dda67",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticos-ferjosa-cdad-borriana-7c9a047d",
+      "destination": "/talleres/confortauto-neumaticos-ferjosa-s-l-borriana-0f15fa6e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-almazan-aspe-163fe4e6",
+      "destination": "/talleres/talleres-almazan-aspe-keys-aspe-db7132f6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autochapacs-castello-de-la-plana-d84ff222",
+      "destination": "/talleres/auto-chapa-castellon-castello-de-la-plana-05d1c672",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ib-auto-peniscola-peniscola-5fffa1e6",
+      "destination": "/talleres/ib-auto-chapa-y-pintura-peniscola-peniscola-e036c263",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-juan-garcia-climent-alicante-e46c897a",
+      "destination": "/talleres/juan-garcia-climent-bosch-car-service-alicante-573a3061",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/renault-la-vall-d-uixo-la-vall-d-uixo-b9548b44",
+      "destination": "/talleres/uxo-motor-la-vall-d-uixo-cdbafc9d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/alicar-grupo-maor-alicante-2977823c",
+      "destination": "/talleres/alicar-alicante-8a26b913",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-enrique-sola-e-hijos-nules-23f01e46",
+      "destination": "/talleres/enrique-solae-e-hijos-s-l-nules-ecaa570c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-rubio-truck-s-l-algemesi-f7487611",
+      "destination": "/talleres/talleres-rubio-algemesi-algemesi-eb0ad77d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/francisco-penalva-navarro-almoradi-f2d84a30",
+      "destination": "/talleres/taller-francisco-penalva-mora-almoradi-aaf02fa1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-elma-2000-valencia-4107e56a",
+      "destination": "/talleres/talleres-elma-2000-valencia-99013bab",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/hijos-de-manuel-crespo-s-a-finestrat-cf91a4bb",
+      "destination": "/talleres/sorio-automocion-finestrat-958ccba4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ferauto-alzira-d350fac9",
+      "destination": "/talleres/talleres-ferauto-alzira-alzira-a98e9cc2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/pardo-elda-bb38279a",
+      "destination": "/talleres/taller-pardo-morales-elda-5c24256e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/veturilo-s-a-tavernes-de-la-valldigna-f91f6861",
+      "destination": "/talleres/talleres-galera-s-l-tavernes-de-la-valldigna-75fe9be5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/la-mezquida-xabia-vulco-xabia-f5738c3b",
+      "destination": "/talleres/la-mezquida-xabia-s-l-javea-e4782e20",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-sanahuja-bou-s-l-llucena-cba19078",
+      "destination": "/talleres/talleres-sanahuja-bou-s-l-llucena-lucena-del-cid-62303c47",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/esport-auto-reparacion-de-vehiculos-s-l-valencia-9c64c140",
+      "destination": "/talleres/hg-talleres-sportauto-valencia-05a3096d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-rafa-torreblanca-torreblanca-c477f80d",
+      "destination": "/talleres/auto-rafa-torreblanca-e6359952",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-conrado-el-port-de-sagunt-71f96e90",
+      "destination": "/talleres/talleres-conrado-puerto-de-sagunto-205145e2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automocion-hermanos-suarez-requena-2e245957",
+      "destination": "/talleres/automocion-hermanos-suarez-requena-requena-a5721e1a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-madrigal-vila-real-vila-real-4480fd20",
+      "destination": "/talleres/talleres-chapa-y-pintura-madrigal-vila-real-4201afe2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tallers-la-baronia-ontinyent-bf730b6d",
+      "destination": "/talleres/talleres-la-baronia-ontinyent-d8c88fed",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/sala-l-alfas-del-pi-taller-oficial-volkswagen-l-alfas-del-pi-f88c0428",
+      "destination": "/talleres/sala-marina-volkswagen-l-alfas-del-pi-c415f91a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autotaller-colorauto-s-l-puerto-de-sagunto-14821dfa",
+      "destination": "/talleres/autotalleres-colorauto-el-port-de-sagunt-9a4f199a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/water-free-s-l-simat-de-la-valldigna-4bad2786",
+      "destination": "/talleres/taller-mecanic-toni-sirerol-simat-de-la-valldigna-43d1a70c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/reparacion-de-carrocerias-lluch-s-l-gavarda-bd3ee7b4",
+      "destination": "/talleres/carrocerias-m-lluch-massamagrell-dabfd662",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-vicente-cuevas-castello-de-la-plana-97f41a22",
+      "destination": "/talleres/talleres-de-chapa-y-pintura-vicente-cuevas-castello-de-la-plana-96ab7d23",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-aparicio-valencia-0872be98",
+      "destination": "/talleres/automoviles-y-talleres-luvi-quart-de-poblet-d80b154d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/mafer-castello-de-la-plana-5dfc8264",
+      "destination": "/talleres/talleres-mafer-castello-de-la-plana-5abb013c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-e-b-automocion-vila-real-9b13e230",
+      "destination": "/talleres/talleres-ernesto-catalan-s-l-vila-real-bc6d5ef3",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-j-la-higuera-requena-15e7752c",
+      "destination": "/talleres/talleres-j-lahiguera-s-l-requena-1e71b103",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autorrent-service-centre-torrent-c6051822",
+      "destination": "/talleres/goyeneche-motors-s-l-torrent-5783830d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-navarro-castellon-castello-de-la-plana-b840b259",
+      "destination": "/talleres/talleres-h-navarro-castello-de-la-plana-dcc009a2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motor-pacifico-ontinyent-volkswagen-ontinyent-8ce6084e",
+      "destination": "/talleres/auto-clariano-ontinyent-6aacd6c6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/torvalenjo-s-l-valencia-84297327",
+      "destination": "/talleres/dasauto-eurotaller-valencia-b05b1a01",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/levauto-valencia-bee40fa3",
+      "destination": "/talleres/mecanica-j-a-levauto-s-l-valencia-3e7552e4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-manolo-castello-de-la-plana-8c0ea750",
+      "destination": "/talleres/talleres-manolo-castellon-castello-de-la-plana-a73224df",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/feu-vert-puerta-de-alicante-alicante-6ddcee46",
+      "destination": "/talleres/feu-vert-alicante-alicante-7ffc606b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/m-m-gasss-oe-la-pobla-de-vallbona-9f179da6",
+      "destination": "/talleres/m-m-gasss-la-pobla-de-vallbona-d9a3f296",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/reparaciones-florida-petrer-822abc50",
+      "destination": "/talleres/florida-chapa-y-pintura-s-l-petrer-9e7e19cd",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/noveltrac-bosch-car-service-novelda-b87e4a1d",
+      "destination": "/talleres/bosch-car-service-novelda-novelda-61ff8932",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autovall-la-vall-d-uixo-a9439a58",
+      "destination": "/talleres/autovall-s-l-la-vall-d-uixo-cde4dd3a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vivar-auto-benidorm-y-finestrat-finestrat-b065c23c",
+      "destination": "/talleres/vivar-auto-finestrat-finestrat-78065c87",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-l-oasi-javea-d63ddaa9",
+      "destination": "/talleres/jaime-y-tolo-xabia-51be13b6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-hermanos-murciano-s-l-borriana-fba5e0a7",
+      "destination": "/talleres/hermanos-murciano-s-l-borriana-8f9a90c1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-juan-lozano-s-l-turis-f3bb757b",
+      "destination": "/talleres/talleres-y-gruas-juan-lozano-s-l-turis-0739a6a4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-piquer-onda-onda-7f5e77ad",
+      "destination": "/talleres/talleres-piquer-onda-e1943c5f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ramon-roig-j-traiguera-a61d649e",
+      "destination": "/talleres/talleres-ximo-s-l-traiguera-ba53827b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-alcala-alicante-87d6fccf",
+      "destination": "/talleres/alcala-electromecanica-alicante-74f99433",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/sergio-chozas-gaitan-valencia-26d508f8",
+      "destination": "/talleres/talleres-sergio-valencia-valencia-0a797e3f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ruiz-salvador-s-a-museros-39f2688e",
+      "destination": "/talleres/talleres-ruiz-salvador-museros-d8769c3e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/alicante-diesel-service-alicante-cc69d3b8",
+      "destination": "/talleres/diesel-alicante-alicante-121c4cc2",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automecanica-jj-benicassim-benicassim-91429ed1",
+      "destination": "/talleres/automecanica-jj-benicassim-benicassim-8baa6814",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-hermanos-granana-traiguera-85d1722b",
+      "destination": "/talleres/talleres-granana-traiguera-5be2f10e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/meypro-beniparrell-77121631",
+      "destination": "/talleres/hispamovil-ingenieria-s-l-beniparrell-151e22d7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/euromaster-neumaticos-andres-vila-real-vila-real-b9fbed46",
+      "destination": "/talleres/euromaster-neumaticos-andres-vila-1-vila-real-2e85b91e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-paco-pego-pego-9cc70407",
+      "destination": "/talleres/autosport-pego-mecanica-pego-76067bfb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/leonauto-villarreal-peugeot-vila-real-a59b7435",
+      "destination": "/talleres/quadis-leonauto-peugeot-vila-real-vila-real-5dff3bf9",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/grw-garage-benejuzar-4f50de6f",
+      "destination": "/talleres/taller-de-coches-grw-garage-benejuzar-8a6029c1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-haus-sanchez-xativa-3e51c317",
+      "destination": "/talleres/talleres-saetabis-multimarca-xativa-6dec7492",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/rumar-talleres-reparacion-s-l-port-de-sagunt-138efce6",
+      "destination": "/talleres/mario-ruiz-lopez-el-port-de-sagunt-1ba8dc19",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automoviles-santiago-lopez-s-l-asl-centro-de-automocion-orihuela-d54e9af7",
+      "destination": "/talleres/automoviles-santiago-lopez-orihuela-2de4d9de",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/reparauto-terrades-gandia-37c64a2d",
+      "destination": "/talleres/taller-reparauto-gandia-gandia-84a31e75",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/coherma-reparacion-de-semirremolques-pucol-0dfebb6f",
+      "destination": "/talleres/remolques-y-volquetes-s-l-pucol-b9e5930e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-talleres-angel-valencia-ab29b6a7",
+      "destination": "/talleres/taller-angel-valencia-6de40968",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/auto-sajusa-s-l-benicarlo-f4c5d6b6",
+      "destination": "/talleres/talleres-hermanos-sanchez-benicarlo-b5e29e1c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-sajoma-quart-de-poblet-98f1309a",
+      "destination": "/talleres/taller-iron-service-f-c-quart-de-poblet-4484d1c5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/mecanica-acien-s-l-valencia-4ad414ab",
+      "destination": "/talleres/acien-racing-beniparrell-e6a81d3c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/gandia-motor-s-a-gandia-5ccd7eeb",
+      "destination": "/talleres/bosch-car-service-joaquin-crespo-gandia-6df420bf",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-juar-car-l-alfas-del-pi-5508a7e5",
+      "destination": "/talleres/talleres-juan-car-l-alfas-del-pi-e1ecf0d7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-vinacaste-vinaros-c9bccb0a",
+      "destination": "/talleres/kia-automocion-cano-vinaros-vinaros-0009ba89",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-illescas-s-l-orihuela-9f590178",
+      "destination": "/talleres/talleres-illescas-s-l-redovan-c5046e69",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-manzanera-valencia-3f7bcdd0",
+      "destination": "/talleres/david-manzanera-izquierdo-valencia-0837f970",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-juan-simarro-silla-9f308aa4",
+      "destination": "/talleres/ferto-silla-grupo-ferriol-silla-c1b88c90",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-talleres-wimer-alaquas-cd86fd17",
+      "destination": "/talleres/esteval-s-l-bosch-car-service-alaquas-ec4985b6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/carglass-massanassa-massanassa-e8f5d150",
+      "destination": "/talleres/carglass-torrent-mineta-torrent-88605bf4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/gregorio-rodriguez-briz-l-alfas-del-pi-9bc42262",
+      "destination": "/talleres/david-romero-romero-talleres-alfaz-l-alfas-del-pi-f0b47407",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tallers-xertrucks-s-l-xeresa-483c9ff9",
+      "destination": "/talleres/xeresa-truck-service-s-l-xeresa-bef58855",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/j-j-rico-elda-2d0b475a",
+      "destination": "/talleres/neumaticos-jj-rico-elda-b80ddcd8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autorex-valencia-549d6eac",
+      "destination": "/talleres/confortauto-auto-rex-ausias-march-valencia-da247297",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-mecanico-auto-agost-eurotaller-agost-c94085e9",
+      "destination": "/talleres/talleres-agost-motor-agost-404278e7",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-campoamor-eurorepar-alicante-9505433f",
+      "destination": "/talleres/taller-campoamor-juan-luis-vallejo-alicante-d0ccdf5c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-carmelo-crevillent-crevillent-fa458cc5",
+      "destination": "/talleres/carmelo-manresa-almira-crevillent-08965c9e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tot-auto-sueca-2bf72df0",
+      "destination": "/talleres/taller-soriano-simo-jose-luis-sueca-ece5f8f5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/confortauto-neumaticos-soledad-port-sagunt-el-port-de-sagunt-4b437e57",
+      "destination": "/talleres/confortauto-neumaticos-soledad-puerto-de-sagunto-puerto-de-sagunto-e797e4ee",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-marco-la-vall-d-uixo-be6dea89",
+      "destination": "/talleres/benjamin-marco-orenga-la-vall-d-uixo-16e77d56",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-ontinyent-upe-motors-ontinyent-6e3a64cf",
+      "destination": "/talleres/bosch-car-service-ontinyent-ramon-y-cajal-ontinyent-7e417393",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-molina-alicante-alicante-6209ba76",
+      "destination": "/talleres/molina-verdu-clemente-alicante-60644ac8",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/automarcas-benicarlo-s-l-benicarlo-e2b36b27",
+      "destination": "/talleres/auto1-benicarlo-benicarlo-13eadb8f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ulsan-motor-xativa-a07d4882",
+      "destination": "/talleres/ulsan-motor-gandia-gandia-025a73bd",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/nissan-satra-castellon-castello-de-la-plana-56157f88",
+      "destination": "/talleres/nissan-almenar-castellon-castello-de-la-plana-9a3de5b0",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/volkswagen-quart-de-poblet-quart-de-poblet-5b13153c",
+      "destination": "/talleres/belda-automoviles-quart-de-poblet-e970e825",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-pelegrin-canet-lo-roig-d7199ce5",
+      "destination": "/talleres/automocion-pla-canet-lo-roig-40df5c2f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autotaller-carlos-manteca-castello-de-la-plana-3e374706",
+      "destination": "/talleres/talleres-cmm-castello-de-la-plana-c7dd1f95",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/vehicas-s-l-castello-de-la-plana-c3e32aaa",
+      "destination": "/talleres/adaptaciones-castellon-castello-de-la-plana-07a72c70",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-rufino-castello-de-la-plana-45be888d",
+      "destination": "/talleres/talleres-perot-castello-de-la-plana-cab35c2b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/rafael-serrano-pavia-xativa-cc35953a",
+      "destination": "/talleres/tallers-serrano-xativa-xativa-cd17500a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autochame-s-l-valencia-4f12d6a6",
+      "destination": "/talleres/auto-team-r-n-s-l-valencia-f0b90fae",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/albir-motors-l-alfas-del-pi-cfd7eddb",
+      "destination": "/talleres/auto-denia-motors-denia-cd2e7e9b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/alcala-motor-s-alcala-de-xivert-be4d7282",
+      "destination": "/talleres/auto-belmar-s-l-alcala-de-xivert-7e45310f",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/bosch-car-service-talleres-benito-lara-denia-9a35d539",
+      "destination": "/talleres/talleres-lara-servicio-denia-2d7ff377",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-quique-finestrat-103ec619",
+      "destination": "/talleres/talleres-kilu-auto-s-l-finestrat-ee416ddb",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-hermanos-diaz-utiel-utiel-78d9c4bb",
+      "destination": "/talleres/talleres-diaz-utiel-74f7facd",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/martinez-ruiz-nicolas-taller-mecanico-requena-e5ee3d79",
+      "destination": "/talleres/talleres-saus-c-b-requena-5f5b8608",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/rumar-talleres-reparacion-puerto-de-sagunto-cf96b71f",
+      "destination": "/talleres/mario-ruiz-lopez-el-port-de-sagunt-1ba8dc19",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-felix-onda-8e1353ad",
+      "destination": "/talleres/taller-felix-fernandez-s-l-onda-eb9ed93e",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/maquina-autos-alzira-alzira-a9d39bd0",
+      "destination": "/talleres/taller-oficial-toyota-alzira-alzira-523bd6b6",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/electromecanica-l-alfas-l-alfas-del-pi-397cebad",
+      "destination": "/talleres/taller-electromecanica-alfocea-2000-l-alfas-del-pi-81e7534d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-ximo-canet-lo-roig-d97e8b3b",
+      "destination": "/talleres/talleres-ximo-s-l-traiguera-ba53827b",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-pico-moreno-s-l-monovar-14760e71",
+      "destination": "/talleres/talleres-pic-moreno-s-l-monovar-150793ba",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/ecotyre-cardona-alcoy-d931f9e1",
+      "destination": "/talleres/cardona-classics-alcoi-6173bb61",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/autoya-valencia-fcbe7e7f",
+      "destination": "/talleres/autoya-peset-aleixandre-valencia-2c379d1a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/michavila-automocion-s-a-forcall-26ac2c16",
+      "destination": "/talleres/m-automocion-seat-castellon-castello-de-la-plana-e3032f21",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumaticos-ferreres-s-l-u-castello-de-la-plana-a3d8858f",
+      "destination": "/talleres/ruedas-y-mecanica-castello-de-la-plana-0490cdab",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/garage-burriana-s-l-borriana-52d32c92",
+      "destination": "/talleres/garaje-burriana-s-l-borriana-acee7f90",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-nacional-antonio-jimenez-e-hijos-s-l-denia-d43aba20",
+      "destination": "/talleres/taller-nacional-denia-denia-c23f3f16",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/estacion-de-servicio-petrouxo-taller-la-vall-d-uixo-d86b54f7",
+      "destination": "/talleres/autovall-s-l-la-vall-d-uixo-cde4dd3a",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-autocir-valencia-a32ecdf4",
+      "destination": "/talleres/talleres-autocir-catarroja-catarroja-e237cfd4",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/aransauto-s-l-ontinyent-2f06bd40",
+      "destination": "/talleres/aransauto-s-l-almussafes-5ce13c72",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/motor-service-viver-67c92fe7",
+      "destination": "/talleres/talleres-autovima-viver-d821e3dd",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/mecanico-valencia-alaquas-cee6806a",
+      "destination": "/talleres/taller-mecanico-valencia-alaquas-alaquas-05c8d46f",
+      "permanent": true
     }
   ]
 }
