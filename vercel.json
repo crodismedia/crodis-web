@@ -2090,6 +2090,11 @@
       "source": "/talleres/carrasco-cotaina-j-m-benifaio-f748783f",
       "destination": "/talleres/taller-miquel-benifaio-cb8ad7b8",
       "permanent": true
+    },
+    {
+      "source": "/talleres/talleres-ailu-moncada-25e21f48",
+      "destination": "/talleres/talleres-ailu-montcada-moncada-3ff5bdd9",
+      "permanent": true
     }
   ]
 }
