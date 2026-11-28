@@ -1,0 +1,70 @@
+name: Auditoría de enlaces internos y errores 404
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Origen de la auditoría'
+        type: choice
+        options:
+          - local
+          - live
+        default: local
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-internal-links.yml'
+      - 'scripts/audit-internal-links.mjs'
+      - 'scripts/audit-data/gsc-404.csv'
+  schedule:
+    - cron: '45 6 * * 5'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-internal-links
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar sintaxis
+        run: node --check scripts/audit-internal-links.mjs
+      - name: Ejecutar auditoría
+        env:
+          AUDIT_MODE: ${{ inputs.mode || 'local' }}
+        shell: bash
+        run: |
+          args=()
+          if [ "$AUDIT_MODE" = "live" ]; then
+            args+=(--live --concurrency 4)
+          fi
+          if [ -f scripts/audit-data/gsc-404.csv ]; then
+            args+=(--gsc scripts/audit-data/gsc-404.csv)
+          else
+            echo "::warning::CSV histórico de Search Console no incorporado; se auditarán los enlaces del sitemap sin cruce histórico."
+          fi
+          node scripts/audit-internal-links.mjs "${args[@]}"
+      - name: Publicar resumen
+        if: success()
+        run: |
+          echo '## Auditoría de enlaces internos y errores 404' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat audit-internal-links/resumen.json >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-enlaces-404
+          path: audit-internal-links/
+          retention-days: 30
+          if-no-files-found: warn
