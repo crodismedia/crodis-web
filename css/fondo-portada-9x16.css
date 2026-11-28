@@ -166,3 +166,16 @@ body.tm-fondo-azul .cabecera .menu a{display:block!important;color:#071a33!impor
 body.tm-fondo-azul .cabecera .menu a:hover{color:#1457d9!important}
 body.tm-fondo-azul .cabecera .cabecera-contenido{display:flex;align-items:center;justify-content:space-between}
 }
+
+/* Accesibilidad WCAG AA: superficies opacas y texto de alto contraste en portada. */
+body.tm-fondo-azul .servicio-card,
+body.tm-fondo-azul .selector-provincia,
+body.tm-fondo-azul .servicio-card:hover,
+body.tm-fondo-azul .selector-provincia:hover {
+  background: #fff;
+}
+body.tm-fondo-azul .servicio-card p,
+body.tm-fondo-azul .selector-provincia p,
+body.tm-fondo-azul .selector-provincia span {
+  color: #475569 !important;
+}
