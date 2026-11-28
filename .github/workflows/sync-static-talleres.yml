@@ -3,7 +3,7 @@ name: Sincronizar talleres estáticos
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '3,13,23,33,43,53 * * * *'
   push:
     branches:
       - main
@@ -20,6 +20,7 @@ on:
       - 'scripts/generate-sitemap-talleres.mjs'
       - 'scripts/generate-sitemap-municipios.mjs'
       - 'datos/static-sync-cursor.json'
+      - 'scripts/audit-data/gsc-404-clasificacion.csv'
       - '.github/workflows/sync-static-talleres.yml'
 
 permissions:
