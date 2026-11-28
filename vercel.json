@@ -1975,6 +1975,41 @@
       "source": "/talleres/mecanico-valencia-alaquas-cee6806a",
       "destination": "/talleres/taller-mecanico-valencia-alaquas-alaquas-05c8d46f",
       "permanent": true
+    },
+    {
+      "source": "/talleres/taller-foios-n-340-foios-0b84826a",
+      "destination": "/talleres/gus-garage-s-l-foios-f1dc1b6c",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/totalauto-castello-de-la-plana-335aefc9",
+      "destination": "/talleres/totalauto-fadrell-eurorepar-castello-de-la-plana-c30aee7d",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tecnomotor-oropesa-oropesa-del-mar-401c1e2c",
+      "destination": "/talleres/tecnomotor-plaza-constitucion-orpesa-oropesa-del-mar-a8d188c1",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/taller-reparaciones-marquesat-s-l-catadau-5f1b986e",
+      "destination": "/talleres/talleres-de-reparacion-marquesat-catadau-c002ce11",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/neumajet-j-d-cabanes-6007deb0",
+      "destination": "/talleres/neumajet-jyd-motor-2-castello-de-la-plana-ba998c70",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/tourauto-automocion-castello-de-la-plana-ccd3d592",
+      "destination": "/talleres/tourauto-diesel-arquero-castello-de-la-plana-c56838d5",
+      "permanent": true
+    },
+    {
+      "source": "/talleres/falco-zamora-julian-monovar-e7486284",
+      "destination": "/talleres/talleres-zamora-monovar-4f83584d",
+      "permanent": true
     }
   ]
 }
