@@ -2095,6 +2095,11 @@
       "source": "/talleres/talleres-ailu-moncada-25e21f48",
       "destination": "/talleres/talleres-ailu-montcada-moncada-3ff5bdd9",
       "permanent": true
+    },
+    {
+      "source": "/talleres/ontinyent-upe-motors-ontinyent-54d7cfb7",
+      "destination": "/talleres/bosch-car-service-ontinyent-ramon-y-cajal-ontinyent-7e417393",
+      "permanent": true
     }
   ]
 }
